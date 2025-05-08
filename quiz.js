@@ -21,7 +21,7 @@ function renderArticles(articlesToLoad) {
       a => a.folder === folder && a.file === file
     );
 
-    const isClassic = articleIndex >= 0 && articleIndex < 0;
+    const isClassic = articleIndex == 0 || articleIndex == 3;
 
     card.innerHTML = `
       <div class="card-image" style="background-image: url('${imagePath}');">
