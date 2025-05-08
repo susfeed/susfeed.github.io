@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grade Calculator</title>
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <div class="site-header"></div>
+
+    <main class="container">
+    <h1 class="article-main-title"><u>Calculate Your Grade With This Helpful Tool!</u></h1>
+      <p class="article-date"><i>Article Published 05/07/2025 9:02 AM EST</i></p>
+
+      <p class="intro">You'll know whether you should study or not in no time!</p>
+
+      <section class="grade-calculator">
+        <h2>Enter Your Grades and Their Weights </h2>
+        
+        <div class="assignments-container">
+
+          <div class="assignment" id="assignment-1">
+            <input type="number" id="grade-1" placeholder="Grade" />
+            <input type="number" id="weight-1" placeholder="Weight" />
+          </div>
+          <div class="assignment" id="assignment-2">
+            <input type="number" id="grade-2" placeholder="Grade" />
+            <input type="number" id="weight-2" placeholder="Weight" />
+          </div>
+          <div class="assignment" id="assignment-3">
+            <input type="number" id="grade-3" placeholder="Grade" />
+            <input type="number" id="weight-3" placeholder="Weight" />
+          </div>
+          <div class="assignment" id="assignment-4">
+            <input type="number" id="grade-4" placeholder="Grade" />
+            <input type="number" id="weight-4" placeholder="Weight" />
+          </div>
+        </div>
+        
+        <button onclick="calculateGrades()">Calculate</button>
+        <p id="result"></p>
+        
+        <button onclick="addAssignments()">More Assignments</button>
+      </section>
+    </main>
+
+    <div class="site-footer"></div>
+  </div>
+
+  <script>
+    let assignmentCount = 4;
+
+    function calculateGrades() {
+      const grades = [];
+      const weights = [];
+
+      for (let i = 1; i <= assignmentCount; i++) {
+        const grade = parseFloat(document.getElementById(`grade-${i}`).value);
+        const weight = parseFloat(document.getElementById(`weight-${i}`).value);
+        if (!isNaN(grade) && !isNaN(weight)) {
+          grades.push(grade);
+          weights.push(weight);
+        }
+      }
+
+      let weightedSum = 0;
+      let totalWeight = 0;
+      for (let i = 0; i < grades.length; i++) {
+        weightedSum += grades[i] * weights[i];
+        totalWeight += weights[i];
+      }
+
+      const result = document.getElementById("result");
+      result.textContent = `Your weighted average is ${weightedSum / totalWeight}. Based on that, you should not study.`;
+    }
+
+    function addAssignments() {
+      const assignmentsContainer = document.querySelector(".assignments-container");
+      
+      for (let i = assignmentCount + 1; i <= assignmentCount + 4; i++) {
+        const assignmentDiv = document.createElement("div");
+        assignmentDiv.classList.add("assignment");
+        assignmentDiv.id = `assignment-${i}`;
+        assignmentDiv.innerHTML = `
+          <input type="number" id="grade-${i}" placeholder="Grade" />
+          <input type="number" id="weight-${i}" placeholder="Weight" />
+        `;
+        assignmentsContainer.appendChild(assignmentDiv);
+      }
+      
+      assignmentCount += 4;
+    }
+  </script>
+  <script src="../../contentheader.js"></script>
+</body>
+</html>

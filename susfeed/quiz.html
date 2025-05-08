@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SusFeed Quizzes</title>
+  <link rel="shortcut icon" href="articles/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="articles.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <header class="site-header">
+      <div class="container header-top">
+        <a href="index.html" class="logo-link">
+          <img src="img/logo.webp" alt="SusFeed Logo" class="logo" />
+        </a>
+        <div class="search-bar-container">
+          <input type="text" id="article-search" placeholder="Search articles..." />
+        </div>
+      </div>
+      <nav class="main-nav">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="articles.html">Susarticles</a></li>
+          <li><a href="quiz.html">Quizzes</a></li>
+          <li><a href="https://www.youtube.com/@SusFeed">SusFeed Video</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="new-articles container">
+        <h2 class="section-title">All Quizzes</h2>
+        <div class="sort-container">
+          <label for="sort-select" class="sort-label">Sort by:</label>
+          <select id="sort-select" class="sort-select">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="az">A-Z</option>
+            <option value="za">Z-A</option>
+          </select>
+        </div>        
+        <div class="article-grid" id="articles-container">
+        </div>
+        <div class="load-more-container">
+          <button id="load-more-btn" class="load-more-btn">Load More</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+  <script src="quiz.js"></script>
+  <script src="header.js"></script>
+</body>
+</html>

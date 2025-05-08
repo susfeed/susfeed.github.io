@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tom Hollandaise</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Is This Tom Holland or a Jar of Mayonnaise?</u></h1>
+      <p class="article-date"><i>Article Published 05/07/2025 10:18 AM EST</i></p>
+
+      <p class="intro">Answer a few questions and find out your inner brap.</p>
+
+      <form id="quiz-form">
+
+        <div class="question-block">
+          <h2 class="title">1. Is This Tom Holland?</h2>
+          <img src="img/0.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q1" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q1" value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+        
+        <div class="question-block">
+          <h2 class="title">2. And This?</h2>
+          <img src="img/1.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q2" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q2" value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">3. Is This Tom Holland?</h2>
+          <img src="img/2.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q3" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q3" value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">4. What About This One?</h2>
+          <img src="img/3.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q4" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q4" value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">5. Is This One Tom Holland?</h2>
+          <img src="img/4.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q5" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q5" value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">6. What About Now?</h2>
+          <img src="img/5.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q6" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q6" value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">7. And Now?</h2>
+          <img src="img/6.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q7" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q7" value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">8. Is This Tom Holland Yet?</h2>
+          <img src="img/7.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q8" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q8 value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">9. Is This One Finally Tom Holland?</h2>
+          <img src="img/8.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q9" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q9" value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">10. Is This At All Spiderman?</h2>
+          <img src="img/9.webp" class="image" alt="Silent Fart" />
+          <label><input type="radio" name="q10" value="idiot" data-result="idiot" data-points="3" /> Yes</label><br>
+          <label><input type="radio" name="q10" value="sane" data-result="sane" data-points="3" /> No</label>
+        </div>
+        <div class="question-block" style="text-align:center; margin-top:40px;">
+          <button type="button" onclick="getResult()">See My Results</button>
+        </div>        
+
+      </form>
+
+      <div id="result" class="description" style="text-align: center; display: none; margin-top: 40px;">
+        <div id="result-idiot" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Fucking Idiot!</h2>
+          <p>Do you not know what mayonnaise looks like?</p>
+          <img src="img/10.jpg" class="image" alt="Whoopee Cushion" />
+        </div>
+      
+        <div id="result-sane" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... Normal!</h2>
+          <p>Congrats on having more object recognition than a trilobite!</p>
+          <img src="img/11.jpg" class="image" alt="Silent Fart" />
+        </div>
+      </div>            
+
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../content.js"></script>
+  <script src="../../contentheader.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heroic Jobs</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+  <style>
+    .image {
+      width: 450px;
+      height: 603px;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 1em;
+    }
+    .title {
+      font-size: 2rem;
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Top 10 Games You Need to Buy!</u></h1>
+      <p class="article-date"><i>Article Published by Todd Howard 05/07/2025 6:31 PM EST</i></p>
+
+      <p class="intro">You must play these at least once in your life.</p>
+
+      <h2 class="title">1. Skyrim</h2>
+      <img src="img/0.webp" alt="game image" class="image" />
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+  <script>
+    const main = document.querySelector('main');
+    let counter = 2;
+
+    function addGame() {
+      const rand = Math.floor(Math.random() * 6); // 0–5
+
+      const newTitle = document.createElement('h2');
+      newTitle.className = 'title';
+      newTitle.textContent = `${counter}. Skyrim`;
+
+      const newImg = document.createElement('img');
+      newImg.className = 'image';
+      newImg.src = `img/${rand}.webp`;
+      newImg.alt = `game image ${rand}`;
+
+      main.appendChild(newTitle);
+      main.appendChild(newImg);
+
+      counter++;
+    }
+
+    // Add 10 items per second (1 every 100ms)
+    setInterval(addGame, 100);
+  </script>
+</body>
+</html>

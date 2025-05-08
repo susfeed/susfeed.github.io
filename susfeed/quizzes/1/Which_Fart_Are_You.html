@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Which Fart?</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Which Fart Are You?</u></h1>
+      <p class="article-date"><i>Article Published 05/06/2025 5:37 PM EST</i></p>
+
+      <p class="intro">Answer a few questions and find out your inner brap.</p>
+
+      <form id="quiz-form">
+
+        <div class="question-block">
+          <h2 class="title">1. What's your ideal setting for letting one rip?</h2>
+          <label><input type="radio" name="q1" value="wet" data-result="wet" data-points="3" /> In a Crowded Elevator</label><br>
+          <label><input type="radio" name="q1" value="loud" data-result="loud" data-points="3" /> During a Serious Meeting</label><br>
+          <label><input type="radio" name="q1" value="whoopee" data-result="whoopee" data-points="3" /> With the Boys</label><br>
+          <label><input type="radio" name="q1" value="silent" data-result="silent" data-points="3" /> In a Classroom</label>
+        </div>
+        
+        <div class="question-block">
+          <h2 class="title">2. Pick a snack:</h2>
+          <label><input type="radio" name="q2" value="shart" data-result="shart" data-points="3" /> Taco Bell at Midnight</label><br>
+          <label><input type="radio" name="q2" value="long" data-result="long" data-points="3" /> A Can of Beans</label><br>
+          <label><input type="radio" name="q2" value="queef" data-result="queef" data-points="3" /> Yogurt</label><br>
+          <label><input type="radio" name="q2" value="squeaky" data-result="squeaky" data-points="3" /> Mozarella Sticks</label>
+        </div>
+        
+        <div class="question-block">
+          <h2 class="title">3. Choose a power:</h2>
+          <label><input type="radio" name="q3" value="loud" data-result="loud" data-points="3" /> Super Hearing</label><br>
+          <label><input type="radio" name="q3" value="stinky" data-result="stinky" data-points="3" /> Super Smell</label><br>
+          <label><input type="radio" name="q3" value="whoopee" data-result="whoopee" data-points="3" /> Invisibility</label><br>
+          <label><input type="radio" name="q3" value="among" data-result="among" data-points="3" /> Among Us ඞ</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">4. Choose the animal with the best fards:</h2>
+          <label><input type="radio" name="q4" value="stinky" data-result="stinky" data-points="3" /> Dog Fard</label><br>
+          <label><input type="radio" name="q4" value="queef" data-result="queef" data-points="3" /> Cat Fard</label><br>
+          <label><input type="radio" name="q4" value="squeaky" data-result="squeaky" data-points="3" /> Bird Fard</label><br>
+          <label><input type="radio" name="q4" value="among" data-result="among" data-points="3" /> Monkey Fard</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">5. Pick a fortnite skin:</h2>
+          <label><input type="radio" name="q5" value="long" data-result="long" data-points="3" /> Renegade Raider</label><br>
+          <label><input type="radio" name="q5" value="silent" data-result="silent" data-points="3" /> Thanos</label><br>
+          <label><input type="radio" name="q5" value="shart" data-result="shart" data-points="3" /> Skibidi Toilet</label><br>
+          <label><input type="radio" name="q5" value="wet" data-result="wet" data-points="3" /> Sabrina Carpenter</label>
+        </div>
+        
+        <div class="question-block" style="text-align:center; margin-top:40px;">
+          <button type="button" onclick="getResult()">See My Fart</button>
+        </div>        
+
+      </form>
+
+      <div id="result" class="description" style="text-align: center; display: none; margin-top: 40px;">
+        <div id="result-whoopee" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Whoopee Cushion!</h2>
+          <p>You're a classic prankster — lighthearted, sneaky, and always bringing laughter.</p>
+          <img src="img/0.webp" class="image" alt="Whoopee Cushion" />
+        </div>
+      
+        <div id="result-silent" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Silent Fart!</h2>
+          <p>You're mysterious and deadly. You don’t need sound to make an impact.</p>
+          <img src="img/1.webp" class="image" alt="Silent Fart" />
+        </div>
+      
+        <div id="result-queef" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Queef!</h2>
+          <p>You're rare and confusing, but always get a laugh when you appear.</p>
+          <img src="img/2.webp" class="image" alt="Queef" />
+        </div>
+      
+        <div id="result-squeaky" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Squeaky Fart!</h2>
+          <p>You're small but mighty — the unexpected punchline in every room.</p>
+          <img src="img/3.webp" class="image" alt="Squeaky Fart" />
+        </div>
+      
+        <div id="result-wet" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Wet Fart!</h2>
+          <p>You’re a force to be reckoned with — hilarious, but a little dangerous.</p>
+          <img src="img/4.webp" class="image" alt="Wet Fart" />
+        </div>
+      
+        <div id="result-stinky" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Stinky Fart!</h2>
+          <p>You're potent and unforgettable. People may run, but they’ll never forget you.</p>
+          <img src="img/5.webp" class="image" alt="Stinky Fart" />
+        </div>
+      
+        <div id="result-loud" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Loud Fart!</h2>
+          <p>Bold, fearless, and loud — you demand attention wherever you go.</p>
+          <img src="img/6.webp" class="image" alt="Loud Fart" />
+        </div>
+      
+        <div id="result-long" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Long Fart!</h2>
+          <p>You're legendary and dramatic. People stop what they’re doing to admire you.</p>
+          <img src="img/7.webp" class="image" alt="Long Fart" />
+        </div>
+      
+        <div id="result-shart" class="quiz-result" style="display: none;">
+          <h2 class="title">You're a... Shart!</h2>
+          <p>You're chaotic neutral. An absolute spectacle with a bit of a mess.</p>
+          <img src="img/8.webp" class="image" alt="Shart" />
+        </div>
+      
+        <div id="result-among" class="quiz-result" style="display: none;">
+          <h2 class="title">You're an... Among Fard!</h2>
+          <p>You’re sus, random, and inexplicably popular. Red always fards.</p>
+          <img src="img/9.webp" class="image" alt="Among Fard" />
+        </div>
+      </div>            
+
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../content.js"></script>
+  <script src="../../contentheader.js"></script>
+</body>
+</html>
