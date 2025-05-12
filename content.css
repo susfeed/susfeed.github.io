@@ -93,3 +93,19 @@ button:hover {
   padding: 30px;
   box-shadow: 0 4px 12px rgba(255, 0, 0, 0.1);
 }
+
+.centered-dropdown {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.centered-dropdown select {
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+}

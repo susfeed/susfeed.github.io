@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zodiac</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>What Does Your Star Sign Tell Us About Your Intelligence?</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 05/11/2025</i></p>
+
+      <p class="intro">Choose your zodiac sign and receive your evaluation.</p>
+
+      <form id="quiz-form" onsubmit="getResult(event)">
+
+        <div class="question-block">
+          <h2 class="title">Select Your Star Sign</h2>
+          <div class="star-sign-options">
+            <label><input type="radio" name="star-sign" value="aries" data-result="aries" data-points="3"> Aries</label><br />
+            <label><input type="radio" name="star-sign" value="taurus" data-result="taurus" data-points="3"> Taurus</label><br />
+            <label><input type="radio" name="star-sign" value="gemini" data-result="gemini" data-points="3"> Gemini</label><br />
+            <label><input type="radio" name="star-sign" value="cancer" data-result="cancer" data-points="3"> Cancer</label><br />
+            <label><input type="radio" name="star-sign" value="leo" data-result="leo" data-points="3"> Leo</label><br />
+            <label><input type="radio" name="star-sign" value="virgo" data-result="virgo" data-points="3"> Virgo</label><br />
+            <label><input type="radio" name="star-sign" value="libra" data-result="libra" data-points="3"> Libra</label><br />
+            <label><input type="radio" name="star-sign" value="scorpio" data-result="scorpio" data-points="3"> Scorpio</label><br />
+            <label><input type="radio" name="star-sign" value="sagittarius" data-result="sagittarius" data-points="3"> Sagittarius</label><br />
+            <label><input type="radio" name="star-sign" value="capricorn" data-result="capricorn" data-points="3"> Capricorn</label><br />
+            <label><input type="radio" name="star-sign" value="aquarius" data-result="aquarius" data-points="3"> Aquarius</label><br />
+            <label><input type="radio" name="star-sign" value="pisces" data-result="pisces" data-points="3"> Pisces</label><br />
+          </div>
+        </div>
+
+        <div class="question-block" style="text-align:center; margin-top:40px;">
+          <button type="submit">Reveal My Fate</button>
+        </div>
+
+      </form>
+
+      <div id="result" class="description" style="text-align: center; display: none; margin-top: 40px;">
+        <div id="result-aries" class="quiz-result" style="display: none;">
+          <h2 class="title">Aries — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-taurus" class="quiz-result" style="display: none;">
+          <h2 class="title">Taurus — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-gemini" class="quiz-result" style="display: none;">
+          <h2 class="title">Gemini — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-cancer" class="quiz-result" style="display: none;">
+          <h2 class="title">Cancer — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-leo" class="quiz-result" style="display: none;">
+          <h2 class="title">Leo — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-virgo" class="quiz-result" style="display: none;">
+          <h2 class="title">Virgo — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-libra" class="quiz-result" style="display: none;">
+          <h2 class="title">Libra — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-scorpio" class="quiz-result" style="display: none;">
+          <h2 class="title">Scorpio — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-sagittarius" class="quiz-result" style="display: none;">
+          <h2 class="title">Sagittarius — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-capricorn" class="quiz-result" style="display: none;">
+          <h2 class="title">Capricorn — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-aquarius" class="quiz-result" style="display: none;">
+          <h2 class="title">Aquarius — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+        <div id="result-pisces" class="quiz-result" style="display: none;">
+          <h2 class="title">Pisces — The Idiot</h2>
+          <p>You believe in horoscopes, what did you expect?</p>
+        </div>
+      </div>
+
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../content.js"></script>
+  <script src="../../contentheader.js"></script>
+</body>
+</html>
