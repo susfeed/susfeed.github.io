@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eat Hot Chip</title> 
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+  <style>
+    .phone-preview {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 50px;
+    }
+
+    .phone-screen {
+      width: 360px;
+      height: 640px;
+      border: 16px solid #333;
+      border-radius: 36px;
+      padding: 0;
+      background-color: white;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      overflow-y: auto;
+    }
+
+    .phone-screen .article-content {
+      font-size: 14px;
+      padding: 20px;
+    }
+
+    .phone-screen .article-main-title {
+      font-size: 18px;
+    }
+
+    .phone-screen .site-header,
+    .phone-screen .site-footer {
+      background-color: #f0f0f0;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header" id="site-header"></div>
+
+    <main class="container article-content" id="main-article">
+      <h1 class="article-main-title"><u>The Hot New Thing All Teen Girls Are Doing!</u></h1> 
+      <p class="article-date"><i>Article Published by Father of Ellison Larson, Terminally Online Degenerate at 05/12/2025 10:42 PM EST</i></p>
+      
+      <p class="intro">You'll never guess!</p>
+      
+      <h2 class="title">Be On SusFeed.com On They Phone</h2>
+      <div class="phone-preview">
+        <div class="phone-screen" id="phone-screen"></div>
+      </div>
+      <p class="description">Haha get it? Teenage girls love their phones haha this is so funny guys. And we used this as a clever ploy to promote the website you're on! How ingenious!</p>
+    </main>
+
+    <div class="site-footer" id="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const phoneScreen = document.getElementById("phone-screen");
+
+      const header = document.getElementById("site-header").cloneNode(true);
+      const article = document.getElementById("main-article").cloneNode(true);
+      const footer = document.getElementById("site-footer").cloneNode(true);
+
+      phoneScreen.appendChild(header);
+      phoneScreen.appendChild(article);
+      phoneScreen.appendChild(footer);
+    });
+  </script>
+
+</body>
+</html>
