@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cookie Quiz</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+  <style>
+    .cookie-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.95);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    .cookie-popup button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1rem;
+    }
+
+    .cookie-declined {
+      animation: explode 1.5s forwards;
+    }
+
+    @keyframes explode {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(200); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Which Friend From Friends Are You?</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 05/21/2025 11:05 PM EST</i></p>
+      <p class="intro">Are you a Ross or Rachel?</p>
+
+      <form id="cookie-quiz-form" onsubmit="getResult(event)">
+        <div class="question-block">
+          <h2 class="title">Question 1: What is your favorite color?</h2>
+          <label><input type="radio" name="color">Red</label><br />
+          <label><input type="radio" name="color">Yellow</label><br />
+          <label><input type="radio" name="color">Green</label><br />
+          <label><input type="radio" name="color">Blue</label>
+        </div>
+
+        <div class="question-block" style="text-align:center; margin-top:40px;">
+          <button type="submit">Submit</button>
+        </div>
+      </form>
+
+      <div id="result" class="description" style="text-align: center; display: none; margin-top: 40px;">
+        <h2 class="title">You Are: About to accept cookies</h2>
+        <p>Click the accept button now!</p>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+  </div>
+
+  <div id="cookie-popup" class="cookie-popup">
+    <h2>This site uses cookies.</h2>
+    <p>Like... a LOT of them. Please accept or you will never see the content. Ever.</p>
+    <button onclick="acceptCookies()">Accept All Cookies</button>
+    <button onclick="declineCookies()">Decline</button>
+  </div>
+
+  <script>
+    function acceptCookies() {
+      const popup = document.getElementById('cookie-popup');
+      popup.innerHTML = "<h2>Thank you for accepting!</h2><p>Loading quiz...</p>";
+      setTimeout(() => {
+        popup.style.display = 'none';
+        setTimeout(() => {
+          popup.style.display = 'flex';
+          popup.innerHTML = "<h2>Wait. Did you accept all cookies?</h2><button onclick='acceptCookies()'>Accept Again</button>";
+        }, 2000);
+      }, 1500);
+    }
+
+    function declineCookies() {
+      const popup = document.getElementById('cookie-popup');
+      popup.innerHTML = "<h2>Declining Cookies...</h2><p>Consequences loading.</p>";
+      popup.classList.add('cookie-declined');
+      setTimeout(() => {
+        popup.innerHTML = "<h2>Error: You cannot decline cookies.</h2><button onclick='acceptCookies()'>Try Again</button>";
+        popup.classList.remove('cookie-declined');
+      }, 2000);
+    }
+
+    function getResult(e) {
+      e.preventDefault();
+      alert("You cannot complete this quiz without accepting cookies. Nice try.");
+    }
+  </script>
+  <script src="../../contentheader.js"></script>
+</body>
+</html>
