@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guess the Movie</title>
+
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+
+  <style>
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .answer-btn {
+      padding: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      background: #222;
+      color: #fff;
+      border: 2px solid #444;
+      cursor: pointer;
+    }
+
+    .answer-btn.correct { border-color: lime; }
+    .answer-btn.wrong { border-color: red; animation: shake 0.3s; }
+
+    .answer-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    @keyframes shake {
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    .scoreboard {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+
+    img.image {
+      max-width: 100%;
+      border-radius: 10px;
+      transition: opacity 0.3s ease;
+    }
+
+    .image {
+        display: block;
+        width: 50%;
+        max-width: 105px;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        margin: 20px auto;
+        border-radius: 12px;
+        }
+  </style>
+</head>
+
+<body>
+
+<div class="wrapper">
+  <div class="site-header"></div>
+
+  <main class="container article-content">
+
+    <h1 class="article-main-title"><u>Guess The Movie Based On These Images!</u></h1>
+    <p class="article-date"><i>Article Published by Cameron at 2025/12/07 8:50 PM CET</i></p>
+    <p class="intro">Pick the right movie or perish!</p>
+
+    <div class="scoreboard">
+      Score: <span id="score">0</span> / 6
+    </div>
+
+    <form id="quiz-form">
+
+      <!-- QUESTION 1 -->
+      <div class="question-block"
+           data-correct="The Yummy Gummy Search For Santa"
+           data-poster="img/posters/gummy.webp">
+        <h2 class="title">1. What movie is this?</h2>
+        <img src="img/santa.webp" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="Christmas Buddies">Christmas Buddies</button>
+          <button class="answer-btn" data-movie="The Yummy Gummy Search For Santa">The Yummy Gummy Search For Santa</button>
+          <button class="answer-btn" data-movie="The Grinch">The Grinch</button>
+          <button class="answer-btn" data-movie="My Little Pony: A Very Minty Christmas">My Little Pony: A Very Minty Christmas</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <!-- QUESTION 2 -->
+      <div class="question-block"
+           data-correct="Mac and Me"
+           data-poster="img/posters/mac.jpg">
+        <h2 class="title">2. What movie is this?</h2>
+        <img src="img/howard.gif" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="E.T.">E.T.</button>
+          <button class="answer-btn" data-movie="Megamind">Megamind</button>
+          <button class="answer-btn" data-movie="Among US (Movie)">Among US (Movie)</button>
+          <button class="answer-btn" data-movie="Mac and Me">Mac and Me</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <!-- QUESTION 3 -->
+      <div class="question-block"
+           data-correct="Who Killed Captain Alex?"
+           data-poster="img/posters/alex.jpg">
+        <h2 class="title">3. What movie is this?</h2>
+        <img src="img/uganda.webp" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="Who Killed Captain Alex?">Who Killed Captain Alex?</button>
+          <button class="answer-btn" data-movie="Bad Black">Bad Black</button>
+          <button class="answer-btn" data-movie="Crazy World">Crazy World</button>
+          <button class="answer-btn" data-movie="Killer Gala">Killer Gala</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <!-- QUESTION 4 -->
+      <div class="question-block"
+           data-correct="The SpongeBob Squarepants Movie"
+           data-poster="img/posters/spunch.jpg">
+        <h2 class="title">4. What movie is this?</h2>
+        <img src="img/abs.jpg" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="Love Simon">Love Simon</button>
+          <button class="answer-btn" data-movie="Bros">Bros</button>
+          <button class="answer-btn" data-movie="The SpongeBob Squarepants Movie">The SpongeBob Squarepants Movie</button>
+          <button class="answer-btn" data-movie="Sonic The Hedgehog">Sonic The Hedgehog</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <!-- QUESTION 5 -->
+      <div class="question-block"
+           data-correct="Citizen Kane"
+           data-poster="img/posters/kane.jpg">
+        <h2 class="title">5. What movie is this?</h2>
+        <img src="img/mario.gif" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="The Mario Movie">The Mario Movie</button>
+          <button class="answer-btn" data-movie="Sonic The Hedgehog">Sonic The Hedgehog</button>
+          <button class="answer-btn" data-movie="Sonic The Hedgehog 2">Sonic The Hedgehog 2</button>
+          <button class="answer-btn" data-movie="Citizen Kane">Citizen Kane</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <!-- QUESTION 6 -->
+      <div class="question-block"
+           data-correct="Othello"
+           data-poster="img/posters/othello.jpg">
+        <h2 class="title">6. What movie is this?</h2>
+        <img src="img/othello.gif" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="Othello">Othello (2001)</button>
+          <button class="answer-btn" data-movie="no">Othello (1995)</button>
+          <button class="answer-btn" data-movie="no">Othello (1951)</button>
+          <button class="answer-btn" data-movie="no">Othello (1603)</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <div id="final-result" class="description"
+           style="display:none; text-align:center; margin-top:40px;">
+        <h2 class="title">Quiz Complete</h2>
+        <p id="final-text"></p>
+      </div>
+
+    </form>
+
+  </main>
+
+  <div class="site-footer"></div>
+</div>
+
+<script>
+let score = 0;
+let answered = 0;
+
+document.querySelectorAll('.question-block').forEach(block => {
+  const correct = block.dataset.correct;
+  const poster = block.dataset.poster;
+  const buttons = block.querySelectorAll('.answer-btn');
+  const feedback = block.querySelector('.feedback');
+  const image = block.querySelector('.image');
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (block.classList.contains('answered')) return;
+      block.classList.add('answered');
+      answered++;
+
+      image.src = poster;
+
+      const picked = btn.dataset.movie;
+      buttons.forEach(b => b.disabled = true);
+
+      if (picked === correct) {
+        btn.classList.add('correct');
+        score++;
+      } else {
+        btn.classList.add('wrong');
+        buttons.forEach(b => {
+          if (b.dataset.movie === correct) b.classList.add('correct');
+        });
+      }
+
+      feedback.textContent =
+        picked === correct
+          ? "✅ Correct."
+          : `❌ Wrong. Correct answer: ${correct}`;
+
+      document.getElementById('score').textContent = score;
+
+      if (answered === 6) {
+        const final = document.getElementById('final-result');
+        const text = document.getElementById('final-text');
+
+        final.style.display = "block";
+        text.textContent =
+          score === 6 ? "🎬 You are based." :
+          score >= 3 ? "🍿 Are you stupid?" :
+          "📺 You are a fucking idiot.";
+      }
+    });
+  });
+});
+</script>
+
+<script src="../../content.js"></script>
+<script src="../../contentheader.js"></script>
+</body>
+</html>
