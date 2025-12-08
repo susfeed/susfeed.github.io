@@ -27,11 +27,11 @@ async function init() {
     card.className = 'video-card';
 
     card.innerHTML = `
-  <video class="video-thumb" muted preload="metadata">
-    <source src="videos/${video}" type="video/mp4">
-  </video>
-  <div class="video-title">${video.replace('.mp4','')}</div>
-`;
+      <video class="video-thumb" muted preload="metadata">
+        <source src="videos/${video}" type="video/mp4">
+      </video>
+      <div class="video-title">${video.replace('.mp4','')}</div>
+    `;
 
     card.onclick = (e) => {
       e.preventDefault();
@@ -42,82 +42,61 @@ async function init() {
   });
 }
 
-function hideSkip(skipBtn, skipTimer) {
-  if (skipTimer) clearTimeout(skipTimer);
-  skipBtn.classList.add('hidden');
-  skipBtn.onclick = null;
-}
-
 function playVideo(videoSrc) {
   const modal = document.getElementById('player-modal');
-  const adPlayer = document.getElementById('ad-player');
   const player = document.getElementById('player');
   const skipBtn = document.getElementById('skip-btn');
 
   modal.classList.remove('hidden');
 
-  [adPlayer, player].forEach(v => {
-    v.pause();
-    v.src = '';
-    v.style.display = 'none';
-  });
+  player.pause();
+  player.src = '';
 
+  const ad = ads[Math.floor(Math.random() * ads.length)];
+
+  const playlist = [`commercials/${ad}`, videoSrc];
+  let index = 0;
+
+  player.src = playlist[index];
+  player.style.display = 'block';
+  player.controls = true;
+
+  // skip button logic (ads only)
   skipBtn.classList.add('hidden');
   skipBtn.onclick = null;
 
-  const ad = ads[Math.floor(Math.random() * ads.length)];
-  adPlayer.src = `commercials/${ad}`;
-  adPlayer.currentTime = 0;
-  adPlayer.style.display = 'block';
-  adPlayer.muted = true;
-  adPlayer.playsInline = true;
-  adPlayer.autoplay = true;
-
-  adPlayer.play().then(() => {
-    adPlayer.muted = false;
-  }).catch(err => {
-    console.warn('Ad blocked:', err);
-  });
-
-  let skipTimer = setTimeout(() => {
+  const skipTimer = setTimeout(() => {
     skipBtn.classList.remove('hidden');
   }, 5000);
 
-  function endAd() {
+  skipBtn.onclick = () => {
     clearTimeout(skipTimer);
+    index = 1;
     skipBtn.classList.add('hidden');
-
-    adPlayer.pause();
-    adPlayer.src = '';
-    adPlayer.style.display = 'none';
-
-    player.src = videoSrc;
-    player.currentTime = 0;
-    player.style.display = 'block';
+    player.src = playlist[index];
     player.play();
-  }
+  };
 
-  skipBtn.onclick = endAd;
-  adPlayer.onended = endAd;
+  player.onended = () => {
+    if (index === 0) clearTimeout(skipTimer);
+    index++;
+    skipBtn.classList.add('hidden');
+    if (index < playlist.length) {
+      player.src = playlist[index];
+      player.play();
+    }
+  };
 
-  adPlayer.play().catch(err => {
-    console.warn('Ad play blocked:', err);
-  });
+  player.play();
 }
 
 document.getElementById('close-btn').onclick = () => {
   const modal = document.getElementById('player-modal');
-  const ad = document.getElementById('ad-player');
   const video = document.getElementById('player');
-  const skipBtn = document.getElementById('skip-btn');
 
-  ad.pause();
   video.pause();
-
-  ad.src = '';
   video.src = '';
 
-  skipBtn.classList.add('hidden');
   modal.classList.add('hidden');
 };
 
