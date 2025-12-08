@@ -1,7 +1,3 @@
-/* =========================
-   HELPERS
-   ========================= */
-
 async function fetchJSON(path) {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`Failed to load ${path}`);
@@ -15,15 +11,7 @@ function shuffle(array) {
   }
 }
 
-/* =========================
-   GLOBAL STATE
-   ========================= */
-
 let ads = [];
-
-/* =========================
-   INIT
-   ========================= */
 
 async function init() {
   let videos = await fetchJSON('videos/index.json');
@@ -39,24 +27,26 @@ async function init() {
     card.className = 'video-card';
 
     card.innerHTML = `
-      <img 
-        src="videos/${video.replace('.mp4', '.jpg')}" 
-        class="video-thumb" 
-        alt="${video}"
-        onerror="this.src='img/fallback.jpg'"
-      />
-      <div class="video-title">${video.replace('.mp4','')}</div>
-    `;
+  <video class="video-thumb" muted preload="metadata">
+    <source src="videos/${video}" type="video/mp4">
+  </video>
+  <div class="video-title">${video.replace('.mp4','')}</div>
+`;
 
-    card.onclick = () => playVideo(`videos/${video}`);
+    card.onclick = (e) => {
+      e.preventDefault();
+      playVideo(`videos/${video}`);
+    };
 
     grid.appendChild(card);
   });
 }
 
-/* =========================
-   PLAYER + ADS
-   ========================= */
+function hideSkip(skipBtn, skipTimer) {
+  if (skipTimer) clearTimeout(skipTimer);
+  skipBtn.classList.add('hidden');
+  skipBtn.onclick = null;
+}
 
 function playVideo(videoSrc) {
   const modal = document.getElementById('player-modal');
@@ -66,38 +56,61 @@ function playVideo(videoSrc) {
 
   modal.classList.remove('hidden');
 
-  // Reset players
-  player.pause();
-  adPlayer.pause();
-  player.style.display = 'none';
-  skipBtn.classList.add('hidden');
+  [adPlayer, player].forEach(v => {
+    v.pause();
+    v.src = '';
+    v.style.display = 'none';
+  });
 
-  // Pick random ad
+  skipBtn.classList.add('hidden');
+  skipBtn.onclick = null;
+
   const ad = ads[Math.floor(Math.random() * ads.length)];
   adPlayer.src = `commercials/${ad}`;
   adPlayer.currentTime = 0;
-  adPlayer.play();
+  adPlayer.style.display = 'block';
+  adPlayer.muted = false;
 
-  // Enable skip after 5s if needed
-  const skipTimer = setTimeout(() => {
-    if (adPlayer.duration > 5) {
-      skipBtn.classList.remove('hidden');
-    }
+  let skipTimer = setTimeout(() => {
+    skipBtn.classList.remove('hidden');
   }, 5000);
 
-  skipBtn.onclick = () => adPlayer.dispatchEvent(new Event('ended'));
-
-  adPlayer.onended = () => {
+  function endAd() {
     clearTimeout(skipTimer);
     skipBtn.classList.add('hidden');
 
     adPlayer.pause();
     adPlayer.src = '';
+    adPlayer.style.display = 'none';
 
     player.src = videoSrc;
+    player.currentTime = 0;
     player.style.display = 'block';
     player.play();
-  };
+  }
+
+  skipBtn.onclick = endAd;
+  adPlayer.onended = endAd;
+
+  adPlayer.play().catch(err => {
+    console.warn('Ad play blocked:', err);
+  });
 }
+
+document.getElementById('close-btn').onclick = () => {
+  const modal = document.getElementById('player-modal');
+  const ad = document.getElementById('ad-player');
+  const video = document.getElementById('player');
+  const skipBtn = document.getElementById('skip-btn');
+
+  ad.pause();
+  video.pause();
+
+  ad.src = '';
+  video.src = '';
+
+  skipBtn.classList.add('hidden');
+  modal.classList.add('hidden');
+};
 
 init();

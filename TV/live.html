@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SusTube Live</title>
+  <link rel="shortcut icon" href="../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+<div class="wrapper">
+  <header class="site-header">
+    <div class="header-top logo-bar">
+      <a href="../index.html">
+        <img src="img/logo.png" alt="SusTube" class="logo-img" />
+      </a>
+    </div>
+
+    <nav class="main-nav">
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="index.html">Watch</a></li>
+        <li><a href="live.html">Live TV</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container" style="padding:40px 0;text-align:center;">
+    <div class="live-wrapper">
+  <video id="live-player" autoplay></video>
+
+  <div class="live-overlay">
+    <div class="live-bug">
+        LIVE <span class="channel-num">CH 69</span>
+    </div>
+    <div class="live-title" id="live-title">Now Playing</div>
+</div>
+
+  <img src="img/logo.png" class="live-watermark" />
+
+  <button id="fs-btn" class="fs-btn">⛶</button>
+</div>
+  </main>
+
+  <footer class="site-footer">© 2025 SusTube</footer>
+</div>
+
+<script src="live.js"></script>
+</body>
+</html>

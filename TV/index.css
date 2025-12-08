@@ -1,7 +1,3 @@
-/* ======================
-   RESET & BASE
-   ====================== */
-
 html, body {
     height: 100%;
     margin: 0;
@@ -12,9 +8,13 @@ html, body {
     box-sizing: border-box;
 }
 
+.hidden {
+  display: none !important;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #0f0f0f; /* dark */
+    background-color: #0f0f0f;
     color: #e5e5e5;
     display: flex;
     flex-direction: column;
@@ -42,17 +42,13 @@ a {
     margin: 0 auto;
 }
 
-/* ======================
-   SITE HEADER (FIXED)
-   ====================== */
-
 .site-header {
-    background-color: #ba1a1a;
+    background-color: black;
     color: white;
 }
 
 .header-top {
-    background-color: #ba1a1a;
+    background-color: #1a1a1a;
     padding: 15px 0 10px;
     display: flex;
     justify-content: center;
@@ -67,10 +63,6 @@ a {
     margin: 0 auto;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
 }
-
-/* ======================
-   NAVIGATION
-   ====================== */
 
 .main-nav {
     background-color: #ba1a1a;
@@ -96,10 +88,6 @@ a {
     color: #ffe5e5;
 }
 
-/* ======================
-   SECTIONS & TITLES
-   ====================== */
-
 .section-title {
     color: #ba1a1a;
     font-size: 32px;
@@ -107,10 +95,6 @@ a {
     font-weight: 700;
     text-align: center;
 }
-
-/* ======================
-   FEATURED ARTICLE
-   ====================== */
 
 .featured-article {
     padding: 40px 20px;
@@ -131,10 +115,6 @@ a {
     font-weight: bold;
     color: #e5e5e5;
 }
-
-/* ======================
-   ARTICLES GRID
-   ====================== */
 
 .new-articles {
     background-color: #121212;
@@ -176,10 +156,6 @@ a {
     color: #ba1a1a;
 }
 
-/* ======================
-   QUIZZES & GRADES
-   ====================== */
-
 .featured-quizzes {
     padding: 40px 20px;
     background-color: #121212;
@@ -202,9 +178,6 @@ a {
     border: 1px solid #333;
 }
 
-/* ======================
-   INPUTS
-   ====================== */
 
 input,
 .assignment input[type="number"] {
@@ -213,9 +186,6 @@ input,
     border: 1px solid #444;
 }
 
-/* ======================
-   VIDEO PLAYER
-   ====================== */
 
 .video-grid {
     display: grid;
@@ -246,8 +216,9 @@ input,
 
 #ad-player,
 #player {
-    width: 80%;
-    max-height: 80%;
+    max-width: 80vw;
+    max-height: 80vh;
+    display: none;
 }
 
 .skip-btn {
@@ -261,10 +232,6 @@ input,
     cursor: pointer;
 }
 
-/* ======================
-   FOOTER
-   ====================== */
-
 .site-footer {
     background-color: #ba1a1a;
     color: white;
@@ -273,4 +240,101 @@ input,
     font-size: 14px;
     margin-top: auto;
     box-shadow: inset 0 1px 0 #ffdddd;
+}
+
+.video-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: black;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+    cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  will-change: transform, box-shadow;
+}
+
+.video-thumb:hover,
+.video-card:hover .video-thumb {
+  transform: scale(1.03);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+  opacity: 0.98;
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 28px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+.live-wrapper {
+  position: relative;
+  max-width: 80vw;
+  margin: 0 auto;
+  background: black;
+}
+
+#live-player {
+  width: 100%;
+  max-height: 80vh;
+  background: black;
+}
+
+.live-watermark {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 80px;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.live-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  color: white;
+  font-family: inherit;
+}
+
+.live-bug {
+  background: #ba1a1a;
+  padding: 4px 10px;
+  font-weight: bold;
+  font-size: 14px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.live-title {
+  background: rgba(0,0,0,0.7);
+  padding: 6px 10px;
+  font-size: 14px;
+  max-width: 60vw;
+}
+
+.fs-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(30,30,30,0.9);
+  color: white;
+  border: none;
+  font-size: 18px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.channel-num {
+  background: black;
+  padding: 2px 6px;
+  margin-left: 8px;
+  font-size: 12px;
+  border-radius: 3px;
 }
