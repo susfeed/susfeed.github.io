@@ -69,7 +69,15 @@ function playVideo(videoSrc) {
   adPlayer.src = `commercials/${ad}`;
   adPlayer.currentTime = 0;
   adPlayer.style.display = 'block';
-  adPlayer.muted = false;
+  adPlayer.muted = true;
+  adPlayer.playsInline = true;
+  adPlayer.autoplay = true;
+
+  adPlayer.play().then(() => {
+    adPlayer.muted = false;
+  }).catch(err => {
+    console.warn('Ad blocked:', err);
+  });
 
   let skipTimer = setTimeout(() => {
     skipBtn.classList.remove('hidden');
