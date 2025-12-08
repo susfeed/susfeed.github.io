@@ -84,9 +84,11 @@ setInterval(() => {
   }
 }, 1000);
 
+const liveWrapper = document.querySelector('.live-wrapper');
+
 fsBtn.onclick = () => {
   if (!document.fullscreenElement) {
-    player.requestFullscreen().catch(() => {});
+    liveWrapper.requestFullscreen().catch(() => {});
   } else {
     document.exitFullscreen();
   }
