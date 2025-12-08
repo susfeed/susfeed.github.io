@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SusTube</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+<div class="wrapper">
+  <header class="site-header">
+  <div class="header-top logo-bar">
+    <a href="../index.html">
+      <img src="img/logo.png" alt="SusTube" class="logo-img" />
+    </a>
+  </div>
+
+  <nav class="main-nav">
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html">Watch</a></li>
+      <li><a href="live.html">Live TV</a></li>
+    </ul>
+  </nav>
+</header>
+
+  <main class="container">
+    <div id="video-grid" class="video-grid"></div>
+  </main>
+
+  <footer class="site-footer">© 2025 SusTube</footer>
+</div>
+
+<div id="player-modal" class="player-modal hidden">
+  <video id="player" controls></video>
+
+  <video id="ad-player" class="ad-player"></video>
+  <button id="skip-btn" class="skip-btn hidden">Skip Ad</button>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>
