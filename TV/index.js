@@ -4,8 +4,6 @@ async function fetchJSON(path) {
   return res.json();
 }
 
-/* ---------- VOTES ---------- */
-
 function getVotes() {
   return JSON.parse(localStorage.getItem('videoVotes') || '{}');
 }
@@ -20,8 +18,6 @@ function setVote(videoSrc, vote) {
   localStorage.setItem('videoVotes', JSON.stringify(votes));
 }
 
-/* ---------- UTILS ---------- */
-
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -29,12 +25,8 @@ function shuffle(arr) {
   }
 }
 
-/* ---------- GLOBAL STATE ---------- */
-
 let allVideos = [];
 let ads = [];
-
-/* ---------- PLAYER (UNCHANGED ADS) ---------- */
 
 function playVideo(videoSrc) {
   const modal = document.getElementById('player-modal');
@@ -52,9 +44,22 @@ function playVideo(videoSrc) {
   const ad = ads[Math.floor(Math.random() * ads.length)];
   let showingAd = true;
 
-  adPlayer.src = `commercials/${ad}`;
+  adPlayer.pause();
+  adPlayer.removeAttribute('src');
+  adPlayer.load();
+
   adPlayer.style.display = 'block';
   player.style.display = 'none';
+
+  adPlayer.offsetHeight;
+
+  adPlayer.src = `commercials/${ad}`;
+  adPlayer.load();
+
+  requestAnimationFrame(() => {
+    adPlayer.play();
+  });
+
 
   adPlayer.play();
 
@@ -84,8 +89,6 @@ function playVideo(videoSrc) {
   }
 }
 
-/* ---------- CLOSE ---------- */
-
 document.getElementById('close-btn').onclick = () => {
   const modal = document.getElementById('player-modal');
   const player = document.getElementById('player');
@@ -97,8 +100,6 @@ document.getElementById('close-btn').onclick = () => {
   adPlayer.src = '';
   modal.classList.add('hidden');
 };
-
-/* ---------- INIT ---------- */
 
 async function init() {
   const data = await fetchJSON('videos/index.json');
@@ -125,8 +126,6 @@ async function init() {
     if (e.key === 'Enter') runSearch();
   });
 }
-
-/* ---------- RENDER ---------- */
 
 function renderVideos(videos) {
   const grid = document.getElementById('video-grid');

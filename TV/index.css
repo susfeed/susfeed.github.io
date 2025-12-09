@@ -217,6 +217,7 @@ input,
 #ad-player,
 #player {
     max-width: 80vw;
+    height: auto;
     max-height: 80vh;
     display: none;
 }
