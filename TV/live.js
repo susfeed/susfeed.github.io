@@ -8,6 +8,12 @@ function rand(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+const popup = document.getElementById('channel-popup');
+const popupNum = popup.querySelector('.popup-number');
+const popupName = popup.querySelector('.popup-name');
+
+let popupTimer;
+
 const CONTENT_BLOCK = 8 * 60;
 const AD_BLOCK = 2 * 60;
 
@@ -45,6 +51,18 @@ async function init() {
   loadChannel();
 }
 
+function showChannelPopup(ch) {
+  popupName.textContent = ch.name;
+
+  popup.classList.remove('hidden');
+  popup.classList.add('show');
+
+  clearTimeout(popupTimer);
+  popupTimer = setTimeout(() => {
+    popup.classList.remove('show');
+  }, 2000);
+}
+
 function loadChannel() {
   const key = channelKeys[currentChannelIndex];
   const ch = channels[key];
@@ -56,7 +74,13 @@ function loadChannel() {
   channelNumBox.textContent = `CH ${ch.number}`;
   titleBox.textContent = ch.name || 'Now Playing';
 
+  if (ch.logo) {
+    watermark.src = `img/${ch.logo}`;
+    watermark.style.display = 'block';
+  }
+
   startContent();
+  showChannelPopup(ch);
 }
 
 function startContent() {
