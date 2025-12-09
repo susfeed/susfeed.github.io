@@ -10,36 +10,39 @@
 
   <style>
     .game-container {
-      position: relative;
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
-      user-select: none;
-    }
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    user-select: none;
+    touch-action: manipulation;
+  }
 
-    .room {
-      width: 100%;
-      display: block;
-    }
+.room {
+  width: 100%;
+  height: auto;
+  display: block;
+}
 
-    .tv-gif {
-      position: absolute;
-      top: 25%;
-      left: 35%;
-      width: 38%;
-      height: 29%;
-      object-fit: cover;
-      display: none;
-      pointer-events: none;
-    }
+.tv-gif {
+  position: absolute;
+  top: 24%;
+  left: 34.5%;
+  width: 39%;
+  height: 30%;
+  object-fit: cover;
+  display: none;
+  pointer-events: none;
+}
 
-    .mood {
-      position: absolute;
-      bottom: 5px;
-      left: 5px;
-      width: 240px;
-      pointer-events: none;
-    }
+.mood {
+  position: absolute;
+  bottom: 2%;
+  left: 2%;
+  width: 22%;
+  max-width: 160px;
+  pointer-events: none;
+}
 
     .scoreboard {
       margin-top: 20px;
@@ -122,8 +125,10 @@
       tvOn ? stopSad() : startSad();
     }
 
-    game.addEventListener("click", toggleGame);
-    game.addEventListener("touchstart", toggleGame);
+    game.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      toggleGame();
+    });
   </script>
 
 </body>
