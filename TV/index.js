@@ -4,6 +4,16 @@ async function fetchJSON(path) {
   return res.json();
 }
 
+function getVotes() {
+  return JSON.parse(localStorage.getItem('videoVotes') || '{}');
+}
+
+function setVote(video, vote) {
+  const votes = getVotes();
+  votes[video] = vote;
+  localStorage.setItem('videoVotes', JSON.stringify(votes));
+}
+
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -61,7 +71,6 @@ function playVideo(videoSrc) {
   player.style.display = 'block';
   player.controls = true;
 
-  // skip button logic (ads only)
   skipBtn.classList.add('hidden');
   skipBtn.onclick = null;
 
@@ -100,4 +109,116 @@ document.getElementById('close-btn').onclick = () => {
   modal.classList.add('hidden');
 };
 
+let allVideos = [];
+
+
+async function init() {
+allVideos = await fetchJSON('videos/index.json');
+ads = await fetchJSON('commercials/index.json');
+
+
+shuffle(allVideos);
+renderVideos(allVideos);
+
+
+const input = document.getElementById('video-search');
+const btn = document.getElementById('search-btn');
+
+
+function runSearch() {
+const q = input.value.trim().toLowerCase();
+if (!q) {
+renderVideos(allVideos);
+return;
+}
+const filtered = allVideos.filter(v => v.toLowerCase().includes(q));
+renderVideos(filtered);
+}
+
+
+btn.onclick = runSearch;
+
+
+input.addEventListener('keydown', e => {
+if (e.key === 'Enter') runSearch();
+});
+}
+
+
+function renderVideos(videos) {
+  const grid = document.getElementById('video-grid');
+  grid.innerHTML = '';
+
+  if (!videos.length) {
+    grid.innerHTML = '<p>No results found.</p>';
+    return;
+  }
+
+  const votes = getVotes();
+
+  videos.forEach(video => {
+    const card = document.createElement('div');
+    card.className = 'video-card';
+
+    const vote = votes[video];
+
+    card.innerHTML = `
+      <video class="video-thumb" muted preload="metadata">
+        <source src="videos/${video}" type="video/mp4">
+      </video>
+
+      <div class="video-title">${video.replace('.mp4','')}</div>
+
+      <div class="video-actions">
+        <span class="thumb like ${vote === 'like' ? 'active' : ''}">👍</span>
+        <span class="thumb dislike ${vote === 'dislike' ? 'active' : ''}">👎</span>
+      </div>
+    `;
+
+    card.querySelector('.video-thumb').onclick = () => {
+      playVideo(`videos/${video}`);
+    };
+
+    const likeBtn = card.querySelector('.like');
+    const dislikeBtn = card.querySelector('.dislike');
+
+    likeBtn.onclick = () => {
+      setVote(video, vote === 'like' ? null : 'like');
+      renderVideos(videos);
+    };
+
+    dislikeBtn.onclick = () => {
+      setVote(video, vote === 'dislike' ? null : 'dislike');
+      renderVideos(videos);
+    };
+
+    grid.appendChild(card);
+  });
+}
+
 init();
+
+let currentFilter = 'all';
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.onclick = () => {
+    currentFilter = btn.dataset.filter;
+    applyFilter();
+  };
+});
+
+function applyFilter() {
+  const votes = getVotes();
+
+  if (currentFilter === 'all') {
+    renderVideos(allVideos);
+  }
+
+  if (currentFilter === 'liked') {
+    renderVideos(allVideos.filter(v => votes[v] === 'like'));
+  }
+
+  if (currentFilter === 'disliked') {
+    renderVideos(allVideos.filter(v => votes[v] === 'dislike'));
+  }
+}

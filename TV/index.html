@@ -27,7 +27,26 @@
 </header>
 
   <main class="container">
-    <div id="video-grid" class="video-grid"></div>
+    <div style="display:flex;gap:10px;margin:24px 0;">
+      <input
+        id="video-search"
+        type="text"
+        placeholder="Search"
+        style="flex:1;padding:12px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:white;"
+        />
+      <button
+        id="search-btn"
+        style="padding:12px 18px;border-radius:8px;border:none;background:#ba1a1a;color:white;font-weight:bold;cursor:pointer;"
+        >
+        Search
+      </button>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <button class="filter-btn" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="liked">Liked</button>
+      <button class="filter-btn" data-filter="disliked">Disliked</button>
+    </div>
+  <div id="video-grid" class="video-grid"></div>
   </main>
 
   <footer class="site-footer">©2025 SusFeed Video</footer>

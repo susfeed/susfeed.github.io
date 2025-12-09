@@ -360,3 +360,68 @@ input,
   top: 16px;
   right: 16px;
 }
+
+.video-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 22px;
+}
+
+.thumb {
+  cursor: pointer;
+  opacity: 0.4;
+  transition: transform 0.1s ease, opacity 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+
+.thumb:hover {
+  transform: scale(1.2);
+  opacity: 0.7;
+}
+
+.thumb.like.active {
+  color: #2ecc71;
+  opacity: 1;
+}
+
+.thumb.dislike.active {
+  color: #e74c3c;
+  opacity: 1;
+}
+
+.filter-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #2a2a2a;
+  color: white;
+}
+
+.mobile-play {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 26px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .mobile-play {
+    display: flex;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  #fs-btn {
+    display: none;
+  }
+}

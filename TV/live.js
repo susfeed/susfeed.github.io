@@ -8,17 +8,20 @@ function rand(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-const CONTENT_BLOCK = 8 * 60; // 8 minutes minimum
-const AD_BLOCK = 2 * 60;      // max ad time
+const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+const mobilePlayBtn = document.getElementById('mobile-play');
+
+const CONTENT_BLOCK = 8 * 60; // 8 minutes
+const AD_BLOCK = 2 * 60;      // 2 minutes max
 
 const player = document.getElementById('live-player');
 const watermark = document.querySelector('.live-watermark');
 const titleBox = document.getElementById('live-title');
 const fsBtn = document.getElementById('fs-btn');
+const liveWrapper = document.querySelector('.live-wrapper');
 
 let videos = [];
 let ads = [];
-
 let mode = 'content';
 let blockTime = CONTENT_BLOCK;
 let blockExpired = false;
@@ -40,14 +43,19 @@ function startContent() {
 function playRandomVideo(startMid = false) {
   const vid = rand(videos);
   titleBox.textContent = vid.replace('.mp4', '');
-
   player.src = `videos/${vid}`;
+
   player.onloadedmetadata = () => {
     if (startMid) {
       player.currentTime =
         player.duration * (0.25 + Math.random() * 0.5);
     }
-    player.play();
+
+    if (!isMobile) {
+      player.play();
+    } else {
+      mobilePlayBtn.classList.remove('hidden');
+    }
   };
 }
 
@@ -64,7 +72,12 @@ function playRandomAd() {
   titleBox.textContent = 'Advertisement';
   player.src = `commercials/${ad}`;
   player.currentTime = 0;
-  player.play();
+
+  if (!isMobile) {
+    player.play();
+  } else {
+    mobilePlayBtn.classList.remove('hidden');
+  }
 }
 
 player.onended = () => {
@@ -79,12 +92,9 @@ setInterval(() => {
   blockTime--;
   if (blockTime <= 0) {
     blockExpired = true;
-
     if (mode === 'ads') startContent();
   }
 }, 1000);
-
-const liveWrapper = document.querySelector('.live-wrapper');
 
 fsBtn.onclick = () => {
   if (!document.fullscreenElement) {
@@ -93,5 +103,14 @@ fsBtn.onclick = () => {
     document.exitFullscreen();
   }
 };
+
+if (isMobile) {
+  mobilePlayBtn.classList.remove('hidden');
+
+  mobilePlayBtn.onclick = () => {
+    player.play();
+    mobilePlayBtn.classList.add('hidden');
+  };
+}
 
 init();
