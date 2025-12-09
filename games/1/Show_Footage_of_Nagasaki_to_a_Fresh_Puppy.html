@@ -1,0 +1,130 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nagasaki Dog</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      user-select: none;
+    }
+
+    .room {
+      width: 100%;
+      display: block;
+    }
+
+    .tv-gif {
+      position: absolute;
+      top: 25%;
+      left: 35%;
+      width: 38%;
+      height: 29%;
+      object-fit: cover;
+      display: none;
+      pointer-events: none;
+    }
+
+    .mood {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      width: 240px;
+      pointer-events: none;
+    }
+
+    .scoreboard {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Show Footage of Nagasaki to a Fresh Puppy</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2025/12/09 8:00 PM CET</i></p>
+
+      <div class="game-container" id="game">
+        <img src="img/room.webp" alt="Room" class="room" />
+        <img src="img/gif.gif" alt="TV GIF" class="tv-gif" id="tvGif" />
+        <img src="img/happy.png" alt="Mood" class="mood" id="moodImg" />
+      </div>
+
+      <div class="scoreboard">
+        <p><b>Sad Score:</b> <span id="score">0</span></p>
+        <p><b>Lowest Score:</b> <span id="lowScore">0</span></p>
+        <p><i>Tap or click the image</i></p>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    let tvOn = false;
+    let score = 0;
+    let interval = null;
+
+    const tvGif = document.getElementById("tvGif");
+    const moodImg = document.getElementById("moodImg");
+    const scoreEl = document.getElementById("score");
+    const lowScoreEl = document.getElementById("lowScore");
+    const game = document.getElementById("game");
+
+    let lowScore = Number(localStorage.getItem("lowScore")) || 0;
+    lowScoreEl.textContent = lowScore;
+
+    function startSad() {
+      tvOn = true;
+      tvGif.style.display = "block";
+      moodImg.src = "img/sad.png";
+
+      interval = setInterval(() => {
+        score -= 1;
+        if (score < lowScore) {
+          lowScore = score;
+          localStorage.setItem("lowScore", lowScore);
+        }
+        scoreEl.textContent = score;
+        lowScoreEl.textContent = lowScore;
+      }, 1000);
+    }
+
+    function stopSad() {
+      tvOn = false;
+      tvGif.style.display = "none";
+      moodImg.src = "img/happy.png";
+
+      clearInterval(interval);
+
+      score = 0;
+      scoreEl.textContent = score;
+    }
+
+    function toggleGame() {
+      tvOn ? stopSad() : startSad();
+    }
+
+    game.addEventListener("click", toggleGame);
+    game.addEventListener("touchstart", toggleGame);
+  </script>
+
+</body>
+</html>
