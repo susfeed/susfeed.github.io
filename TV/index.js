@@ -4,146 +4,129 @@ async function fetchJSON(path) {
   return res.json();
 }
 
+/* ---------- VOTES ---------- */
+
 function getVotes() {
   return JSON.parse(localStorage.getItem('videoVotes') || '{}');
 }
 
-function setVote(video, vote) {
+function setVote(videoSrc, vote) {
   const votes = getVotes();
-  votes[video] = vote;
+  if (vote) {
+    votes[videoSrc] = vote;
+  } else {
+    delete votes[videoSrc];
+  }
   localStorage.setItem('videoVotes', JSON.stringify(votes));
 }
 
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
+/* ---------- UTILS ---------- */
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
 
+/* ---------- GLOBAL STATE ---------- */
+
+let allVideos = [];
 let ads = [];
 
-async function init() {
-  let videos = await fetchJSON('videos/index.json');
-  ads = await fetchJSON('commercials/index.json');
-
-  shuffle(videos);
-
-  const grid = document.getElementById('video-grid');
-  grid.innerHTML = '';
-
-  videos.forEach(video => {
-    const card = document.createElement('div');
-    card.className = 'video-card';
-
-    card.innerHTML = `
-      <video class="video-thumb" muted preload="metadata">
-        <source src="videos/${video}" type="video/mp4">
-      </video>
-      <div class="video-title">${video.replace('.mp4','')}</div>
-    `;
-
-    card.onclick = (e) => {
-      e.preventDefault();
-      playVideo(`videos/${video}`);
-    };
-
-    grid.appendChild(card);
-  });
-}
+/* ---------- PLAYER (UNCHANGED ADS) ---------- */
 
 function playVideo(videoSrc) {
   const modal = document.getElementById('player-modal');
   const player = document.getElementById('player');
+  const adPlayer = document.getElementById('ad-player');
   const skipBtn = document.getElementById('skip-btn');
 
   modal.classList.remove('hidden');
 
   player.pause();
   player.src = '';
+  adPlayer.pause();
+  adPlayer.src = '';
 
   const ad = ads[Math.floor(Math.random() * ads.length)];
+  let showingAd = true;
 
-  const playlist = [`commercials/${ad}`, videoSrc];
-  let index = 0;
+  adPlayer.src = `commercials/${ad}`;
+  adPlayer.style.display = 'block';
+  player.style.display = 'none';
 
-  player.src = playlist[index];
-  player.style.display = 'block';
-  player.controls = true;
+  adPlayer.play();
 
   skipBtn.classList.add('hidden');
-  skipBtn.onclick = null;
-
   const skipTimer = setTimeout(() => {
     skipBtn.classList.remove('hidden');
   }, 5000);
 
   skipBtn.onclick = () => {
     clearTimeout(skipTimer);
-    index = 1;
+    showVideo();
+  };
+
+  adPlayer.onended = showVideo;
+
+  function showVideo() {
+    showingAd = false;
+    clearTimeout(skipTimer);
+
     skipBtn.classList.add('hidden');
-    player.src = playlist[index];
+    adPlayer.pause();
+    adPlayer.style.display = 'none';
+
+    player.src = videoSrc;
+    player.style.display = 'block';
     player.play();
-  };
-
-  player.onended = () => {
-    if (index === 0) clearTimeout(skipTimer);
-    index++;
-    skipBtn.classList.add('hidden');
-    if (index < playlist.length) {
-      player.src = playlist[index];
-      player.play();
-    }
-  };
-
-  player.play();
+  }
 }
+
+/* ---------- CLOSE ---------- */
 
 document.getElementById('close-btn').onclick = () => {
   const modal = document.getElementById('player-modal');
-  const video = document.getElementById('player');
+  const player = document.getElementById('player');
+  const adPlayer = document.getElementById('ad-player');
 
-  video.pause();
-  video.src = '';
-
+  player.pause();
+  player.src = '';
+  adPlayer.pause();
+  adPlayer.src = '';
   modal.classList.add('hidden');
 };
 
-let allVideos = [];
-
+/* ---------- INIT ---------- */
 
 async function init() {
-allVideos = await fetchJSON('videos/index.json');
-ads = await fetchJSON('commercials/index.json');
+  const data = await fetchJSON('videos/index.json');
+  allVideos = data.videos;
+  ads = await fetchJSON('commercials/index.json');
 
+  shuffle(allVideos);
+  renderVideos(allVideos);
 
-shuffle(allVideos);
-renderVideos(allVideos);
+  const input = document.getElementById('video-search');
+  const btn = document.getElementById('search-btn');
 
+  function runSearch() {
+    const q = input.value.trim().toLowerCase();
+    if (!q) return renderVideos(allVideos);
 
-const input = document.getElementById('video-search');
-const btn = document.getElementById('search-btn');
+    renderVideos(
+      allVideos.filter(v => v.src.toLowerCase().includes(q))
+    );
+  }
 
-
-function runSearch() {
-const q = input.value.trim().toLowerCase();
-if (!q) {
-renderVideos(allVideos);
-return;
-}
-const filtered = allVideos.filter(v => v.toLowerCase().includes(q));
-renderVideos(filtered);
-}
-
-
-btn.onclick = runSearch;
-
-
-input.addEventListener('keydown', e => {
-if (e.key === 'Enter') runSearch();
-});
+  btn.onclick = runSearch;
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') runSearch();
+  });
 }
 
+/* ---------- RENDER ---------- */
 
 function renderVideos(videos) {
   const grid = document.getElementById('video-grid');
@@ -157,17 +140,17 @@ function renderVideos(videos) {
   const votes = getVotes();
 
   videos.forEach(video => {
+    const vote = votes[video.src];
+
     const card = document.createElement('div');
     card.className = 'video-card';
 
-    const vote = votes[video];
-
     card.innerHTML = `
       <video class="video-thumb" muted preload="metadata">
-        <source src="videos/${video}" type="video/mp4">
+        <source src="videos/${video.src}" type="video/mp4">
       </video>
 
-      <div class="video-title">${video.replace('.mp4','')}</div>
+      <div class="video-title">${video.src.replace('.mp4', '')}</div>
 
       <div class="video-actions">
         <span class="thumb like ${vote === 'like' ? 'active' : ''}">👍</span>
@@ -175,20 +158,18 @@ function renderVideos(videos) {
       </div>
     `;
 
-    card.querySelector('.video-thumb').onclick = () => {
-      playVideo(`videos/${video}`);
-    };
+    card.querySelector('.video-thumb').onclick = () =>
+      playVideo(`videos/${video.src}`);
 
-    const likeBtn = card.querySelector('.like');
-    const dislikeBtn = card.querySelector('.dislike');
-
-    likeBtn.onclick = () => {
-      setVote(video, vote === 'like' ? null : 'like');
+    card.querySelector('.like').onclick = (e) => {
+      e.stopPropagation();
+      setVote(video.src, vote === 'like' ? null : 'like');
       renderVideos(videos);
     };
 
-    dislikeBtn.onclick = () => {
-      setVote(video, vote === 'dislike' ? null : 'dislike');
+    card.querySelector('.dislike').onclick = (e) => {
+      e.stopPropagation();
+      setVote(video.src, vote === 'dislike' ? null : 'dislike');
       renderVideos(videos);
     };
 
@@ -196,7 +177,6 @@ function renderVideos(videos) {
   });
 }
 
-init();
 
 let currentFilter = 'all';
 
@@ -212,13 +192,17 @@ function applyFilter() {
 
   if (currentFilter === 'all') {
     renderVideos(allVideos);
+    return;
   }
 
   if (currentFilter === 'liked') {
-    renderVideos(allVideos.filter(v => votes[v] === 'like'));
+    renderVideos(allVideos.filter(v => votes[v.src] === 'like'));
+    return;
   }
 
   if (currentFilter === 'disliked') {
-    renderVideos(allVideos.filter(v => votes[v] === 'dislike'));
+    renderVideos(allVideos.filter(v => votes[v.src] === 'dislike'));
   }
 }
+
+init();
