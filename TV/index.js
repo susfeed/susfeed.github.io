@@ -10,11 +10,8 @@ function getVotes() {
 
 function setVote(videoSrc, vote) {
   const votes = getVotes();
-  if (vote) {
-    votes[videoSrc] = vote;
-  } else {
-    delete votes[videoSrc];
-  }
+  if (vote) votes[videoSrc] = vote;
+  else delete votes[videoSrc];
   localStorage.setItem('videoVotes', JSON.stringify(votes));
 }
 
@@ -38,55 +35,47 @@ function playVideo(videoSrc) {
 
   player.pause();
   player.src = '';
-  adPlayer.pause();
-  adPlayer.src = '';
-
-  const ad = ads[Math.floor(Math.random() * ads.length)];
-  let showingAd = true;
 
   adPlayer.pause();
   adPlayer.removeAttribute('src');
   adPlayer.load();
 
+  const ad = ads[Math.floor(Math.random() * ads.length)];
+
+  adPlayer.muted = true;
+  adPlayer.playsInline = true;
   adPlayer.style.display = 'block';
   player.style.display = 'none';
-
-  adPlayer.offsetHeight;
 
   adPlayer.src = `commercials/${ad}`;
   adPlayer.load();
 
-  requestAnimationFrame(() => {
-    adPlayer.play();
-  });
-
-
-  adPlayer.play();
+  adPlayer.play().then(() => {
+    setTimeout(() => {
+      adPlayer.muted = false;
+    }, 100);
+  }).catch(() => {});
 
   skipBtn.classList.add('hidden');
   const skipTimer = setTimeout(() => {
     skipBtn.classList.remove('hidden');
   }, 5000);
 
-  skipBtn.onclick = () => {
-    clearTimeout(skipTimer);
-    showVideo();
-  };
-
-  adPlayer.onended = showVideo;
-
   function showVideo() {
-    showingAd = false;
     clearTimeout(skipTimer);
-
     skipBtn.classList.add('hidden');
+
     adPlayer.pause();
     adPlayer.style.display = 'none';
+    adPlayer.removeAttribute('src');
 
     player.src = videoSrc;
     player.style.display = 'block';
-    player.play();
+    player.play().catch(() => {});
   }
+
+  skipBtn.onclick = showVideo;
+  adPlayer.onended = showVideo;
 }
 
 document.getElementById('close-btn').onclick = () => {
@@ -96,8 +85,10 @@ document.getElementById('close-btn').onclick = () => {
 
   player.pause();
   player.src = '';
+
   adPlayer.pause();
   adPlayer.src = '';
+
   modal.classList.add('hidden');
 };
 
@@ -115,10 +106,7 @@ async function init() {
   function runSearch() {
     const q = input.value.trim().toLowerCase();
     if (!q) return renderVideos(allVideos);
-
-    renderVideos(
-      allVideos.filter(v => v.src.toLowerCase().includes(q))
-    );
+    renderVideos(allVideos.filter(v => v.src.toLowerCase().includes(q)));
   }
 
   btn.onclick = runSearch;
@@ -140,7 +128,6 @@ function renderVideos(videos) {
 
   videos.forEach(video => {
     const vote = votes[video.src];
-
     const card = document.createElement('div');
     card.className = 'video-card';
 
@@ -148,9 +135,7 @@ function renderVideos(videos) {
       <video class="video-thumb" muted preload="metadata">
         <source src="videos/${video.src}" type="video/mp4">
       </video>
-
       <div class="video-title">${video.src.replace('.mp4', '')}</div>
-
       <div class="video-actions">
         <span class="thumb like ${vote === 'like' ? 'active' : ''}">👍</span>
         <span class="thumb dislike ${vote === 'dislike' ? 'active' : ''}">👎</span>
@@ -160,13 +145,13 @@ function renderVideos(videos) {
     card.querySelector('.video-thumb').onclick = () =>
       playVideo(`videos/${video.src}`);
 
-    card.querySelector('.like').onclick = (e) => {
+    card.querySelector('.like').onclick = e => {
       e.stopPropagation();
       setVote(video.src, vote === 'like' ? null : 'like');
       renderVideos(videos);
     };
 
-    card.querySelector('.dislike').onclick = (e) => {
+    card.querySelector('.dislike').onclick = e => {
       e.stopPropagation();
       setVote(video.src, vote === 'dislike' ? null : 'dislike');
       renderVideos(videos);
@@ -175,7 +160,6 @@ function renderVideos(videos) {
     grid.appendChild(card);
   });
 }
-
 
 let currentFilter = 'all';
 
@@ -188,20 +172,11 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 function applyFilter() {
   const votes = getVotes();
-
-  if (currentFilter === 'all') {
-    renderVideos(allVideos);
-    return;
-  }
-
-  if (currentFilter === 'liked') {
-    renderVideos(allVideos.filter(v => votes[v.src] === 'like'));
-    return;
-  }
-
-  if (currentFilter === 'disliked') {
-    renderVideos(allVideos.filter(v => votes[v.src] === 'dislike'));
-  }
+  if (currentFilter === 'all') return renderVideos(allVideos);
+  if (currentFilter === 'liked')
+    return renderVideos(allVideos.filter(v => votes[v.src] === 'like'));
+  if (currentFilter === 'disliked')
+    return renderVideos(allVideos.filter(v => votes[v.src] === 'dislike'));
 }
 
 init();
