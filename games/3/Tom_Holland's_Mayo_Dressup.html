@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tom Holland</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    .game-container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      touch-action: none;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 3 / 4;
+      border: 2px solid black;
+      background: white;
+      touch-action: none;
+    }
+
+    .tool-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tool-row img {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      border: 2px solid black;
+      cursor: pointer;
+      background: white;
+    }
+
+    .tool-row img.selected {
+      outline: 3px solid limegreen;
+    }
+
+    button {
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #drawBtn.active {
+      background: #f3e6c2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="site-header"></div>
+
+  <main class="container article-content">
+    <h1 class="article-main-title"><u>Tom Holland's Mayo Dressup</u></h1>
+    <p class="article-date"><i>Article Published by Cameron at 2025/12/09 11:23 PM CET</i></p>
+
+    <div class="game-container">
+      <canvas id="canvas"></canvas>
+
+      <div class="tool-row" id="stamps">
+        <img src="img/0.webp">
+        <img src="img/1.webp">
+        <img src="img/2.webp">
+        <img src="img/3.webp">
+      </div>
+
+      <div class="tool-row">
+        <button id="drawBtn">✏️ Mayo Draw: OFF</button>
+        <button id="saveBtn">💾 Save PNG</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="site-footer"></div>
+</div>
+
+<script src="../../contentheader.js"></script>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const DPR = window.devicePixelRatio || 1;
+const CW = 600, CH = 800;
+
+canvas.width = CW * DPR;
+canvas.height = CH * DPR;
+ctx.scale(DPR, DPR);
+
+const mayoLayer = document.createElement("canvas");
+mayoLayer.width = CW * DPR;
+mayoLayer.height = CH * DPR;
+const mayoCtx = mayoLayer.getContext("2d");
+mayoCtx.scale(DPR, DPR);
+
+const base = new Image();
+base.src = "img/tom.webp";
+
+let drawMode = false;
+let drawing = false;
+let currentStampImg = null;
+let lastPoint = null;
+
+const stamps = [];
+
+base.onload = () => redraw();
+
+function redraw() {
+  ctx.clearRect(0, 0, CW, CH);
+  ctx.drawImage(base, 0, 0, CW, CH);
+  ctx.drawImage(mayoLayer, 0, 0, CW, CH);
+  stamps.forEach(s => ctx.drawImage(s.img, s.x, s.y, s.w, s.h));
+}
+
+function pos(e) {
+  const r = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - r.left) * (CW / r.width),
+    y: (e.clientY - r.top) * (CH / r.height)
+  };
+}
+
+function mayoLine(p1, p2) {
+  const g = mayoCtx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+  g.addColorStop(0, "#fffdf5");
+  g.addColorStop(0.5, "#f3e6c2");
+  g.addColorStop(1, "#d6c39b");
+
+  mayoCtx.strokeStyle = g;
+  mayoCtx.lineWidth = 18;
+  mayoCtx.lineCap = "round";
+  mayoCtx.lineJoin = "round";
+
+  mayoCtx.beginPath();
+  mayoCtx.moveTo(p1.x, p1.y);
+  mayoCtx.lineTo(p2.x, p2.y);
+  mayoCtx.stroke();
+
+  mayoCtx.strokeStyle = "rgba(255,255,255,0.5)";
+  mayoCtx.lineWidth = 6;
+  mayoCtx.stroke();
+}
+
+canvas.addEventListener("pointerdown", e => {
+  canvas.setPointerCapture(e.pointerId);
+  const p = pos(e);
+
+  for (let i = stamps.length - 1; i >= 0; i--) {
+    const s = stamps[i];
+    if (p.x > s.x && p.x < s.x + s.w && p.y > s.y && p.y < s.y + s.h) {
+      s.drag = true;
+      return;
+    }
+  }
+
+  if (drawMode) {
+    drawing = true;
+    lastPoint = p;
+  } else if (currentStampImg) {
+    stamps.push({ img: currentStampImg, x: p.x - 100, y: p.y - 100, w: 200, h: 200 });
+    redraw();
+  }
+});
+
+canvas.addEventListener("pointermove", e => {
+  const p = pos(e);
+  let moved = false;
+
+  stamps.forEach(s => {
+    if (s.drag) {
+      s.x = p.x - s.w / 2;
+      s.y = p.y - s.h / 2;
+      moved = true;
+    }
+  });
+
+  if (drawing && lastPoint) {
+    mayoLine(lastPoint, p);
+    lastPoint = p;
+    redraw();
+  }
+
+  if (moved) redraw();
+});
+
+window.addEventListener("pointerup", () => {
+  drawing = false;
+  lastPoint = null;
+  stamps.forEach(s => s.drag = false);
+});
+
+const drawBtn = document.getElementById("drawBtn");
+drawBtn.onclick = () => {
+  drawMode = !drawMode;
+  drawBtn.classList.toggle("active", drawMode);
+  drawBtn.textContent = drawMode ? "✏️ Mayo Draw: ON" : "✏️ Mayo Draw: OFF";
+  currentStampImg = null;
+  document.querySelectorAll("#stamps img").forEach(i => i.classList.remove("selected"));
+};
+
+document.querySelectorAll("#stamps img").forEach(img => {
+  img.onclick = () => {
+    currentStampImg = new Image();
+    currentStampImg.src = img.src;
+    drawMode = false;
+    drawBtn.classList.remove("active");
+    drawBtn.textContent = "✏️ Mayo Draw: OFF";
+    document.querySelectorAll("#stamps img").forEach(i => i.classList.remove("selected"));
+    img.classList.add("selected");
+  };
+});
+
+document.getElementById("saveBtn").onclick = () => {
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = CW;
+  exportCanvas.height = CH;
+  const ex = exportCanvas.getContext("2d");
+
+  ex.drawImage(base, 0, 0, CW, CH);
+  ex.drawImage(mayoLayer, 0, 0, CW, CH);
+  stamps.forEach(s => ex.drawImage(s.img, s.x, s.y, s.w, s.h));
+
+  const a = document.createElement("a");
+  a.download = "tom-dressup.png";
+  a.href = exportCanvas.toDataURL("image/png");
+  a.click();
+};
+</script>
+
+</body>
+</html>

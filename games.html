@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SusFeed Games</title>
+  <link rel="shortcut icon" href="articles/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="games.css" />
+</head>
+<body>
+<div class="wrapper">
+
+<header class="site-header">
+  <div class="container header-top">
+    <a href="index.html">
+      <img src="img/logo.webp" class="logo" />
+    </a>
+
+    <div class="search-bar-container">
+      <input type="text" id="game-search" placeholder="Search games..." />
+    </div>
+  </div>
+
+  <nav class="main-nav">
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="articles.html">Susarticles</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="quiz.html">Quizzes</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="new-games container">
+    <h2 class="section-title">All Games</h2>
+
+    <div class="sort-container">
+      <select id="sort-select" class="sort-select">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="az">A-Z</option>
+        <option value="za">Z-A</option>
+      </select>
+    </div>
+
+    <div class="game-grid" id="games-container"></div>
+
+    <div class="load-more-container">
+      <button id="load-more-btn" class="load-more-btn">Load More</button>
+    </div>
+  </section>
+</main>
+
+<div class="site-footer"></div>
+
+</div>
+
+<script src="games.js"></script>
+<script src="header.js"></script>
+</body>
+</html>

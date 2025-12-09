@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pointless Clicker</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: manipulation;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .click-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid black;
+      cursor: pointer;
+    }
+
+    .shop {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .shop button {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .scoreboard {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Endless Clicker</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2025/12/09 9:47 PM CET</i></p>
+
+      <div class="game-container" id="game">
+        <div class="click-circle" id="circle"></div>
+      </div>
+
+      <div class="scoreboard">
+        <p><b>Clicks:</b> <span id="clicks">0</span></p>
+      </div>
+
+      <div class="shop">
+        <p><b>Upgrade Shop</b></p>
+        <button id="upgradeBtn">Buy Upgrade (10 clicks)</button>
+        <p id="upgradeStatus">Not purchased</p>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    let clicks = Number(localStorage.getItem("clicks")) || 0;
+    let upgradeBought = localStorage.getItem("upgradeBought") === "true";
+
+    const clicksEl = document.getElementById("clicks");
+    const circle = document.getElementById("circle");
+    const upgradeBtn = document.getElementById("upgradeBtn");
+    const upgradeStatus = document.getElementById("upgradeStatus");
+
+    clicksEl.textContent = clicks;
+    upgradeStatus.textContent = upgradeBought ? "Purchased" : "Not purchased";
+
+    circle.addEventListener("pointerdown", () => {
+      clicks += 1;
+      clicksEl.textContent = clicks;
+      localStorage.setItem("clicks", clicks);
+    });
+
+    upgradeBtn.addEventListener("click", () => {
+      if (upgradeBought) return;
+      if (clicks < 10) return;
+
+      clicks -= 10;
+      upgradeBought = true;
+
+      clicksEl.textContent = clicks;
+      upgradeStatus.textContent = "Purchased";
+
+      localStorage.setItem("clicks", clicks);
+      localStorage.setItem("upgradeBought", "true");
+    });
+  </script>
+
+</body>
+</html>

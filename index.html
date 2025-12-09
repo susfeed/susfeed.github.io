@@ -9,73 +9,98 @@
 </head>
 <body>
 
-  <div class="wrapper">
+<div class="wrapper">
 
-    <div class="site-header"></div>
+  <div class="site-header"></div>
 
-    <main>
-      <section class="content-grid container">
+  <main>
+    <section class="homepage container">
 
-        <div class="featured-article">
-          <h1 class="section-title">Featured Susarticles</h1>
+      <section class="block">
+        <h2 class="section-title">Featured Susarticles</h2>
+        <div class="block-grid">
 
-          <a href="articles\17\This_1_Secret_Will_Change_Your_Life!.html" class="article-link">
-            <img src="articles/17/cover.webp" alt="Featured" class="featured-image" />
-            <h2 class="article-title">
-              This 1 Secret Will Change Your Life!
-            </h2>
+          <a href="articles/17/This_1_Secret_Will_Change_Your_Life!.html" class="block-card">
+            <img src="articles/17/cover.webp" alt="">
+            <h3>This 1 Secret Will Change Your Life!</h3>
           </a>
 
-          <a href="articles\12\Top_10_Games_You_Need_to_Buy!.html" class="article-link">
-            <img src="articles/12/cover.webp" alt="Featured" class="featured-image" />
-            <h2 class="article-title">
-              Top 10 Games You Need to Buy!
-            </h2>
+          <a href="articles/12/Top_10_Games_You_Need_to_Buy!.html" class="block-card">
+            <img src="articles/12/cover.webp" alt="">
+            <h3>Top 10 Games You Need to Buy!</h3>
           </a>
 
-          <a href="articles\9\7_Most_Heroic_Jobs.html" class="article-link">
-            <img src="articles/9/cover.webp" alt="Featured" class="featured-image" />
-            <h2 class="article-title">
-              7 Most Heroic Jobs
-            </h2>
+          <a href="articles/9/7_Most_Heroic_Jobs.html" class="block-card">
+            <img src="articles/9/cover.webp" alt="">
+            <h3>7 Most Heroic Jobs</h3>
           </a>
+
         </div>
-
-        <div class="featured-quizzes">
-          <h2 class="section-title">Featured Quizzes</h2>
-
-          <a href="quizzes\7\Guess_The_Movie_Based_On_These_Images!.html" class="article-link">
-            <img src="quizzes/7/cover.webp" alt="Featured" class="featured-image" />
-            <h2 class="article-title">Guess The Movie Based On These Images!</h2>
-          </a>
-
-          <a href="quizzes\3\What_Percentage_of_a_Cuck_Are_You.html" class="article-link">
-            <img src="quizzes/3/cover.webp" alt="Featured" class="featured-image" />
-            <h2 class="article-title">What Percentage of a Cuck Are You?</h2>
-          </a>
-
-          <a href="quizzes\2\Calculate_Your_Grade_With_This_Helpful_Tool.html" class="article-link">
-            <img src="quizzes/2/cover.webp" alt="Featured" class="featured-image" />
-            <h2 class="article-title">Calculate Your Grade With This Helpful Tool!</h2>
-          </a>
-        </div>
-
-        <div class="new-articles">
-          <h2 class="section-title">New Susarticles</h2>
-          <div id="new-articles" class="article-grid"></div>
-
-          <h2 class="section-title">New Quizzes</h2>
-          <div id="new-quizzes" class="article-grid"></div>
-        </div>
-
       </section>
-    </main>
 
-    <div class="site-footer"></div>
+      <section class="block quiz">
+        <h2 class="section-title">Featured Quizzes</h2>
+        <div class="block-grid">
 
-  </div>
+          <a href="quizzes/7/Guess_The_Movie_Based_On_These_Images!.html" class="block-card">
+            <img src="quizzes/7/cover.webp" alt="">
+            <h3>Guess The Movie Based On These Images!</h3>
+          </a>
 
-  <script src="header.js"></script>
-  <script src="index.js"></script>
+          <a href="quizzes/3/What_Percentage_of_a_Cuck_Are_You.html" class="block-card">
+            <img src="quizzes/3/cover.webp" alt="">
+            <h3>What Percentage of a Cuck Are You?</h3>
+          </a>
+
+          <a href="quizzes/2/Calculate_Your_Grade_With_This_Helpful_Tool.html" class="block-card">
+            <img src="quizzes/2/cover.webp" alt="">
+            <h3>Calculate Your Grade With This Helpful Tool!</h3>
+          </a>
+
+        </div>
+      </section>
+
+      <section class="block games">
+        <h2 class="section-title">Featured Games</h2>
+        <div class="block-grid">
+
+          <a href="games/1/Show_Footage_of_Nagasaki_to_a_Fresh_Puppy.html" class="block-card">
+            <img src="games/1/cover.webp" alt="">
+            <h3>Show Footage of Nagasaki to a Fresh Puppy</h3>
+          </a>
+
+          <a href="games/2/Endless_Clicker.html" class="block-card">
+            <img src="games/2/cover.webp" alt="">
+            <h3>Endless Clicker</h3>
+          </a>
+
+          <a href="games\3\Tom_Holland's_Mayo_Dressup.html" class="block-card">
+            <img src="games/3/cover.webp" alt="">
+            <h3>Tom Holland's Mayo Dressup</h3>
+          </a>
+        </div>
+      </section>
+
+      <section class="block new">
+        <h2 class="section-title">New Susarticles</h2>
+        <div id="new-articles" class="block-grid"></div>
+
+        <h2 class="section-title">New Quizzes</h2>
+        <div id="new-quizzes" class="block-grid"></div>
+
+        <h2 class="section-title">New Games</h2>
+        <div id="new-games" class="block-grid"></div>
+      </section>
+
+    </section>
+  </main>
+
+  <div class="site-footer"></div>
+
+</div>
+
+<script src="header.js"></script>
+<script src="index.js"></script>
+
 </body>
 </html>

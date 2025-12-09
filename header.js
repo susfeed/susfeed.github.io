@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <li><a href="index.html">Home</a></li>
                     <li><a href="articles.html">Susarticles</a></li>
                     <li><a href="quiz.html">Quizzes</a></li>
+                    <li><a href="games.html">Games</a></li>
                     <li><a href="TV/index.html">SusFeed Video</a></li>
                     <li><a href="about.html">About</a></li>
                 </ul>
