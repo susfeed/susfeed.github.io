@@ -25,10 +25,9 @@ function shuffle(arr) {
 let allVideos = [];
 let ads = [];
 
-async function playVideo(videoSrc) {
+function playVideo(videoSrc) {
   const modal = document.getElementById('player-modal');
   const player = document.getElementById('player');
-  const adPlayer = document.getElementById('ad-player');
   const skipBtn = document.getElementById('skip-btn');
 
   modal.classList.remove('hidden');
@@ -36,97 +35,46 @@ async function playVideo(videoSrc) {
   player.pause();
   player.removeAttribute('src');
   player.load();
-  player.style.display = 'none';
 
-  adPlayer.pause();
-  adPlayer.removeAttribute('src');
-  adPlayer.load();
-  adPlayer.style.display = 'block';
-  adPlayer.controls = false;
+  const ad = ads[Math.floor(Math.random() * ads.length)];
+  const playlist = [`commercials/${ad}`, videoSrc];
+  let index = 0;
 
-  const rawAd = ads[Math.floor(Math.random() * ads.length)];
-  const adFilename = (typeof rawAd === 'string') ? rawAd : (rawAd.src || rawAd.file || rawAd.filename);
-  if (!adFilename) {
-    console.error('Ad entry malformed:', rawAd);
-    showMainVideo();
-    return;
-  }
-
-  const adUrl = `commercials/${adFilename}`;
-  console.log('Playing ad:', adUrl);
-
-  adPlayer.muted = false;
-  adPlayer.playsInline = true;
-  adPlayer.src = adUrl;
-  adPlayer.load();
+  player.controls = true;
+  player.playsInline = true;
+  player.muted = false;
+  player.src = playlist[index];
+  player.style.display = 'block';
 
   skipBtn.classList.add('hidden');
-  const skipTimer = setTimeout(() => skipBtn.classList.remove('hidden'), 5000);
+  skipBtn.onclick = null;
 
-  function cleanupAfterAd() {
+  const skipTimer = setTimeout(() => {
+    skipBtn.classList.remove('hidden');
+  }, 5000);
+
+  skipBtn.onclick = () => {
     clearTimeout(skipTimer);
+    index = 1;
     skipBtn.classList.add('hidden');
+    player.src = playlist[index];
+    player.play();
+  };
 
-    adPlayer.pause();
-    adPlayer.removeAttribute('src');
-    adPlayer.load();
-    adPlayer.style.display = 'none';
-
-    player.src = videoSrc;
-    player.style.display = 'block';
-    player.muted = false;
-    player.play().catch(err => {
-      console.warn('Main video play() rejected:', err);
-      player.controls = true;
-    });
-  }
-
-  skipBtn.onclick = cleanupAfterAd;
-  adPlayer.onended = cleanupAfterAd;
-
-  try {
-    await adPlayer.play();
-    try { adPlayer.volume = 1; } catch (e) { /* non-fatal */ }
-  } catch (err) {
-    console.warn('adPlayer.play() rejected (autoplay with audio blocked). Falling back to muted play and showing controls.', err);
-    adPlayer.muted = true;
-    adPlayer.controls = true;
-    try { await adPlayer.play(); } catch (err2) {
-      console.error('Even muted play failed:', err2);
-      cleanupAfterAd();
+  player.onended = () => {
+    if (index === 0) clearTimeout(skipTimer);
+    index++;
+    skipBtn.classList.add('hidden');
+    if (index < playlist.length) {
+      player.src = playlist[index];
+      player.play();
     }
-  }
+  };
 
-  function showMainVideo() {
-    adPlayer.pause();
-    adPlayer.removeAttribute('src');
-    adPlayer.load();
-    adPlayer.style.display = 'none';
-
-    player.src = videoSrc;
-    player.style.display = 'block';
-    player.play().catch(() => { player.controls = true; });
-  }
+  player.play().catch(err => {
+    console.warn('play() rejected:', err);
+  });
 }
-
-document.getElementById('close-btn').onclick = () => {
-  const modal = document.getElementById('player-modal');
-  const player = document.getElementById('player');
-  const adPlayer = document.getElementById('ad-player');
-
-  player.pause();
-  player.removeAttribute('src');
-  player.load();
-  player.style.display = 'none';
-
-  adPlayer.pause();
-  adPlayer.removeAttribute('src');
-  adPlayer.load();
-  adPlayer.style.display = 'none';
-  adPlayer.controls = false;
-
-  modal.classList.add('hidden');
-};
 
 document.getElementById('close-btn').onclick = () => {
   const modal = document.getElementById('player-modal');
