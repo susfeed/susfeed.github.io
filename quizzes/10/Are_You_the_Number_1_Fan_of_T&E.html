@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>T&E</title>
+
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+
+  <style>
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .answer-btn {
+      padding: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      background: #222;
+      color: #fff;
+      border: 2px solid #444;
+      cursor: pointer;
+    }
+
+    .answer-btn.correct { border-color: lime; }
+    .answer-btn.wrong { border-color: red; animation: shake 0.3s; }
+
+    .answer-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    @keyframes shake {
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    .scoreboard {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+
+    img.image {
+      max-width: 100%;
+      border-radius: 10px;
+      transition: opacity 0.3s ease;
+    }
+
+    .image {
+        display: block;
+        width: 50%;
+        max-width: 105px;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        margin: 20px auto;
+        border-radius: 12px;
+        }
+  </style>
+</head>
+
+<body>
+
+<div class="wrapper">
+  <div class="site-header"></div>
+
+  <main class="container article-content">
+
+    <h1 class="article-main-title"><u>Are You the Number 1 Fan of T&E?</u></h1>
+    <p class="article-date"><i>Article Published by Cameron at 2025/12/10 11:56 PM CET</i></p>
+    <p class="intro">Will you be prove to be a handsome boy or get sent straight to the dunngeon?</p>
+
+    <div class="scoreboard">
+      Score: <span id="score">0</span> / 5
+    </div>
+
+    <form id="quiz-form">
+
+      <!-- QUESTION 1 -->
+      <div class="question-block"
+           data-correct="Spaghett"
+           data-poster="img/0.webp">
+        <h2 class="title">1. Who is this?</h2>
+        <img src="img/0.webp" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="Wrong">Tennessee</button>
+          <button class="answer-btn" data-movie="Wrong">Ron Austar</button>
+          <button class="answer-btn" data-movie="Spaghett">Spaghett</button>
+          <button class="answer-btn" data-movie="Wrong">Grum</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <!-- QUESTION 2 -->
+      <div class="question-block"
+           data-correct="Tennessee"
+           data-poster="img/1.jpg">
+        <h2 class="title">2. Who portrays Deevee in the hospital scene during the Tim and Eric Awesome Show Great Job! Chrimbus Special on DVD?</h2>
+        <img src="img/1.jpg" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="Tennessee">Tennessee</button>
+          <button class="answer-btn" data-movie="Wrong">David Liebe Hart</button>
+          <button class="answer-btn" data-movie="Wrong">Richard Dunn</button>
+          <button class="answer-btn" data-movie="Wrong">Tom Kenny</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <!-- QUESTION 3 -->
+      <div class="question-block"
+           data-correct="Josh Groban"
+           data-poster="img/2.jpg">
+        <h2 class="title">3. Who covered Casey and His Brother following Casey's unfortunate passing?</h2>
+        <img src="img/2.jpg" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="wrong">Uncle Muscles</button>
+          <button class="answer-btn" data-movie="Josh Groban">Josh Groban</button>
+          <button class="answer-btn" data-movie="wrong">David Cross</button>
+          <button class="answer-btn" data-movie="wrong">DJ Douggpound</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <!-- QUESTION 4 -->
+      <div class="question-block"
+           data-correct="Richard Dunn"
+           data-poster="img/3.webp">
+        <h2 class="title">4. Who was absent in the Tim and Eric Awesome Show 10 Year Anniversary Version, Great Job?</h2>
+        <img src="img/3.webp" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="Richard Dunn">Richard Dunn</button>
+          <button class="answer-btn" data-movie="wrong">Dr. Steve Brule</button>
+          <button class="answer-btn" data-movie="wrong">Tim Heidecker</button>
+          <button class="answer-btn" data-movie="wrong">Weird Al</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <!-- QUESTION 5 -->
+      <div class="question-block"
+           data-correct="Crescent Rolls"
+           data-poster="img/4.webp">
+        <h2 class="title">5. What is the third food listed that the native americans were about to consume during The Pilgrums sketch in season 4 episode 10 "Tennis"?</h2>
+        <img src="img/4.webp" class="image" />
+
+        <div class="answers">
+          <button class="answer-btn" data-movie="Wrong">Maize</button>
+          <button class="answer-btn" data-movie="Wrong">Ambrosia</button>
+          <button class="answer-btn" data-movie="Wrong">Green Bean Casserole</button>
+          <button class="answer-btn" data-movie="Crescent Rolls">Crescent Rolls</button>
+        </div>
+
+        <p class="description feedback"></p>
+      </div>
+
+      <div id="final-result" class="description"
+           style="display:none; text-align:center; margin-top:40px;">
+        <h2 class="title">Quiz Complete</h2>
+        <p id="final-text"></p>
+      </div>
+
+    </form>
+
+  </main>
+
+  <div class="site-footer"></div>
+</div>
+
+<script>
+let score = 0;
+let answered = 0;
+
+document.querySelectorAll('.question-block').forEach(block => {
+  const correct = block.dataset.correct;
+  const poster = block.dataset.poster;
+  const buttons = block.querySelectorAll('.answer-btn');
+  const feedback = block.querySelector('.feedback');
+  const image = block.querySelector('.image');
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (block.classList.contains('answered')) return;
+      block.classList.add('answered');
+      answered++;
+
+      image.src = poster;
+
+      const picked = btn.dataset.movie;
+      buttons.forEach(b => b.disabled = true);
+
+      if (picked === correct) {
+        btn.classList.add('correct');
+        score++;
+      } else {
+        btn.classList.add('wrong');
+        buttons.forEach(b => {
+          if (b.dataset.movie === correct) b.classList.add('correct');
+        });
+      }
+
+      feedback.textContent =
+        picked === correct
+          ? "✅ Correct."
+          : `❌ Wrong. Correct answer: ${correct}`;
+
+      document.getElementById('score').textContent = score;
+
+      if (answered === 5) {
+        const final = document.getElementById('final-result');
+        const text = document.getElementById('final-text');
+
+        final.style.display = "block";
+        text.textContent =
+          score === 5 ? "You are the number 1 fam of T&E! Congratulations!" :
+          "Y̶̝̼͖̘̙͊͐̒̀̑̅̀̆̆̓̈͠o̸͚̹̦̥͎͓̽̃ų̴̠̣̗̀͒̂ ̶̢̯̞͕̞͖̯͚̘̹̬̼͇͙̮́̿̿̅̒̆͒̇͝͠c̵̙͓̤̼͖͒̑͑̏͂̊̿̌͝a̷͚̱̞̱̲̪̰͒̅̂͌̾͒n̷̡̗̭͈̂̆̉̀̊̃̅͂̀̕͘̚ͅn̴̡̛̺̊́̋̆̀̉͋̅̔̚͘̕ō̶̪̟͕t̵̥͎̳͈̤̻̙̥̪͉̗̃̂́̄͘͘͜͝ͅ ̷̡͚̟͇̫̲̗͈̪̤̱̳̆̈̓͂̌͆̈́̐̃̿͂̓̾͜ơ̵̡̟͉̗͇̳̣̯͎͔͐̿̍̅͛̀̓́̃̃̎̀̚͝ṳ̸̢͈͙̝̝̻̙͍͕̒̎͌͒̿̒̾̔͑̈́͝͝͝ͅͅt̴̡̗̱͓͕̫̳͓͂̾͛̑̑̉͜ͅȑ̸͕̭̤̤͔̥͈̈ų̷̧͚̖̣̳̻͕͇̲̼̦̦̓̄̇̚͜n̸̢͇͔̠̦̯̮͖͐ ̸̨̢̗͉̟͖̼̠̦̲̄̈́͒̈́̑̊̋̏̒̄̈́̕̕͜Ľ̴̳͕̮̗͈͔̊̏͛ó̸̬͔͖͍̬̦̹̻̲̽́̀̔̀̌́̓͑͜ͅr̴̛̫̤̫̹̥̬̯͕͐̄̊͐͝d̷̨͙̭͙̰͚͉͉̜͗̓̋͂̾̄̐̌̒͊̿̒̕͜ ̷̡̹͈͓̥̲̯̜͕̻͍̦̱̄̆̐̌͐̉͑͒͘͜͝G̷̣̦͕͙̤̠̊͛̌̅͘͘r̷̲͖̰̝̥̖̂̓̋̓̈́̋̑̀͘͝ͅų̶̧͔͙̦̳͖͎̩̖̱͆̈̊̏̉͂̕ͅm̵̢̢̦͎̦̹̺̘̘͇̤̩̫̂̂̐̇̈́͒͒̕";
+      }
+    });
+  });
+});
+</script>
+
+<script src="../../content.js"></script>
+<script src="../../contentheader.js"></script>
+</body>
+</html>
