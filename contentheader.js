@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const headerContent = `
         <header class="site-header">
             <div class="container header-top">
@@ -20,23 +20,53 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
 
     const headerDiv = document.querySelector('.site-header');
-
     if (headerDiv) {
         headerDiv.innerHTML = headerContent;
     }
-});
 
-document.addEventListener('DOMContentLoaded', function() {
+    const titleEl = document.querySelector('.article-main-title');
+    if (
+        titleEl &&
+        titleEl.textContent.trim() ===
+            'Top 10 Cereals That Will Stop You From Ending It All'
+    ) {
+        const logoImg = document.querySelector('.logo');
+        if (logoImg) {
+            logoImg.src = 'ringo.webp';
+        }
+    }
+    else if (
+        titleEl &&
+        titleEl.textContent.trim() ===
+            'Do You Deserve Happiness?'
+    ) {
+        const logoImg = document.querySelector('.logo');
+        if (logoImg) {
+            logoImg.src = '../../articles/22/ringo.webp';
+        }
+    }
+    else if (
+        titleEl &&
+        titleEl.textContent.trim() ===
+            'Ringo Starr Hangman'
+    ) {
+        const logoImg = document.querySelector('.logo');
+        if (logoImg) {
+            logoImg.src = '../../articles/22/ringo.webp';
+        }
+    }
+
     const footerContent = `
         <footer class="site-footer">
             <div class="container">
-                <a href="gif/../../easteregg.html"><p>&copy; 2025 SusFeed. All rights reserved.</p></a>
+                <a href="gif/../../easteregg.html">
+                    <p>&copy; 2025 SusFeed. All rights reserved.</p>
+                </a>
             </div>
         </footer>
     `;
-    
+
     const footerDiv = document.querySelector('.site-footer');
-    
     if (footerDiv) {
         footerDiv.innerHTML = footerContent;
     }

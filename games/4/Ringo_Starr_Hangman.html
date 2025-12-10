@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tom Holland</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../articles/22/index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    .game-container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      touch-action: none;
+    }
+
+    #hangman {
+      background: #fff7e6;
+      border: 3px solid #5a2d00;
+      padding: 16px;
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    #hangman h2 {
+      color: #c86400;
+      margin-bottom: 8px;
+    }
+
+    #hangmanArt {
+      background: #fff;
+      border: 2px solid #5a2d00;
+      padding: 10px;
+      font-family: monospace;
+      white-space: pre;
+      margin-bottom: 10px;
+    }
+
+    #wordDisplay {
+      font-size: 26px;
+      letter-spacing: 4px;
+      margin: 10px 0;
+    }
+
+    #message {
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .tool-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tool-row button {
+      padding: 6px 10px;
+      border: 2px solid #5a2d00;
+      background: #f3a23a;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .tool-row button:disabled {
+      background: #d3b58c;
+      cursor: not-allowed;
+    }
+
+    #resetBtn {
+      margin-top: 10px;
+      padding: 10px 18px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #c86400;
+      color: white;
+      border: none;
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrapper">
+  <div class="site-header"></div>
+
+  <main class="container article-content">
+    <h1 class="article-main-title"><u>Ringo Starr Hangman</u></h1>
+    <p class="article-date">
+      <i>Article Published by Ringo Starr at 2025/12/10 6:23 PM CET</i>
+    </p>
+
+    <div class="game-container">
+      <div id="hangman">
+
+        <pre id="hangmanArt"></pre>
+        <p id="wordDisplay"></p>
+        <p id="message"></p>
+
+        <div class="tool-row" id="keyboard"></div>
+
+        <button id="resetBtn">🔄 New Game</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="site-footer"></div>
+</div>
+
+<script src="../../contentheader.js"></script>
+
+<script>
+const words = [
+  "PUFFS",
+  "SUICIDE",
+  "IDEATION",
+  "DEPRESSION",
+  "RINGO",
+  "AMONG",
+  "BREAKFAST"
+];
+
+const hangmanStages = [
+`
+
+
+
+
+
+
+=========`,
+`
+      |
+      |
+      |
+      |
+      |
+=========`,
+`
+  +---+
+      |
+      |
+      |
+      |
+=========`,
+`
+  +---+
+  |   |
+      |
+      |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+      |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+  |   |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+ /|   |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+ /|\\  |
+      |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ /    |
+=========`,
+`
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ / \\  |
+=========`
+];
+
+let answer, guessed, mistakes;
+
+const art = document.getElementById("hangmanArt");
+const wordDisplay = document.getElementById("wordDisplay");
+const message = document.getElementById("message");
+const keyboard = document.getElementById("keyboard");
+const resetBtn = document.getElementById("resetBtn");
+
+function startGame() {
+  answer = words[Math.floor(Math.random() * words.length)];
+  guessed = [];
+  mistakes = 0;
+  message.textContent = "";
+  buildKeyboard();
+  updateUI();
+}
+
+function buildKeyboard() {
+  keyboard.innerHTML = "";
+  for (let i = 65; i <= 90; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = String.fromCharCode(i);
+    btn.onclick = () => guess(btn.textContent, btn);
+    keyboard.appendChild(btn);
+  }
+}
+
+function guess(letter, btn) {
+  btn.disabled = true;
+  if (answer.includes(letter)) {
+    guessed.push(letter);
+  } else {
+    mistakes++;
+  }
+  updateUI();
+}
+
+function updateUI() {
+  art.textContent = hangmanStages[mistakes];
+
+  wordDisplay.textContent = answer
+    .split("")
+    .map(l => guessed.includes(l) ? l : "🥜")
+    .join(" ");
+
+  if (!wordDisplay.textContent.includes("🥜")) {
+    message.textContent = "🍫 You solved your ideation!";
+    endGame();
+  }
+
+  if (mistakes >= hangmanStages.length - 1) {
+    message.textContent = `💀 You ended your own life! The answer was ${answer}`;
+    wordDisplay.textContent = answer.split("").join(" ");
+    endGame();
+  }
+}
+
+function endGame() {
+  document.querySelectorAll("#keyboard button").forEach(b => b.disabled = true);
+}
+
+resetBtn.onclick = startGame;
+startGame();
+</script>
+</body>
+</html>

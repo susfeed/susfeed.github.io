@@ -33,13 +33,18 @@
     text-align: center;
   }
   
-  .image {
-    max-width: 100%;
-    border-radius: 8px;
-    display: block;
-    margin: 0 auto 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
+.image {
+  height: 450px;
+  width: auto;
+
+  max-width: 100%;
+
+  display: block;
+  margin: 0 auto 20px;
+
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
   
   .description {
     max-width: 900px;
