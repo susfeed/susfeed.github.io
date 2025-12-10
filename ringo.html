@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ringo's SusFeed</title>
+
+  <link rel="shortcut icon" href="img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="articles/22/index.css" />
+</head>
+<body>
+
+  <style>
+#ringo-bot-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: radial-gradient(circle at top, #ffb347, #ff7300);
+  color: #4a1f00;
+  font-size: 26px;
+  padding: 16px 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(0,0,0,.35);
+  z-index: 9999;
+  transition: transform .2s ease;
+}
+
+#ringo-bot-button:hover {
+  transform: scale(1.05) rotate(-3deg);
+}
+
+#ringo-bot {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 320px;
+  background: #fff4e6;
+  border-radius: 18px;
+  box-shadow: 0 25px 60px rgba(0,0,0,.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+  font-family: 'Trebuchet MS', system-ui, sans-serif;
+}
+
+#ringo-bot.hidden { display: none; }
+
+.ringo-header {
+  background: linear-gradient(135deg, #ff7a00, #a53a00);
+  color: #fff6e5;
+  padding: 14px;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: .6px;
+  text-shadow: 1px 1px 0 #4a1f00;
+}
+
+#ringo-messages {
+  padding: 14px;
+  background: repeating-linear-gradient(
+    45deg,
+    #fff4e6,
+    #fff4e6 10px,
+    #ffe2c4 10px,
+    #ffe2c4 20px
+  );
+  height: 240px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.ringo-message {
+  margin-bottom: 12px;
+  display: flex;
+}
+
+.ringo-bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  line-height: 1.4;
+  box-shadow: 0 4px 10px rgba(0,0,0,.1);
+}
+
+.user { justify-content: flex-end; }
+
+.user .ringo-bubble {
+  background: #ffffff;
+  border: 2px solid #ffb347;
+}
+
+.bot { justify-content: flex-start; }
+
+.bot .ringo-bubble {
+  background: #ff9f43;
+  border: 2px solid #a53a00;
+  color: #4a1f00;
+  font-weight: 600;
+}
+
+.ringo-input {
+  display: flex;
+  border-top: 2px solid #ffb347;
+  background: #fff;
+}
+
+.ringo-input input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  font-size: 14px;
+  outline: none;
+}
+
+.ringo-input button {
+  background: #ff7a00;
+  color: #4a1f00;
+  border: none;
+  padding: 0 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ringo-input button:hover {
+  background: #ff9f43;
+}
+</style>
+
+
+<div class="wrapper">
+
+  <div class="site-header"></div>
+
+  <main>
+    <section class="homepage container">
+
+      <section class="block">
+        <h2 class="section-title">Featured Ringo Starrticles</h2>
+        <div class="block-grid">
+
+          <a href="articles/22/Top_10_Cereals_That_Will_Stop_You_From_Ending_It_All.html"
+             class="block-card">
+            <img src="articles/22/cover.webp" alt="">
+            <h3>Top 10 Cereals That Will Stop You From Ending It All</h3>
+          </a>
+
+        </div>
+      </section>
+
+      <section class="block quiz">
+        <h2 class="section-title">Featured Quiz</h2>
+        <div class="block-grid">
+
+          <a href="quizzes/9/Do_You_Deserve_Happiness.html"
+             class="block-card">
+            <img src="quizzes/9/cover.webp" alt="">
+            <h3>Do You Deserve Happiness?</h3>
+          </a>
+
+        </div>
+      </section>
+
+      <section class="block games">
+        <h2 class="section-title">Featured Game</h2>
+        <div class="block-grid">
+
+          <a href="games/4/Ringo_Starr_Hangman.html"
+             class="block-card">
+            <img src="games/4/cover.webp" alt="">
+            <h3>Ringo Starr Hangman</h3>
+          </a>
+
+        </div>
+      </section>
+
+      <section class="block new">
+        <h2 class="section-title">Embrace the puffs!</h2>
+        <div id="new-articles" class="block-grid"></div>
+
+        <h2 class="section-title"></h2>
+        <div id="new-quizzes" class="block-grid"></div>
+
+        <h2 class="section-title">They solve your ideation!</h2>
+        <div id="new-games" class="block-grid"></div>
+      </section>
+
+    </section>
+  </main>
+
+  <div class="site-footer"></div>
+
+</div>
+
+<script src="header.js"></script>
+
+<div id="ringo-bot-button">💬</div>
+
+<div id="ringo-bot" class="hidden">
+  <div class="ringo-header">Ringo Starr™</div>
+  <div id="ringo-messages"></div>
+  <div class="ringo-input">
+    <input id="ringo-text" placeholder="Talk about cereal or ideation…" />
+    <button id="ringo-send">Send</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("ringo-bot-button");
+  const bot = document.getElementById("ringo-bot");
+  const send = document.getElementById("ringo-send");
+  const input = document.getElementById("ringo-text");
+  const messages = document.getElementById("ringo-messages");
+
+  const ringoLines = [
+    "Peace and love… but mostly the puffs.",
+    "When I drum, I see me Reese’s Puffs floating about.",
+    "The puffs are all I need to solve my ideation.",
+    "You gotta take life easy… and eat the puffs.",
+    "I had suicidal ideation like you. Then I ate Reese's Puffs.",
+    "This ideation can be solved with a family-sized box of the puffs.",
+    "When John and I jerked each other off we loved to recover with a bowl of the puffs.",
+    "I wanted to kill meself too, but then I found the puffs.",
+    "You know John and I loved the puffs.",
+    "Reese's Puffs, part of me suicidal breakfast.",
+    "The suicidal ideation goes away when I smother it in chocolate and peanut butter."
+  ];
+
+  btn.addEventListener("click", () => {
+    bot.classList.toggle("hidden");
+  });
+
+  send.addEventListener("click", sendMsg);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") sendMsg();
+  });
+
+  function sendMsg() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    messages.innerHTML += `
+      <div class="ringo-message user">
+        <div class="ringo-bubble">You: ${text}</div>
+      </div>
+    `;
+    input.value = "";
+    messages.scrollTop = messages.scrollHeight;
+
+    setTimeout(() => {
+      const reply = ringoLines[Math.floor(Math.random() * ringoLines.length)];
+      messages.innerHTML += `
+        <div class="ringo-message bot">
+          <div class="ringo-bubble">${reply}</div>
+        </div>
+      `;
+      messages.scrollTop = messages.scrollHeight;
+    }, 900);
+  }
+});
+</script>
+
+</body>
+</html>

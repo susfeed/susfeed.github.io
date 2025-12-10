@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const footerContent = `
         <footer class="site-footer">
             <div class="container">
-                <a href="gif/../../easteregg.html">
+                <a href="../../ringo.html">
                     <p>&copy; 2025 SusFeed. All rights reserved.</p>
                 </a>
             </div>
