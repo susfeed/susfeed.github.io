@@ -37,9 +37,9 @@ function renderGames(games) {
 }
 
 function loadGames() {
-  const batch = sortedGames.slice(currentIndex, currentIndex + 10);
+  const batch = sortedGames.slice(currentIndex, currentIndex + 9);
   renderGames(batch);
-  currentIndex += 10;
+  currentIndex += 9;
 
   loadMoreBtn.style.display =
     currentIndex >= sortedGames.length ? "none" : "inline-block";
@@ -81,8 +81,8 @@ searchInput.addEventListener("input", () => {
   );
 
   container.innerHTML = "";
-  renderGames(filtered.slice(0, 10));
-  loadMoreBtn.style.display = filtered.length > 10 ? "inline-block" : "none";
+  renderGames(filtered.slice(0, 9));
+  loadMoreBtn.style.display = filtered.length > 9 ? "inline-block" : "none";
 });
 
 fetch("games/index.json")

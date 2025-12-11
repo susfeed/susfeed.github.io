@@ -50,9 +50,9 @@ function clearArticles() {
 }
 
 function loadArticles() {
-  const nextBatch = sortedArticles.slice(currentIndex, currentIndex + 10);
+  const nextBatch = sortedArticles.slice(currentIndex, currentIndex + 9);
   renderArticles(nextBatch);
-  currentIndex += 10;
+  currentIndex += 9;
 
   if (currentIndex >= sortedArticles.length) {
     loadMoreButton.style.display = "none";
@@ -106,12 +106,12 @@ searchInput.addEventListener("input", () => {
 
   currentIndex = 0;
   clearArticles();
-  renderArticles(filtered.slice(0, 10));
+  renderArticles(filtered.slice(0, 9));
 
-  if (filtered.length > 10) {
+  if (filtered.length > 9) {
     loadMoreButton.style.display = "inline-block";
     sortedArticles = filtered;
-    currentIndex = 10;
+    currentIndex = 9;
   } else {
     loadMoreButton.style.display = "none";
   }
