@@ -5,7 +5,7 @@ let sortedGames = [];
 const container = document.getElementById("games-container");
 const loadMoreBtn = document.getElementById("load-more-btn");
 const sortSelect = document.getElementById("sort-select");
-const searchInput = document.getElementById("game-search");
+const searchInput = document.getElementById("article-search");
 
 function renderGames(games) {
   games.forEach(({ folder, file }) => {
