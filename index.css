@@ -565,3 +565,28 @@ button:hover {
   width: 50px;
   animation: bounce 1s alternate infinite;
 }
+
+#sus-bot-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ba1a1a;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+  z-index: 9999;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sus-bot-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
