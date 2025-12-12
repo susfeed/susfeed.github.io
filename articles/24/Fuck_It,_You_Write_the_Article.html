@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title contenteditable="true">Article</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    .image {
+      height: 450px;
+      width: auto;
+      max-width: 100%;
+      display: block;
+      margin: 0 auto 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      object-fit: cover;
+    }
+
+    .image-placeholder {
+      height: 450px;
+      width: auto;
+      max-width: 100%;
+      background: #e5e5e5;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 20px;
+      color: #666;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="file"] {
+      display: block;
+      margin: 10px auto 30px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      background-color: #b30000;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    input[type="file"]:hover {
+      background-color: #800000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+
+      <h1 class="article-main-title" contenteditable="true"><u>Fuck It, You Write the Article</u></h1>
+
+      <p class="article-date" contenteditable="true">
+        <i>Article Published by [Cameron] at [2025/12/12 10:12 PM CET]</i>
+      </p>
+
+      <p class="intro" contenteditable="true">If you think you're so good, you write it.</p>
+
+
+      <h2 class="title" contenteditable="true">10. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox10">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox10')">
+      <p class="description" contenteditable="true">Write description here if you think you're so much funnier than us.</p>
+
+
+      <h2 class="title" contenteditable="true">9. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox9">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox9')">
+      <p class="description" contenteditable="true">Put your "banger ass joke" here.</p>
+
+
+      <h2 class="title" contenteditable="true">8. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox8">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox8')">
+      <p class="description" contenteditable="true">This will totally make your friends think you're cool.</p>
+
+
+      <h2 class="title" contenteditable="true">7. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox7">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox7')">
+      <p class="description" contenteditable="true">This one will bring your ex back.</p>
+
+
+      <h2 class="title" contenteditable="true">6. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox6">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox6')">
+      <p class="description" contenteditable="true">Wow, you are so much better than a team of professional writers.</p>
+
+
+      <h2 class="title" contenteditable="true">5. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox5">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox5')">
+      <p class="description" contenteditable="true">I mean who do you think you are.</p>
+
+
+      <h2 class="title" contenteditable="true">4. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox4">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox4')">
+      <p class="description" contenteditable="true">"Wow look at me, I can type in a box".</p>
+
+
+      <h2 class="title" contenteditable="true">3. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox3">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox3')">
+      <p class="description" contenteditable="true">I think this one will really make people think you're soooo funny.</p>
+
+
+      <h2 class="title" contenteditable="true">2. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox2">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox2')">
+      <p class="description" contenteditable="true">Haha wow real funny.</p>
+
+
+      <h2 class="title" contenteditable="true">1. Entry Title</h2>
+      <div class="image-placeholder" id="imgBox1">Click below to upload</div>
+      <input type="file" accept="image/*" onchange="setImage(event, 'imgBox1')">
+      <p class="description" contenteditable="true">This one should be an Among Us joke.</p>
+
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    function setImage(event, id) {
+      const imgBox = document.getElementById(id);
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        imgBox.outerHTML = "<img src='" + e.target.result + "' class='image'>";
+      };
+
+      reader.readAsDataURL(file);
+    }
+  </script>
+
+</body>
+</html>
