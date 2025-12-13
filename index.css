@@ -42,6 +42,7 @@ a {
   background: #fff;
   color: #222;
   border-bottom: 1px solid #ddd;
+  margin-top: 0px;
 }
 
 .header-top {
@@ -589,4 +590,97 @@ button:hover {
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}
+
+.breaking-news {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  background: #ba1a1a;
+  color: white;
+  overflow: hidden;
+  border-top: 1px solid #ffcccc;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+  margin-top: -15px;
+}
+
+.breaking-label {
+  background: #800000;
+  padding: 0 10px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 1px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.breaking-track {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.breaking-content {
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 100%;
+  animation: breaking-scroll 45s linear infinite;
+  will-change: transform;
+  transform: translate3d(0,0,0);
+}
+
+.breaking-item {
+  display: inline-block;
+  margin-right: 50px;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+.breaking-item::before {
+  content: "• ";
+  margin-right: 4px;
+}
+
+@keyframes breaking-scroll {
+  0%   { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-100%,0,0); }
+}
+
+.breaking-news:hover .breaking-content {
+  animation-play-state: paused;
+}
+
+@media (max-width: 600px) {
+  .breaking-news {
+    height: 24px;
+  }
+
+  .breaking-item {
+    font-size: 11px;
+  }
+}
+
+.breaking-item::before {
+  content: "● ";
+  color: #ff3b3b;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: .3; }
+  50% { opacity: 1; }
+  100% { opacity: .3; }
+}
+
+.breaking-link {
+  color: #fff;
+  text-decoration: none;
+}
+
+.breaking-link:hover {
+  text-decoration: underline;
+  color: #ffe5e5;
 }

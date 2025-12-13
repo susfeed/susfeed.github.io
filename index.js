@@ -1,3 +1,37 @@
+async function loadBreakingNews() {
+  try {
+    const response = await fetch("news/scroll.json");
+    const stories = await response.json();
+
+    const shuffled = stories.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 8);
+
+    const container = document.getElementById("breaking-content");
+    container.innerHTML = "";
+
+    selected.forEach(story => {
+      let el;
+
+      if (story.url) {
+        el = document.createElement("a");
+        el.href = story.url;
+        el.className = "breaking-item breaking-link";
+      } else {
+        el = document.createElement("span");
+        el.className = "breaking-item";
+      }
+
+      el.textContent = story.title || story;
+      container.appendChild(el);
+    });
+
+  } catch (err) {
+    console.error("Failed to load breaking news:", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadBreakingNews);
+
 async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
       try {
         const response = await fetch(jsonPath);
@@ -73,7 +107,12 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "Eat some more Reeese's Puffs!",
     "Atone for your sins, the puppy will forgive you.",
     "Continue clicking on!",
-    "Coat Tom Holland in that sweet sweet mayo then come back to me."
+    "Coat Tom Holland in that sweet sweet mayo then come back to me.",
+    "Consume the puffs!",
+    "Ask the Al again!",
+    "I quit, write your own response.",
+    "Eat more puffs.",
+    "I Bond burgered your sister"
   ];
 
   susBotButton.addEventListener("click", () => {
