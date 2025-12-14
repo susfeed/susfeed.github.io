@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Which Currency?</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Which Currency Are You?</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2025/12/14 5:39 PM CET</i></p>
+
+      <p class="intro">Are you more a dollar or a yen?</p>
+
+      <form id="quiz-form">
+
+        <div class="question-block">
+          <h2 class="title">1. What's your favorite continent:</h2>
+          <label><input type="radio" name="q1" value="gelt" data-result="gelt" data-points="3" /> Oceania</label><br>
+          <label><input type="radio" name="q1" value="gelt" data-result="gelt" data-points="3" /> Asia</label><br>
+          <label><input type="radio" name="q1" value="gelt" data-result="gelt" data-points="3" /> Africa</label><br>
+          <label><input type="radio" name="q1" value="gelt" data-result="gelt" data-points="3" /> Europe</label>
+        </div>
+        
+        <div class="question-block">
+          <h2 class="title">2. Pick a holiday:</h2>
+          <label><input type="radio" name="q2" value="gelt" data-result="gelt" data-points="3" /> Halloween</label><br>
+          <label><input type="radio" name="q2" value="gelt" data-result="gelt" data-points="3" /> Valentine's Day</label><br>
+          <label><input type="radio" name="q2" value="gelt" data-result="gelt" data-points="3" /> New Years</label><br>
+          <label><input type="radio" name="q2" value="gelt" data-result="gelt" data-points="3" /> Canada Day</label>
+        </div>
+        
+        <div class="question-block">
+          <h2 class="title">3. Pick and Amond Us color:</h2>
+          <label><input type="radio" name="q3" value="gelt" data-result="gelt" data-points="3" /> Red</label><br>
+          <label><input type="radio" name="q3" value="gelt" data-result="gelt" data-points="3" /> Blue</label><br>
+          <label><input type="radio" name="q3" value="gelt" data-result="gelt" data-points="3" /> Cyan</label><br>
+          <label><input type="radio" name="q3" value="gelt" data-result="gelt" data-points="3" /> Purple</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">4. What is the meaning of life:</h2>
+          <label><input type="radio" name="q4" value="gelt" data-result="gelt" data-points="3" /> Nothing</label><br>
+          <label><input type="radio" name="q4" value="gelt" data-result="gelt" data-points="3" /> To pursue happiness and fulfillment</label><br>
+          <label><input type="radio" name="q4" value="gelt" data-result="gelt" data-points="3" /> Finding connection with others</label><br>
+          <label><input type="radio" name="q4" value="gelt" data-result="gelt" data-points="3" /> To eat more pizza</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">5. Pick a felony:</h2>
+          <label><input type="radio" name="q5" value="gelt" data-result="gelt" data-points="3" /> Arson</label><br>
+          <label><input type="radio" name="q5" value="gelt" data-result="gelt" data-points="3" /> Tax Evasion</label><br>
+          <label><input type="radio" name="q5" value="gelt" data-result="gelt" data-points="3" /> Embezzlement</label><br>
+          <label><input type="radio" name="q5" value="gelt" data-result="gelt" data-points="3" /> Enjoying Shrek the Third</label>
+        </div>
+        
+        <div class="question-block" style="text-align:center; margin-top:40px;">
+          <button type="button" onclick="getResult()">See My Results</button>
+        </div>        
+
+      </form>
+
+      <div id="result" class="description" style="text-align: center; display: none; margin-top: 40px;">
+        <div id="result-gelt" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... Gelt!</h2>
+          <p>You're a delicious chocolate treat, not a currency!</p>
+          <img src="img/gelt.jpg" class="image" alt="gelt" />
+        </div>
+      </div>            
+
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../content.js"></script>
+  <script src="../../contentheader.js"></script>
+</body>
+</html>
