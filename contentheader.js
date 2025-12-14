@@ -56,6 +56,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    const sectionDiv = document.querySelector('.site-header');
+    if (sectionDiv) {
+        sectionDiv.innerHTML = headerContent;
+    }
+
+    const sectionEl = document.querySelector('.section-title');
+    if (
+        sectionEl &&
+        sectionEl.textContent.trim() ===
+            'Featured Ringo Starrticles'
+    ) {
+        const logoImg = document.querySelector('.logo');
+        if (logoImg) {
+            logoImg.src = '../22/ringo.webp';
+        }
+    }
+
     const footerContent = `
         <footer class="site-footer">
             <div class="container">
