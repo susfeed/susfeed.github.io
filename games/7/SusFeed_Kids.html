@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="img/amogus.png" type="image/x-icon" />
+  <title>SusFeed Kids</title>
+  <link rel="stylesheet" href="kids.css" />
+</head>
+<body>
+<div class="wrapper">
+
+  <header class="site-header">
+    <div class="header-top container header-centered">
+        <img src="img/logo.png" alt="SusFeed Kids Logo" class="site-logo" />
+    </div>
+    <nav class="main-nav">
+      <ul class="nav-links">
+        <li><a href="../../index.html">Home</a></li>
+        <li><a href="../../articles.html">Articles</a></li>
+        <li><a href="../../quiz.html">Quizzes</a></li>
+        <li><a href="../../games.html">Games</a></li>
+        <li><a href="../../about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2 class="section-title">Learn, Laugh, Think</h2>
+    <p class="intro">SusFeed Kids is a school-safe version of SusFeed focused on media literacy, critical thinking, humor analysis, and interactive learning.</p>
+
+    <section class="homepage">
+
+      <section class="block">
+        <h2 class="section-title">Featured Articles</h2>
+        <div class="block-grid">
+          <a href="../../articles\25\Why_Mommy_and_Daddy_Got_Divorced.html"><div class="block-card">
+            <img src="../../articles\25\cover.webp" alt="illustration" />
+            <h3>Why Mommy and Daddy Got Divorced</h3>
+            <p class="card-content">Understanding divorce, new parents, and more.</p>
+          </div></a>
+          <a href="../../articles\26\Is_Santa_Real.html"><div class="block-card">
+            <img src="../../articles\26\cover.webp" alt="illustration" />
+            <h3>Is Santa Real?</h3>
+            <p class="card-content">We will answer kids' most burning question!</p>
+          </div></a>
+        </div>
+      </section>
+
+      <section class="block quiz">
+        <h2 class="section-title">Interactive Quizzes</h2>
+        <div class="block-grid">
+          <a href="../../quizzes\12\Super_Fun_Knowledge_Quiz.html"><div class="block-card">
+            <img src="../../quizzes\12\cover.webp" alt="illustration" />
+            <h3>Super Fun Knowledge Quiz!</h3>
+            <p class="card-content">Will you get all 4?</p>
+          </div></a>
+        </div>
+      </section>
+
+      <section class="block games">
+        <h2 class="section-title">Educational Games</h2>
+        <div class="block-grid">
+          <a href="..\8\Fortune_Teller.html"><div class="block-card">
+            <img src="../8\cover.webp" alt="illustration" />
+            <h3>Fortune Teller</h3>
+            <p class="card-content">What does your future hold?</p>
+          </div></a>
+        </div>
+      </section>
+
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>©SusFeed Kids</p>
+  </footer>
+
+</div>
+
+<button id="sus-bot-button">🤖 Ask SusBot</button>
+
+<div id="sus-bot" class="sus-bot hidden">
+<div class="sus-header">SusBot Al</div>
+<div id="sus-messages" class="sus-messages"></div>
+<div class="sus-input">
+<input id="sus-text" type="text" placeholder="Ask a question..." />
+<button id="sus-send">Send</button>
+</div>
+</div>
+
+<script src="kids.js"></script>
+
+</body>
+</html>

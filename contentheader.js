@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ) {
         const logoImg = document.querySelector('.logo');
         if (logoImg) {
-            logoImg.src = '../22/ringo.webp';
+            logoImg.src = '../../articles/22/ringo.webp';
         }
     }
 

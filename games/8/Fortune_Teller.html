@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SusFeed Kids Fortune Teller</title>
+
+  <link rel="shortcut icon" href="../../games/7/img/amogus.png" type="image/x-icon" />
+  <link rel="stylesheet" href="../../games/7/kids.css" />
+
+  <style>
+    .article-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px;
+      border: 5px solid var(--blue);
+      padding: 24px;
+      box-shadow: 0 12px 0 rgba(0,0,0,0.08);
+    }
+
+    .article-header {
+      text-align: center;
+    }
+
+    .article-header h1 {
+      font-size: 36px;
+      color: var(--red);
+    }
+
+    .quiz-question {
+      background: var(--bg);
+      border-left: 8px solid var(--green);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 24px 0;
+    }
+
+    .quiz-options label {
+      display: block;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+
+    #submit-quiz {
+      margin-top: 30px;
+      padding: 14px 24px;
+      font-size: 20px;
+      border-radius: 999px;
+      border: none;
+      background: var(--red);
+      color: white;
+      cursor: pointer;
+    }
+
+    #score-box {
+      margin-top: 30px;
+      padding: 20px;
+      background: #e7f5ff;
+      border-radius: 20px;
+      font-size: 22px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="header-top container header-centered">
+    <img src="../../games/7/img/logo.png" alt="SusFeed Kids Logo" class="site-logo" />
+  </div>
+  <nav class="main-nav">
+    <ul class="nav-links">
+      <li><a href="../../games/7/SusFeed_Kids.html">Home</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="container">
+  <article class="article-wrapper">
+
+    <header class="article-header">
+      <h1>🔮 Magic Fortune Teller</h1>
+      <p>Answer the questions and discover your future!</p>
+    </header>
+
+    <section class="article-content">
+
+      <div class="quiz-question">
+        <h2>✨ Pick a color</h2>
+        <div class="quiz-options">
+          <label><input type="radio" name="q1"> Red</label>
+          <label><input type="radio" name="q1"> Blue</label>
+          <label><input type="radio" name="q1"> Green</label>
+          <label><input type="radio" name="q1"> Purple</label>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <h2>🐾 Pick an animal</h2>
+        <div class="quiz-options">
+          <label><input type="radio" name="q2"> Cat</label>
+          <label><input type="radio" name="q2"> Dog</label>
+          <label><input type="radio" name="q2"> Dragon</label>
+          <label><input type="radio" name="q2"> Unicorn</label>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <h2>🍕 Pick a snack</h2>
+        <div class="quiz-options">
+          <label><input type="radio" name="q3"> Pizza</label>
+          <label><input type="radio" name="q3"> Ice Cream</label>
+          <label><input type="radio" name="q3"> Apples</label>
+          <label><input type="radio" name="q3"> Cookies</label>
+        </div>
+      </div>
+
+      <button id="submit-quiz">🔮 Reveal My Fortune</button>
+      <div id="score-box"></div>
+
+    </section>
+
+  </article>
+</main>
+
+<footer class="site-footer">
+  <p>© SusFeed Kids</p>
+</footer>
+
+<button id="sus-bot-button">🤖 Ask SusBot</button>
+
+<div id="sus-bot" class="sus-bot hidden">
+  <div class="sus-header">SusBot AI</div>
+  <div id="sus-messages" class="sus-messages"></div>
+  <div class="sus-input">
+    <input id="sus-text" type="text" placeholder="Ask a question..." />
+    <button id="sus-send">Send</button>
+  </div>
+</div>
+
+<script>
+  const fortunes = [
+    "🌟 Someone you know will die today!",
+    "🎉 A monster under your bed will get you!",
+    "📚 You will learn of the horrors!",
+    "🤝 A friend will call you an idiot!",
+    "🍀 You will learn of Ricky Gervais!",
+    "🚀 You will be outed as the impostor!"
+  ];
+
+  document.getElementById("submit-quiz").addEventListener("click", () => {
+    const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+    const box = document.getElementById("score-box");
+    box.style.display = "block";
+    box.textContent = fortune;
+  });
+</script>
+
+<script src="../../games/7/kids.js"></script>
+</body>
+</html>

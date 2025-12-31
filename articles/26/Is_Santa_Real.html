@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SusFeed Kids</title>
+  <link rel="shortcut icon" href="../../games/7/img/amogus.png" type="image/x-icon" />
+
+  <link rel="stylesheet" href="../../games/7/kids.css" />
+
+  <style>
+    .article-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px;
+      border: 5px solid var(--blue);
+      padding: 24px;
+      box-shadow: 0 12px 0 rgba(0,0,0,0.08);
+    }
+
+    .article-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .article-header h1 {
+      font-size: 36px;
+      color: var(--red);
+      margin-bottom: 8px;
+      text-shadow: 2px 2px 0 #ffdede;
+    }
+
+    .article-meta {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .article-hero {
+      width: 50%;
+      height: 50%;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 4px dashed var(--yellow);
+      margin: 20px 0;
+    }
+
+    .article-content {
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .article-content h2 {
+      color: var(--blue);
+      margin-top: 28px;
+      font-size: 26px;
+    }
+
+    .article-content p {
+      margin-bottom: 16px;
+    }
+
+    .fun-fact {
+      background: var(--bg);
+      border-left: 8px solid var(--green);
+      border-radius: 16px;
+      padding: 16px;
+      margin: 24px 0;
+      font-weight: bold;
+    }
+
+    .check-yourself {
+      background: #fff3cd;
+      border: 4px dashed var(--red);
+      border-radius: 20px;
+      padding: 18px;
+      margin: 30px 0;
+    }
+
+    .check-yourself h3 {
+      margin-top: 0;
+      color: var(--red);
+    }
+
+    .article-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .tag {
+      background: var(--blue);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .back-button {
+      text-decoration: none;
+    }
+
+    .rainbow-text {
+  background: linear-gradient(
+    90deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #8f00ff
+  );
+  background-size: 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbow-move 4s linear infinite;
+  font-weight: bold;
+}
+
+@keyframes rainbow-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 300% 50%;
+  }
+}
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-top container header-centered">
+    <img src="../../games/7/img/logo.png" alt="SusFeed Kids Logo" class="site-logo" />
+  </div>
+  <nav class="main-nav">
+    <ul class="nav-links">
+      <li><a href="../../games/7/SusFeed_Kids.html">Home</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="container">
+  <article class="article-wrapper">
+
+    <header class="article-header">
+      <h1>Is Santa Real?</h1>
+      <div class="article-meta">By SusFeed Kids • 1 min read</div>
+    </header>
+
+    <img src="img/0.jpg" alt="illustration" class="article-hero" />
+
+    <section class="article-content">
+      <p>
+        You may be wondering if Santa Claus is real buckaroo! Well,
+      </p>
+      <p class="rainbow-text">NO!</p>
+
+      <h2>Magic isn't real!</h2>
+      <p>
+        That's right champ! Magic isn't real, this is all there is!
+      </p>
+
+      <img src="img/1.avif" alt="illustration" class="article-hero" />
+
+      <h2>What does this mean for the nature of reality?</h2>
+      <p>
+        Well son, this means that there is no whimsy in this world! There is nothing you can do to change this, so just accept you life the way it is!
+      </p>
+
+      <div class="fun-fact">🤯 Fun Fact: We are all just specks in an endless cosmos!</div>
+
+      <h2>But what about God?</h2>
+      <p>
+        Nobody really knows little man, but if there is a god he sure has damned us all to a life of suffering!
+      </p>
+
+      <div class="check-yourself">
+        <h3>Question of the Day</h3>
+        <p>
+          Ask yourself: What do you think the nature of the universe is in our post-Nietzsche world?
+        </p>
+      </div>
+    </section>
+
+    <footer class="article-footer">
+      <div>
+        <span class="tag">Innocence</span>
+        <span class="tag">Magic</span>
+      </div>
+      <a href="../../games/7/SusFeed_Kids.html" class="back-button">
+        <button>⬅ Back to Articles</button>
+      </a>
+    </footer>
+
+  </article>
+</main>
+
+<footer class="site-footer">
+  <p>©SusFeed Kids</p>
+</footer>
+
+<button id="sus-bot-button">🤖 Ask SusBot</button>
+
+<div id="sus-bot" class="sus-bot hidden">
+  <div class="sus-header">SusBot Al</div>
+  <div id="sus-messages" class="sus-messages"></div>
+  <div class="sus-input">
+    <input id="sus-text" type="text" placeholder="Ask a question..." />
+    <button id="sus-send">Send</button>
+  </div>
+</div>
+
+<script src="../../games/7/kids.js"></script>
+</body>
+</html>

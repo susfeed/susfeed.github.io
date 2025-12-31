@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz</title>
+
+  <link rel="shortcut icon" href="../../games/7/img/amogus.png" type="image/x-icon" />
+  <link rel="stylesheet" href="../../games/7/kids.css" />
+
+  <style>
+    .article-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px;
+      border: 5px solid var(--blue);
+      padding: 24px;
+      box-shadow: 0 12px 0 rgba(0,0,0,0.08);
+    }
+
+    .article-header {
+      text-align: center;
+    }
+
+    .article-header h1 {
+      font-size: 36px;
+      color: var(--red);
+    }
+
+    .quiz-question {
+      background: var(--bg);
+      border-left: 8px solid var(--green);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 24px 0;
+    }
+
+    .quiz-options label {
+      display: block;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+
+    .result {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    #submit-quiz {
+      margin-top: 30px;
+      padding: 14px 24px;
+      font-size: 20px;
+      border-radius: 999px;
+      border: none;
+      background: var(--red);
+      color: white;
+      cursor: pointer;
+    }
+
+    #score-box {
+      margin-top: 30px;
+      padding: 20px;
+      background: #e7f5ff;
+      border-radius: 20px;
+      font-size: 22px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="header-top container header-centered">
+    <img src="../../games/7/img/logo.png" alt="SusFeed Kids Logo" class="site-logo" />
+  </div>
+  <nav class="main-nav">
+    <ul class="nav-links">
+      <li><a href="../../games/7/SusFeed_Kids.html">Home</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="container">
+  <article class="article-wrapper">
+
+    <header class="article-header">
+      <h1>🧠 Super Fun Knowledge Quiz!</h1>
+      <p>Test your brain power!</p>
+    </header>
+
+    <section class="article-content">
+
+      <div class="quiz-question" data-answer="b">
+        <h2>1️⃣ Which animal is the largest on Earth?</h2>
+        <div class="quiz-options">
+          <label><input type="radio" name="q1" value="a"> Elephant</label>
+          <label><input type="radio" name="q1" value="b"> Your Mother</label>
+          <label><input type="radio" name="q1" value="c"> Giraffe</label>
+          <label><input type="radio" name="q1" value="d"> T-Rex</label>
+        </div>
+        <div class="result"></div>
+      </div>
+
+      <div class="quiz-question" data-answer="c">
+        <h2>2️⃣ What is the largest object in the solar system?</h2>
+        <div class="quiz-options">
+          <label><input type="radio" name="q2" value="a"> The Sun</label>
+          <label><input type="radio" name="q2" value="b"> Jupiter</label>
+          <label><input type="radio" name="q2" value="c"> Your Mother</label>
+          <label><input type="radio" name="q2" value="d"> Saturn</label>
+        </div>
+        <div class="result"></div>
+      </div>
+
+      <div class="quiz-question" data-answer="b">
+        <h2>3️⃣ How many times have I done your mother?</h2>
+        <div class="quiz-options">
+          <label><input type="radio" name="q3" value="a"> 6</label>
+          <label><input type="radio" name="q3" value="b"> 8</label>
+          <label><input type="radio" name="q3" value="c"> 10</label>
+          <label><input type="radio" name="q3" value="d"> 12</label>
+        </div>
+        <div class="result"></div>
+      </div>
+
+      <div class="quiz-question" data-answer="c">
+        <h2>4️⃣ What color lipstick was your mother wearing when I railed her last night?</h2>
+        <div class="quiz-options">
+          <label><input type="radio" name="q4" value="a"> Green</label>
+          <label><input type="radio" name="q4" value="b"> Orange</label>
+          <label><input type="radio" name="q4" value="c"> Purple</label>
+          <label><input type="radio" name="q4" value="d"> Yellow</label>
+        </div>
+        <div class="result"></div>
+      </div>
+
+      <button id="submit-quiz">✅ Submit Quiz</button>
+      <div id="score-box"></div>
+
+    </section>
+
+  </article>
+</main>
+
+<footer class="site-footer">
+  <p>© SusFeed Kids</p>
+</footer>
+
+<button id="sus-bot-button">🤖 Ask SusBot</button>
+
+<div id="sus-bot" class="sus-bot hidden">
+  <div class="sus-header">SusBot AI</div>
+  <div id="sus-messages" class="sus-messages"></div>
+  <div class="sus-input">
+    <input id="sus-text" type="text" placeholder="Ask a question..." />
+    <button id="sus-send">Send</button>
+  </div>
+</div>
+
+<script>
+  document.getElementById("submit-quiz").addEventListener("click", () => {
+    const questions = document.querySelectorAll(".quiz-question");
+    let score = 0;
+
+    questions.forEach(q => {
+      const correct = q.dataset.answer;
+      const selected = q.querySelector("input[type=radio]:checked");
+      const result = q.querySelector(".result");
+
+      if (!selected) {
+        result.textContent = "❗ No answer selected";
+        result.className = "result incorrect";
+        return;
+      }
+
+      if (selected.value === correct) {
+        score++;
+        result.textContent = "✅ Correct!";
+        result.className = "result correct";
+      } else {
+        result.textContent = "❌ Incorrect";
+        result.className = "result incorrect";
+      }
+    });
+
+    const scoreBox = document.getElementById("score-box");
+    scoreBox.style.display = "block";
+    scoreBox.textContent = `🎉 You scored ${score} out of ${questions.length}!`;
+  });
+</script>
+
+<script src="../../games/7/kids.js"></script>
+</body>
+</html>
