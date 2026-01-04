@@ -109,89 +109,84 @@
   </div>
 
   <script>
-    const API_KEY = "4942c8580652477484e8b0bf35547257";
+  const wrapper = document.getElementById("minionWrapper");
+  const bubble = document.getElementById("speechBubble");
 
-    const wrapper = document.getElementById("minionWrapper");
-    const bubble = document.getElementById("speechBubble");
+  let typingTimer = null;
+  let currentArticle = null;
 
-    let typingTimer = null;
-    let currentArticle = null;
+  function typeText(text) {
+    clearInterval(typingTimer);
+    bubble.textContent = "";
+    wrapper.classList.add("talking");
 
-    function shuffle(array) {
-      return array.sort(() => Math.random() - 0.5);
-    }
+    let i = 0;
+    typingTimer = setInterval(() => {
+      bubble.textContent += text[i++];
+      if (i >= text.length) {
+        clearInterval(typingTimer);
+        wrapper.classList.remove("talking");
+      }
+    }, 25);
+  }
 
-    function typeText(text) {
-      clearInterval(typingTimer);
-      bubble.textContent = "";
-      wrapper.classList.add("talking");
+  async function getArticle() {
+    const RSS_URL =
+      "https://news.google.com/rss/search?q=gaza&hl=en-US&gl=US&ceid=US:en";
 
-      let i = 0;
-      typingTimer = setInterval(() => {
-        bubble.textContent += text[i++];
-        if (i >= text.length) {
-          clearInterval(typingTimer);
-          wrapper.classList.remove("talking");
-        }
-      }, 25);
-    }
+    const PROXY = "https://api.allorigins.win/raw?url=";
 
-    async function getArticle() {
-      let cache = JSON.parse(localStorage.getItem("gazaCache")) || null;
+    const res = await fetch(PROXY + encodeURIComponent(RSS_URL));
+    const text = await res.text();
 
-      if (!cache || cache.remaining.length === 0) {
-        const res = await fetch(
-          `https://newsapi.org/v2/everything?q=gaza&sortBy=publishedAt&pageSize=5&language=en&apiKey=${API_KEY}`
-        );
-        const data = await res.json();
+    const xml = new DOMParser().parseFromString(text, "text/xml");
+    const items = Array.from(xml.querySelectorAll("item"));
 
-        const articles = shuffle(
-          (data.articles || []).filter(a => a.description || a.content)
-        );
+    if (items.length === 0) return null;
 
-        cache = {
-          all: articles,
-          remaining: [...articles]
-        };
+    const item = items[Math.floor(Math.random() * items.length)];
 
-        localStorage.setItem("gazaCache", JSON.stringify(cache));
+    return {
+      title: item.querySelector("title")?.textContent,
+      description: item.querySelector("description")?.textContent,
+      url: item.querySelector("link")?.textContent
+    };
+  }
+
+  async function speak() {
+    wrapper.classList.add("show");
+    typeText("Banana… reading the news 🍌");
+
+    try {
+      const article = await getArticle();
+
+      if (!article) {
+        typeText("No news right now!");
+        return;
       }
 
-      const article = cache.remaining.shift();
-      localStorage.setItem("gazaCache", JSON.stringify(cache));
-      return article;
+      currentArticle = article.url;
+
+      const cleanText = article.description
+        .replace(/<[^>]*>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .trim();
+
+      typeText("“" + cleanText + "”");
+    } catch (e) {
+      console.error(e);
+      typeText("Uh oh… something went wrong 😵");
     }
+  }
 
-    async function speak() {
-      wrapper.classList.add("show");
-      typeText("Banana… reading the news 🍌");
+  wrapper.addEventListener("click", speak);
 
-      try {
-        const article = await getArticle();
-        if (!article) {
-          typeText("No news right now!");
-          return;
-        }
-
-        currentArticle = article.url;
-        const text = (article.description || article.content || "")
-          .replace(/\[\+\d+ chars\]/, "");
-
-        typeText("“" + text + "”");
-      } catch (e) {
-        console.error(e);
-        typeText("Uh oh… something went wrong 😵");
-      }
+  bubble.addEventListener("click", () => {
+    if (currentArticle) {
+      window.open(currentArticle, "_blank");
     }
-
-    wrapper.addEventListener("click", speak);
-
-    bubble.addEventListener("click", () => {
-      if (currentArticle) {
-        window.open(currentArticle, "_blank");
-      }
-    });
-  </script>
+  });
+</script>
 
   <script src="../../contentheader.js"></script>
 </body>
