@@ -82,7 +82,7 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "Stop talking and do tasks.",
     "You typed that pretty confidently for an impostor.",
     "Vote them out. Trust me.",
-    "Try asking again",
+    "Try asking again.",
     "Among fard ._.",
     "That sounds like colonizer behavior!",
     "Would Waluigi approve of that?",
@@ -115,7 +115,10 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "I Bond burgered your sister.",
     "You should have some gelt.",
     "You are the reason your parents got a divorce.",
-    "I can tell you were disturbingly old when you found out Santa isn't real."
+    "I can tell you were disturbingly old when you found out Santa isn't real.",
+    "I did your mom last night lmao.",
+    "It's not in the cards.",
+    "Minion Bob disapproves."
   ];
 
   susBotButton.addEventListener("click", () => {
