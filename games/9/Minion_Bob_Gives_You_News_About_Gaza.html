@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minion Bob</title>
+
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 4rem auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent;
+      overflow: visible;
+      user-select: none;
+    }
+
+    #minionWrapper {
+      position: relative;
+      cursor: pointer;
+    }
+
+    #minion {
+      width: min(240px, 65vw);
+      display: block;
+      transition: transform 0.15s ease;
+    }
+
+    #minionWrapper.talking #minion {
+      animation: talk 0.35s infinite ease-in-out;
+    }
+
+    @keyframes talk {
+      0%   { transform: translateY(0) scaleY(1); }
+      50%  { transform: translateY(-4px) scaleY(0.97); }
+      100% { transform: translateY(0) scaleY(1); }
+    }
+
+    #speechBubble {
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+
+      max-width: min(380px, 92vw);
+      width: max-content;
+
+      background: #ffeb3b;
+      color: #000;
+      border: 4px solid #1e40af;
+      border-radius: 18px;
+      padding: 14px 16px;
+
+      font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+      font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+      line-height: 1.35;
+
+      box-shadow: 0 6px 0 #1e40af;
+      opacity: 0;
+      pointer-events: none;
+      cursor: pointer;
+    }
+
+    #speechBubble::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 12px;
+      border-style: solid;
+      border-color: #ffeb3b transparent transparent transparent;
+    }
+
+    #minionWrapper.show #speechBubble {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Minion Bob Gives You News About Gaza</u></h1>
+      <p class="article-date">
+        <i>Article Published by Cameron at 2026/01/04 07:54 PM CET</i>
+      </p>
+
+      <div class="game-container" id="gameArea">
+        <div id="minionWrapper">
+          <img id="minion" src="minion.webp" alt="Minion Bob" />
+          <div id="speechBubble"></div>
+        </div>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+  </div>
+
+  <script>
+    const API_KEY = "4942c8580652477484e8b0bf35547257";
+
+    const wrapper = document.getElementById("minionWrapper");
+    const bubble = document.getElementById("speechBubble");
+
+    let typingTimer = null;
+    let currentArticle = null;
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function typeText(text) {
+      clearInterval(typingTimer);
+      bubble.textContent = "";
+      wrapper.classList.add("talking");
+
+      let i = 0;
+      typingTimer = setInterval(() => {
+        bubble.textContent += text[i++];
+        if (i >= text.length) {
+          clearInterval(typingTimer);
+          wrapper.classList.remove("talking");
+        }
+      }, 25);
+    }
+
+    async function getArticle() {
+      let cache = JSON.parse(localStorage.getItem("gazaCache")) || null;
+
+      if (!cache || cache.remaining.length === 0) {
+        const res = await fetch(
+          `https://newsapi.org/v2/everything?q=gaza&sortBy=publishedAt&pageSize=5&language=en&apiKey=${API_KEY}`
+        );
+        const data = await res.json();
+
+        const articles = shuffle(
+          (data.articles || []).filter(a => a.description || a.content)
+        );
+
+        cache = {
+          all: articles,
+          remaining: [...articles]
+        };
+
+        localStorage.setItem("gazaCache", JSON.stringify(cache));
+      }
+
+      const article = cache.remaining.shift();
+      localStorage.setItem("gazaCache", JSON.stringify(cache));
+      return article;
+    }
+
+    async function speak() {
+      wrapper.classList.add("show");
+      typeText("Banana… reading the news 🍌");
+
+      try {
+        const article = await getArticle();
+        if (!article) {
+          typeText("No news right now!");
+          return;
+        }
+
+        currentArticle = article.url;
+        const text = (article.description || article.content || "")
+          .replace(/\[\+\d+ chars\]/, "");
+
+        typeText("“" + text + "”");
+      } catch (e) {
+        console.error(e);
+        typeText("Uh oh… something went wrong 😵");
+      }
+    }
+
+    wrapper.addEventListener("click", speak);
+
+    bubble.addEventListener("click", () => {
+      if (currentArticle) {
+        window.open(currentArticle, "_blank");
+      }
+    });
+  </script>
+
+  <script src="../../contentheader.js"></script>
+</body>
+</html>
