@@ -10,15 +10,25 @@
 <body class="index">
 
 <div class="header">
-  <h1>SusiPedia</h1>
+  <div class="logo">
+    <img src="logo.png" alt="SusiPedia">
+  </div>
   <p>The Free Ensusipedia</p>
 
   <div class="search-bar">
-    <input type="search" placeholder="Search SusiPedia">
+    <input id="searchInput" type="search" placeholder="Search SusiPedia">
+    <button id="searchBtn">Search</button>
   </div>
 </div>
 
 <div class="main">
+
+<div class="panel articles-panel">
+  <h2>Articles</h2>
+  <ul id="articles-list" class="articles-list">
+    <li class="loading">Loading articles…</li>
+  </ul>
+</div>
 
   <div class="panel">
     <h2>Welcome to SusiPedia</h2>
@@ -28,8 +38,6 @@
       <li>69,420 articles</li>
     </ul>
 
-    <p><b>Featured article:</b> <a href="articles/1/SusiPedia.html">SusiPedia</a></p>
-    <p><b>Featured article:</b> <a href="articles/2/SusFeed.html">SusFeed</a></p>
   </div>
 
   <div class="panel">
@@ -46,6 +54,116 @@
 <footer>
   Text is available under the Sus Attribution-ShareAlike License
 </footer>
+
+<div id="searchResults" class="search-results hidden">
+  <div class="search-results-box">
+    <div class="search-results-header">
+      <span id="resultsTitle">Search results</span>
+      <button id="closeResults">✕</button>
+    </div>
+    <ul id="resultsList" class="articles-list"></ul>
+  </div>
+</div>
+
+<script>
+let allArticles = [];
+
+const list = document.getElementById("articles-list");
+const input = document.getElementById("searchInput");
+const button = document.getElementById("searchBtn");
+
+const overlay = document.getElementById("searchResults");
+const resultsList = document.getElementById("resultsList");
+const closeBtn = document.getElementById("closeResults");
+const title = document.getElementById("resultsTitle");
+
+fetch("articles/articles.json")
+  .then(res => res.json())
+  .then(articles => {
+    allArticles = articles;
+    renderHomeArticles(
+      articles.slice().reverse().slice(0, 10)
+    );
+  });
+
+function renderHomeArticles(articles) {
+  list.innerHTML = "";
+  articles.forEach(article => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = `articles/${article.id}/${article.file}`;
+    a.textContent = article.title;
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+}
+
+function renderResults(articles, fallback = false) {
+  resultsList.innerHTML = "";
+
+  if (articles.length === 0) {
+    resultsList.innerHTML = "<li class='error'>No results found</li>";
+    return;
+  }
+
+  title.textContent = fallback
+    ? "No exact matches — closest results"
+    : "Search results";
+
+  articles.forEach(article => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = `articles/${article.id}/${article.file}`;
+    a.textContent = article.title;
+    li.appendChild(a);
+    resultsList.appendChild(li);
+  });
+}
+
+function score(title, query) {
+  title = title.toLowerCase();
+  query = query.toLowerCase();
+  let s = 0;
+  for (let c of query) if (title.includes(c)) s++;
+  return s;
+}
+
+function runSearch() {
+  const query = input.value.trim().toLowerCase();
+  if (!query) return;
+
+  let results = allArticles.filter(a =>
+    a.title.toLowerCase().includes(query)
+  );
+
+  let fallback = false;
+
+  if (results.length === 0) {
+    fallback = true;
+    results = allArticles
+      .map(a => ({ ...a, s: score(a.title, query) }))
+      .sort((a, b) => b.s - a.s)
+      .slice(0, 8)
+      .filter(a => a.s > 0);
+  }
+
+  renderResults(results, fallback);
+  overlay.classList.remove("hidden");
+}
+
+button.addEventListener("click", runSearch);
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") runSearch();
+});
+
+closeBtn.addEventListener("click", () => {
+  overlay.classList.add("hidden");
+});
+
+overlay.addEventListener("click", e => {
+  if (e.target === overlay) overlay.classList.add("hidden");
+});
+</script>
 
 </body>
 </html>
