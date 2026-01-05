@@ -118,7 +118,10 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "I can tell you were disturbingly old when you found out Santa isn't real.",
     "I did your mom last night lmao.",
     "It's not in the cards.",
-    "Minion Bob disapproves."
+    "Minion Bob disapproves.",
+    "Look it up on SusiPedia.",
+    "SusiPedia says that is wrong.",
+    "Yeah I heard about that earlier on SusFeed.com"
   ];
 
   susBotButton.addEventListener("click", () => {
