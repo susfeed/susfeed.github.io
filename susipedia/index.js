@@ -64,16 +64,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   const infobox = document.querySelector(".infobox");
   const bodyParagraphs = document.querySelectorAll(".page p");
 
-  function prefixRegex(title) {
-    const words = title.split(" ").map(w =>
-      w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    );
-    let p = "\\b" + words[0];
-    for (let i = 1; i < words.length; i++) {
-      p += "(?:\\s+" + words[i] + ")?";
-    }
-    return new RegExp(p + "\\b", "gi");
+function prefixRegex(title) {
+  const words = title
+    .trim()
+    .split(/\s+/)
+    .map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+
+  if (words.length === 1) {
+    return new RegExp(`\\b${words[0]}\\b`, "gi");
   }
+
+  let pattern = `\\b${words[0]}\\s+${words[1]}`;
+
+  for (let i = 2; i < words.length; i++) {
+    pattern += `(?:\\s+${words[i]})?`;
+  }
+
+  return new RegExp(pattern + "\\b", "gi");
+}
 
   if (infobox) {
     let used = false;
