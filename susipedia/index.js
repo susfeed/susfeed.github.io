@@ -115,34 +115,73 @@ articles.forEach(article => {
     });
   });
 
-  const preview = document.createElement("div");
-  preview.style.position = "absolute";
-  preview.style.display = "none";
-  preview.style.pointerEvents = "none";
-  preview.style.background = "#fff";
-  preview.style.border = "1px solid #aaa";
-  preview.style.padding = "6px 8px";
-  preview.style.fontSize = "14px";
-  preview.style.maxWidth = "260px";
-  preview.style.boxShadow = "0 2px 6px rgba(0,0,0,.2)";
-  document.body.appendChild(preview);
+const preview = document.createElement("div");
+preview.className = "article-preview";
+document.body.appendChild(preview);
 
-  document.addEventListener("mouseover", e => {
-    const a = e.target.closest("a[data-preview]");
-    if (!a) return;
-    preview.textContent = a.dataset.preview;
-    preview.style.display = "block";
-  });
+const cache = new Map();
 
-  document.addEventListener("mousemove", e => {
-    preview.style.left = e.pageX + 12 + "px";
-    preview.style.top = e.pageY + 12 + "px";
-  });
+async function getPreviewData(href) {
+  if (cache.has(href)) return cache.get(href);
 
-  document.addEventListener("mouseout", e => {
-    if (e.target.closest("a[data-preview]")) {
-      preview.style.display = "none";
-    }
-  });
+  const res = await fetch(href);
+  const html = await res.text();
+  const doc = new DOMParser().parseFromString(html, "text/html");
 
+  const title = doc.querySelector("h1")?.textContent || "";
+  const paragraph =
+    doc.querySelector(".page > p")?.textContent.slice(0, 260) + "…" || "";
+
+function resolveURL(base, relative) {
+  try {
+    return new URL(relative, base).href;
+  } catch {
+    return "";
+  }
+}
+
+const infoboxImg = doc.querySelector(".infobox img");
+const thumbImg = doc.querySelector(".thumb img");
+
+let img = "";
+
+if (infoboxImg?.getAttribute("src")) {
+  img = resolveURL(href, infoboxImg.getAttribute("src"));
+} else if (thumbImg?.getAttribute("src")) {
+  img = resolveURL(href, thumbImg.getAttribute("src"));
+}
+
+  const data = { title, paragraph, img };
+  cache.set(href, data);
+  return data;
+}
+
+document.addEventListener("mouseover", async e => {
+  const a = e.target.closest(".page a[data-preview]");
+  if (!a) return;
+
+  preview.innerHTML = "Loading…";
+  preview.style.display = "block";
+
+  const { title, paragraph, img } = await getPreviewData(a.href);
+
+  preview.innerHTML = `
+    ${img ? `<img src="${img}">` : ""}
+    <div class="preview-body">
+      <div class="preview-title">${title}</div>
+      <p class="preview-excerpt">${paragraph}</p>
+    </div>
+  `;
+});
+
+document.addEventListener("mousemove", e => {
+  preview.style.left = e.pageX + 14 + "px";
+  preview.style.top = e.pageY + 14 + "px";
+});
+
+document.addEventListener("mouseout", e => {
+  if (e.target.closest(".page a[data-preview]")) {
+    preview.style.display = "none";
+  }
+});
 });
