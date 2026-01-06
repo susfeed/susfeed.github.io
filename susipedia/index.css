@@ -357,3 +357,35 @@ h3 {
   font-size: 14px;
   cursor: pointer;
 }
+
+.auto-link {
+  position: relative;
+  text-decoration: underline;
+}
+
+.citation {
+  display: none;
+  position: absolute;
+  top: 1.4em;
+  left: 0;
+  width: 220px;
+  background: #fff;
+  border: 1px solid #aaa;
+  padding: 8px;
+  font-size: 13px;
+  z-index: 100;
+}
+
+.auto-link:hover .citation {
+  display: block;
+}
+
+.citation-title {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.citation-preview {
+  color: #333;
+}

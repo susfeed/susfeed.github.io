@@ -11,12 +11,22 @@
   },
   {
     "id": 3,
-    "title": "SusFeed Al",
-    "file": "SusFeed Al.html"
+    "title": "DeepSus Al",
+    "file": "DeepSus Al.html"
   },
   {
     "id": 4,
     "title": "Smeff (disambiguation)",
     "file": "Smeff (disambiguation).html"
+  },
+  {
+    "id": 5,
+    "title": "Smeff",
+    "file": "Smeff.html"
+  },
+  {
+    "id": 6,
+    "title": "Old Man Smeff Mancala",
+    "file": "Old Man Smeff Mancala.html"
   }
 ]
