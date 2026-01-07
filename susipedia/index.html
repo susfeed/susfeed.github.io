@@ -23,21 +23,19 @@
 
 <div class="main">
 
-<div class="panel articles-panel">
-  <h2>Articles</h2>
-  <ul id="articles-list" class="articles-list">
-    <li class="loading">Loading articles…</li>
-  </ul>
-</div>
+  <div class="panel articles-panel">
+    <h2>Articles</h2>
+    <ul id="articles-list" class="articles-list">
+      <li class="loading">Loading articles…</li>
+    </ul>
+  </div>
 
   <div class="panel">
     <h2>Welcome to SusiPedia</h2>
     <p>SusiPedia is a free encyclopedia documenting people, politics, science, and more across the world. For breaking news, please go to <b>SusFeed.com</b>.</p>
-
     <ul>
       <li>69,420 articles</li>
     </ul>
-
   </div>
 
   <div class="panel">
@@ -81,9 +79,7 @@ fetch("articles/articles.json")
   .then(res => res.json())
   .then(articles => {
     allArticles = articles;
-    renderHomeArticles(
-      articles.slice().reverse().slice(0, 10)
-    );
+    renderHomeArticles(articles.slice().reverse().slice(0, 10));
   });
 
 function renderHomeArticles(articles) {
@@ -91,7 +87,7 @@ function renderHomeArticles(articles) {
   articles.forEach(article => {
     const li = document.createElement("li");
     const a = document.createElement("a");
-    a.href = `articles/${article.id}/${article.file}`;
+    a.href = `articles/content/${article.file}`;
     a.textContent = article.title;
     li.appendChild(a);
     list.appendChild(li);
@@ -113,7 +109,7 @@ function renderResults(articles, fallback = false) {
   articles.forEach(article => {
     const li = document.createElement("li");
     const a = document.createElement("a");
-    a.href = `articles/${article.id}/${article.file}`;
+    a.href = `articles/content/${article.file}`;
     a.textContent = article.title;
     li.appendChild(a);
     resultsList.appendChild(li);
@@ -164,6 +160,8 @@ overlay.addEventListener("click", e => {
   if (e.target === overlay) overlay.classList.add("hidden");
 });
 </script>
+
+<script src="index.js"></script>
 
 </body>
 </html>

@@ -1,5 +1,10 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
+  const isHome = !location.pathname.includes("/content/");
+  const base = isHome ? "." : "..";
+  const contentPath = base + "/content";
+  const articlesPath = base + "/articles.json";
+
   const lightbox = document.createElement("div");
   lightbox.className = "lightbox";
   lightbox.innerHTML = `<img src="">`;
@@ -47,10 +52,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     toc.appendChild(ol);
   }
 
-  const response = await fetch("../articles.json");
+  const response = await fetch(articlesPath);
   let articles = await response.json();
 
-  const currentTitle = document.querySelector("h1")?.textContent.trim().toLowerCase() || "";
+  const currentTitle =
+    document.querySelector("h1")?.textContent.trim().toLowerCase() || "";
 
   articles = articles
     .filter(a => a.title.toLowerCase() !== currentTitle)
@@ -61,135 +67,136 @@ document.addEventListener("DOMContentLoaded", async () => {
       return b.title.length - a.title.length;
     });
 
-  const infobox = document.querySelector(".infobox");
-  const bodyParagraphs = document.querySelectorAll(".page p");
+  function prefixRegex(title) {
+    const words = title
+      .trim()
+      .split(/\s+/)
+      .map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 
-function prefixRegex(title) {
-  const words = title
-    .trim()
-    .split(/\s+/)
-    .map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-
-  if (words.length === 1) {
-    return new RegExp(`\\b${words[0]}\\b`, "gi");
-  }
-
-  let pattern = `\\b${words[0]}\\s+${words[1]}`;
-
-  for (let i = 2; i < words.length; i++) {
-    pattern += `(?:\\s+${words[i]})?`;
-  }
-
-  return new RegExp(pattern + "\\b", "gi");
-}
-
-  if (infobox) {
-    let used = false;
-
-articles.forEach(article => {
-  if (used) return;
-  const regex = prefixRegex(article.title);
-
-  bodyParagraphs.forEach(p => {
-    if (used || p.querySelector("a")) return;
-
-    if (regex.test(p.textContent)) {
-      p.innerHTML = p.innerHTML.replace(regex, m => {
-        if (used) return m;
-        used = true;
-        return `<a href="../${article.id}/${article.file}" data-preview="${article.title}">${m}</a>`;
-      });
+    if (words.length === 1) {
+      return new RegExp(`\\b${words[0]}s?\\b`, "gi");
     }
-  });
-});
+
+    let pattern = `\\b${words[0]}\\s+${words[1]}`;
+    for (let i = 2; i < words.length; i++) {
+      pattern += `(?:\\s+${words[i]})?`;
+    }
+
+    return new RegExp(pattern + "\\b", "gi");
   }
 
-  let used = false;
-
-  articles.forEach(article => {
-    if (used) return;
+  function linkText(container, article, limitOne) {
+    let used = false;
     const regex = prefixRegex(article.title);
 
-    bodyParagraphs.forEach(p => {
-      if (used || p.querySelector("a")) return;
+    const walker = document.createTreeWalker(
+      container,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
 
-      if (regex.test(p.textContent)) {
-        p.innerHTML = p.innerHTML.replace(regex, m => {
-          if (used) return m;
-          used = true;
-          return `<a href="../${article.id}/${article.file}" data-preview="${article.title}">${m}</a>`;
-        });
-      }
-    });
+    let node;
+    while ((node = walker.nextNode())) {
+      if (limitOne && used) break;
+      if (node.parentElement.closest("a")) continue;
+
+      regex.lastIndex = 0;
+      const match = regex.exec(node.nodeValue);
+      if (!match) continue;
+
+      const a = document.createElement("a");
+      a.href = `${contentPath}/${article.file}`;
+      a.dataset.preview = article.title;
+      a.textContent = match[0];
+
+      const before = node.nodeValue.slice(0, match.index);
+      const after = node.nodeValue.slice(match.index + match[0].length);
+
+      const frag = document.createDocumentFragment();
+      if (before) frag.appendChild(document.createTextNode(before));
+      frag.appendChild(a);
+      if (after) frag.appendChild(document.createTextNode(after));
+
+      node.replaceWith(frag);
+      used = true;
+    }
+  }
+
+  document.querySelectorAll(".page p").forEach(p => {
+    articles.forEach(article => linkText(p, article, true));
   });
 
-const preview = document.createElement("div");
-preview.className = "article-preview";
-document.body.appendChild(preview);
+  document.querySelectorAll(".infobox td").forEach(td => {
+    articles.forEach(article => linkText(td, article, false));
+  });
 
-const cache = new Map();
+  const preview = document.createElement("div");
+  preview.className = "article-preview";
+  document.body.appendChild(preview);
 
-async function getPreviewData(href) {
-  if (cache.has(href)) return cache.get(href);
+  const cache = new Map();
 
-  const res = await fetch(href);
-  const html = await res.text();
-  const doc = new DOMParser().parseFromString(html, "text/html");
+  async function getPreviewData(href) {
+    if (cache.has(href)) return cache.get(href);
 
-  const title = doc.querySelector("h1")?.textContent || "";
-  const paragraph =
-    doc.querySelector(".page > p")?.textContent.slice(0, 260) + "…" || "";
+    const res = await fetch(href);
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, "text/html");
 
-function resolveURL(base, relative) {
-  try {
-    return new URL(relative, base).href;
-  } catch {
-    return "";
+    const title = doc.querySelector("h1")?.textContent || "";
+    const paragraph =
+      doc.querySelector(".page > p")?.textContent.slice(0, 260) + "…" || "";
+
+    function resolveURL(base, relative) {
+      try {
+        return new URL(relative, base).href;
+      } catch {
+        return "";
+      }
+    }
+
+    const infoboxImg = doc.querySelector(".infobox img");
+    const thumbImg = doc.querySelector(".thumb img");
+
+    let img = "";
+    if (infoboxImg?.getAttribute("src")) {
+      img = resolveURL(href, infoboxImg.getAttribute("src"));
+    } else if (thumbImg?.getAttribute("src")) {
+      img = resolveURL(href, thumbImg.getAttribute("src"));
+    }
+
+    const data = { title, paragraph, img };
+    cache.set(href, data);
+    return data;
   }
-}
 
-const infoboxImg = doc.querySelector(".infobox img");
-const thumbImg = doc.querySelector(".thumb img");
+  document.addEventListener("mouseover", async e => {
+    const a = e.target.closest("a[data-preview]");
+    if (!a) return;
 
-let img = "";
+    preview.innerHTML = "Loading…";
+    preview.style.display = "block";
 
-if (infoboxImg?.getAttribute("src")) {
-  img = resolveURL(href, infoboxImg.getAttribute("src"));
-} else if (thumbImg?.getAttribute("src")) {
-  img = resolveURL(href, thumbImg.getAttribute("src"));
-}
+    const { title, paragraph, img } = await getPreviewData(a.href);
 
-  const data = { title, paragraph, img };
-  cache.set(href, data);
-  return data;
-}
+    preview.innerHTML = `
+      ${img ? `<img src="${img}">` : ""}
+      <div class="preview-body">
+        <div class="preview-title">${title}</div>
+        <p class="preview-excerpt">${paragraph}</p>
+      </div>
+    `;
+  });
 
-document.addEventListener("mouseover", async e => {
-  const a = e.target.closest(".page a[data-preview]");
-  if (!a) return;
+  document.addEventListener("mousemove", e => {
+    preview.style.left = e.pageX + 14 + "px";
+    preview.style.top = e.pageY + 14 + "px";
+  });
 
-  preview.innerHTML = "Loading…";
-  preview.style.display = "block";
+  document.addEventListener("mouseout", e => {
+    if (e.target.closest("a[data-preview]")) {
+      preview.style.display = "none";
+    }
+  });
 
-  const { title, paragraph, img } = await getPreviewData(a.href);
-
-  preview.innerHTML = `
-    ${img ? `<img src="${img}">` : ""}
-    <div class="preview-body">
-      <div class="preview-title">${title}</div>
-      <p class="preview-excerpt">${paragraph}</p>
-    </div>
-  `;
-});
-
-document.addEventListener("mousemove", e => {
-  preview.style.left = e.pageX + 14 + "px";
-  preview.style.top = e.pageY + 14 + "px";
-});
-
-document.addEventListener("mouseout", e => {
-  if (e.target.closest(".page a[data-preview]")) {
-    preview.style.display = "none";
-  }
-});
 });

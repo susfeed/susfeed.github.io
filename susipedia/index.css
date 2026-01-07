@@ -28,12 +28,8 @@ table {
 }
 
 a {
-  color: #0645ad;
+  color: blue;
   text-decoration: none;
-}
-
-a:visited {
-  color: #0b0080;
 }
 
 a:hover {
