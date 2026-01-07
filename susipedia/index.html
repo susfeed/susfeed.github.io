@@ -34,7 +34,7 @@
     <h2>Welcome to SusiPedia</h2>
     <p>SusiPedia is a free encyclopedia documenting people, politics, science, and more across the world. For breaking news, please go to <b>SusFeed.com</b>.</p>
     <ul>
-      <li>69,420 articles</li>
+      <li><span id="articleCount">Loading…</span> articles</li>
     </ul>
   </div>
 
@@ -42,8 +42,8 @@
     <h2>Navigation</h2>
     <ul>
       <li><a href="../index.html">SusFeed</a></li>
-      <li><a href="#">List of Susarticles</a></li>
-      <li><a href="#">Random sus page</a></li>
+      <li><a href="articles.html">List of Articles</a></li>
+      <li><a href="#" id="randomArticleBtn">Random sus page</a></li>
     </ul>
   </div>
 
@@ -75,10 +75,17 @@ const resultsList = document.getElementById("resultsList");
 const closeBtn = document.getElementById("closeResults");
 const title = document.getElementById("resultsTitle");
 
+const articleCountEl = document.getElementById("articleCount");
+const randomBtn = document.getElementById("randomArticleBtn");
+
 fetch("articles/articles.json")
   .then(res => res.json())
   .then(articles => {
     allArticles = articles;
+
+    const maxId = Math.max(...articles.map(a => a.id));
+    articleCountEl.textContent = maxId.toLocaleString();
+
     renderHomeArticles(articles.slice().reverse().slice(0, 10));
   });
 
@@ -158,6 +165,20 @@ closeBtn.addEventListener("click", () => {
 
 overlay.addEventListener("click", e => {
   if (e.target === overlay) overlay.classList.add("hidden");
+});
+
+function goToRandomArticle() {
+  if (!allArticles.length) return;
+
+  const random =
+    allArticles[Math.floor(Math.random() * allArticles.length)];
+
+  window.location.href = `articles/content/${random.file}`;
+}
+
+randomBtn.addEventListener("click", e => {
+  e.preventDefault();
+  goToRandomArticle();
 });
 </script>
 

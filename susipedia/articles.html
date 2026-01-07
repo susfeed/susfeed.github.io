@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>All Articles – SusiPedia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="icon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="index">
+
+<div class="header">
+  <div class="logo">
+    <a href="index.html"><img src="logo.png" alt="SusiPedia"></a>
+  </div>
+  <p>The Free Ensusipedia</p>
+
+  <div class="search-bar">
+    <input id="filterInput" type="search" placeholder="Filter articles">
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="panel articles-panel">
+    <h2>All Articles</h2>
+    <ul id="articlesList" class="articles-list">
+      <li class="loading">Loading articles…</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  Text is available under the Sus Attribution-ShareAlike License
+</footer>
+
+<script>
+const list = document.getElementById("articlesList");
+const input = document.getElementById("filterInput");
+
+let articles = [];
+
+fetch("articles/articles.json")
+  .then(res => res.json())
+  .then(data => {
+    articles = data.sort((a, b) => a.id - b.id);
+    render(articles);
+  });
+
+function render(items) {
+  list.innerHTML = "";
+
+  if (!items.length) {
+    list.innerHTML = "<li class='error'>No articles found</li>";
+    return;
+  }
+
+  items.forEach(article => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+
+    a.href = `articles/content/${article.file}`;
+    a.textContent = article.title;
+
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+}
+
+input.addEventListener("input", () => {
+  const q = input.value.toLowerCase();
+
+  render(
+    articles.filter(a =>
+      a.title.toLowerCase().includes(q)
+    )
+  );
+});
+</script>
+
+</body>
+</html>
