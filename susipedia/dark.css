@@ -1,0 +1,455 @@
+@font-face {
+  font-family: 'Linux Libertine';
+  src: url('https://upload.wikimedia.org/wikipedia/commons/4/4c/Linux_Libertine_Fonts.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0f1115;
+  color: #e6e6e6;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+a {
+  color: #7aa2ff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+body.index {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+body.article {
+  font-family: "Linux Libertine", Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+.panel h2 {
+  font-weight: normal;
+}
+
+h1 {
+  font-size: 32px;
+  margin: 0 0 12px;
+  border-bottom: 1px solid #3a3f47;
+}
+
+h2 {
+  font-size: 22px;
+  margin-top: 32px;
+  border-bottom: 1px solid #3a3f47;
+}
+
+h3 {
+  font-size: 18px;
+  margin-top: 24px;
+}
+
+.header,
+.topbar {
+  background: #16181d;
+  border-bottom: 1px solid #3a3f47;
+}
+
+.header {
+  padding: 18px 16px 20px;
+  text-align: center;
+}
+
+.header p {
+  margin: 6px 0 0;
+  color: #a0a4ab;
+  font-size: 13px;
+}
+
+.topbar {
+  padding: 6px 16px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar img {
+  height: 30px;
+  cursor: pointer;
+  background: #ffffff;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo img {
+  width: 270px;
+  max-width: 90%;
+  cursor: pointer;
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.search-bar {
+  margin-top: 14px;
+}
+
+.search-bar input,
+.search-bar button {
+  font-size: 13px;
+  padding: 7px 8px;
+}
+
+.search-bar input {
+  width: 320px;
+  max-width: 90%;
+  border: 1px solid #3a3f47;
+  border-radius: 2px;
+  background: #0f1115;
+  color: #e6e6e6;
+}
+
+.search-bar button {
+  margin-left: 6px;
+  cursor: pointer;
+  background: #2a2f3a;
+  border: 1px solid #3a3f47;
+  color: #e6e6e6;
+}
+
+.main {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: 2.5fr 1fr;
+  gap: 16px;
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #16181d;
+}
+
+.panel {
+  background: #16181d;
+  border: 1px solid #3a3f47;
+  padding: 12px;
+}
+
+.panel h2 {
+  font-size: 18px;
+  margin: 0 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #3a3f47;
+}
+
+.articles-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.articles-list li {
+  padding: 5px 0;
+  border-bottom: 1px solid #2a2f3a;
+  font-size: 14px;
+}
+
+.tagline {
+  font-size: 13px;
+  color: #a0a4ab;
+  margin-bottom: 16px;
+}
+
+.page > p,
+.page > ul,
+.page > ol {
+  margin: 0.5em 0 1em;
+}
+
+.page ul,
+.page ol {
+  padding-left: 1.6em;
+}
+
+.page li {
+  margin: 0.3em 0;
+}
+
+h2 + p,
+h3 + p {
+  margin-top: 0.4em;
+}
+
+.infobox,
+.toc,
+.thumb {
+  border: 1px solid #3a3f47;
+  background: #1c1f26;
+}
+
+.infobox,
+.thumb {
+  float: right;
+  clear: right;
+  margin: 0 0 20px 24px;
+}
+
+.infobox {
+  width: 270px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.infobox th {
+  background: #2a2f3a;
+  text-align: center;
+  padding: 6px;
+  font-weight: bold;
+}
+
+.infobox td {
+  padding: 6px;
+  border-top: 1px solid #3a3f47;
+  vertical-align: top;
+}
+
+.toc {
+  width: 270px;
+  padding: 8px;
+  font-size: 13px;
+  margin: 20px 0;
+}
+
+.toc ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.toc li {
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+  line-height: 1.4;
+}
+
+.toc li ul {
+  margin-top: 2px;
+}
+
+.toc summary {
+  font-weight: bold;
+  cursor: pointer;
+  list-style: none;
+}
+
+.toc details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc details[open] summary {
+  margin-bottom: 6px;
+}
+
+.thumb {
+  width: 220px;
+  padding: 3px;
+  font-size: 12px;
+}
+
+.thumb.large {
+  width: 260px;
+}
+
+.thumb img {
+  width: 100%;
+  cursor: pointer;
+}
+
+.thumb .caption {
+  padding: 6px 4px 2px;
+  line-height: 1.4;
+}
+
+.infobox + p,
+.thumb + p {
+  margin-top: 0;
+}
+
+.search-results,
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-results {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.search-results.hidden {
+  display: none;
+}
+
+.search-results-box {
+  background: #16181d;
+  width: 92%;
+  max-width: 640px;
+  max-height: 85%;
+  border: 1px solid #3a3f47;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-results-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid #3a3f47;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#resultsList {
+  padding: 8px 12px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.lightbox {
+  background: rgba(0, 0, 0, 0.9);
+  display: none;
+}
+
+.lightbox.active {
+  display: flex;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+}
+
+footer,
+.footer {
+  text-align: center;
+  font-size: 12px;
+  color: #a0a4ab;
+}
+
+.footer {
+  clear: both;
+  border-top: 1px solid #3a3f47;
+  margin-top: 48px;
+  padding-top: 16px;
+}
+
+.footer a {
+  color: #7aa2ff;
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer li {
+  display: inline-block;
+  margin: 0 10px 6px 0;
+}
+
+.clear {
+  clear: both;
+}
+
+@media (max-width: 800px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+
+  .infobox,
+  .toc,
+  .thumb {
+    float: none;
+    width: 100%;
+    margin: 0 0 20px;
+  }
+
+  .page {
+    padding: 16px;
+  }
+
+  .footer li {
+    display: block;
+    margin: 6px 0;
+  }
+}
+
+.article-preview {
+  position: absolute;
+  display: none;
+  max-width: 340px;
+  background: #16181d;
+  border: 1px solid #3a3f47;
+  box-shadow: 0 4px 12px rgba(0,0,0,.6);
+  padding: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  z-index: 1000;
+  pointer-events: none;
+  font-family: "Linux Libertine", Georgia, "Times New Roman", serif;
+}
+
+.article-preview img {
+  float: right;
+  max-width: 120px;
+  margin: 0 0 6px 10px;
+}
+
+.preview-title {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.preview-excerpt {
+  margin: 0;
+  color: #e6e6e6;
+}
