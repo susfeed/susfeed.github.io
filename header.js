@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const footerContent = `
         <footer class="site-footer">
             <div class="container">
-                <a href="ringo.html"><p>&copy; 2025 SusFeed. All rights reserved.</p></a>
+                <a href="67.html"><p>&copy; 2025 SusFeed. All rights reserved.</p></a>
             </div>
         </footer>
     `;
