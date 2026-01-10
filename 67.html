@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>67</title>
+  <link rel="shortcut icon" href="img/67.png" type="image/x-icon" />
+
+  <!-- EXACT same references -->
+  <link rel="stylesheet" href="index.css" />
+
+  <!-- SAFE overrides: blue instead of red, NO layout destruction -->
+  <style>
+    /* color overrides only */
+    .main-nav,
+    .site-footer,
+    .breaking-news,
+    .load-more-btn,
+    button,
+    #sus-bot-button,
+    .sus-header,
+    .breaking-label {
+      background-color: #1a4dba !important;
+    }
+
+    .section-title,
+    .card-title,
+    .title,
+    .sort-label {
+      color: #1a4dba !important;
+    }
+
+    a:hover,
+    .nav-links a:hover {
+      color: #9bb7ff !important;
+    }
+
+    /* image replacement */
+    img {
+      content: url("img/67.png") !important;
+    }
+
+    .card-image {
+      background-image: url("img/67.png") !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="site-header"></div>
+
+  <main>
+    <section class="breaking-news">
+      <div class="breaking-label">BREAKING</div>
+      <div class="breaking-track">
+        <div class="breaking-content" id="breaking-content"></div>
+      </div>
+    </section>
+
+    <section class="homepage container">
+
+<section class="block">
+        <h2 class="section-title">Featured Susarticles</h2>
+        <div class="block-grid">
+
+          <a href="susipedia\index.html" class="block-card">
+            <img src="susipedia\cover.webp" alt="">
+            <h3>SusiPedia</h3>
+          </a>
+
+          <a href="articles\23\Introducing_DeepSus_Al.html" class="block-card">
+            <img src="articles/23/cover.webp" alt="">
+            <h3>Introducing DeepSus Al</h3>
+          </a>
+
+          <a href="articles\22\Top_10_Cereals_That_Will_Stop_You_From_Ending_It_All.html" class="block-card">
+            <img src="articles/22/cover.webp" alt="">
+            <h3>Top 10 Cereals That Will Stop You From Ending It All</h3>
+          </a>
+
+        </div>
+      </section>
+
+      <section class="block quiz">
+        <h2 class="section-title">Featured Quizzes</h2>
+        <div class="block-grid">
+
+          <a href="quizzes\10\Are_You_the_Number_1_Fan_of_T&E.html" class="block-card">
+            <img src="quizzes/10/cover.webp" alt="">
+            <h3>Are You the Number 1 Fan of T&E?</h3>
+          </a>
+
+          <a href="quizzes\9\Do_You_Deserve_Happiness.html" class="block-card">
+            <img src="quizzes/9/cover.webp" alt="">
+            <h3>Do You Deserve Happiness?</h3>
+          </a>
+
+          <a href="quizzes/7/Guess_The_Movie_Based_On_These_Images!.html" class="block-card">
+            <img src="quizzes/7/cover.webp" alt="">
+            <h3>Guess The Movie Based On These Images!</h3>
+          </a>
+
+        </div>
+      </section>
+
+      <section class="block games">
+        <h2 class="section-title">Featured Games</h2>
+        <div class="block-grid">
+
+          <a href="games/1/Show_Footage_of_Nagasaki_to_a_Fresh_Puppy.html" class="block-card">
+            <img src="games/1/cover.webp" alt="">
+            <h3>Show Footage of Nagasaki to a Fresh Puppy</h3>
+          </a>
+
+          <a href="games\9\Minion_Bob_Gives_You_News_About_Gaza.html" class="block-card">
+            <img src="games/9/cover.webp" alt="">
+            <h3>Minion Bob Gives You News About Gaza</h3>
+          </a>
+
+          <a href="games\5\Second_Person_Shooter.html" class="block-card">
+            <img src="games/5/cover.webp" alt="">
+            <h3>Second Person Shooter</h3>
+          </a>
+          
+        </div>
+      </section>
+
+      <section class="block new">
+        <h2 class="section-title">New</h2>
+        <div id="new-articles" class="block-grid"></div>
+        <div id="new-quizzes" class="block-grid"></div>
+        <div id="new-games" class="block-grid"></div>
+      </section>
+
+    </section>
+  </main>
+
+  <div class="site-footer"></div>
+
+</div>
+
+<script src="header.js"></script>
+<script src="index.js"></script>
+
+<script>
+  function replaceAllText() {
+    const walker = document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.textContent.trim() !== "") {
+        node.textContent = "67";
+      }
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    replaceAllText();
+
+    setTimeout(replaceAllText, 500);
+    setTimeout(replaceAllText, 1500);
+  });
+</script>
+
+</body>
+</html>
