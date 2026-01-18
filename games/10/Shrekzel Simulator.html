@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shrekzel Simulator</title>
+
+<link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon">
+<link rel="stylesheet" href="index.css">
+<link rel="stylesheet" href="../../content.css">
+
+<style>
+body{
+background:
+linear-gradient(180deg,#050008,#140022 45%,#000 100%),
+repeating-linear-gradient(
+90deg,
+rgba(255,0,255,.04),
+rgba(255,0,255,.04) 2px,
+transparent 2px,
+transparent 8px
+);
+animation:bgShift 20s linear infinite;
+}
+
+@keyframes bgShift{
+0%{background-position:0 0,0 0}
+100%{background-position:0 0,600px 0}
+}
+
+.game-container{
+max-width:900px;
+margin:40px auto;
+display:flex;
+justify-content:center;
+user-select:none;
+touch-action:none;
+}
+
+.frame{
+position:relative;
+padding:24px;
+border-radius:22px;
+background:radial-gradient(circle at top,#2a0044,#050008);
+box-shadow:
+0 0 50px rgba(255,0,255,.7),
+0 0 100px rgba(0,255,255,.5),
+inset 0 0 35px rgba(0,0,0,.9);
+transition:box-shadow .15s,transform .15s;
+}
+
+.frame::before{
+content:"";
+position:absolute;
+inset:0;
+border-radius:22px;
+background:
+linear-gradient(transparent 65%,rgba(0,255,255,.12)),
+repeating-linear-gradient(
+0deg,
+rgba(255,255,255,.018),
+rgba(255,255,255,.018) 1px,
+transparent 1px,
+transparent 4px
+);
+mix-blend-mode:screen;
+pointer-events:none;
+}
+
+.frame::after{
+content:"";
+position:absolute;
+inset:0;
+border-radius:22px;
+box-shadow:inset 0 0 70px rgba(0,0,0,.75);
+pointer-events:none;
+}
+
+canvas{
+background:radial-gradient(circle at center,#220033,#0c0018 70%);
+border-radius:14px;
+display:block;
+}
+
+.start-overlay{
+position:absolute;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+background:radial-gradient(circle at center,rgba(255,0,255,.18),rgba(0,0,0,.9));
+border-radius:22px;
+z-index:5;
+}
+
+.start-btn{
+font-size:1.2rem;
+letter-spacing:.25em;
+padding:18px 44px;
+border-radius:40px;
+border:2px solid #00ffff;
+color:#00ffff;
+background:linear-gradient(180deg,#ff00ff,#4b00ff);
+box-shadow:
+0 0 30px rgba(255,0,255,1),
+0 0 60px rgba(0,255,255,.9);
+cursor:pointer;
+transition:transform .2s,box-shadow .2s;
+}
+
+.start-btn:hover{
+transform:scale(1.08);
+box-shadow:
+0 0 50px rgba(255,0,255,1),
+0 0 100px rgba(0,255,255,1);
+}
+
+.hint{
+text-align:center;
+opacity:.85;
+margin-top:12px;
+color:#ff99ff;
+letter-spacing:.1em;
+}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+<div class="site-header"></div>
+
+<main class="container article-content">
+<h1 class="article-main-title"><u>Shrekzel Simulator</u></h1>
+<p class="article-date"><i>Article Published by Cameron at 2026/01/19 12:53 AM CET</i></p>
+
+<div class="game-container">
+<div class="frame" id="frame">
+<canvas id="c" width="500" height="500"></canvas>
+<div class="start-overlay" id="overlay">
+<button class="start-btn" id="startBtn">START GAME</button>
+</div>
+</div>
+</div>
+
+<p class="hint">Drag to rotate · Scroll to zoom</p>
+</main>
+
+<div class="site-footer"></div>
+</div>
+
+<script src="../../contentheader.js"></script>
+
+<script>
+const c=document.getElementById("c"),x=c.getContext("2d"),frame=document.getElementById("frame")
+let rx=0,ry=0,vx=.0008,vy=.0006,drag=false,lx=0,ly=0,lastInput=0
+let camZ=520
+const size=120
+
+const img=new Image()
+img.src="image.jpg"
+
+const audio=new Audio("song.mp3")
+audio.loop=true
+
+let ctx,src,analyser,data
+let beat=0,beatSmooth=0,pulse=0
+
+const V=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]]
+const F=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[2,3,7,6],[1,2,6,5],[0,3,7,4]]
+const E=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]]
+
+const light=[.25,.6,1]
+
+function rxp(p,a){const s=Math.sin(a),c=Math.cos(a);return[p[0],p[1]*c-p[2]*s,p[1]*s+p[2]*c]}
+function ryp(p,a){const s=Math.sin(a),c=Math.cos(a);return[p[0]*c+p[2]*s,p[1],-p[0]*s+p[2]*c]}
+function proj(p){const z=p[2]+camZ,s=camZ/z;return[p[0]*s+250,p[1]*s+250,z]}
+function norm(a,b,c){const u=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],v=[c[0]-a[0],c[1]-a[1],c[2]-a[2]],n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],l=Math.hypot(...n);return[n[0]/l,n[1]/l,n[2]/l]}
+function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]}
+
+function draw(){
+x.clearRect(0,0,500,500)
+
+if(analyser){
+analyser.getByteFrequencyData(data)
+let raw=data.reduce((a,b)=>a+b,0)/data.length/255
+beatSmooth+= (raw-beatSmooth)*0.08
+pulse=Math.max(pulse*.92,beatSmooth)
+}
+
+frame.style.boxShadow=`
+0 0 ${50+pulse*120}px rgba(255,0,255,${.6+pulse*.6}),
+0 0 ${100+pulse*180}px rgba(0,255,255,${.5+pulse*.6}),
+inset 0 0 35px rgba(0,0,0,.9)
+`
+frame.style.transform=`scale(${1+pulse*.035})`
+
+const idle=Date.now()-lastInput>4500
+if(idle){rx+=vx*(1+pulse*.8);ry+=vy*(1+pulse*.8)}
+
+const pts=V.map(p=>{
+let r=rxp(p,rx);r=ryp(r,ry)
+let s=1+pulse*.12
+return proj([r[0]*size*s,r[1]*size*s,r[2]*size])
+})
+
+const faces=F.map((f,i)=>{
+const p=f.map(j=>pts[j])
+return{i,p,z:(p[0][2]+p[1][2]+p[2][2]+p[3][2])/4}
+}).sort((a,b)=>b.z-a.z)
+
+faces.forEach(o=>{
+const w=F[o.i].map(i=>{
+let r=rxp(V[i],rx);r=ryp(r,ry)
+return[r[0]*size,r[1]*size,r[2]*size]
+})
+const n=norm(w[0],w[1],w[2])
+const l=Math.max(.25,dot(n,light))*(1+pulse)
+x.save()
+x.beginPath()
+o.p.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]))
+x.closePath()
+x.clip()
+x.globalAlpha=l
+x.drawImage(img,0,0,500,500)
+x.restore()
+})
+
+E.forEach(e=>{
+const a=pts[e[0]],b=pts[e[1]],z=(a[2]+b[2])/2
+x.strokeStyle=`rgba(200,255,255,${Math.max(.4,1-z/800)*(1+pulse)})`
+x.lineWidth=2+pulse*2
+x.beginPath()
+x.moveTo(a[0],a[1])
+x.lineTo(b[0],b[1])
+x.stroke()
+})
+
+requestAnimationFrame(draw)
+}
+
+c.addEventListener("pointerdown",e=>{drag=true;lx=e.clientX;ly=e.clientY;lastInput=Date.now()})
+c.addEventListener("pointerup",()=>drag=false)
+c.addEventListener("pointerleave",()=>drag=false)
+c.addEventListener("pointermove",e=>{
+if(!drag)return
+vx=(e.clientY-ly)*.0015
+vy=(e.clientX-lx)*.0015
+rx+=vx*6;ry+=vy*6
+lx=e.clientX;ly=e.clientY
+lastInput=Date.now()
+})
+c.addEventListener("wheel",e=>{
+camZ+=e.deltaY*.4
+camZ=Math.max(280,Math.min(900,camZ))
+lastInput=Date.now()
+})
+
+document.getElementById("startBtn").onclick=()=>{
+ctx=new AudioContext()
+src=ctx.createMediaElementSource(audio)
+analyser=ctx.createAnalyser()
+analyser.fftSize=512
+data=new Uint8Array(analyser.frequencyBinCount)
+src.connect(analyser)
+analyser.connect(ctx.destination)
+audio.play()
+document.getElementById("overlay").style.display="none"
+draw()
+}
+</script>
+
+</body>
+</html>
