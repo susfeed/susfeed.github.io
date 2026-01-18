@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SusFeed Archives</title>
+  <link rel="shortcut icon" href="../../susipedia/articles/content/antifascista.png" type="image/x-icon">
+  <style>
+    body.ww2 { background:#1b1b1b; color:#111; font-family: 'Courier New', monospace; }
+    .wrapper { display:flex; justify-content:center; padding:40px 0; }
+    .container { max-width:900px; width:100%; }
+
+    .quiz { background:#f4ecd8; padding:24px; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.4); }
+
+    .quiz-header { text-align:center; margin-bottom:30px; border-bottom:3px solid #111; padding-bottom:16px; }
+    .quiz-subtitle { font-style:italic; font-size:16px; margin:6px 0; }
+    .quiz-author { font-size:14px; letter-spacing:1px; }
+
+    .letter-container {
+      border:2px solid #111;
+      padding:20px;
+      background:#fff7e1;
+      position:relative;
+    }
+
+    .encoded-line {
+      font-size:18px;
+      margin-bottom:14px;
+      cursor:pointer;
+      padding:8px;
+      border:1px dashed #333;
+      background:#efe6c9;
+    }
+
+    .encoded-line:hover { background:#e4d9b5; }
+
+    .decoded-line {
+      margin-top:6px;
+      font-size:17px;
+      color:#1f7a1f;
+      display:none;
+    }
+
+    .encoded-line.decoded .decoded-line { display:block; }
+
+    .game-instructions {
+      font-size:16px;
+      margin-bottom:20px;
+      padding:12px;
+      border:2px solid #111;
+      background:#e0d8c2;
+    }
+
+    #progress {
+      margin-top:20px;
+      font-size:18px;
+      text-align:center;
+      border-top:2px solid #111;
+      padding-top:14px;
+    }
+
+    .trivia {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0b0b0b;
+      color: #e6e6e6;
+      padding: 16px 22px;
+      border: 2px solid #00fff2;
+      font-size: 16px;
+      z-index: 999;
+      max-width: 80%;
+      text-align: center;
+    }
+
+    .hidden { display:none; }
+
+    .trivia.glitch {
+      animation: textGlitch 0.6s steps(2, end);
+    }
+
+    @keyframes textGlitch {
+      0% { text-shadow:2px 0 #ff0055, -2px 0 #00fff2; opacity:0.8; }
+      40% { text-shadow:-2px 0 #ff0055, 2px 0 #00fff2; opacity:1; }
+      100% { text-shadow:none; opacity:1; }
+    }
+
+    .locked {
+        display: none;
+    }
+
+body.page-glitch {
+  animation: pageGlitch 0.4s steps(2, end) infinite;
+}
+
+@keyframes pageGlitch {
+  0% { filter: none; transform: translate(0,0); }
+  25% { filter: hue-rotate(20deg); transform: translate(-2px,1px); }
+  50% { filter: invert(1); transform: translate(2px,-1px); }
+  75% { filter: contrast(200%); transform: translate(-1px,2px); }
+  100% { filter: none; transform: translate(0,0); }
+}
+  </style>
+</head>
+<body class="ww2">
+
+<div class="wrapper">
+  <main class="container quiz">
+
+    <header class="quiz-header">
+      <h1 class="section-title">SusFeed Pre-Trump Correspondence</h1>
+      <p class="quiz-subtitle">Recovered Letter – Clearance Required</p>
+      <p class="quiz-author">Archival Division · SusFeed Ministry of Truth</p>
+    </header>
+
+    <div class="game-instructions">
+      Click each encoded line to decode fragments of a WWII-era letter.
+      Some lines may reveal additional classified context.
+    </div>
+
+    <div class="letter-container">
+
+      <div class="encoded-line" data-trivia="ALERT: DONALD TRUMP ATTEMPTING TO BUY SUSFEED." data-after="YOU CANNOT RESIST.">
+        POST SUSARTICLE CRITIQUING TRUMP
+        <div class="decoded-line">Trump is enraged.</div>
+      </div>
+
+      <div class="encoded-line" data-trivia="ALERT: FAMOUS DRUMMER AND CEREAL MASCOT RINGO STARR FOUND DEAD." data-after="CIA INTERFERENCE DETECTED.">
+        CALL RINGO STARR
+        <div class="decoded-line">Ringo did not pick up.</div>
+      </div>
+
+      <div class="encoded-line" data-trivia="ALERT: DONALD TRUMP BUYS RINGO STARR'S SUSFEED STOCK." data-after="YOU CANNOT RESIST.">
+        CALL OLD MAN SMEFF
+        <div class="decoded-line">Smeff is nowhere to be found.</div>
+      </div>
+
+      <div class="encoded-line" data-trivia="DONALD TRUMP IS NOW THE PRIMARY OWNER OF SUSFEED." data-after="LONG LIVE THE REGIME.">
+        RESIST BUYOUT
+        <div class="decoded-line">You have failed.</div>
+      </div>
+
+    </div>
+
+    <div id="progress">Decoded 0 / 4 lines</div>
+
+  </main>
+</div>
+
+<div id="trivia-popup" class="trivia hidden">
+  <span class="trivia-text"></span>
+</div>
+
+<script>
+  const lines = Array.from(document.querySelectorAll('.encoded-line'));
+  const progress = document.getElementById('progress');
+  const triviaPopup = document.getElementById('trivia-popup');
+  const triviaText = triviaPopup.querySelector('.trivia-text');
+
+  let decodedCount = 0;
+  let triviaActive = false;
+  let glitchInterval;
+
+  lines.forEach((line, index) => {
+    if (index !== 0) line.classList.add('locked');
+  });
+
+  function glitchMorph(element, newText) {
+    const chars = '!<>-_\\/[]{}—=+*^?#________';
+    let frame = 0;
+    clearInterval(glitchInterval);
+
+    glitchInterval = setInterval(() => {
+      element.textContent = newText
+        .split('')
+        .map((char, i) =>
+          i < frame ? char : chars[Math.floor(Math.random() * chars.length)]
+        )
+        .join('');
+
+      frame++;
+      if (frame > newText.length) {
+        clearInterval(glitchInterval);
+        element.textContent = newText;
+      }
+    }, 40);
+  }
+
+  function showTrivia(a, b) {
+    triviaActive = true;
+    triviaText.textContent = a;
+    triviaPopup.classList.remove('hidden');
+
+    setTimeout(() => {
+      triviaPopup.classList.add('glitch');
+      glitchMorph(triviaText, b);
+    }, 1200);
+
+    setTimeout(() => {
+      triviaPopup.classList.remove('glitch');
+      triviaPopup.classList.add('hidden');
+      triviaActive = false;
+    }, 3500);
+  }
+
+lines.forEach((line, index) => {
+  line.addEventListener('click', () => {
+    if (triviaActive) return;
+    if (line.classList.contains('decoded')) return;
+    if (line.classList.contains('locked')) return;
+
+    line.classList.add('decoded');
+    decodedCount++;
+    progress.textContent = `Decoded ${decodedCount} / ${lines.length} lines`;
+
+    const nextLine = lines[index + 1];
+    if (nextLine) {
+      nextLine.classList.remove('locked');
+    }
+
+    const trivia = line.dataset.trivia;
+    const after = line.dataset.after;
+
+    if (trivia && after) {
+      showTrivia(trivia, after);
+
+      if (after === "LONG LIVE THE REGIME.") {
+        setTimeout(() => {
+          document.body.classList.add('page-glitch');
+        }, 5200);
+
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 6500);
+      }
+    }
+  });
+});
+</script>
+
+</body>
+</html>

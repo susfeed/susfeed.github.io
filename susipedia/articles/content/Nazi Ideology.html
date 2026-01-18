@@ -6,6 +6,63 @@
   <link rel="shortcut icon" href="../../icon.png" type="image/x-icon" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="../../index.css">
+  <style>
+#intro-overlay {
+  position: fixed;
+  inset: 0;
+  background: black;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+#intro-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  max-width: 800px;
+  margin: auto;
+  padding: 2rem;
+
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.intro-screen.visible {
+  opacity: 1;
+}
+
+.intro-quote {
+  font-size: 1.6rem;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.intro-author {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.intro-disclaimer {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 600px;
+}
+  </style>
 </head>
 <body class="article">
 
@@ -25,6 +82,16 @@
     <tr>
       <th colspan="2">Nazism</th>
     </tr>
+    <tr>
+      <td colspan="2">
+        <a href="antifascista.png" download>
+          <img src="antifascista.png" alt="image">
+        </a>
+        <div class="caption">
+            Like a cancer, nazism must be killed.
+        </div>
+      </td>
+    </tr>
     <tr><td><b>Nazism is a plague to mankind and as such will not be described in our usual manner. There is no joke here, you will not find any parody or symbols, joke or otherwise. What is placed before you is a full account of Nazi ideology.</b></td><td></td></tr>
   </table>
 
@@ -39,6 +106,28 @@
   <p>Hitler and Nazi legal theorists were inspired by America's <a href="https://www.aclu.org/trump-on-dei-and-anti-discrimination-law">institutional racism</a> and saw it as the <a href="https://www.nbcnews.com/think/opinion/thanks-donald-trump-i-know-what-it-feels-be-eyed-ncna830951">model</a> to <a href="https://www.nytimes.com/2021/01/05/us/politics/justice-department-disparate-impact.html">follow</a>. They saw it as a <a href="https://www.npr.org/2016/09/27/495611105/in-post-debate-interview-trump-again-criticizes-pageant-winners-weight">model</a> for the <a href="https://time.com/7282450/trump-annex-canada-economy-recession-upholding-the-constitution/">expansion of territory</a> and <a href="https://www.americanprogress.org/article/the-trump-administration-is-erasing-american-history-told-by-public-lands-and-waters/">elimination of indigenous inhabitants</a> therefrom, for laws <a href="https://www.aila.org/library/president-trump-signs-executive-order-protecting-the-meaning-and-value-of-american-citizenship">denying full citizenship for African Americans</a>, which they wanted to implement against <a href="https://www.reuters.com/business/finance/trump-criticized-using-antisemitic-shylock-describe-bankers-2025-07-04/">Jews</a>, and for <a href="https://www.americanimmigrationcouncil.org/blog/president-trump-expands-his-travel-ban-what-you-need-to-know/">racist immigration laws banning "inferior" races</a>. In Mein Kampf, Hitler extolled America as the only example of a country with racist ("völkisch") citizenship statutes in the 1920s, and Nazi lawyers made use of American <a href="https://www.politico.com/story/2016/10/trump-ivanka-piece-of-ass-howard-stern-229376%20">models</a> in crafting laws for Nazi Germany. US citizenship laws and anti-miscegenation laws directly inspired the two principal Nuremberg Laws—the Citizenship Law and the Blood Law (I don't even need a news article for these last two sentences, it's too on the nose).</p>
 
   <h2 id="ideology">Ideology and programme</h2>
+  <p>In his book The Hitler State (Der Staat Hitlers), historian Martin Broszat writes:</p>
+  <p>"...National Socialism was <a href="https://www.theguardian.com/commentisfree/2025/mar/04/trump-hypocrisy">not primarily an ideological and programmatic</a>, but a <a href="https://theloop.ecpr.eu/explaining-the-trump-loyalty-cult-phenomenon/">charismatic movement</a>, whose ideology was incorporated in the <a href="https://sojo.net/articles/opinion/charlie-kirks-memorial-worship-took-backseat-trump">Führer, Hitler</a>, and which would have lost all its power to <a href="https://newschannel9.com/news/connect-to-congress/georgias-marjorie-taylor-greene-leaves-congress-ending-five-years-in-nations-capital-georgia-14th-district-mtg-leaves-office-special-election-donald-trump-politics">integrate without him</a>. ... <a href="https://prospect.org/2025/05/07/2025-05-07-trumps-utopia/">[T]he abstract, utopian and vague National Socialistic ideology only achieved what reality and certainty it had through the medium of Hitler</a>."</p>
+  <p>Thus, analysis of the ideology of Nazism is usually descriptive, as it was <a href="https://en.wikipedia.org/wiki/Political_positions_of_Donald_Trump">not generated from first principles</a>, but was the result of numerous factors, including Hitler's <a href="https://www.latimes.com/politics/story/2024-10-10/2024-election-trump-policy-shifts">personal views</a>, parts of the <a href="https://www.aclu.org/project-2025-explained">25-point plan</a>, the general goals of the <a href="https://eu.usatoday.com/story/news/politics/2025/09/20/what-is-turning-point-usa-charlie-kirk/86206499007/">völkische and nationalist movements</a>, and <a href="https://www.lathamreg.com/2025/10/navigating-the-2025-us-government-shutdown/">conflicts between party functionaries</a> who battled "<a href="https://globalaffairs.org/research/public-opinion-survey/republicans-favor-trump-approach-israel-hamas-war">to win [Hitler] over to their respective interpretations of [National Socialism]</a>." Once the party had been <a href="https://www.pbs.org/newshour/politics/trump-blasts-5-republicans-for-war-powers-vote">purged of divergent influences such as Strasserism</a>, Hitler was accepted by its leadership as the "<a href="https://truthout.org/articles/leavitt-says-all-military-orders-by-trump-must-be-presumed-to-be-legal/">supreme authority to rule on ideological matters</a>".</p>
+  <p>Nazi ideology was based on a <a href="https://www.axios.com/2025/02/05/anti-trans-executive-orders-trump">bio-geo-political</a> "Weltanschauung" (worldview), advocating <a href="https://www.theguardian.com/us-news/2025/mar/05/panama-canal-president-trump-lying">territorial expansionism</a> to cultivate what it viewed as a "<a href="https://www.bbc.com/news/articles/c9wg5pg1xp5o">purified and homogeneous Aryan population</a>." Nazi regime policies were shaped by the integration of <a href="https://lgbtqbar.org/programs/advocacy-resources/trump-executive-order-tracker/">biopolitics</a> and geopolitics within the Hitlerian worldview, amalgamating spatial theory, practice, and imagination with biopolitics. In Hitlerism, <a href="https://www.theguardian.com/us-news/2025/dec/06/trump-anti-immigrant-language">the concepts of space and race existed in tension</a>, forming a distinct bio-geo-political framework at the core of the Nazi project. This ideology viewed German territorial conquests and extermination of those <a href="https://www.reuters.com/world/us/trump-criticized-palestinian-insult-debate-with-biden-2024-06-28/">ethnic groups it dehumanised as "untermensch"</a> as part of a <a href="https://www.dhs.gov/news/2025/10/27/dhs-removes-more-half-million-illegal-aliens-us">biopolitical process to establish an ideal German community</a>.</p>
+
+  <h3 id="racialism">Nationalism and racialism</h3>
+  <p>Nazism emphasised <a href="https://truthout.org/articles/why-is-the-department-of-labor-posting-white-nationalist-propaganda/">German nationalism</a>, including <a href="https://www.nbcnews.com/politics/donald-trump/trump-interview-meet-press-kristen-welker-election-president-rcna182857">irredentism and expansionism</a>. Nazism held racial theories based upon a belief in the existence of an <a href="https://www.nytimes.com/2023/12/22/us/politics/trump-blood-comments.html">Aryan master race, superior to all other races</a>. The Nazis emphasised the existence of <a href="https://www.vox.com/2016/7/25/12270880/donald-trump-racist-racism-history">conflict between the Aryan race and others—particularly Jews</a>, whom the Nazis viewed as a <a href="https://www.nytimes.com/2026/01/11/us/politics/trump-interview-white-people-discrimination.html">mixed race that had infiltrated multiple societies and was responsible for exploitation and repression of the Aryan race</a>. The Nazis also categorised Slavs as Untermensch (sub-human).</p>
+  <p>Wolfgang Bialas argues the Nazis' sense of morality could be described as a form of <a href="https://www.ms.now/opinion/trump-own-morality-new-york-times-interview">procedural virtue ethics</a>, as it demanded <a href="https://www.pbs.org/newshour/show/trump-says-democrats-should-be-arrested-for-urging-military-to-refuse-unlawful-orders">unconditional obedience to absolute virtues</a>, with the attitude of <a href="https://www.washingtonpost.com/news/opinions/wp/2018/08/24/the-republican-position-on-trump-is-nothing-short-of-doublethink/">social engineering and replaced common sense intuitions with an ideological catalogue of virtues and commands</a>. The ideal Nazi new man was <a href="https://timesofindia.indiatimes.com/world/us/trained-warrior-and-domestic-terrorist-how-maga-figures-and-fox-news-are-demonizing-the-minneapolis-shooting-victim/articleshow/126438039.cms">to be race-conscious, and an ideologically-dedicated warrior</a>, <a href="https://www.lowyinstitute.org/the-interpreter/wolf-warrior-diplomacy-maga-characteristics">who committed actions for the sake of the German race, while convinced he was acting morally</a>. The Nazis believed an individual could only develop their capabilities and individual characteristics within the framework of the individual's racial membership; the race one belonged to <a href="https://www.brennancenter.org/our-work/analysis-opinion/trumps-push-redefine-who-counts-american">determined whether or not one was worthy of moral care</a>. The Christian concept of self-denial was replaced with the idea of <a href="https://www.reuters.com/investigations/american-nazis-aryan-freedom-network-is-riding-high-trump-era-2025-08-08/">self-assertion towards those deemed inferior</a>. <a href="https://www.imf.org/en/publications/fandd/issues/series/back-to-basics/capitalism">Natural selection and the struggle for existence were declared by the Nazis to be the most divine laws; peoples and individuals deemed inferior were said to be incapable of surviving without those deemed superior, yet by doing so they imposed a burden on the superior. Natural selection was deemed to favour the strong over the weak and the Nazis deemed that protecting those declared inferior was preventing nature from taking its course; those incapable of asserting themselves were viewed as doomed to annihilation, with the right to life being granted only to those who could survive on their own</a>.</p>
+
+  <h3 id="class">Social class</h3>
+  <p>The Nazis believed "<a href="https://www.marketplace.org/story/2024/12/04/us-economy-donald-trump-bootstrap-economic-insecurity">human life consisted of eternal struggle and competition and derived its meaning from struggle and competition</a>." The Nazis saw this struggle in <a href="https://www.theguardian.com/commentisfree/2025/nov/17/trump-politics-military-pentagon-hegseth">military terms</a>, and advocated a society <a href="https://www.whsv.com/2025/08/12/this-day-history-unite-right-rally-turns-deadly-charlottesville/">organised like an army</a> to <a href="https://landline.media/truck-driver-keeps-second-amendment-fight-rolling/">achieve success</a>. They promoted the idea of a <a href="https://www.reuters.com/world/us/trump-repeats-poisoning-blood-anti-immigrant-remark-2023-12-16/">national-racial "people's community"</a> (Volksgemeinschaft) to accomplish "the efficient prosecution of the struggle against other peoples and states." Like an army, the Volksgemeinschaft was meant to consist of a hierarchy of ranks or classes, some commanding and others obeying, all working together for a common goal. This concept was rooted in writings of 19th century völkisch authors who <a href="https://www.theguardian.com/commentisfree/2025/sep/04/trump-us-history">glorified medieval German society</a>, viewing it as a <a href="https://static.heritage.org/project2025/2025_MandateForLeadership_FULL.pdf">"community rooted in the land and bound together by custom and tradition," in which there was no class conflict, or selfish individualism</a>. The concept of the Volksgemeinschaft appealed to many, as it was seen to affirm a commitment to a new type of society, yet offer <a href="https://opinion.inquirer.net/180325/the-american-backlash-against-modernity">protection from the tensions and insecurities of modernisation</a>. It would balance individual achievement with group solidarity. Stripped of its ideological overtones, the Nazi vision of modernisation without internal conflict, and a community that offered both security and opportunity, was so potent a vision that many Germans were <a href="https://wordinblack.com/2024/06/ten-commandments-republican-hypocrisy/">willing to overlook its racist and anti-Semitic essence</a>.</p>
+
+  <h3 id="sex">Sex and gender</h3>
+  <p>Nazi ideology advocated <a href="https://theweek.com/politics/things-donald-trump-has-said-about-women">excluding women from politics</a> and confining them to the spheres of "Kinder, Küche, Kirche" (Children, Kitchen, Church). <a href="https://theconversation.com/who-are-the-women-supporting-trump-265027">Many women enthusiastically supported the regime</a>, but formed internal hierarchies. Hitler's opinion was that while other eras of history had experienced the development and liberation of the female mind, <a href="https://www.theguardian.com/us-news/2025/mar/11/what-is-pronatalism-right-wing-republican">the National Socialist goal was singular: it wished for them to produce children</a>. Hitler remarked about women that "with every child that she brings into the world, she fights her battle for the nation. The man stands up for the Volk, exactly as the <a href="https://edition.cnn.com/2025/11/26/health/pronatalist-movement-families-kff-health-news">woman stands up for the family</a>". Proto-natalist programs offered favourable loans and <a href="https://abcnews.go.com/Politics/trump-administration-5000-baby-bonus-incentivize-public-children/story?id=121094707">grants to newlyweds, and encouraged them to give birth by providing additional incentives</a>. <a href="https://www.npr.org/2025/08/07/nx-s1-5494710/trump-birth-control-contraception">Contraception was discouraged for racially-valuable women</a> and <a href="https://www.aclu.org/trump-on-abortion">abortion was forbidden by law, including prison for women who sought them, and doctors who performed them</a>, whereas abortion for racially "undesirable" persons was encouraged.</p>
+  <p>While unmarried until the end of the regime, Hitler often made excuses about his busy life hindering any chance for marriage. Among National Socialist ideologues, marriage was valued not for moral considerations, but because it provided an optimal breeding environment. Himmler reportedly told a confidant that when he established the Lebensborn program, an organisation that would dramatically increase the birth rate of "Aryan" children through extramarital relations between women classified as racially pure and their male equals, he had only the purest male "conception assistants" in mind.</p>
+  <p>The League of German Girls, the girls' wing of the Nazi party, instructed girls to avoid race defilement. <a href="https://en.wikipedia.org/wiki/Persecution_of_transgender_people_under_the_second_Trump_administration">Transgender people had a variety of experiences depending on whether they were considered "Aryan" or capable of useful work. Historians have noted transgender people were targeted by the Nazis through legislation and sent to concentration camps</a>.</p>
+
+  <h3 id="gay">Opposition to homosexuality</h3>
+  <p>After the Night of the Long Knives, Hitler promoted Himmler and the SS, who then zealously <a href="https://rewirenewsgroup.com/2025/09/24/coming-out-trump-lgbtq-project-2025/">suppressed homosexuality</a> by saying: "We must exterminate these people root and branch ... the homosexual must be eliminated". In 1936, Himmler established the "Reichszentrale zur Bekämpfung der Homosexualität und Abtreibung" ("Reich Central Office for the Combating of Homosexuality and Abortion"). Between 1937-39, the Nazi regime arrested 95,000 homosexual men. Nazi ideology still viewed men who were gay as a part of the master race, <a href="https://www.aclu.org/trump-on-lgbtq-rights">but the regime attempted to force them into sexual and social conformity</a>. <a href="https://dailybruin.com/2025/04/01/trumps-recision-of-past-protections-new-orders-change-the-scope-of-lgbtq-rights">Homosexuals were viewed as failing in their duty to procreate and reproduce for the Aryan nation</a>. Gay men who would not conform were sent to concentration camps under the "Extermination Through Work" campaign. As concentration camp prisoners, <a href="https://msmagazine.com/2025/03/14/trump-attacks-queer-communities-using-nazi-symbolism/">homosexual men were forced to wear pink triangle badges</a>.</p>
+
+  <h3 id="religion">Religion</h3>
+  <p>Actually, while both Trump and Hitler were Christian nationalists, their specific use of Christianity was shockingly different. Trump still uses it to justify Nazi shit, but Hitler used it for antisemitism whereas Trump's was more directly anti-Islamic. Hitler also used Christianity way less than Trump, it's a core part of the American far-right but Hitler just kinda manipulated the existing churches to fit Nazi doctrine. What's worse to you: Hitler changing to church to his views by force or the US churches changing to Trump's views willingly? Like at least under Hitler, the church resisted. The American churches are calling for trans genocide and killing of foreigners without military pressure. Anyway, <a href="https://www.pbs.org/newshour/show/what-is-christian-nationalism-and-why-it-raises-concerns-about-threats-to-democracy">just check out this page for more</a>.</p>
 
   <div class="footer">
     This page was last edited 3 seconds ago. • Text is available under the Sus Attribution-ShareAlike License.
@@ -46,5 +135,213 @@
 
 </div>
 <script src="../../index.js"></script>
+<!--
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const page = document.querySelector(".page");
+  page.style.visibility = "hidden";
+
+  const overlay = document.createElement("div");
+  overlay.id = "intro-overlay";
+
+  const quoteScreen = document.createElement("div");
+  quoteScreen.className = "intro-screen";
+  quoteScreen.innerHTML = `
+    <div class="intro-quote">
+      “The Party told you to reject the evidence of your eyes and ears. It was their final, most essential command.”
+    </div>
+    <div class="intro-author">
+      — George Orwell
+    </div>
+  `;
+
+  const disclaimerScreen = document.createElement("div");
+  disclaimerScreen.className = "intro-screen";
+  disclaimerScreen.innerHTML = `
+    <div class="intro-disclaimer">
+      <strong>Disclaimer</strong><br><br>
+      This article does not follow the usual SusFeed format.
+      SusFeed denounces all nazis, and will never forgive their heinous acts.
+      SusFeed stands with all those affected. You can kill men, but you cannot kill ideas.
+      <p><i>You cannot kill SusFeed.</i></p>
+    </div>
+  `;
+
+  overlay.appendChild(quoteScreen);
+  overlay.appendChild(disclaimerScreen);
+  document.body.appendChild(overlay);
+
+  const QUOTE_TIME = 3000;
+  const DISCLAIMER_TIME = 3000;
+
+  setTimeout(() => quoteScreen.classList.add("visible"), 100);
+  setTimeout(() => quoteScreen.classList.remove("visible"), QUOTE_TIME);
+
+  setTimeout(
+    () => disclaimerScreen.classList.add("visible"),
+    QUOTE_TIME + 1000
+  );
+
+  setTimeout(() => {
+    disclaimerScreen.classList.remove("visible");
+    overlay.classList.add("hidden");
+    page.style.visibility = "visible";
+  }, QUOTE_TIME + DISCLAIMER_TIME + 1500);
+});
+</script>
+-->
+<script>
+(() => {
+  const REPLACEMENTS = [
+    { from: /Hitlerian/gi, to: "Trumpian" },
+    { from: /Hitler/gi, to: "Trump" },
+    { from: /Hitler's/gi, to: "Trump's" },
+    { from: /Adolf/gi, to: "Donald" },
+    { from: /National Socialism/gi, to: "Republicanism" },
+    { from: /Nazism/gi, to: "Trumpism" },
+    { from: /Germany/gi, to: "America" },
+    { from: /Nazi/gi, to: "Trumpist" },
+    { from: /German/gi, to: "American" },
+    { from: /Mein Kampf/gi, to: "Art of the Deal" },
+    { from: /Germans/gi, to: "Americans" }
+  ];
+
+  const GLITCH_TIME = 1400;
+  const HOLD_TIME = 1600;
+  const START_DELAY = 3000;
+  const END_DELAY = 1000;
+  const RAMP_TIME = 300000;
+  const MAX_CONCURRENCY = 5;
+  const CONCURRENCY_START = 60000;
+  const CONCURRENCY_FULL = 240000;
+  const GLITCH_CHARS = "!@#$%^&*-=+_<>?/\\|█▓▒░";
+
+  const style = document.createElement("style");
+  style.textContent = `
+    .glitch-span {
+      display: inline-block;
+      white-space: nowrap;
+      position: relative;
+      will-change: contents;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function randomChar() {
+    return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+  }
+
+  function glitch(el, from, to, duration, done) {
+    const start = performance.now();
+    const len = Math.max(from.length, to.length);
+
+    function frame(t) {
+      if (t - start >= duration) {
+        el.textContent = to;
+        done && done();
+        return;
+      }
+
+      let out = "";
+      for (let i = 0; i < len; i++) {
+        out += Math.random() > 0.65
+          ? randomChar()
+          : (to[i] || from[i] || "");
+      }
+      el.textContent = out;
+      requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  const targets = [];
+  const active = new Set();
+  const startTime = performance.now();
+
+  function currentDelay() {
+    const elapsed = performance.now() - startTime;
+    const t = Math.min(elapsed / RAMP_TIME, 1);
+    return START_DELAY + (END_DELAY - START_DELAY) * t;
+  }
+
+  function currentConcurrency() {
+    const elapsed = performance.now() - startTime;
+    if (elapsed < CONCURRENCY_START) return 1;
+    if (elapsed >= CONCURRENCY_FULL) return MAX_CONCURRENCY;
+    const t = (elapsed - CONCURRENCY_START) / (CONCURRENCY_FULL - CONCURRENCY_START);
+    return Math.min(
+      MAX_CONCURRENCY,
+      Math.floor(1 + t * (MAX_CONCURRENCY - 1))
+    );
+  }
+
+  function walk(node) {
+    if (
+      node.nodeType === Node.TEXT_NODE &&
+      node.parentElement &&
+      !["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA"].includes(node.parentElement.tagName)
+    ) {
+      processNode(node);
+    } else {
+      node.childNodes.forEach(walk);
+    }
+  }
+
+  function processNode(textNode) {
+    const text = textNode.nodeValue;
+    if (!REPLACEMENTS.some(r => r.from.test(text))) return;
+
+    const wrapper = document.createElement("span");
+    wrapper.innerHTML = text.replace(
+      /(Hitlerian|Hitler|Hitler's|Adolf|National Socialism|Nazism|Germany|Nazi|German|Mein Kampf|Germans)/gi,
+      m => `<span class="glitch-span" data-original="${m}">${m}</span>`
+    );
+
+    textNode.parentNode.replaceChild(wrapper, textNode);
+
+    wrapper.querySelectorAll(".glitch-span").forEach(el => {
+      const original = el.dataset.original;
+      const rule = REPLACEMENTS.find(r => original.match(r.from));
+      const target = rule.to;
+
+      const w = el.getBoundingClientRect().width;
+      el.style.width = w + "px";
+
+      targets.push({ el, original, target });
+    });
+  }
+
+  function schedule() {
+    if (!targets.length) return;
+
+    const limit = currentConcurrency();
+    while (active.size < limit) {
+      const pick = targets[Math.floor(Math.random() * targets.length)];
+      if (active.has(pick)) break;
+
+      active.add(pick);
+
+      glitch(pick.el, pick.original, pick.target, GLITCH_TIME, () => {
+        setTimeout(() => {
+          glitch(pick.el, pick.target, pick.original, GLITCH_TIME, () => {
+            active.delete(pick);
+          });
+        }, HOLD_TIME);
+      });
+    }
+
+    setTimeout(schedule, currentDelay());
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      walk(document.querySelector(".page"));
+      schedule();
+    }, 8000);
+  });
+})();
+</script>
+
 </body>
 </html>
