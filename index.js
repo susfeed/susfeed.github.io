@@ -121,7 +121,9 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "Minion Bob disapproves.",
     "Look it up on SusiPedia.",
     "SusiPedia says that is wrong.",
-    "Yeah I heard about that earlier on SusFeed.com"
+    "Yeah I heard about that earlier on SusFeed.com!",
+    "We should discuss this over a shrekzel.",
+    "You better start having high high hopes about that!"
   ];
 
   susBotButton.addEventListener("click", () => {
