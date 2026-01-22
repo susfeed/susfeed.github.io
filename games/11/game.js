@@ -1,7 +1,7 @@
 const c=document.getElementById("c")
 const x=c.getContext("2d")
 const W=c.width,H=c.height
-const FOV=520
+const FOV=420
 
 const RENDER_SCALE=0.75
 const FPS_CAP=20
@@ -25,7 +25,7 @@ const FOG_START=500
 const FOG_END=1400
 
 const camera={
-x:0,y:-90,z:240,
+x:0,y:-90,z:360,
 yaw:0,pitch:0,
 autoYaw:0,
 autoPitch:0
@@ -59,11 +59,29 @@ camera.pitch=Math.max(-1.2,Math.min(0.8,camera.pitch))
 lx=e.clientX;ly=e.clientY
 })
 
-const img=new Image()
-img.src="neil.png"
+const themes=[
+{
+bg:"linear-gradient(#ff2400 0%,#9c0000 40%,#2a0000 75%,#000 100%)",
+platform:()=>`rgb(255,${(40+Math.random()*180)|0},0)`,
+sprite:"neil.png",
+song:"song.mp3"
+}
+]
 
-const audio=new Audio("song.mp3")
+let currentTheme=0
+let platformCount=0
+
+const img=new Image()
+const audio=new Audio()
 audio.loop=true
+
+function applyTheme(i){
+currentTheme=i
+document.querySelector("canvas").style.background=themes[i].bg
+img.src=themes[i].sprite
+audio.src=themes[i].song
+audio.play()
+}
 
 function rotateY(p,a){
 const s=Math.sin(a),c=Math.cos(a)
@@ -77,7 +95,7 @@ return{x:p.x,y:p.y*c-p.z*s,z:p.y*s+p.z*c}
 function project(p){
 let q={x:p.x-camera.x,y:p.y-camera.y,z:p.z-camera.z}
 q=rotateY(q,-(camera.yaw+camera.autoYaw))
-q=rotateX(q,-(camera.pitch+camera.autoPitch))
+q=rotateX(q,-(camera.pitch+camera.autoPitch+0.18))
 if(q.z>-5)return null
 const z=-q.z
 const s=FOV/z
@@ -85,23 +103,24 @@ return{x:q.x*s+rc.width/2,y:q.y*s+rc.height/2,z}
 }
 
 const platforms=[]
-
-function harshColor(){
-const g=40+Math.random()*180
-return `rgb(255,${g|0},0)`
-}
+const faceBuffer=[]
 
 function createPlatform(p,x,y,z){
 p.x=x;p.y=y;p.z=z
 p.w=160;p.d=160;p.h=24
-p.move=Math.random()<0.25?50:0
-p.speed=(0.0015+Math.random()*0.001)*3
+p.move=Math.random()<0.25?80:0
+p.speed=0.02+Math.random()*0.015
 p.phase=Math.random()*Math.PI*2
-p.color=harshColor()
+p.color=themes[currentTheme].platform()
+platformCount++
+const nextTheme=Math.min(themes.length-1,Math.floor(platformCount/10))
+if(nextTheme!==currentTheme)applyTheme(nextTheme)
 }
 
 function initPlatforms(){
 platforms.length=0
+platformCount=0
+applyTheme(0)
 const p={}
 createPlatform(p,0,0,0)
 platforms.push(p)
@@ -150,16 +169,16 @@ camera.autoYaw*=0.9
 camera.autoPitch*=0.9
 return
 }
-
 const dx=p.x-player.x
 const dz=player.z-p.z
-const desiredYaw=Math.atan2(dx,dz)*0.25
-
+const rawYaw=Math.atan2(dx,dz)
+const desiredYaw=Math.max(-0.35,Math.min(0.35,rawYaw*0.18))
 const dy=(player.y-90)-p.y
-const desiredPitch=Math.atan2(dy,Math.max(80,dz))*-0.3
-
-camera.autoYaw+=(desiredYaw-camera.autoYaw)*0.06
-camera.autoPitch+=(desiredPitch-camera.autoPitch)*0.05
+const desiredPitch=Math.atan2(dy,Math.max(120,dz))*-0.25
+camera.autoYaw+=(desiredYaw-camera.autoYaw)*0.035
+camera.autoPitch+=(desiredPitch-camera.autoPitch)*0.03
+camera.autoYaw=Math.max(-0.4,Math.min(0.4,camera.autoYaw))
+camera.autoPitch=Math.max(-0.25,Math.min(0.25,camera.autoPitch))
 }
 
 function update(){
@@ -178,15 +197,19 @@ keys[" "]=false
 }
 
 player.vy+=gravity
+player.vy=Math.min(player.vy,24)
+
 player.x+=player.vx
 player.y+=player.vy
 player.z+=player.vz
+
 player.vx*=0.82
 player.vz*=0.82
 
 player.grounded=false
 
 for(const p of platforms){
+const prevPx=p.x+(p.move?Math.sin(p.phase)*p.move:0)
 p.phase+=p.speed
 const px=p.x+(p.move?Math.sin(p.phase)*p.move:0)
 if(
@@ -196,6 +219,7 @@ player.y>=p.y &&
 player.y<=p.y+p.h &&
 player.vy>=0
 ){
+player.x+=px-prevPx
 player.y=p.y
 player.vy=0
 player.grounded=true
@@ -207,7 +231,7 @@ if(player.y>deathY)respawn()
 
 camera.x=player.x
 camera.y=player.y-90
-camera.z=player.z+240
+camera.z=player.z+360
 
 updateCameraAssist()
 ensurePlatforms()
@@ -215,12 +239,10 @@ ensurePlatforms()
 
 function drawBox(p){
 if(p.z>player.z+CULL_BEHIND)return
-
 const px=p.x+(p.move?Math.sin(p.phase)*p.move:0)
 const x0=px-p.w/2,x1=px+p.w/2
 const z0=p.z-p.d/2,z1=p.z+p.d/2
 const y0=p.y,y1=p.y+p.h
-
 const faces=[
 [{x:x0,y:y1,z:z0},{x:x1,y:y1,z:z0},{x:x1,y:y1,z:z1},{x:x0,y:y1,z:z1}],
 [{x:x0,y:y0,z:z0},{x:x0,y:y1,z:z0},{x:x1,y:y1,z:z0},{x:x1,y:y0,z:z0}],
@@ -228,23 +250,12 @@ const faces=[
 [{x:x1,y:y0,z:z1},{x:x1,y:y1,z:z1},{x:x0,y:y1,z:z1},{x:x0,y:y0,z:z1}],
 [{x:x0,y:y0,z:z1},{x:x0,y:y1,z:z1},{x:x0,y:y1,z:z0},{x:x0,y:y0,z:z0}]
 ]
-
 for(const f of faces){
 const pts=f.map(project).filter(Boolean)
 if(pts.length<4)continue
 const depth=(pts[0].z+pts[1].z+pts[2].z+pts[3].z)*0.25
-const fog=Math.min(1,Math.max(0,(depth-FOG_START)/(FOG_END-FOG_START)))
-const band=Math.floor(fog*4)/4
-rx.globalAlpha=0.8*(1-band)
-rx.beginPath()
-pts.forEach((q,i)=>i?rx.lineTo(q.x,q.y):rx.moveTo(q.x,q.y))
-rx.closePath()
-rx.fillStyle=p.color
-rx.fill()
-rx.strokeStyle="rgba(255,255,255,0.3)"
-rx.stroke()
+faceBuffer.push({pts,depth,color:p.color})
 }
-rx.globalAlpha=1
 }
 
 function findShadowHit(){
@@ -252,10 +263,13 @@ let bestY=-Infinity
 let hit=null
 for(const p of platforms){
 const px=p.x+(p.move?Math.sin(p.phase)*p.move:0)
-if(player.y<p.y)continue
+if(p.y<player.y)continue
 if(player.x<px-p.w/2||player.x>px+p.w/2)continue
 if(player.z<p.z-p.d/2||player.z>p.z+p.d/2)continue
-if(p.y>bestY){bestY=p.y;hit={x:player.x,z:player.z,y:p.y}}
+if(p.y>bestY){
+bestY=p.y
+hit={x:player.x,y:p.y,z:player.z}
+}
 }
 return hit
 }
@@ -263,13 +277,15 @@ return hit
 function drawShadow(){
 const hit=findShadowHit()
 if(!hit)return
-const proj=project({x:hit.x,y:hit.y+0.01,z:hit.z})
+const proj=project({x:hit.x,y:hit.y+0.05,z:hit.z})
 if(!proj)return
 const h=player.y-hit.y
-const r=Math.max(12,32-h*0.45)
+if(h>220)return
+const radius=Math.max(4,15-h*0.09)
+const alpha=Math.max(0.1,0.45-h*0.002)
 rx.beginPath()
-rx.ellipse(proj.x,proj.y,r,r*0.45,0,0,Math.PI*2)
-rx.fillStyle="rgba(0,0,0,0.45)"
+rx.ellipse(proj.x,proj.y,radius,radius*0.45,0,0,Math.PI*2)
+rx.fillStyle=`rgba(0,0,0,${alpha})`
 rx.fill()
 }
 
@@ -301,8 +317,24 @@ if(capFPS&&t-lastFrame<1000/FPS_CAP){requestAnimationFrame(loop);return}
 lastFrame=t
 
 rx.clearRect(0,0,rc.width,rc.height)
+faceBuffer.length=0
 update()
 platforms.forEach(drawBox)
+
+faceBuffer.sort((a,b)=>b.depth-a.depth).forEach(f=>{
+const fog=Math.min(1,Math.max(0,(f.depth-FOG_START)/(FOG_END-FOG_START)))
+const band=Math.floor(fog*4)/4
+rx.globalAlpha=0.8*(1-band)
+rx.beginPath()
+f.pts.forEach((q,i)=>i?rx.lineTo(q.x,q.y):rx.moveTo(q.x,q.y))
+rx.closePath()
+rx.fillStyle=f.color
+rx.fill()
+rx.strokeStyle="rgba(255,255,255,0.3)"
+rx.stroke()
+})
+rx.globalAlpha=1
+
 drawShadow()
 drawPlayer()
 postProcess()
