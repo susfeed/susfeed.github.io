@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SusSearch</title>
+  <link rel="stylesheet" href="search.css">
+</head>
+<body>
+
+<div id="top" class="top home">
+  <img src="img/logo.webp" class="logo" onclick="location.href='search.html'">
+  <form id="searchForm">
+    <input id="q" autocomplete="off" placeholder="Search SusFeed">
+  </form>
+</div>
+
+<div class="tabs hidden">
+  <button data-tab="all" class="active">All</button>
+  <button data-tab="images">Images</button>
+  <button data-tab="videos">Videos</button>
+  <button data-tab="news">News</button>
+</div>
+
+<div id="results"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+<script src="search.js"></script>
+</body>
+</html>

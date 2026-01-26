@@ -113,7 +113,7 @@ p.speed=0.02+Math.random()*0.015
 p.phase=Math.random()*Math.PI*2
 p.color=themes[currentTheme].platform()
 platformCount++
-const nextTheme=Math.min(themes.length-1,Math.floor(platformCount/10))
+const nextTheme=Math.min(themes.length-1,Math.floor(platformCount/100))
 if(nextTheme!==currentTheme)applyTheme(nextTheme)
 }
 
