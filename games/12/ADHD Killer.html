@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADHD Killer</title>
+
+<link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon">
+<link rel="stylesheet" href="../../index.css">
+<link rel="stylesheet" href="../../content.css">
+
+<style>
+.game-container{
+  max-width:1200px;
+  margin:48px auto;
+  display:flex;
+  justify-content:center;
+  user-select:none;
+}
+.frame{
+  position:relative;
+  padding:20px;
+  border-radius:18px;
+  background:linear-gradient(180deg,#120018,#050008 70%);
+  box-shadow:0 0 24px rgba(255,0,100,.35),0 0 60px rgba(120,0,255,.25),inset 0 0 28px rgba(0,0,0,.95);
+  border:1px solid rgba(255,0,120,.25);
+  overflow:hidden;
+}
+.frame:fullscreen{
+  width:100vw;
+  height:100vh;
+  padding:24px;
+  border-radius:0;
+}
+.game-layout{
+  display:flex;
+  gap:16px;
+  width:100%;
+  height:100%;
+}
+.video{
+  width:20%;
+  height:100%;
+  background:black;
+  border-radius:12px;
+  overflow:hidden;
+}
+.video iframe{
+  width:100%;
+  height:100%;
+}
+.game-frame{
+  width:60%;
+  height:100%;
+  border-radius:12px;
+  overflow:hidden;
+}
+.game-frame iframe{
+  width:100%;
+  height:100%;
+  border:0;
+}
+.start-overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle at center,rgba(0,0,0,.6),rgba(0,0,0,.92));
+  z-index:6;
+}
+.start-btn{
+  font-size:.95rem;
+  letter-spacing:.35em;
+  padding:16px 42px;
+  border-radius:32px;
+  border:1px solid rgba(0,255,255,.7);
+  color:#7fffff;
+  background:linear-gradient(180deg,#ff00aa,#3a0066);
+  cursor:pointer;
+}
+.effects{
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  z-index:4;
+}
+.scanlines{
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,.03),
+    rgba(255,255,255,.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode:overlay;
+  opacity:.15;
+}
+.flash{
+  animation:flash .15s linear;
+}
+@keyframes flash{
+  from{background:rgba(255,255,255,.35)}
+  to{background:transparent}
+}
+.jitter{
+  animation:jitter .15s steps(2,end);
+}
+@keyframes jitter{
+  0%{transform:translate(0,0)}
+  50%{transform:translate(4px,-3px)}
+  100%{transform:translate(0,0)}
+}
+.zoom{
+  animation:zoom .25s ease-in-out;
+}
+@keyframes zoom{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.04)}
+  100%{transform:scale(1)}
+}
+.hue{
+  filter:hue-rotate(90deg) saturate(1.2);
+}
+.fly{
+  position:absolute;
+  width:24px;
+  height:24px;
+  background:radial-gradient(circle,#ff00ff,#550055);
+  border-radius:50%;
+  z-index:5;
+  pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+  <div class="site-header"></div>
+
+  <main class="container article-content">
+    <h1 class="article-main-title"><u>ADHD Killer</u></h1>
+    <p class="article-date"><i>Article Published by Cameron at 2026/01/2 10:30 PM CET</i></p>
+
+    <div class="game-container">
+      <div class="frame" id="frame">
+        <div class="effects scanlines" id="fx"></div>
+
+        <div class="game-layout">
+          <div class="video"><div id="playerLeft"></div></div>
+
+          <div class="game-frame">
+            <iframe src="../../games.html"></iframe>
+          </div>
+
+          <div class="video"><div id="playerRight"></div></div>
+        </div>
+
+        <div class="start-overlay" id="overlay">
+          <button class="start-btn" id="startBtn">START</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="site-footer"></div>
+</div>
+
+<script src="../../contentheader.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let leftPlayer
+let rightPlayer
+let chaos=false
+
+const rightVideos=["-KI0EYPcdkk","7tKP0pXXbs0"]
+const frame=document.getElementById("frame")
+const overlay=document.getElementById("overlay")
+const fx=document.getElementById("fx")
+
+function onYouTubeIframeAPIReady(){
+  leftPlayer=new YT.Player("playerLeft",{videoId:"eRXE8Aebp7s",playerVars:{autoplay:0,controls:0}})
+  rightPlayer=new YT.Player("playerRight",{videoId:"-KI0EYPcdkk",playerVars:{autoplay:0,controls:0}})
+}
+
+document.getElementById("startBtn").onclick=()=>{
+  overlay.style.display="none"
+  frame.requestFullscreen()
+  chaos=true
+
+  leftPlayer.seekTo(Math.random()*leftPlayer.getDuration(),true)
+  leftPlayer.unMute()
+  leftPlayer.playVideo()
+
+  const v=rightVideos[Math.floor(Math.random()*rightVideos.length)]
+  rightPlayer.loadVideoById({videoId:v,startSeconds:Math.random()*30})
+  rightPlayer.unMute()
+}
+
+setInterval(()=>{
+  if(!chaos)return
+  const r=Math.random()
+  frame.classList.remove("jitter","zoom","hue")
+  fx.classList.remove("flash")
+
+  if(r<.2)frame.classList.add("jitter")
+  else if(r<.35)frame.classList.add("zoom")
+  else if(r<.5)frame.classList.add("hue")
+  else if(r<.6)fx.classList.add("flash")
+},800)
+
+setInterval(()=>{
+  if(!chaos)return
+  const o=document.createElement("div")
+  o.className="fly"
+  const side=Math.floor(Math.random()*4)
+  const w=frame.clientWidth
+  const h=frame.clientHeight
+  let x,y,vx,vy
+  if(side===0){x=-30;y=Math.random()*h;vx=2;vy=(Math.random()-.5)*2}
+  if(side===1){x=w+30;y=Math.random()*h;vx=-2;vy=(Math.random()-.5)*2}
+  if(side===2){x=Math.random()*w;y=-30;vx=(Math.random()-.5)*2;vy=2}
+  if(side===3){x=Math.random()*w;y=h+30;vx=(Math.random()-.5)*2;vy=-2}
+  o.style.left=x+"px"
+  o.style.top=y+"px"
+  frame.appendChild(o)
+
+  let t=0
+  const rot=(Math.random()*360)
+  const move=setInterval(()=>{
+    t++
+    x+=vx
+    y+=vy
+    o.style.left=x+"px"
+    o.style.top=y+"px"
+    o.style.transform="rotate("+(rot+t*5)+"deg)"
+    if(t>300){
+      clearInterval(move)
+      o.remove()
+    }
+  },16)
+},1200)
+</script>
+</body>
+</html>

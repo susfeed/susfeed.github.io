@@ -123,7 +123,8 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "SusiPedia says that is wrong.",
     "Yeah I heard about that earlier on SusFeed.com!",
     "We should discuss this over a shrekzel.",
-    "You better start having high high hopes about that!"
+    "You better start having high high hopes about that!",
+    "Sorry, wasn't paying attention"
   ];
 
   susBotButton.addEventListener("click", () => {
