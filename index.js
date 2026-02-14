@@ -124,7 +124,8 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "Yeah I heard about that earlier on SusFeed.com!",
     "We should discuss this over a shrekzel.",
     "You better start having high high hopes about that!",
-    "Sorry, wasn't paying attention"
+    "Sorry, wasn't paying attention.",
+    "*Insert Random Answer Here*"
   ];
 
   susBotButton.addEventListener("click", () => {

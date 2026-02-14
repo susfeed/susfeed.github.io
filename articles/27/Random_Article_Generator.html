@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SusFeed Article</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="site-header"></div>
+  <main class="container article-content" id="article"></main>
+  <div class="site-footer"></div>
+</div>
+
+<script src="../../contentheader.js"></script>
+<script>
+const baitNouns=[
+"Farts","90s Kids","Mario Characters","Songs of the 2010s","Tom Holland","Numbers",
+"Sugar Cookies","Reasons To Care","Heroic Jobs","Cake Recipes","Games You Need To Buy",
+"Love and Deepspace Characters","People Who Have Had Sex","Radiohead Listeners",
+"Cereals That Will Fix You","DeepSus Al Moments","Ranking Lists","Secrets",
+"Teen Girl Trends","Life Changing Secrets","Santa Truthers","Divorce Explanations"
+];
+
+const baitHooks=[
+"That Sounds Kinda Sus Ngl",
+"I Saw You Vent",
+"Red Did It",
+"Impostor Behavior Detected",
+"Emergency Meeting",
+"Stop Talking And Do Tasks",
+"Vote Them Out",
+"Would Waluigi Approve",
+"Add More Mayonnaise",
+"Just Buy Another Copy Of Skyrim",
+"Enter Your Social Security Number To Continue",
+"Consult Johnny Sins",
+"Rock Lobster",
+"STOP Playing Radiohead",
+"Eat More Reese's Puffs",
+"Consult The Rat",
+"Minion Bob Disapproves",
+"SusiPedia Says Otherwise",
+"Ask The Al Again",
+"I Quit, Write Your Own Response",
+"You Are The Reason Your Parents Got A Divorce",
+"Santa Isn't Real",
+"This 1 Secret Will Change Your Life"
+];
+
+const susOpen=[
+"Across SusFeed.com,",
+"According to SusiPedia,",
+"Deep within DeepSus Al,",
+"After an emergency meeting,",
+"In the vents where Red was seen,",
+"Under suspicious mayonnaise energy,",
+"Amid catastrophic puff consumption,",
+"While Radiohead plays uncontrollably,"
+];
+
+const susVerb=[
+"exposes","reveals","destroys","ranks","confirms","denies","cancels","elevates",
+"certifies","leaks","uncovers","summons","glorifies","questions","blesses","curses"
+];
+
+const susObject=[
+"your social security number","your mayo addiction","your puff dependency",
+"your divorce lore","your Santa denial arc","your imposter syndrome",
+"your 3rd best prompt","your Skyrim purchases","your cookie relapse",
+"your shrekzel debate","your rat consultation","your DeepSus faith"
+];
+
+function r(a){return a[Math.floor(Math.random()*a.length)]}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+function chaoticTitle(){
+  return cap(`${r(baitHooks)}: ${r(baitNouns)} That ${r(susVerb)} ${r(susObject)}`)
+}
+
+function chaoticSentence(){
+  return `${r(susOpen)} this development ${r(susVerb)} ${r(susObject)}, and honestly, ${r(baitHooks)}.`
+}
+
+function chaoticParagraph(min,max){
+  let t="",l=min+Math.floor(Math.random()*(max-min));
+  for(let i=0;i<l;i++){t+=chaoticSentence()+" "}
+  return t
+}
+
+function shuffleImgs(){let a=[...Array(17).keys()];return a.sort(()=>Math.random()-0.5)}
+
+function standardArticle(imgs){
+  let sections=3+Math.floor(Math.random()*3)
+  let c=`<h1 class="article-main-title"><u>${chaoticTitle()}</u></h1>
+  <p class="article-date"><i>Article Published by Cameron at 2026/02/14 11:55 PM CET</i></p>
+  <p class="intro">${chaoticSentence()}</p>`
+  for(let i=0;i<sections;i++){
+    c+=`<h2 class="title">${r(baitHooks)}</h2>
+    <img src="../17/popup/${imgs[i]}.png" class="image"/>
+    <p class="description">${chaoticParagraph(3,6)}</p>`
+  }
+  return c
+}
+
+function topList(imgs){
+  let count=5+Math.floor(Math.random()*6)
+  let c=`<h1 class="article-main-title"><u>Top ${count} ${r(baitNouns)} You Can't Escape</u></h1>
+  <p class="article-date"><i>Article Published by Cameron at 2026/02/14 11:55 PM CET</i></p>
+  <p class="intro">${chaoticSentence()}</p>`
+  for(let i=0;i<count;i++){
+    c+=`<h2 class="title">#${i+1} ${r(baitHooks)}</h2>
+    <img src="../17/popup/${imgs[i]}.png" class="image"/>
+    <p class="description">${chaoticParagraph(2,5)}</p>`
+  }
+  return c
+}
+
+function essay(imgs){
+  let blocks=6+Math.floor(Math.random()*5)
+  let c=`<h1 class="article-main-title"><u>${chaoticTitle()}</u></h1>
+  <p class="article-date"><i>Article Published by Cameron at 2026/02/14 11:55 PM CET</i></p>
+  <p class="intro">${chaoticParagraph(2,4)}</p>
+  <img src="../17/popup/${imgs[0]}.png" class="image"/>`
+  for(let i=0;i<blocks;i++){
+    if(Math.random()>0.5){
+      c+=`<h2 class="title">${r(baitNouns)}</h2>`
+    }
+    c+=`<p class="description">${chaoticParagraph(4,8)}</p>`
+  }
+  return c
+}
+
+function generate(){
+  const imgs=shuffleImgs()
+  const t=Math.floor(Math.random()*3)
+  const art=document.getElementById("article")
+  if(t===0){art.innerHTML=standardArticle(imgs)}
+  else if(t===1){art.innerHTML=topList(imgs)}
+  else{art.innerHTML=essay(imgs)}
+}
+
+generate()
+</script>
+
+</body>
+</html>
