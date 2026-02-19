@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <li><a href="quiz.html">Quizzes</a></li>
                     <li><a href="games.html">Games</a></li>
                     <li><a href="TV/index.html">SusFeed Video</a></li>
+                    <li><a href="susipedia/index.html">SusiPedia</a></li>
                     <li><a href="about.html">About</a></li>
                 </ul>
             </nav>

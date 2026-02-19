@@ -1,0 +1,270 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nagasaki Dog</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: none;
+      background: white;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    .scoreboard {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Fuck It, Just a Gun</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/02/19 9:30 PM CET</i></p>
+
+      <div class="game-container">
+        <canvas id="physicsCanvas"></canvas>
+      </div>
+
+      <div class="scoreboard">
+        <p><i>Drag to throw. Press SPACE to fire.</i></p>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    const canvas = document.getElementById("physicsCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+
+    const gravity = 0.5;
+    const linearDamping = 0.999;
+    const angularDamping = 0.995;
+    const restitution = 0.6;
+
+    const gunImg = new Image();
+    gunImg.src = "gun.png";
+
+    const gun = {
+      x: 450,
+      y: 200,
+      width: 150,
+      height: 60,
+      vx: 0,
+      vy: 0,
+      angle: 0,
+      av: 0,
+      mass: 5,
+      inertia: 1,
+      dragging: false
+    };
+
+    const particles = [];
+    let lastMouse = { x: 0, y: 0 };
+    let mouseVel = { x: 0, y: 0 };
+
+    function spawnParticles() {
+      const muzzleX = gun.x + Math.cos(gun.angle) * (gun.width / 2);
+      const muzzleY = gun.y + Math.sin(gun.angle) * (gun.width / 2);
+      for (let i = 0; i < 20; i++) {
+        particles.push({
+          x: muzzleX,
+          y: muzzleY,
+          vx: Math.cos(gun.angle) * (Math.random() * 8 + 6) + (Math.random() - 0.5) * 3,
+          vy: Math.sin(gun.angle) * (Math.random() * 8 + 6) + (Math.random() - 0.5) * 3,
+          life: 30 + Math.random() * 20,
+          size: 3 + Math.random() * 3
+        });
+      }
+    }
+
+    function fire() {
+      const recoil = 22;
+      const cos = Math.cos(gun.angle);
+      const sin = Math.sin(gun.angle);
+
+      gun.vx -= cos * recoil;
+      gun.vy -= sin * recoil;
+
+      const torque = (Math.random() - 0.5) * 2;
+      gun.av += torque;
+
+      gun.dragging = false;
+      document.exitPointerLock();
+      spawnParticles();
+    }
+
+    canvas.addEventListener("pointerdown", e => {
+      canvas.requestPointerLock();
+      gun.dragging = true;
+      gun.vx = 0;
+      gun.vy = 0;
+      gun.av = 0;
+    });
+
+    document.addEventListener("mousemove", e => {
+      if (gun.dragging) {
+        mouseVel.x = e.movementX;
+        mouseVel.y = e.movementY;
+        gun.x += e.movementX;
+        gun.y += e.movementY;
+        const dx = gun.x - canvas.width / 2;
+        const dy = gun.y - canvas.height / 2;
+        gun.angle = Math.atan2(dy, dx);
+      }
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (gun.dragging) {
+        gun.dragging = false;
+        document.exitPointerLock();
+        gun.vx = mouseVel.x;
+        gun.vy = mouseVel.y;
+        gun.av = (Math.random() - 0.5) * 1.5;
+      }
+    });
+
+    window.addEventListener("keydown", e => {
+      if (e.code === "Space") fire();
+    });
+
+    function getCorners() {
+      const hw = gun.width / 2;
+      const hh = gun.height / 2;
+      const cos = Math.cos(gun.angle);
+      const sin = Math.sin(gun.angle);
+      const cx = gun.x;
+      const cy = gun.y;
+      return [
+        { x: cx + (-hw * cos - -hh * sin), y: cy + (-hw * sin + -hh * cos) },
+        { x: cx + (hw * cos - -hh * sin), y: cy + (hw * sin + -hh * cos) },
+        { x: cx + (hw * cos - hh * sin), y: cy + (hw * sin + hh * cos) },
+        { x: cx + (-hw * cos - hh * sin), y: cy + (-hw * sin + hh * cos) }
+      ];
+    }
+
+    function update() {
+      if (!gun.dragging) {
+        gun.vy += gravity;
+        gun.x += gun.vx;
+        gun.y += gun.vy;
+        gun.angle += gun.av;
+
+        gun.vx *= linearDamping;
+        gun.vy *= linearDamping;
+        gun.av *= angularDamping;
+
+        const corners = getCorners();
+
+        for (let c of corners) {
+          if (c.y > canvas.height) {
+            gun.y -= c.y - canvas.height;
+            gun.vy *= -restitution;
+            gun.av *= 0.9;
+          }
+          if (c.y < 0) {
+            gun.y -= c.y;
+            gun.vy *= -restitution;
+          }
+          if (c.x < 0) {
+            gun.x -= c.x;
+            gun.vx *= -restitution;
+          }
+          if (c.x > canvas.width) {
+            gun.x -= c.x - canvas.width;
+            gun.vx *= -restitution;
+          }
+        }
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.vy += 0.2;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+    }
+
+    function drawWalls() {
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawParticles() {
+      for (let p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = "orange";
+        ctx.fill();
+      }
+    }
+
+    function drawGun() {
+      ctx.save();
+      ctx.translate(gun.x, gun.y);
+      ctx.rotate(gun.angle);
+      ctx.drawImage(gunImg, -gun.width / 2, -gun.height / 2, gun.width, gun.height);
+      ctx.restore();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawWalls();
+      drawParticles();
+      drawGun();
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    gunImg.onload = () => {
+      const ratio = gunImg.height / gunImg.width;
+      gun.height = gun.width * ratio;
+      gun.inertia = (gun.width * gun.width + gun.height * gun.height) / 12;
+      loop();
+    };
+  </script>
+
+</body>
+</html>
