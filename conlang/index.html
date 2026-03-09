@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ConLang</title>
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<header>
+
+<div class="brand" id="homeHeader">
+<h1>ConLang</h1>
+<span class="tag">Learn your language visually</span>
+</div>
+
+<div class="searchWrap">
+<input id="searchBox" type="text" placeholder="Search words or meanings">
+<button id="clearSearch">×</button>
+</div>
+
+<div class="controls">
+<button id="randomBtn">Random</button>
+<button id="newBtn">New</button>
+<button id="bookmarksBtn">Bookmarks</button>
+</div>
+
+</header>
+
+<main>
+
+<section id="card">
+
+<div class="wordHeader">
+<h2 id="wordTitle"></h2>
+<button id="bookmarkBtn"></button>
+</div>
+
+<video id="videoPlayer" controls></video>
+
+<ul id="definitions"></ul>
+
+</section>
+
+<aside>
+
+<h3 class="listTitle">Vocabulary</h3>
+<div id="wordList"></div>
+
+</aside>
+
+</main>
+
+<script src="index.js"></script>
+</body>
+</html>
