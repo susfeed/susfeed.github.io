@@ -57,11 +57,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    const sectionDiv = document.querySelector('.site-header');
-    if (sectionDiv) {
-        sectionDiv.innerHTML = headerContent;
-    }
-
     const sectionEl = document.querySelector('.section-title');
     if (
         sectionEl &&

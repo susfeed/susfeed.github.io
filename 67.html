@@ -6,12 +6,9 @@
   <title>67</title>
   <link rel="shortcut icon" href="img/67.png" type="image/x-icon" />
 
-  <!-- EXACT same references -->
   <link rel="stylesheet" href="index.css" />
 
-  <!-- SAFE overrides: blue instead of red, NO layout destruction -->
   <style>
-    /* color overrides only */
     .main-nav,
     .site-footer,
     .breaking-news,
@@ -35,7 +32,6 @@
       color: #9bb7ff !important;
     }
 
-    /* image replacement */
     img {
       content: url("img/67.png") !important;
     }
@@ -43,6 +39,33 @@
     .card-image {
       background-image: url("img/67.png") !important;
     }
+
+    * {
+    scrollbar-width: thin;
+    scrollbar-color: #1a4dba #ffffff;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #121212;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ba1a1a;
+    border-radius: 8px;
+    border: 2px solid #121212;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #d62828;
+}
+
+::-webkit-scrollbar-corner {
+    background: #121212;
+}
   </style>
 </head>
 <body>

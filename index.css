@@ -684,3 +684,30 @@ button:hover {
   text-decoration: underline;
   color: #ffe5e5;
 }
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #ba1a1a #ffffff;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #121212;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ba1a1a;
+    border-radius: 8px;
+    border: 2px solid #121212;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #d62828;
+}
+
+::-webkit-scrollbar-corner {
+    background: #121212;
+}
