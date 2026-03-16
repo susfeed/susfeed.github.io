@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Number</title>
+<link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+<link rel="stylesheet" href="../../content.css" />
+<link rel="stylesheet" href="../../index.css" />
+
+<style>
+.glitch{animation:glitch .15s infinite}
+@keyframes glitch{
+0%{transform:translate(0,0)}
+25%{transform:translate(-2px,2px)}
+50%{transform:translate(2px,-2px)}
+75%{transform:translate(-2px,-1px)}
+100%{transform:translate(2px,1px)}
+}
+
+#countdownOverlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:none;
+align-items:center;
+justify-content:center;
+background:rgba(0,0,0,.85);
+z-index:9999;
+text-align:center;
+}
+
+#countdownText{
+font-size:4em;
+color:red;
+font-weight:bold;
+}
+
+#connectionLost{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:white;
+z-index:10000;
+align-items:center;
+justify-content:center;
+text-align:center;
+flex-direction:column;
+font-family:sans-serif;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="site-header"></div>
+
+<main class="container article-content">
+<h1 class="article-main-title"><u>Guess What Number We're Thinking Of</u></h1>
+<p class="article-date"><i>Article Published by Cameron at 2026/03/16 7:02 PM CET</i></p>
+
+<p class="intro">Guess the number between 1 and 9999.</p>
+
+<form id="quiz-form">
+
+<div class="question-block">
+<h2 class="title">Enter launch code:</h2>
+<input type="number" id="guess" placeholder="Enter code..." />
+</div>
+
+<div class="question-block" style="text-align:center;margin-top:40px;">
+<button type="button" onclick="submitGuess()">Submit Code</button>
+</div>
+
+</form>
+
+<div id="result" class="description" style="text-align:center;margin-top:40px;display:none;">
+<h2 class="title">SYSTEM ACCESS</h2>
+<p id="hint">Awaiting code input.</p>
+</div>
+
+</main>
+
+<div class="site-footer"></div>
+
+</div>
+
+<div id="countdownOverlay">
+<div id="countdownText"></div>
+</div>
+
+<div id="connectionLost">
+<h1>Connection Lost</h1>
+<p>The internet appears to be down.</p>
+</div>
+
+<script src="../../content.js"></script>
+<script src="../../contentheader.js"></script>
+
+<script>
+
+let target=Math.floor(Math.random()*9999)+1
+
+function submitGuess(){
+
+let guess=parseInt(document.getElementById("guess").value)
+let result=document.getElementById("result")
+let hint=document.getElementById("hint")
+
+result.style.display="block"
+
+if(guess===target){
+hint.innerText="CODE ACCEPTED. LAUNCH SYSTEM ONLINE."
+document.body.classList.add("glitch")
+startCountdown()
+return
+}
+
+if(guess<target){
+hint.innerText="ACCESS DENIED. CODE TOO LOW. SECURITY TRACE ACTIVE. TRY HIGHER."
+}else{
+hint.innerText="ACCESS DENIED. CODE TOO HIGH. FIREWALL LOCKING. LOWER."
+}
+
+if(Math.abs(guess-target)<50){
+hint.innerText+=" SIGNAL PROXIMITY DETECTED."
+}
+
+}
+
+function startCountdown(){
+
+let overlay=document.getElementById("countdownOverlay")
+let text=document.getElementById("countdownText")
+
+overlay.style.display="flex"
+
+let time=10
+text.innerText="LAUNCH IN "+time
+
+let timer=setInterval(function(){
+
+time--
+text.innerText="LAUNCH IN "+time
+
+if(time<=0){
+clearInterval(timer)
+crashSite()
+}
+
+},1000)
+
+}
+
+function crashSite(){
+
+document.body.classList.remove("glitch")
+document.querySelector(".wrapper").style.display="none"
+document.getElementById("countdownOverlay").style.display="none"
+document.getElementById("connectionLost").style.display="flex"
+
+}
+
+document.getElementById("guess").addEventListener("keydown",function(e){
+if(e.key==="Enter"){
+e.preventDefault()
+submitGuess()
+}
+})
+
+</script>
+
+</body>
+</html>
