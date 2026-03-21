@@ -6,6 +6,32 @@
   <link rel="shortcut icon" href="img/amogus.webp" type="image/x-icon" />
   <link rel="stylesheet" href="index.css" />
   <title>About</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    .scrolling-content {
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .scroll-track {
+      display: flex;
+      flex-wrap: nowrap;
+    }
+
+    .rainbow-text {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      white-space: nowrap;
+    }
+
+    .scrolling-gif {
+      height: 50px;
+    }
+  </style>
 </head>
 <body>
 
@@ -20,16 +46,17 @@
         </div>
 
         <div class="scrolling-content">
-          <div class="rainbow-text">
-            <marquee behavior="scroll" direction="left" scrollamount="15" width="100%">
-              <img src="img/amogus.gif" alt="Amogus gif" class="scrolling-gif" />
+          <div class="scroll-track" id="scrollTrack">
+            <div class="rainbow-text scroll-segment" id="scrollSegment">
+              <img src="img/amogus.gif" class="scrolling-gif" />
               <i>Chaos</i>
-              <img src="img/amogus.gif" alt="Amogus gif flipped" class="scrolling-gif" />
+              <img src="img/amogus.gif" class="scrolling-gif" />
               <i>Chaos</i>
-              <img src="img/amogus.gif" alt="Amogus gif" class="scrolling-gif" />
+              <img src="img/amogus.gif" class="scrolling-gif" />
               <i>Chaos</i>
-              <img src="img/amogus.gif" alt="Amogus gif" class="scrolling-gif" />
-            </marquee>
+              <img src="img/amogus.gif" class="scrolling-gif" />
+              <i>Chaos</i>
+            </div>
           </div>
         </div>
       </section>
@@ -38,6 +65,41 @@
     <div class="site-footer"></div>
 
   </div>
+
   <script src="header.js"></script>
+  <script>
+    const track = document.getElementById("scrollTrack");
+    const segment = document.getElementById("scrollSegment");
+
+    function fill() {
+      const screenWidth = window.innerWidth;
+      let totalWidth = segment.offsetWidth;
+
+      while (totalWidth < screenWidth * 2) {
+        const clone = segment.cloneNode(true);
+        track.appendChild(clone);
+        totalWidth += segment.offsetWidth;
+      }
+    }
+
+    fill();
+
+    let x = 0;
+    const speed = 2;
+    const loopWidth = segment.offsetWidth;
+
+    function animate() {
+      x -= speed;
+
+      if (Math.abs(x) >= loopWidth) {
+        x += loopWidth;
+      }
+
+      track.style.transform = `translateX(${x}px)`;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
 </body>
 </html>

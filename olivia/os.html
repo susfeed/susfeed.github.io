@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COOS</title>
+  <link rel="icon" type="image/x-icon" href="cs.png">
+  <link rel="stylesheet" href="os.css">
+  <script src="os.js" defer></script>
+  <script src="boot.js" defer></script>
+  <script src="search.js" defer></script>
+</head>
+<body>
+  <div id="boot-screen">
+  <div id="boot-logo-container">
+    <img src="img/cam.png" alt="Logo" id="boot-logo">
+    <span id="boot-title">COOS</span>
+  </div>
+  <div id="boot-bar-container">
+    <div id="boot-bar"></div>
+  </div>
+  <div id="boot-text">Starting COOS...</div>
+</div>
+  <div class="desktop">
+
+    <div class="programs">
+      <div class="program-btn" data-title="main" data-link="index.html" data-icon="img/index.png">
+        <img src="img/index.png" alt="">
+        <div class="program-label">Main Page</div>
+      </div>
+      <div class="program-btn" data-title="COS Browser" data-link="" data-icon="browser.png">
+        <img src="browser.png" alt="Web Browser Icon"><span>Browser</span>
+      </div>
+      <div class="program-btn" data-title="Notepad" data-link="" data-icon="img/texteditor.png">
+        <img src="img/texteditor.png" alt="Text Editor Icon"><span>Notepad</span>
+      </div>
+      <div class="program-btn" data-title="This Site" data-link="../index.html" data-icon="img/cam.png">
+        <img src="img/cam.png" alt="">
+        <div class="program-label">This Site (2025 to Now)</div>
+      </div>
+    </div>
+
+    <div class="taskbar">
+  <div id="home-btn">
+    <div class="logo">
+      <div></div><div></div><div></div>
+      <div></div><div></div><div></div>
+      <div></div><div></div><div></div>
+    </div>
+    Home
+  </div>
+
+    <div id="taskbar-center">
+      <input type="text" id="search-bar" placeholder="Search programs...">
+      <div id="open-programs"></div>
+    </div>
+  </div>
+
+  <div id="windows-container"></div>
+
+</body>
+</html>
