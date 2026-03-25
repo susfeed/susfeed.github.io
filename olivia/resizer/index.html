@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Resizer</title>
+<style>
+body{
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+background:linear-gradient(120deg,#d8c6ff,#b8ffe3,#fff7b8);
+background-size:300% 300%;
+animation:bgmove 15s ease infinite;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+@keyframes bgmove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+header{
+margin-top:40px;
+padding:20px 40px;
+text-align:center;
+background:rgba(255,255,255,0.35);
+border-radius:20px;
+backdrop-filter:blur(10px);
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+main{
+margin-top:30px;
+width:90%;
+max-width:1000px;
+background:rgba(255,255,255,0.4);
+padding:20px;
+border-radius:20px;
+backdrop-filter:blur(10px);
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+.controls{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:15px;
+}
+canvas{
+border:2px dashed #555;
+max-width:100%;
+cursor:grab;
+display:block;
+margin:20px auto;
+}
+button{
+padding:10px 15px;
+border:none;
+border-radius:10px;
+background:#6c5ce7;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+input{
+padding:8px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Image Dimension Tool</h1>
+<p>Set size, position image, export</p>
+</header>
+<main>
+<div class="controls">
+<input type="file" id="upload">
+<input type="number" id="widthMM" placeholder="Width (mm)">
+<input type="number" id="heightMM" placeholder="Height (mm)">
+<button onclick="generate()">Apply</button>
+<button onclick="downloadImage()">Download</button>
+</div>
+<canvas id="canvas"></canvas>
+</main>
+<script>
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+let img=new Image();
+let posX=0,posY=0;
+let scale=1;
+let dragging=false;
+let lastX,lastY;
+
+upload.onchange=e=>{
+ const file=e.target.files[0];
+ const reader=new FileReader();
+ reader.onload=ev=>{
+  img.onload=()=>{
+   fitImage();
+  }
+  img.src=ev.target.result;
+ }
+ reader.readAsDataURL(file);
+}
+
+function mmToPx(mm){return mm*3.78}
+
+function generate(){
+ const w=mmToPx(widthMM.value);
+ const h=mmToPx(heightMM.value);
+ if(!w||!h||!img.width)return;
+ canvas.width=w;
+ canvas.height=h;
+ scale=Math.max(w/img.width,h/img.height);
+ posX=(canvas.width-img.width*scale)/2;
+ posY=(canvas.height-img.height*scale)/2;
+ draw();
+}
+
+function fitImage(){
+ canvas.width=600;
+ canvas.height=400;
+ scale=Math.min(canvas.width/img.width,canvas.height/img.height);
+ posX=(canvas.width-img.width*scale)/2;
+ posY=(canvas.height-img.height*scale)/2;
+ draw();
+}
+
+function draw(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ ctx.drawImage(img,posX,posY,img.width*scale,img.height*scale);
+}
+
+canvas.onmousedown=e=>{
+ dragging=true;
+ lastX=e.offsetX;
+ lastY=e.offsetY;
+}
+canvas.onmousemove=e=>{
+ if(!dragging)return;
+ const dx=e.offsetX-lastX;
+ const dy=e.offsetY-lastY;
+ posX+=dx;
+ posY+=dy;
+ lastX=e.offsetX;
+ lastY=e.offsetY;
+ draw();
+}
+canvas.onmouseup=()=>dragging=false;
+canvas.onmouseleave=()=>dragging=false;
+
+function downloadImage(){
+ const link=document.createElement('a');
+ link.download='image.png';
+ link.href=canvas.toDataURL('image/png',0.7);
+ link.click();
+}
+</script>
+</body>
+</html>
