@@ -58,7 +58,7 @@ color:white;
 font-weight:bold;
 cursor:pointer;
 }
-input{
+input,select{
 padding:8px;
 border-radius:8px;
 border:1px solid #ccc;
@@ -75,6 +75,11 @@ border:1px solid #ccc;
 <input type="file" id="upload">
 <input type="number" id="widthMM" placeholder="Width (mm)">
 <input type="number" id="heightMM" placeholder="Height (mm)">
+<select id="format">
+<option value="png">PNG (Full Quality)</option>
+<option value="jpeg">JPEG (Adjustable Size)</option>
+</select>
+<input type="number" id="filesize" placeholder="Target KB">
 <button onclick="generate()">Apply</button>
 <button onclick="downloadImage()">Download</button>
 </div>
@@ -148,10 +153,32 @@ canvas.onmouseup=()=>dragging=false;
 canvas.onmouseleave=()=>dragging=false;
 
 function downloadImage(){
- const link=document.createElement('a');
- link.download='image.png';
- link.href=canvas.toDataURL('image/png',0.7);
- link.click();
+ const format=document.getElementById('format').value;
+ const targetKB=parseInt(document.getElementById('filesize').value);
+
+ if(format==='png'){
+  const link=document.createElement('a');
+  link.download='image.png';
+  link.href=canvas.toDataURL('image/png');
+  link.click();
+ }else{
+  let quality=0.9;
+  function compress(){
+   canvas.toBlob(blob=>{
+    const sizeKB=blob.size/1024;
+    if(sizeKB>targetKB && quality>0.1){
+     quality-=0.05;
+     compress();
+    }else{
+     const link=document.createElement('a');
+     link.download='image.jpg';
+     link.href=URL.createObjectURL(blob);
+     link.click();
+    }
+   },'image/jpeg',quality);
+  }
+  compress();
+ }
 }
 </script>
 </body>
