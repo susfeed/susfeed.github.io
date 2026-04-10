@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sus Calculator</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: transparent;
+  height: 100%;
+}
+
+.calculator {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+.header {
+  background: #ba1a1a;
+  color: white;
+  padding: 0.8em;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-size: clamp(12px, 1.2vw, 18px);
+  flex: 0 0 auto;
+}
+
+.header img {
+  width: clamp(20px, 2vw, 36px);
+}
+
+.display {
+  flex: 0 0 auto;
+  padding: 1em;
+  font-size: clamp(18px, 3vw, 40px);
+  text-align: right;
+  background: #f5f5f5;
+  word-wrap: break-word;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  min-height: 60px;
+}
+
+.buttons {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(6, 1fr); /* force vertical scaling */
+}
+
+button {
+  width: 100%;
+  height: 100%;
+  font-size: clamp(12px, 1.5vw, 20px);
+  border: none;
+  cursor: pointer;
+  background: white;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #eee;
+}
+
+.operator {
+  background: #ffe5e5;
+}
+
+.equals {
+  background: #ba1a1a;
+  color: white;
+}
+
+.equals:hover {
+  background: #9e1414;
+}
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <div class="header">
+    <img src="../sus.webp" alt="sus">
+    <span>Sus Calculator</span>
+  </div>
+  <div class="display" id="display">0</div>
+  <div class="buttons">
+    <button onclick="clearDisplay()">C</button>
+    <button onclick="backspace()">⌫</button>
+    <button onclick="append('%')">%</button>
+    <button onclick="append('/')" class="operator">÷</button>
+    <button onclick="append('Math.sqrt(')">√</button>
+
+    <button onclick="append('7')">7</button>
+    <button onclick="append('8')">8</button>
+    <button onclick="append('9')">9</button>
+    <button onclick="append('*')" class="operator">×</button>
+    <button onclick="append('Math.pow(')">xʸ</button>
+
+    <button onclick="append('4')">4</button>
+    <button onclick="append('5')">5</button>
+    <button onclick="append('6')">6</button>
+    <button onclick="append('-')" class="operator">−</button>
+    <button onclick="append('Math.sin(')">sin</button>
+
+    <button onclick="append('1')">1</button>
+    <button onclick="append('2')">2</button>
+    <button onclick="append('3')">3</button>
+    <button onclick="append('+')" class="operator">+</button>
+    <button onclick="append('Math.cos(')">cos</button>
+
+    <button onclick="append('0')">0</button>
+    <button onclick="append('.')">.</button>
+    <button onclick="append('(')">(</button>
+    <button onclick="append(')')">)</button>
+    <button onclick="append('Math.tan(')">tan</button>
+
+    <button onclick="append('Math.log10(')">log</button>
+    <button onclick="append('Math.log(')">ln</button>
+    <button onclick="append('Math.PI')">π</button>
+    <button onclick="append('Math.E')">e</button>
+    <button onclick="calculate()" class="equals">=</button>
+  </div>
+</div>
+
+<script>
+let display = document.getElementById('display');
+
+function append(value) {
+  let text = display.innerText;
+
+  // implied multiplication (e.g. 2( or 2sin()
+  if (text !== '0' && /[0-9)]$/.test(text) && /^(Math|\()/.test(value)) {
+    text += '*';
+  }
+
+  if (text === '0') text = '';
+  display.innerText = text + value;
+}
+
+function clearDisplay() {
+  display.innerText = '0';
+}
+
+function backspace() {
+  display.innerText = display.innerText.slice(0, -1) || '0';
+}
+
+function balanceParentheses(expr) {
+  let open = (expr.match(/\(/g) || []).length;
+  let close = (expr.match(/\)/g) || []).length;
+  return expr + ')'.repeat(open - close);
+}
+
+function calculate() {
+  try {
+    let expr = display.innerText;
+
+    // auto close parentheses
+    expr = balanceParentheses(expr);
+
+    display.innerText = eval(expr);
+  } catch {
+    display.innerText = 'Error';
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if ((e.key >= '0' && e.key <= '9') || '+-*/().'.includes(e.key)) {
+    append(e.key);
+  } else if (e.key === 'Enter') {
+    calculate();
+  } else if (e.key === 'Backspace') {
+    backspace();
+  }
+});
+</script>
+
+</body>
+</html>

@@ -113,6 +113,7 @@ function activateResults(){
 function runSearch(){
   const q = input.value.trim()
   if(!q) return
+  autocompleteBox.innerHTML = ''
   history.replaceState(null,'',`?q=${encodeURIComponent(q)}`)
   activateResults()
   render(q)

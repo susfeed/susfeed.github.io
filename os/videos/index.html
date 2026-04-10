@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Video Files</title>
+
+  <link rel="stylesheet" href="../os.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+<div id="video-app">
+
+  <div style="padding:10px; border-bottom:1px solid #eee;">
+    <input id="video-search" placeholder="Search files..."
+      style="width:100%; padding:6px; border-radius:6px; border:1px solid #ccc;">
+  </div>
+
+  <div id="video-grid"></div>
+
+</div>
+
+<div id="player-modal" class="player-modal hidden">
+  <button id="close-btn" class="close-btn">✕</button>
+  <video id="player" controls></video>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>
