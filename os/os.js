@@ -480,3 +480,25 @@ programs.forEach(btn => {
 
 window.addEventListener('resize', arrangePrograms);
 arrangePrograms();
+
+const wallpapers = [
+  "../img/howard.gif",
+  "theboys/neil.png",
+  "theboys/smeff.png",
+  "theboys/cam.png",
+  "theboys/chip.png",
+  "theboys/antonio.png",
+  "theboys/ringo.png",
+  "theboys/chog e choggers.png",
+  "../susipedia/articles/content/icon.gif"
+];
+
+function setRandomWallpaper() {
+  const pick = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+  document.body.style.backgroundImage = `url("${pick}")`;
+  document.body.style.backgroundSize = "contain";
+  document.body.style.backgroundPosition = "center";
+  document.body.style.backgroundRepeat = "no-repeat";
+}
+
+window.addEventListener("load", setRandomWallpaper);

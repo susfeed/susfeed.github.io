@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Library</title>
+<link rel="stylesheet" href="../../os.css">
+<style>
+body{margin:0;background:#fafafa;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif}
+.app{display:flex;height:100vh}
+.sidebar{width:240px;background:#fff;border-right:1px solid #eee;display:flex;flex-direction:column;padding:20px;box-shadow:4px 0 12px rgba(0,0,0,0.05)}
+.logo{font-size:20px;font-weight:bold;color:#ba1a1a;margin-bottom:20px}
+.nav{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.nav div{padding:8px 10px;border-radius:8px;cursor:pointer}
+.nav div.active{background:#ba1a1a;color:#fff}
+.nav div:hover{background:#f3f3f3}
+.sidebar input,.sidebar select{margin-top:10px;padding:8px;border-radius:10px;border:1px solid #ddd}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:60px;background:#fff;border-bottom:1px solid #eee;display:flex;align-items:center;padding:0 20px;gap:20px}
+.topbar h1{font-size:18px;margin:0}
+.spacer{flex:1}
+.hero{margin:20px;background:#fff;border-radius:16px;overflow:hidden;display:flex;height:180px;box-shadow:0 10px 25px rgba(0,0,0,0.08)}
+.hero-img{flex:1;background-size:cover;background-position:center}
+.hero-info{flex:1;padding:20px;display:flex;flex-direction:column;justify-content:center}
+.hero-info h2{margin:0 0 10px 0}
+.play-btn{background:#ba1a1a;color:#fff;border:none;padding:10px 16px;border-radius:10px;cursor:pointer;width:max-content}
+.section{padding:0 20px 20px 20px;overflow:auto}
+.section h2{margin:10px 0}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.game-card{background:#fff;border-radius:14px;overflow:hidden;cursor:pointer;transition:.2s;box-shadow:0 6px 14px rgba(0,0,0,0.08)}
+.game-card:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 25px rgba(0,0,0,0.15)}
+.card-image{height:240px;background-size:cover;background-position:center;position:relative}
+.card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);opacity:0;transition:.2s}
+.game-card:hover .card-overlay{opacity:1}
+.play-small{position:absolute;bottom:10px;left:10px;background:#ba1a1a;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px}
+.card-content{padding:10px;text-align:center}
+.playtime{font-size:12px;color:#777;margin-top:4px}
+#load-more-btn{margin:20px auto;display:block;padding:10px 20px;border:none;background:#ba1a1a;color:#fff;border-radius:10px;cursor:pointer}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-content{width:650px;height:380px;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.modal-img{flex:1;background-size:cover;background-position:center}
+.modal-bottom{padding:15px;display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<div class="sidebar">
+<div class="logo">Library</div>
+<div class="nav">
+<div class="active" id="nav-all">All Games</div>
+<div id="nav-installed">Installed</div>
+</div>
+<input id="search" placeholder="Search">
+<select id="sort">
+<option value="newest">Newest</option>
+<option value="oldest">Oldest</option>
+<option value="az">A → Z</option>
+<option value="za">Z → A</option>
+</select>
+</div>
+
+<div class="main">
+
+<div class="topbar">
+<h1>Your Games</h1>
+<div class="spacer"></div>
+</div>
+
+<div class="hero" id="hero">
+<div class="hero-img" id="hero-img"></div>
+<div class="hero-info">
+<h2 id="hero-title">Select a game</h2>
+<button class="play-btn" id="hero-play">Play</button>
+</div>
+</div>
+
+<div class="section">
+<h2 id="section-title">All Games</h2>
+<div id="games-container" class="games-grid"></div>
+<button id="load-more-btn">Load More</button>
+</div>
+
+</div>
+</div>
+
+<div class="modal" id="modal">
+<div class="modal-content">
+<div class="modal-img" id="modal-img"></div>
+<div class="modal-bottom">
+<div id="modal-title"></div>
+<button class="play-btn" id="modal-play">Play</button>
+</div>
+</div>
+</div>
+
+<script>
+let currentIndex=0
+let allGames=[]
+let sortedGames=[]
+let currentView="all"
+let selectedGame=null
+
+const container=document.getElementById("games-container")
+const loadMoreBtn=document.getElementById("load-more-btn")
+const sortSelect=document.getElementById("sort")
+const searchInput=document.getElementById("search")
+const heroImg=document.getElementById("hero-img")
+const heroTitle=document.getElementById("hero-title")
+const heroPlay=document.getElementById("hero-play")
+const modal=document.getElementById("modal")
+const modalImg=document.getElementById("modal-img")
+const modalTitle=document.getElementById("modal-title")
+const modalPlay=document.getElementById("modal-play")
+const sectionTitle=document.getElementById("section-title")
+
+function getPlayed(){
+return JSON.parse(localStorage.getItem("playedGames")||"{}")
+}
+
+function setPlayed(id){
+const data=getPlayed()
+if(!data[id])data[id]=0
+data[id]+=1
+localStorage.setItem("playedGames",JSON.stringify(data))
+}
+
+function setHero(folder,file){
+heroImg.style.backgroundImage=`url('../../games/${folder}/cover.webp')`
+heroTitle.textContent=file.replace(/_/g," ").replace(".html","")
+heroPlay.onclick=()=>{
+const id=folder+"_"+file
+setPlayed(id)
+window.location.href=`../../games/${folder}/${file}`
+}
+}
+
+function renderGames(games){
+const played=getPlayed()
+games.forEach(({folder,file},i)=>{
+const id=folder+"_"+file
+if(currentView==="installed"&&!played[id])return
+const imagePath=`../../games/${folder}/cover.webp`
+const title=file.replace(/_/g," ").replace(".html","")
+const time=played[id]?played[id]+" plays":"Not played"
+
+if(currentIndex===0&&i===0)setHero(folder,file)
+
+const card=document.createElement("div")
+card.className="game-card"
+
+card.innerHTML=`
+<div class="card-image" style="background-image:url('${imagePath}')">
+<div class="card-overlay"></div>
+<div class="play-small">View</div>
+</div>
+<div class="card-content">
+<div>${title}</div>
+<div class="playtime">${time}</div>
+</div>`
+
+card.addEventListener("mouseenter",()=>setHero(folder,file))
+
+card.onclick=()=>{
+selectedGame={folder,file}
+modalImg.style.backgroundImage=`url('${imagePath}')`
+modalTitle.textContent=title
+modal.style.display="flex"
+}
+
+container.appendChild(card)
+})
+}
+
+function loadGames(){
+const batch=sortedGames.slice(currentIndex,currentIndex+9)
+renderGames(batch)
+currentIndex+=9
+loadMoreBtn.style.display=currentIndex>=sortedGames.length?"none":"block"
+}
+
+function sortGames(method){
+sortedGames=[...allGames]
+switch(method){
+case"newest":sortedGames.sort((a,b)=>b.folder-a.folder);break
+case"oldest":sortedGames.sort((a,b)=>a.folder-b.folder);break
+case"az":sortedGames.sort((a,b)=>a.file.localeCompare(b.file));break
+case"za":sortedGames.sort((a,b)=>b.file.localeCompare(a.file));break
+}
+container.innerHTML=""
+currentIndex=0
+loadGames()
+}
+
+sortSelect.onchange=e=>sortGames(e.target.value)
+
+searchInput.oninput=()=>{
+const query=searchInput.value.toLowerCase()
+const filtered=sortedGames.filter(g=>g.file.replace(/_/g," ").toLowerCase().includes(query))
+container.innerHTML=""
+renderGames(filtered.slice(0,9))
+}
+
+document.getElementById("nav-all").onclick=()=>{
+currentView="all"
+sectionTitle.textContent="All Games"
+document.getElementById("nav-all").classList.add("active")
+document.getElementById("nav-installed").classList.remove("active")
+container.innerHTML=""
+currentIndex=0
+loadGames()
+}
+
+document.getElementById("nav-installed").onclick=()=>{
+currentView="installed"
+sectionTitle.textContent="Installed"
+document.getElementById("nav-installed").classList.add("active")
+document.getElementById("nav-all").classList.remove("active")
+container.innerHTML=""
+currentIndex=0
+loadGames()
+}
+
+modal.onclick=e=>{
+if(e.target===modal)modal.style.display="none"
+}
+
+modalPlay.onclick=()=>{
+if(!selectedGame)return
+const id=selectedGame.folder+"_"+selectedGame.file
+setPlayed(id)
+window.location.href=`../../games/${selectedGame.folder}/${selectedGame.file}`
+}
+
+fetch("../../games/index.json").then(r=>r.json()).then(data=>{
+allGames=data
+sortGames("newest")
+})
+
+loadMoreBtn.onclick=loadGames
+</script>
+
+</body>
+</html>
