@@ -433,11 +433,11 @@ function initDesktopSearch(programs) {
       item.appendChild(icon);
       item.appendChild(name);
 
-      item.addEventListener('click', () => {
-        app.click();
-        dropdown.style.display = 'none';
-        searchBar.value = '';
-      });
+item.addEventListener('click', () => {
+  openProgram(app);
+  dropdown.style.display = 'none';
+  searchBar.value = '';
+});
 
       recentsList.appendChild(item);
     });
@@ -471,12 +471,12 @@ function initDesktopSearch(programs) {
       item.appendChild(icon);
       item.appendChild(name);
 
-      item.addEventListener('mousedown', () => {
-        app.click();
-        addRecent(app);
-        dropdown.style.display = 'none';
-        searchBar.value = '';
-      });
+item.addEventListener('mousedown', () => {
+  openProgram(app);
+  addRecent(app);
+  dropdown.style.display = 'none';
+  searchBar.value = '';
+});
 
       resultsContainer.appendChild(item);
     });
@@ -517,9 +517,11 @@ function initDesktopSearch(programs) {
       showDropdown();
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (visibleItems.length > 0 && autocompleteIndex >= 0) {
-        visibleItems[autocompleteIndex].click();
-      }
+if (visibleItems.length > 0 && autocompleteIndex >= 0) {
+  const appName = visibleItems[autocompleteIndex].innerText;
+  const app = Array.from(programs).find(p => p.dataset.title === appName);
+  if (app) openProgram(app);
+}
     }
   });
 
@@ -533,3 +535,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const programs = document.querySelectorAll('.program-btn');
   initDesktopSearch(programs);
 });
+
+window.openProgram = openProgram;

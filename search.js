@@ -11,6 +11,45 @@ let snippetCache = {}
 let fuse
 let titles = []
 
+const customLinks = [
+  {
+    type: 'news',
+    title: 'SusFeed',
+    url: 'index.html',
+    autoLoad: false
+  },
+  {
+    type: 'news',
+    title: 'susfeed.com',
+    url: 'index.html',
+    autoLoad: true
+  },
+  {
+    type: 'news',
+    title: 'SusFeed Video',
+    url: 'TV/index.html',
+    autoLoad: false
+  },
+  {
+    type: 'news',
+    title: 'susfeed.video',
+    url: 'TV/index.html',
+    autoLoad: true
+  },
+  {
+    type: 'news',
+    title: 'SusiPedia',
+    url: 'susipedia/index.html',
+    autoLoad: false
+  },
+  {
+    type: 'news',
+    title: 'susipedia.org',
+    url: 'susipedia/index.html',
+    autoLoad: true
+  }
+]
+
 const autocompleteBox = document.createElement('div')
 autocompleteBox.className = 'autocomplete'
 input.parentNode.appendChild(autocompleteBox)
@@ -113,6 +152,19 @@ function activateResults(){
 function runSearch(){
   const q = input.value.trim()
   if(!q) return
+
+  const normalizedQ = normalizeQuery(q)
+
+  const match = allData.find(d =>
+    d.autoLoad &&
+    d.title.toLowerCase() === normalizedQ.toLowerCase()
+  )
+
+  if(match){
+    window.location.href = match.url
+    return
+  }
+
   autocompleteBox.innerHTML = ''
   history.replaceState(null,'',`?q=${encodeURIComponent(q)}`)
   activateResults()
@@ -381,6 +433,8 @@ async function load(){
     url:`tv/commercials/${encodeURIComponent(name)}`,
     video:`tv/commercials/${encodeURIComponent(name)}`
   }))
+
+  customLinks.forEach(link => allData.push(link))
 
   titles = allData.map(d=>d.title.toLowerCase()).sort()
   setupFuse()

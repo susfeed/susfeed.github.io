@@ -372,3 +372,24 @@ body, html {
   0%, 50%, 100% { opacity: 1; }
   25%, 75% { opacity: 0; }
 }
+
+#fullscreen-btn {
+  height: 32px;
+  padding: 0 10px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #eee;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+#fullscreen-btn:hover {
+  background: #ddd;
+  transform: translateY(-1px);
+}
+
+#fullscreen-btn:active {
+  transform: translateY(1px);
+}

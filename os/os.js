@@ -502,3 +502,25 @@ function setRandomWallpaper() {
 }
 
 window.addEventListener("load", setRandomWallpaper);
+
+const fullscreenBtn = document.getElementById("fullscreen-btn");
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.error("Fullscreen error:", err);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+fullscreenBtn.addEventListener("click", toggleFullscreen);
+
+document.addEventListener("fullscreenchange", () => {
+  if (document.fullscreenElement) {
+    fullscreenBtn.textContent = "🡽";
+  } else {
+    fullscreenBtn.textContent = "⛶";
+  }
+});
