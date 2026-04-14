@@ -131,7 +131,8 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "Eat some mozzarella, go on a climb, then come back and ask again.",
     "You're out of touch. I'm out of time.",
     "Call your ex.",
-    "Just go slurp up that yogurt."
+    "Just go slurp up that yogurt.",
+    "I will do your mom if you don't shut up."
   ];
 
   susBotButton.addEventListener("click", () => {
