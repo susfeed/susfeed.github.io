@@ -1,0 +1,229 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fazbussy</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    .chat-container {
+      width: 100%;
+      max-width: 900px;
+      height: 500px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      border: 2px solid #ba1a1a;
+      background: #1a1412;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+      font-family: monospace;
+      animation: subtleShift 6s infinite alternate;
+    }
+
+    .chat-log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      background: repeating-linear-gradient(
+        0deg,
+        #1a1412,
+        #1a1412 24px,
+        #181210 25px
+      );
+      position: relative;
+    }
+
+    .chat-log::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.02);
+      animation: flicker 0.15s infinite;
+      pointer-events: none;
+    }
+
+    .chat-message {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .chat-message img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      border-radius: 4px;
+      border: 2px solid #000;
+    }
+
+    .chat-bubble {
+      background: #2a1f1c;
+      padding: 8px 10px;
+      border-radius: 6px;
+      max-width: 70%;
+      color: #f2eaea;
+      border: 1px solid #3a2a26;
+    }
+
+    .user .chat-bubble {
+      background: #fff;
+      color: #222;
+      border: 1px solid #ddd;
+    }
+
+    .typing {
+      font-style: italic;
+      opacity: 0.6;
+      animation: blink 1s infinite;
+    }
+
+    .chat-input {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      border-top: 2px solid #ba1a1a;
+      background: #120d0c;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #3a2a26;
+      background: #0d0a09;
+      color: #fff;
+      font-family: monospace;
+      outline: none;
+    }
+
+    .chat-input input:focus {
+      border-color: #ba1a1a;
+      box-shadow: 0 0 6px rgba(186,26,26,0.5);
+    }
+
+    .chat-input input::placeholder {
+      color: #888;
+    }
+
+    .chat-input button {
+      background: #ba1a1a;
+      color: white;
+      border: none;
+      padding: 0 18px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .chat-input button:hover {
+      background: #8e0000;
+      transform: translateY(-1px);
+    }
+
+    @keyframes flicker {
+      0% { opacity: 0.02; }
+      50% { opacity: 0.05; }
+      100% { opacity: 0.02; }
+    }
+
+    @keyframes subtleShift {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.05); }
+    }
+
+    @keyframes blink {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Freddy Fazbear Porn Bot</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/04/15 10:48 PM CET</i></p>
+
+      <div class="chat-container">
+        <div class="chat-log" id="chatLog"></div>
+
+        <div class="chat-input">
+          <input type="text" id="chatInput" placeholder="Talk to Freddy..." />
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    const chatLog = document.getElementById("chatLog");
+    const input = document.getElementById("chatInput");
+
+    function addMessage(text, isUser = false, isTyping = false) {
+      const msg = document.createElement("div");
+      msg.className = "chat-message " + (isUser ? "user" : "bot");
+
+      const img = document.createElement("img");
+      img.src = isUser ? "../../img/amogus.webp" : "img/thefaz.webp";
+
+      const bubble = document.createElement("div");
+      bubble.className = "chat-bubble";
+
+      if (isTyping) {
+        bubble.classList.add("typing");
+      }
+
+      bubble.textContent = text;
+
+      msg.appendChild(img);
+      msg.appendChild(bubble);
+      chatLog.appendChild(msg);
+
+      chatLog.scrollTop = chatLog.scrollHeight;
+
+      return msg;
+    }
+
+    function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = "";
+
+      const userDelay = 150 + Math.random() * 300;
+
+      setTimeout(() => {
+        addMessage(text, true);
+
+        const typingMsg = addMessage("...", false, true);
+
+        const delay = 800 + Math.random() * 1600;
+
+        setTimeout(() => {
+          typingMsg.remove();
+          addMessage("👅🍆💦💋✌️");
+        }, delay);
+
+      }, userDelay);
+    }
+
+    input.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+
+</body>
+</html>
