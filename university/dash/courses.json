@@ -1,0 +1,104 @@
+{
+  "courses": [
+
+    { "code": "MANC101", "title": "Foundations of Mesopotamian Civilizations", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
+    { "code": "MANC102", "title": "Early Writing Systems", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
+    { "code": "MANC201", "title": "Ancient Societies", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
+
+    { "code": "MANC210", "title": "Mancala Strategy", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"], "concentrations": ["Mancala"] },
+    { "code": "MANC220", "title": "Early Civilization Systems", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"], "concentrations": ["Early Civilizations"] },
+
+    { "code": "MANC301", "title": "Mesopotamian Cultural Analysis", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
+    { "code": "MANC399", "title": "BA Thesis in Mesopotamian Studies", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
+
+    { "code": "MANC501", "title": "Graduate Mesopotamian Studies", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"] },
+    { "code": "MANC502", "title": "Smeff History in Mesopotamia", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"] },
+    { "code": "MANC510", "title": "Advanced Mancala Systems", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"], "concentrations": ["Mancala"] },
+    { "code": "MANC520", "title": "Advanced Mancala Systems", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"], "concentrations": ["Smeff History"] },
+    { "code": "MANC599", "title": "MA Thesis", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"] },
+
+    { "code": "MANC701", "title": "Doctoral Mesopotamian Theory", "department": "meso", "credits": 15, "levels": ["phd"], "programs": ["PhD in Mesopotamian Studies"] },
+    { "code": "MANC702", "title": "Advanced Archaeological Methods", "department": "meso", "credits": 15, "levels": ["phd"], "programs": ["PhD in Mesopotamian Studies"] },
+    { "code": "MANC710", "title": "Doctoral Mancala Research", "department": "meso", "credits": 15, "levels": ["phd"], "programs": ["PhD in Mesopotamian Studies"], "concentrations": ["Mancala"] },
+    { "code": "MANC720", "title": "Doctoral Mancala Research", "department": "meso", "credits": 15, "levels": ["phd"], "programs": ["PhD in Mesopotamian Studies"], "concentrations": ["Early Civilizations"] },
+    { "code": "MANC799", "title": "PhD Dissertation", "department": "meso", "credits": 15, "levels": ["phd"], "programs": ["PhD in Mesopotamian Studies"] },
+
+    { "code": "FEED101", "title": "Intro to Journalism", "department": "journalism", "credits": 15, "levels": ["certificate", "undergraduate"], "programs": ["BA in Journalism", "SusFeed Certificate in Journalism"] },
+    { "code": "FEED102", "title": "Media Ethics", "department": "journalism", "credits": 15, "levels": ["certificate", "undergraduate"], "programs": ["BA in Journalism", "SusFeed Certificate in Journalism"] },
+
+    { "code": "FEED201", "title": "News Reporting", "department": "journalism", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Journalism"] },
+    { "code": "FEED210", "title": "Investigative Journalism", "department": "journalism", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Journalism"], "concentrations": ["Investigative Journalism by SusFeed"] },
+    { "code": "FEED220", "title": "Broadcast Media Production", "department": "journalism", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Journalism"], "concentrations": ["Broadcast Media by SusFeed Video"] },
+
+    { "code": "FEED301", "title": "Digital Journalism", "department": "journalism", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Journalism"] },
+    { "code": "FEED399", "title": "Journalism Capstone", "department": "journalism", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Journalism"] },
+
+    { "code": "FEED501", "title": "Advanced Journalism Practice", "department": "journalism", "credits": 15, "levels": ["graduate"], "programs": ["MA in Journalism"] },
+    { "code": "FEED502", "title": "Media Systems Analysis", "department": "journalism", "credits": 15, "levels": ["graduate"], "programs": ["MA in Journalism"] },
+    { "code": "FEED510", "title": "SusFeed News", "department": "journalism", "credits": 15, "levels": ["graduate"], "programs": ["MA in Journalism"], "concentrations": ["Journalism"] },
+    { "code": "FEED520", "title": "SusFeed Video", "department": "journalism", "credits": 15, "levels": ["graduate"], "programs": ["MA in Journalism"], "concentrations": ["Broadcast Media"] },
+    { "code": "FEED599", "title": "MA Journalism Thesis", "department": "journalism", "credits": 15, "levels": ["graduate"], "programs": ["MA in Journalism"] },
+
+    { "code": "FEED701", "title": "Doctoral Media Theory", "department": "journalism", "credits": 15, "levels": ["phd"], "programs": ["PhD in Media & Journalism"] },
+    { "code": "FEED702", "title": "SusiPedia and Education as a Right", "department": "journalism", "credits": 15, "levels": ["phd"], "programs": ["PhD in Media & Journalism"] },
+    { "code": "FEED710", "title": "SusFeed: A Case Study", "department": "journalism", "credits": 15, "levels": ["phd"], "programs": ["PhD in Media & Journalism"], "concentrations": ["SusFeed"] },
+    { "code": "FEED720", "title": "Parody", "department": "journalism", "credits": 15, "levels": ["phd"], "programs": ["PhD in Media & Journalism"], "concentrations": ["Journalism"] },
+    { "code": "FEED799", "title": "PhD Dissertation", "department": "journalism", "credits": 15, "levels": ["phd"], "programs": ["PhD in Media & Journalism"] },
+
+    { "code": "SUS101", "title": "Intro to Sus", "department": "sus", "credits": 15, "levels": ["certificate", "undergraduate"], "programs": ["BS in Sus Studies", "Certificate in Puff Studies"] },
+    { "code": "SUS102", "title": "Puff Theory", "department": "sus", "credits": 15, "levels": ["certificate", "undergraduate"], "programs": ["BS in Sus Studies", "Certificate in Puff Studies"] },
+
+    { "code": "SUS201", "title": "Intermediate Sus", "department": "sus", "credits": 15, "levels": ["undergraduate"], "programs": ["BS in Sus Studies"] },
+    { "code": "SUS210", "title": "The Sus Mindset: A Case Study", "department": "sus", "credits": 15, "levels": ["undergraduate"], "programs": ["BS in Sus Studies"], "concentrations": ["Sus Theory"] },
+    { "code": "SUS220", "title": "YouTube Poop Engineering", "department": "sus", "credits": 15, "levels": ["undergraduate"], "programs": ["BS in Sus Studies"], "concentrations": ["YouTube Poop"] },
+
+    { "code": "SUS301", "title": "Advanced Sus", "department": "sus", "credits": 15, "levels": ["undergraduate"], "programs": ["BS in Sus Studies"] },
+    { "code": "SUS399", "title": "Sus Capstone", "department": "sus", "credits": 15, "levels": ["undergraduate"], "programs": ["BS in Sus Studies"] },
+
+    { "code": "SUS501", "title": "History of Among Us", "department": "sus", "credits": 15, "levels": ["graduate"], "programs": ["MS in Sus Studies"] },
+    { "code": "SUS502", "title": "Advanced Puff Studies", "department": "sus", "credits": 15, "levels": ["graduate"], "programs": ["MS in Sus Studies"] },
+    { "code": "SUS510", "title": "Applied Sus", "department": "sus", "credits": 15, "levels": ["graduate"], "programs": ["MS in Sus Studies"], "concentrations": ["Applied Sus"] },
+    { "code": "SUS520", "title": "Ringo Starr: Life and Legacy", "department": "sus", "credits": 15, "levels": ["graduate"], "programs": ["MS in Sus Studies"], "concentrations": ["Advanced Puff Studies"] },
+    { "code": "SUS599", "title": "MS Capstone", "department": "sus", "credits": 15, "levels": ["graduate"], "programs": ["MS in Sus Studies"] },
+
+    { "code": "SUS701", "title": "Workshop in Sus", "department": "sus", "credits": 15, "levels": ["phd"], "programs": ["DoS in Sus Studies"] },
+    { "code": "SUS702", "title": "Loss Theory", "department": "sus", "credits": 15, "levels": ["phd"], "programs": ["DoS in Sus Studies"] },
+    { "code": "SUS710", "title": "Doctoral YTP Workshop", "department": "sus", "credits": 15, "levels": ["phd"], "programs": ["DoS in Sus Studies"], "concentrations": ["YouTube Poop"] },
+    { "code": "SUS720", "title": "Amogus: An Icon in Sus", "department": "sus", "credits": 15, "levels": ["phd"], "programs": ["DoS in Sus Studies"], "concentrations": ["Advanced Sus Theory"] },
+    { "code": "SUS799", "title": "Doctoral Dissertation", "department": "sus", "credits": 15, "levels": ["phd"], "programs": ["DoS in Sus Studies"] },
+
+    { "code": "SMEFF101", "title": "Intro to Smeff", "department": "smeff", "credits": 15, "levels": ["certificate", "undergraduate"], "programs": ["BS in Smeff Studies", "Certificate in Applied Smeff"] },
+    { "code": "SMEFF102", "title": "Applied Smeff Basics", "department": "smeff", "credits": 15, "levels": ["certificate", "undergraduate"], "programs": ["BS in Smeff Studies", "Certificate in Applied Smeff"] },
+
+    { "code": "SMEFF201", "title": "Smeff: Early History", "department": "smeff", "credits": 15, "levels": ["undergraduate"], "programs": ["BS in Smeff Studies"] },
+    { "code": "SMEFF210", "title": "Smeff: Modern History", "department": "smeff", "credits": 15, "levels": ["undergraduate"], "programs": ["BS in Smeff Studies"], "concentrations": ["Applied Smeff"] },
+
+    { "code": "SMEFF301", "title": "Advanced Smeff", "department": "smeff", "credits": 15, "levels": ["undergraduate"], "programs": ["BS in Smeff Studies"] },
+    { "code": "SMEFF399", "title": "Smeff Capstone", "department": "smeff", "credits": 15, "levels": ["undergraduate"], "programs": ["BS in Smeff Studies"] },
+
+    { "code": "SMEFF501", "title": "Graduate Smeff Theory", "department": "smeff", "credits": 15, "levels": ["graduate"], "programs": ["Master of Smeff"] },
+    { "code": "SMEFF502", "title": "Advanced Smeff Systems", "department": "smeff", "credits": 15, "levels": ["graduate"], "programs": ["Master of Smeff"] },
+    { "code": "SMEFF510", "title": "Interdisciplinary Smeff Research", "department": "smeff", "credits": 15, "levels": ["graduate"], "programs": ["Master of Smeff"], "concentrations": ["Interdisciplinary Smeff"] },
+    { "code": "SMEFF520", "title": "Interdisciplinary Smeff Research", "department": "smeff", "credits": 15, "levels": ["graduate"], "programs": ["Master of Smeff"], "concentrations": ["Advanced Smeff"] },
+    { "code": "SMEFF599", "title": "Master of Smeff Thesis", "department": "smeff", "credits": 15, "levels": ["graduate"], "programs": ["Master of Smeff"] },
+
+    { "code": "SMEFF701", "title": "Doctoral Smeff Theory", "department": "smeff", "credits": 15, "levels": ["phd"], "programs": ["SmD in Smeff Theory"] },
+    { "code": "SMEFF702", "title": "Historical Smeff Systems", "department": "smeff", "credits": 15, "levels": ["phd"], "programs": ["SmD in Smeff Theory"] },
+    { "code": "SMEFF710", "title": "Cameron: Inventor of Smeff", "department": "smeff", "credits": 15, "levels": ["phd"], "programs": ["SmD in Smeff Theory"], "concentrations": ["Cameron Studies"] },
+    { "code": "SMEFF720", "title": "Smeff: Man, Myth, Martyr", "department": "smeff", "credits": 15, "levels": ["phd"], "programs": ["SmD in Smeff Theory"], "concentrations": ["Historical Smeff"] },
+    { "code": "SMEFF799", "title": "Doctoral Dissertation", "department": "smeff", "credits": 15, "levels": ["phd"], "programs": ["SmD in Smeff Theory"] },
+
+    { "code": "GAME101", "title": "Mancala", "department": "meso", "credits": 15, "levels": ["undergraduate"], "minors": ["Minor in Mancala"] },
+
+    { "code": "TOM101", "title": "Tom Holland", "department": "journalism", "credits": 15, "levels": ["undergraduate"], "minors": ["Minor in Tom Holland"] },
+
+    { "code": "PUFF101", "title": "Reese's Puffs: A History", "department": "sus", "credits": 15, "levels": ["undergraduate"], "minors": ["Minor in Reese's Puffs"] },
+
+    { "code": "YTP101", "title": "History of YouTube Poop", "department": "sus", "credits": 15, "levels": ["undergraduate"], "minors": ["Minor in YouTube Poop"] },
+
+    { "code": "SMEFF110", "title": "Smeff and You", "department": "smeff", "credits": 15, "levels": ["undergraduate"], "minors": ["Minor in Applied Smeff"] },
+
+    { "code": "CAM101", "title": "Cameron: Life and Legacy", "department": "smeff", "credits": 15, "levels": ["undergraduate"], "minors": ["Minor in Cameron Studies"] }
+
+  ]
+}

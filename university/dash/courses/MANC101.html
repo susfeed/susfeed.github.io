@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MANC101 · SusFeed University</title>
+  <link rel="shortcut icon" href="../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>MANC101</h1>
+    <p>Foundations of Mesopotamian Civilizations</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Introduction to Mesopotamia",
+    content: `
+      <p>
+        Mesopotamia developed between the Tigris and Euphrates rivers.
+        It is known as the cradle of civilization.
+      </p>
+    `
+  },
+  {
+    title: "Cuneiform Writing",
+    content: `
+      <p>
+        Cuneiform was one of the earliest writing systems, created by the Sumerians.
+        It used wedge-shaped symbols.
+      </p>
+    `
+  }
+]);
+
+initCourse("MANC101", [
+  {
+    title: "Quiz 1: Geography",
+    weight: 40,
+    questions: [
+      {
+        q: "Mesopotamia is between which rivers?",
+        options: ["Nile & Amazon","Tigris & Euphrates","Danube & Rhine"],
+        answer: 1
+      },
+      {
+        q: "Mesopotamia is called?",
+        options: ["Ice Land","Cradle of Civilization","New World"],
+        answer: 1
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Culture",
+    weight: 60,
+    questions: [
+      {
+        q: "Sumerian writing?",
+        options: ["Latin","Cuneiform","Greek"],
+        answer: 1
+      },
+      {
+        q: "Law code creator?",
+        options: ["Hammurabi","Napoleon","Caesar"],
+        answer: 0
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

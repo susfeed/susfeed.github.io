@@ -1,0 +1,132 @@
+{
+  "certificate": {
+    "journalism": [
+      {
+        "name": "SusFeed Certificate in Journalism",
+        "concentrations": []
+      }
+    ],
+    "sus": [
+      {
+        "name": "Certificate in Puff Studies",
+        "concentrations": []
+      }
+    ],
+    "smeff": [
+      {
+        "name": "Certificate in Applied Smeff",
+        "concentrations": []
+      }
+    ]
+  },
+
+  "minor": {
+    "meso": [
+      { "name": "Minor in Mancala" }
+    ],
+    "journalism": [
+      { "name": "Minor in Tom Holland" }
+    ],
+    "sus": [
+      { "name": "Minor in Reese's Puffs" },
+      { "name": "Minor in YouTube Poop" }
+    ],
+    "smeff": [
+      { "name": "Minor in Applied Smeff" },
+      { "name": "Minor in Cameron Studies" }
+    ]
+  },
+
+  "undergraduate": {
+    "meso": [
+      {
+        "name": "BA in Mesopotamian Studies",
+        "concentrations": ["Mancala", "Early Civilizations"]
+      }
+    ],
+    "journalism": [
+      {
+        "name": "BA in Journalism",
+        "concentrations": [
+          "Investigative Journalism by SusFeed",
+          "Broadcast Media by SusFeed Video"
+        ]
+      }
+    ],
+    "sus": [
+      {
+        "name": "BS in Sus Studies",
+        "concentrations": ["Sus Theory", "YouTube Poop"]
+      }
+    ],
+    "smeff": [
+      {
+        "name": "BS in Smeff Studies",
+        "concentrations": ["Applied Smeff"]
+      }
+    ]
+  },
+
+  "graduate": {
+    "meso": [
+      {
+        "name": "MA in Mesopotamian Studies",
+        "concentrations": ["Mancala", "Smeff History"]
+      }
+    ],
+    "journalism": [
+      {
+        "name": "MA in Journalism",
+        "concentrations": ["Journalism", "Broadcast Media"]
+      }
+    ],
+    "sus": [
+      {
+        "name": "MS in Sus Studies",
+        "concentrations": ["Applied Sus", "Advanced Puff Studies"]
+      }
+    ],
+    "smeff": [
+      {
+        "name": "Master of Smeff",
+        "concentrations": [
+          "Advanced Smeff",
+          "Interdisciplinary Smeff"
+        ]
+      }
+    ]
+  },
+
+  "phd": {
+    "meso": [
+      {
+        "name": "PhD in Mesopotamian Studies",
+        "concentrations": ["Mancala", "Early Civilizations"]
+      }
+    ],
+    "journalism": [
+      {
+        "name": "PhD in Media & Journalism",
+        "concentrations": ["Journalism", "SusFeed"]
+      }
+    ],
+    "sus": [
+      {
+        "name": "DoS in Sus Studies",
+        "concentrations": [
+          "Advanced Sus Theory",
+          "YouTube Poop"
+        ]
+      }
+    ],
+    "smeff": [
+      {
+        "name": "SmD in Smeff Theory",
+        "concentrations": [
+          "Cameron Studies",
+          "Historical Smeff"
+        ]
+      }
+    ]
+  }
+}

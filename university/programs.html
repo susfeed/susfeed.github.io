@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Programs · SusFeed University</title>
+  <link rel="shortcut icon" href="img/favicon.png">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    Established 1892 · Academic Programs · Degrees & Certificates
+  </div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>Programs</h1>
+    <p>Explore degrees across departments and disciplines.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Filter Programs</h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>Level</h3>
+        <select id="levelFilter">
+          <option value="all">All</option>
+          <option value="certificate">Certificate</option>
+          <option value="minor">Minor</option>
+          <option value="undergraduate">Undergraduate</option>
+          <option value="graduate">Graduate</option>
+          <option value="phd">Doctoral</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <h3>Department</h3>
+        <select id="deptFilter">
+          <option value="all">All</option>
+          <option value="meso">Mesopotamian Studies</option>
+          <option value="journalism">Journalism</option>
+          <option value="sus">Sus</option>
+          <option value="smeff">Applied Smeff</option>
+        </select>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <h2>All Programs</h2>
+    <div class="grid" id="programGrid">
+
+      <a href="programs/mesopotamian-ba.html" class="card" data-level="undergraduate" data-dept="meso">
+        <h3>BA in Mesopotamian Studies</h3>
+        <p>3 Years · Online</p>
+        <p><strong>Concentrations:</strong> Mancala, Early Civilizations</p>
+      </a>
+
+      <a href="programs/mesopotamian-ma.html" class="card" data-level="graduate" data-dept="meso">
+        <h3>MA in Mesopotamian Studies</h3>
+        <p>1 Year · Online</p>
+        <p><strong>Concentrations:</strong> Mancala, Smeff History</p>
+      </a>
+
+      <a href="programs/mesopotamian-phd.html" class="card" data-level="phd" data-dept="meso">
+        <h3>PhD in Mesopotamian Studies</h3>
+        <p>3–5 Years · Online</p>
+        <p><strong>Concentrations:</strong> Mancala, Early Civilizations</p>
+      </a>
+
+      <a href="programs/journalism-ba.html" class="card" data-level="undergraduate" data-dept="journalism">
+        <h3>BA in Journalism</h3>
+        <p>3 Years · Online</p>
+        <p><strong>Concentrations:</strong> Investigative Journalism by SusFeed, Broadcast Media by SusFeed Video</p>
+      </a>
+
+      <a href="programs/journalism-ma.html" class="card" data-level="graduate" data-dept="journalism">
+        <h3>MA in Journalism</h3>
+        <p>1 Year · Online</p>
+        <p><strong>Concentrations:</strong> Journalism, Broadcast Media</p>
+      </a>
+
+      <a href="programs/journalism-phd.html" class="card" data-level="phd" data-dept="journalism">
+        <h3>PhD in Media & Journalism</h3>
+        <p>3–5 Years · Online</p>
+        <p><strong>Concentrations:</strong> Journalism, SusFeed</p>
+      </a>
+
+      <a href="programs/journalism-cert.html" class="card" data-level="certificate" data-dept="journalism">
+        <h3>SusFeed Certificate in Journalism</h3>
+        <p>1 Year · Online</p>
+      </a>
+
+      <a href="programs/sus-bs.html" class="card" data-level="undergraduate" data-dept="sus">
+        <h3>BS in Sus Studies</h3>
+        <p>3 Years · Online</p>
+        <p><strong>Concentrations:</strong> Sus Theory, YouTube Poop</p>
+      </a>
+
+      <a href="programs/sus-ms.html" class="card" data-level="graduate" data-dept="sus">
+        <h3>MS in Sus Studies</h3>
+        <p>1 Year · Online</p>
+        <p><strong>Concentrations:</strong> Applied Sus, Advanced Puff Studies</p>
+      </a>
+
+      <a href="programs/sus-phd.html" class="card" data-level="phd" data-dept="sus">
+        <h3>DoS in Sus Studies</h3>
+        <p>3–5 Years · Online</p>
+        <p><strong>Concentrations:</strong> Advanced Sus Theory, YouTube Poop</p>
+      </a>
+
+      <a href="programs/sus-cert.html" class="card" data-level="certificate" data-dept="sus">
+        <h3>Certificate in Puff Studies</h3>
+        <p>1 Year · Online</p>
+      </a>
+
+      <a href="programs/smeff-bs.html" class="card" data-level="undergraduate" data-dept="smeff">
+        <h3>BS in Smeff Studies</h3>
+        <p>3 Years · Online</p>
+        <p><strong>Concentrations:</strong> Applied Smeff</p>
+      </a>
+
+      <a href="programs/smeff-ms.html" class="card" data-level="graduate" data-dept="smeff">
+        <h3>Master of Smeff</h3>
+        <p>1 Year · Online</p>
+        <p><strong>Concentrations:</strong> Advanced Smeff, Interdisciplinary Smeff</p>
+      </a>
+
+      <a href="programs/smeff-phd.html" class="card" data-level="phd" data-dept="smeff">
+        <h3>SmD in Smeff Theory</h3>
+        <p>3–5 Years · Online</p>
+        <p><strong>Concentrations:</strong> Cameron Studies, Historical Smeff</p>
+      </a>
+
+      <a href="programs/smeff-cert.html" class="card" data-level="certificate" data-dept="smeff">
+        <h3>Certificate in Applied Smeff</h3>
+        <p>1 Year · Online</p>
+      </a>
+
+<a class="card" data-level="minor" data-dept="meso">
+  <h3>Minor in Mancala</h3>
+  <p>Undergraduate · Supplemental</p>
+</a>
+
+<a class="card" data-level="minor" data-dept="journalism">
+  <h3>Minor in Tom Holland</h3>
+  <p>Undergraduate · Supplemental</p>
+</a>
+
+<a class="card" data-level="minor" data-dept="sus">
+  <h3>Minor in Reese's Puffs</h3>
+  <p>Undergraduate · Supplemental</p>
+</a>
+
+<a class="card" data-level="minor" data-dept="sus">
+  <h3>Minor in YouTube Poop</h3>
+  <p>Undergraduate · Supplemental</p>
+</a>
+
+<a class="card" data-level="minor" data-dept="smeff">
+  <h3>Minor in Applied Smeff</h3>
+  <p>Undergraduate · Supplemental</p>
+</a>
+
+<a class="card" data-level="minor" data-dept="smeff">
+  <h3>Minor in Cameron Studies</h3>
+  <p>Undergraduate · Supplemental</p>
+</a>
+
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="index.js"></script>
+<script src="programs.js"></script>
+
+</body>
+</html>

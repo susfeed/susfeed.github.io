@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admissions · SusFeed University</title>
+  <link rel="shortcut icon" href="img/favicon.png">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    Established 1892 · Admissions · Apply Now
+  </div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>Admissions</h1>
+    <p>Begin your journey at SusFeed University.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Application Form</h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Personal Information</h3>
+
+    <input type="text" placeholder="Full Name" id="name">
+    <input type="email" placeholder="Email Address" id="email">
+    <input type="text" placeholder="Country" id="country">
+  </div>
+
+  <div class="card">
+    <h3>Program Selection</h3>
+
+    <label>Level</label>
+    <select id="levelSelect">
+      <option value="">Select Level</option>
+      <option value="certificate">Certificate</option>
+      <option value="undergraduate">Undergraduate</option>
+      <option value="graduate">Graduate</option>
+      <option value="phd">Doctoral</option>
+    </select>
+
+    <label>Department</label>
+    <select id="deptSelect">
+      <option value="">Select Department</option>
+      <option value="meso">Mesopotamian Studies</option>
+      <option value="journalism">Journalism</option>
+      <option value="sus">Sus</option>
+      <option value="smeff">Applied Smeff</option>
+    </select>
+
+    <label>Program</label>
+    <select id="programSelect"></select>
+
+    <label>Concentration</label>
+    <select id="concentrationSelect"></select>
+
+    <label>Add Minor</label>
+    <select id="minorSelect" disabled>
+      <option value="">Select Minor</option>
+    </select>
+  </div>
+
+</div>
+
+<div class="card" style="margin-top:30px;">
+  <h3>Prior Education</h3>
+
+  <select id="educationLevel">
+    <option value="">Highest Completed</option>
+    <option value="none">None</option>
+    <option value="highschool">High School</option>
+    <option value="bachelor">Bachelor’s Degree</option>
+    <option value="master">Master’s Degree</option>
+  </select>
+
+  <input type="text" placeholder="Institution Name">
+</div>
+
+<div class="card" style="margin-top:30px;">
+  <h3>Additional Information</h3>
+
+  <textarea placeholder="Why do you want to join SusFeed University?" rows="5"></textarea>
+  <br><br>
+  <button onclick="submitApp()">Submit Application</button>
+</div>
+
+<div id="loadingScreen" style="display:none; text-align:center; padding:60px;">
+  <h2>DeepSus AI is reviewing your application...</h2>
+</div>
+
+</section>
+
+<div id="footer"></div>
+
+<script src="index.js"></script>
+<script src="admissions.js"></script>
+
+</body>
+</html>

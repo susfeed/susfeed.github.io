@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard · SusFeed University</title>
+  <link rel="shortcut icon" href="../img/favicon.png">
+  <link rel="stylesheet" href="../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    Student Dashboard · Academic Progress
+  </div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1 id="studentName">Student Dashboard</h1>
+    <p id="programName"></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Your Progress</h2>
+    <p id="progressText"></p>
+
+    <div style="width:100%;background:#ddd;height:20px;margin-bottom:30px;">
+      <div id="progressBar" style="height:100%;width:0;background:#7a0f0f;"></div>
+    </div>
+
+    <div id="gradActions" style="display:none;margin-bottom:30px;">
+        <button class="btn-primary" onclick="generateTranscript()">Download Transcript</button>
+        <button class="btn-primary" onclick="generateCertificate()">Download Certificate</button>
+    </div>
+
+    <h2>Your Courses</h2>
+    <div id="courseList" class="grid"></div>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="index.js"></script>
+
+</body>
+</html>

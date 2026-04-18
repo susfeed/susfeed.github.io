@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Accepted · SusFeed University</title>
+  <link rel="shortcut icon" href="img/favicon.png">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <style>
+.section button {
+  background: transparent;
+  border: 2px solid #7a0f0f;
+  color: #7a0f0f;
+  padding: 14px 36px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.section button:hover {
+  background: #7a0f0f;
+  color: #fff;
+}
+    </style>
+
+<div class="topbar">
+  <div class="container">
+    Established 1892 · Admissions Decision · Congratulations
+  </div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>Congratulations</h1>
+    <p>Your admission decision is now available.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container center">
+
+    <h2 id="studentName"></h2>
+
+    <p id="programInfo"></p>
+
+    <p style="max-width:600px;margin:20px auto;">
+      We are pleased to inform you that you have been accepted to SusFeed University. 
+      Your academic journey will contribute to the advancement of knowledge, inquiry, and Sus.
+    </p>
+
+    <br>
+
+    <button onclick="window.location.href='dash/index.html'">Begin Your Studies</button>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user || !user.accepted || !user.degree) {
+  window.location.href = "admissions.html";
+}
+
+document.getElementById("studentName").textContent = user.name || "Student";
+
+let text = "";
+
+if (user.degree) {
+  text = user.degree.program || "";
+
+  if (user.degree.concentration) {
+    text += " (" + user.degree.concentration + ")";
+  }
+
+  if (user.degree.minor) {
+    text += " with a Minor in " + user.degree.minor;
+  }
+}
+
+document.getElementById("programInfo").textContent = text;
+</script>
+
+</body>
+</html>
