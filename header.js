@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <nav class="main-nav">
                 <ul class="nav-links">
 
-                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html"><img src="img/amogus.webp" alt="SusFeed Icon" class="logo" /></a></li>
 
                     <li class="dropdown">
                         <a href="#">SusFeed News ▾</a>
@@ -48,4 +48,17 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('click', () => {
         document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
     });
+
+    const footerContent = `
+        <footer class="site-footer">
+            <div class="container">
+                <a href="67.html">
+                    <p>&copy; 2026 SusFeed. All rights reserved.</p>
+                </a>
+            </div>
+        </footer>
+    `;
+
+    const footerDiv = document.querySelector('.site-footer');
+    if (footerDiv) footerDiv.innerHTML = footerContent;
 });

@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <nav class="main-nav">
                 <ul class="nav-links">
 
-                    <li><a href="../../index.html">Home</a></li>
+                    <li><a href="../../index.html"><img src="../../img/amogus.webp" alt="SusFeed Icon" class="logo" /></a></li>
 
                     <li class="dropdown">
                         <a href="#">SusFeed News ▾</a>
@@ -23,11 +23,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     </li>
 
                     <li class="dropdown">
-                        <a href="#">Explore ▾</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="../../TV/index.html">SusFeed Video</a></li>
-                            <li><a href="../../susipedia/index.html">SusiPedia</a></li>
-                        </ul>
+                        <a href="../../TV/index.html">SusFeed Video</a>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="../../susipedia/index.html">SusiPedia</a>
                     </li>
 
                 </ul>
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const footerContent = `
         <footer class="site-footer">
             <div class="container">
-                <a href="../../ringo.html">
+                <a href="../../67.html">
                     <p>&copy; 2026 SusFeed. All rights reserved.</p>
                 </a>
             </div>
