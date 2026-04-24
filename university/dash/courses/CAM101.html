@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CAM101 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>CAM101</h1>
+    <p>Cameron: Life and Legacy</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "The Emergence of Cameron",
+    content: `
+      <p>
+        It is unknown how Cameron was created, since reality itself did not exist before him. It is assumed he, or at least his soul, has always existed in some form of existence. Little of what he did before the creation of this reality can be comprehended by mortal minds.
+      </p>
+      <p>
+        About 13.8 billion years ago, Cameron got quote "really bored" and decided to create the universe to entertain himself. Through the big bang, Cameron created the infinite multiverse and its composite universes, including ours: universe 1. This is the universe in which his physical form currently inhabits.
+      </p>
+    `
+  },
+  {
+    title: "Cameron's Life",
+    content: `
+      <p>
+        Cameron was born October 9, 2003, to lower-middle class parents. His mother divorced his father when he was young, because he was a cuck. Cameron had an interest in technology and language from an early age, and tried to learn about programming for the first time at age 5. He attempted to learn Mandarin Chinese at age 8, leading to the start of his interest in Asian languages.
+      </p>
+      <p>
+        Cameron left public school for online school during 5th grade, allowing him access to coursework that he would otherwise lack access to. He started to learn Japanese at Elizabethtown College at age 15, later skipping a year of high school to start full time sooner. Prior to his bachelor's, he made his first video game in 6502 assembly for the Nintendo Entertainment System.
+      </p>
+    `
+  },
+  {
+    title: "The Boys",
+    content: `
+      <p>
+        Cameron started university at age 17 as a Japanese and Computer Science major, later switching the latter to Information Systems. Through his academics, he met a group of rascals whom he made friends with. This group later formed The Boys, an international shenanigan creating organization. With The Boys, Cameron got the idea to create the famous site SusFeed from a series of parody article ideas intended to make fun of the news site BuzzFeed.
+      </p>
+      <p>
+        With the later expansion of SusFeed, the invention of susarticles, and the creation of SusFeed Video, Cameron used his influence to start researching the Ainu language from Hokkaido. This took some time away from SusFeed, leading to the great hiatus. Cameron came back for a full revamp of the site in 2025, remaining active online since.
+      </p>
+    `
+  },
+  {
+    title: "Smeff Debate",
+    content: `
+      <p>
+        Cameron has a long-standing feud with European dictator Neil Divins, who falsely claims the invention of Smeff. Though they are close friends, this feud has defined much of their relationship. The feud has recieved widespread attention following Joke of the Year 2025, during which known cuck Donald Trump spoke in support of Neil.
+      </p>
+    `
+  }
+]);
+
+initCourse("CAM101", [
+  {
+    title: "Quiz: Cameron Studies",
+    weight: 100,
+    questions: [
+      {
+        q: "Which of these languages does Cameron study?",
+        options: ["Ainu","Japanese","All of the above"],
+        answer: 2
+      },
+      {
+        q: "What was Cameron's first programming language?",
+        options: ["JavaScript","6502 Assembly","HACK Assembly"],
+        answer: 1
+      },
+      {
+        q: "Who invented Smeff?",
+        options: ["Neil","Nobody, Smeff has always existed","Cameron"],
+        answer: 2
+      },
+      {
+        q: "Who is Cameron's first son?",
+        options: ["Chip","Piranha Plant","Ädelost"],
+        answer: 0
+      },
+      {
+        q: "Is Cameron God?",
+        options: ["Yes","No"],
+        answer: 0
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

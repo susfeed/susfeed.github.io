@@ -9,6 +9,12 @@ let currentQuiz = null;
 let READINGS = [];
 let currentReading = null;
 
+let VIDEOS = [];
+let videoProgress = JSON.parse(localStorage.getItem("videoProgress")) || {};
+
+let projectSubmissions = JSON.parse(localStorage.getItem("projectSubmissions")) || {};
+let PROJECT = null;
+
 function initCourse(courseCode, quizzes) {
   window.COURSE_CODE = courseCode;
   window.QUIZZES = quizzes;
@@ -22,6 +28,7 @@ function initCourse(courseCode, quizzes) {
 
 function renderCards() {
   const container = document.getElementById("quizCards");
+  if (!container) return;
   container.innerHTML = "";
 
   QUIZZES.forEach((quiz, i) => {
@@ -127,6 +134,24 @@ function updateFinal() {
     }
   });
 
+  VIDEOS.forEach((v, i) => {
+    const watched = videoProgress[COURSE_CODE]?.[i];
+
+    if (watched !== undefined) {
+      const score = Math.min((watched / 90) * 100, 100);
+      total += score * v.weight;
+      weight += v.weight;
+    }
+  });
+
+  if (PROJECT) {
+    const proj = projectSubmissions[COURSE_CODE];
+    if (proj && proj.submitted) {
+      total += proj.score * PROJECT.weight;
+      weight += PROJECT.weight;
+    }
+  }
+
   if (!weight) return;
 
   const final = Math.round(total / weight);
@@ -134,7 +159,13 @@ function updateFinal() {
   document.getElementById("finalScore").textContent =
     `Final Score: ${final}%`;
 
-  if (final >= PASS_MARK) {
+  const projectDone = !PROJECT || projectSubmissions[COURSE_CODE]?.submitted;
+
+  const allPassed =
+    QUIZZES.every((q, i) => scores[COURSE_CODE][i] >= PASS_MARK) &&
+    projectDone;
+
+  if (final >= PASS_MARK && allPassed) {
     if (!completedCourses.includes(COURSE_CODE)) {
       completedCourses.push(COURSE_CODE);
       localStorage.setItem("completedCourses", JSON.stringify(completedCourses));
@@ -144,8 +175,6 @@ function updateFinal() {
     document.getElementById("statusText").textContent = "Not Completed";
   }
 }
-
-/* ================= READINGS ================= */
 
 function initReadings(readings) {
   READINGS = readings;
@@ -184,4 +213,136 @@ function openReading(i) {
 
 function closeReading() {
   document.getElementById("readingModal").classList.add("hidden");
+}
+
+function initVideos(videos) {
+  VIDEOS = videos;
+
+  const section = document.getElementById("videoCards")?.parentElement;
+
+  if (!VIDEOS || VIDEOS.length === 0) {
+    if (section) section.style.display = "none";
+    return;
+  } else {
+    if (section) section.style.display = "block";
+  }
+
+  if (!videoProgress[COURSE_CODE]) {
+    videoProgress[COURSE_CODE] = {};
+  }
+
+  renderVideoCards();
+}
+
+function renderVideoCards() {
+  const container = document.getElementById("videoCards");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  VIDEOS.forEach((video, i) => {
+    const watched = videoProgress[COURSE_CODE][i] || 0;
+    const score = Math.min((watched / 90) * 100, 100).toFixed(0);
+
+    const card = document.createElement("div");
+    card.className = "quiz-card";
+    card.onclick = () => openVideo(i);
+
+    card.innerHTML = `
+      <h3>${video.title}</h3>
+      <p>${video.weight}%</p>
+      <p>Watched: ${watched.toFixed(0)}%</p>
+      <p>Score: ${score}%</p>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function openVideo(i) {
+  currentVideo = i;
+
+  const video = VIDEOS[i];
+
+  document.getElementById("videoTitle").textContent = video.title;
+
+  const player = document.getElementById("videoPlayer");
+  player.src = video.src;
+
+  document.getElementById("videoModal").classList.remove("hidden");
+
+  trackVideoProgress(player, i);
+}
+
+function closeVideo() {
+  document.getElementById("videoModal").classList.add("hidden");
+
+  const player = document.getElementById("videoPlayer");
+  player.pause();
+}
+
+function trackVideoProgress(videoElement, index) {
+  videoElement.ontimeupdate = () => {
+    const percent = (videoElement.currentTime / videoElement.duration) * 100;
+
+    if (!videoProgress[COURSE_CODE][index] || percent > videoProgress[COURSE_CODE][index]) {
+      videoProgress[COURSE_CODE][index] = percent;
+
+      localStorage.setItem("videoProgress", JSON.stringify(videoProgress));
+
+      renderVideoCards();
+      updateFinal();
+    }
+  };
+}
+
+function initProject(project) {
+  PROJECT = project;
+
+  if (!projectSubmissions[COURSE_CODE]) {
+    projectSubmissions[COURSE_CODE] = { submitted: false, score: 0 };
+  }
+
+  renderProject();
+}
+
+function renderProject() {
+  const box = document.getElementById("projectBox");
+  if (!box || !PROJECT) return;
+
+  const data = projectSubmissions[COURSE_CODE];
+
+  box.innerHTML = `
+    <h2>${PROJECT.title}</h2>
+    <p>${PROJECT.weight}%</p>
+    <p>${PROJECT.description}</p>
+    <textarea id="projectInput" placeholder="Write your response..."></textarea>
+    <button class="btn-primary" onclick="submitProject()">Submit</button>
+    <p>Status: ${data.submitted ? "Submitted ✅" : "Not Submitted"}</p>
+    <p>Score: ${data.score}%</p>
+  `;
+}
+
+function submitProject() {
+  const text = document.getElementById("projectInput").value.trim();
+
+  if (text.length < 50) {
+    alert("Submission too short (min 50 characters)");
+    return;
+  }
+
+  let score = 70;
+
+  if (text.length > 150) score = 85;
+  if (text.length > 300) score = 100;
+
+  projectSubmissions[COURSE_CODE] = {
+    submitted: true,
+    score: score
+  };
+
+  localStorage.setItem("projectSubmissions", JSON.stringify(projectSubmissions));
+
+  renderProject();
+  updateFinal();
 }

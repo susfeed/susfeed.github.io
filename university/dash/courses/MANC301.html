@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MANC301 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>MANC301</h1>
+    <p>Mesopotamian Cultural Analysis</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Religion and Worldview",
+    content: `
+      <p>
+        Mesopotamian societies were deeply religious, believing that gods controlled natural forces and human fate.
+        Each city-state typically had a patron deity, and temples (ziggurats) served as both religious and economic centers.
+      </p>
+      <p>
+        Rituals, offerings, and divination practices were used to interpret the will of the gods and maintain societal stability.
+      </p>
+    `
+  },
+  {
+    title: "Law, Order, and Power",
+    content: `
+      <p>
+        Legal systems such as the Code of Hammurabi reveal a structured and hierarchical society.
+        Laws were often based on social class, with different punishments for nobles, commoners, and slaves.
+      </p>
+    `
+  },
+  {
+    title: "Art, Literature, and Identity",
+    content: `
+      <p>
+        Mesopotamian art and literature reflected both religious devotion and cultural identity.
+        Works like the Epic of Gilgamesh explored themes of mortality, friendship, and the human condition.
+      </p>
+      <p>
+        Artistic expression through sculpture, reliefs, and writing helped preserve cultural narratives and legitimize rulers.
+      </p>
+    `
+  }
+]);
+
+initCourse("MANC301", [
+  {
+    title: "Quiz 1: Religion & Society",
+    weight: 40,
+    questions: [
+      {
+        q: "What structure served as a religious center?",
+        options: ["Pyramid","Ziggurat","Colosseum"],
+        answer: 1
+      },
+      {
+        q: "Mesopotamians believed gods controlled?",
+        options: ["Natural forces and fate","Only weather","Nothing"],
+        answer: 0
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Law & Culture",
+    weight: 60,
+    questions: [
+      {
+        q: "What does Hammurabi's code show?",
+        options: ["Hierarchical society","Equality for all","Modern democracy"],
+        answer: 0
+      },
+      {
+        q: "What is the Epic of Gilgamesh about?",
+        options: ["Space travel","Cooking","Human experience and mortality"],
+        answer: 2
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

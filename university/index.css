@@ -423,9 +423,13 @@ button {
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.6);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  overflow-y: auto;
+  padding: 20px;
 }
 
 .quiz-box {
@@ -434,6 +438,9 @@ button {
   border-radius: 16px;
   width: 500px;
   max-width: 90%;
+
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .hidden {
@@ -464,8 +471,10 @@ button {
 }
 
 .quiz-card.locked {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  filter: grayscale(60%);
+  pointer-events: none;
 }
 
 .quiz-card.completed {
@@ -486,4 +495,9 @@ button {
   overflow-y: auto;
   margin-top: 10px;
   padding-right: 10px;
+}
+
+.quiz-card.locked:hover {
+  transform: none;
+  box-shadow: none;
 }

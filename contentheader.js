@@ -6,68 +6,48 @@ document.addEventListener('DOMContentLoaded', function () {
                     <img src="../../img/logo.webp" alt="SusFeed Logo" class="logo" />
                 </a>
             </div>
+
             <nav class="main-nav">
                 <ul class="nav-links">
+
                     <li><a href="../../index.html">Home</a></li>
-                    <li><a href="../../articles.html">Susarticles</a></li>
-                    <li><a href="../../quiz.html">Quizzes</a></li>
-                    <li><a href="../../games.html">Games</a></li>
-                    <li><a href="../../TV/index.html">SusFeed Video</a></li>
-                    <li><a href="../../susipedia/index.html">SusiPedia</a></li>
-                    <li><a href="../../about.html">About</a></li>
+
+                    <li class="dropdown">
+                        <a href="#">SusFeed News ▾</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="../../articles.html">Susarticles</a></li>
+                            <li><a href="../../quiz.html">Quizzes</a></li>
+                            <li><a href="../../games.html">Games</a></li>
+                            <li><a href="../../about.html">About</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="#">Explore ▾</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="../../TV/index.html">SusFeed Video</a></li>
+                            <li><a href="../../susipedia/index.html">SusiPedia</a></li>
+                        </ul>
+                    </li>
+
                 </ul>
             </nav>
         </header>
     `;
 
     const headerDiv = document.querySelector('.site-header');
-    if (headerDiv) {
-        headerDiv.innerHTML = headerContent;
-    }
+    if (headerDiv) headerDiv.innerHTML = headerContent;
 
-    const titleEl = document.querySelector('.article-main-title');
-    if (
-        titleEl &&
-        titleEl.textContent.trim() ===
-            'Top 10 Cereals That Will Stop You From Ending It All'
-    ) {
-        const logoImg = document.querySelector('.logo');
-        if (logoImg) {
-            logoImg.src = 'ringo.webp';
-        }
-    }
-    else if (
-        titleEl &&
-        titleEl.textContent.trim() ===
-            'Do You Deserve Happiness?'
-    ) {
-        const logoImg = document.querySelector('.logo');
-        if (logoImg) {
-            logoImg.src = '../../articles/22/ringo.webp';
-        }
-    }
-    else if (
-        titleEl &&
-        titleEl.textContent.trim() ===
-            'Ringo Starr Hangman'
-    ) {
-        const logoImg = document.querySelector('.logo');
-        if (logoImg) {
-            logoImg.src = '../../articles/22/ringo.webp';
-        }
-    }
+    document.querySelectorAll('.dropdown').forEach(drop => {
+        drop.addEventListener('click', function (e) {
+            e.stopPropagation();
+            this.classList.toggle('open');
+        });
+    });
 
-    const sectionEl = document.querySelector('.section-title');
-    if (
-        sectionEl &&
-        sectionEl.textContent.trim() ===
-            'Featured Ringo Starrticles'
-    ) {
-        const logoImg = document.querySelector('.logo');
-        if (logoImg) {
-            logoImg.src = '../../../articles/22/ringo.webp';
-        }
-    }
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+    });
 
     const footerContent = `
         <footer class="site-footer">
@@ -80,7 +60,5 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
 
     const footerDiv = document.querySelector('.site-footer');
-    if (footerDiv) {
-        footerDiv.innerHTML = footerContent;
-    }
+    if (footerDiv) footerDiv.innerHTML = footerContent;
 });

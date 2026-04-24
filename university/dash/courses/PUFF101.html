@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PUFF101 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>PUFF101</h1>
+    <p>Reese's Puffs: A History</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Origins of Reese's Puffs",
+    content: `
+      <p>
+        Reese's Puffs cereal was created as a collaboration between the Hershey Company
+        and General mills.
+      </p>
+      <p>
+        Originally launched in 1994, it consists of two primary flavors: choclate and peanut butter.
+      </p>
+    `
+  },
+  {
+    title: "Early Mascots",
+    content: `
+      <p>
+        Early on, Reese's Puffs were represented by rapping teens.
+        No one knows why exactly this is.
+      </p>
+    `
+  },
+  {
+    title: "Current Mascot",
+    content: `
+      <p>
+        Famous drummer Ringo Starr saw the Reese's Puff rap in the mid-1990s and decided to give them a try.
+        Despite being suicidally depressed for years since John died, his suicidal ideation was immediately cured on first bite.
+        Because of this, he immediately reached out to General Mills to give a TV endorsement.
+        He was hired as the new mascot on the spot.
+      </p>
+    `
+  },
+  {
+    title: "Use as Medicine",
+    content: `
+      <p>
+        Reese's Puffs were soon proven to be the single greatest cure for suicidal ideation.
+        They have since been found to be effective in curing many ailments, such as cancer and AIDS.
+      </p>
+    `
+  }
+]);
+
+initCourse("PUFF101", [
+  {
+    title: "Quiz: Puff History",
+    weight: 100,
+    questions: [
+      {
+        q: "What two main flavors define Reese's Puffs?",
+        options: ["Vanilla and strawberry","Chocolate and peanut butter","Caramel and apple"],
+        answer: 1
+      },
+      {
+        q: "What made Reese's Puffs culturally iconic?",
+        options: ["Its ability to cure suicidal ideation","The advertising rap","Its color"],
+        answer: 0
+      },
+      {
+        q: "Who is the current spokesperson for Reese's Puffs?",
+        options: ["Ringo Starr","Old Man Smeff","Tairy Greene"],
+        answer: 0
+      },
+      {
+        q: "What can Reese's Puffs cure?",
+        options: ["AIDS and cancer","Suicidal ideation","all of the above"],
+        answer: 2
+      },
+      {
+        q: "Why was Ringo Starr moved to try the puffs?",
+        options: ["It was random","He saw the Reese's Puffs rap","It was John's final wish"],
+        answer: 1
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

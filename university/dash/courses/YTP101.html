@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YTP101 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>YTP101</h1>
+    <p>History of YouTube Poop</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Origins of YouTube Poop",
+    content: `
+      <p>
+        The genre began in the early 2000s. The first video to be regarded as a YouTube Poop is named "The Adventures of Super Mario Bros. 3 REMIXED!!!" (which has been renamed to "I'D SAY HE'S HOT ON OUR TAIL") by the creator SuperYoshi, uploaded onto SheezyArt on December 22, 2004, preceding the creation of YouTube by a few months. It remixes clips from the 1990 animated television series The Adventures of Super Mario Bros. 3 as a primary source, using the video editing software Windows Movie Maker. Media scholar Randall Halle suggests that the name "poop" as used to refer to videos like SuperYoshi's referred to the purported low quality of these early works.
+      </p>
+    `
+  },
+  {
+    title: "Rise of YouTube Poop",
+    content: `
+      <p>
+        Throughout the mid-to-late 2000s, YouTube Poop (YTP) emerged as a dominant and highly influential genre of absurdist remix culture on YouTube, characterized by the frenetic editing of found footage to produce nonsensical or transgressive audiovisual collages. YouTuber EmpLemon describes this era as being characterized by popular recurring memes and in-jokes in the community. According to Halle, the 2010 video "jonathan swift returns from the dead to eat a cheese sandwich" has been cited as "a work that moved YTP towards artistry", with heavy use of video in video editing and other methods of distortion.
+      </p>
+    `
+  },
+  {
+    title: "Decline",
+    content: `
+      <p>
+        The YouTube Poop genre declined in popularity during the late 2010s. Popular creators such as Schaffrillas Productions and EmpLemon switched their focus to other topics; in Schaffrillas' case, film analysis. eMarketer principal analyst Nicole Perrin speculated that the reason why the genre had "fallen to the wayside" was as part of a larger YouTube "shift to glossier, more corporate-friendly content."
+      </p>
+    `
+  },
+  {
+    title: "Academic Consensus on Decline",
+    content: `
+      <p>
+        Luke Dormehl wrote in 2019 in relation to this loss of mainstream popularity that "as with every other corner of the internet", YTP had undergone fragmentization from a large single community with a shared set of sources into a series of sub-communities, each with their own preferred source material. However, this has also allowed each individual sub-community to develop its own set of convoluted "references-within-references" even further. Additionally, YTP has followed the general YouTube trend of increasing professionalization and editing, with more sophisticated and larger amounts of special effects and elaborate writing.
+      </p>
+    `
+  },
+  {
+    title: "Legacy",
+    content: `
+      <p>
+        YTP has had a significant influence on memes and Internet culture. Many stylistic traits of YTP have entered the editing vocabulary of mainstream YouTubers, such as rapid editing, sound effects, and sudden drastic changes in volume for comedic effect. Many mainstream YouTubers even hire YTP editors to edit their normal videos.
+      </p>
+    `
+  }
+]);
+
+initCourse("YTP101", [
+  {
+    title: "Quiz: History of YouTube Poop",
+    weight: 100,
+    questions: [
+      {
+        q: "What defines YouTube Poop?",
+        options: ["Original scripted films","Remixed and edited media","Live news broadcasts"],
+        answer: 1
+      },
+      {
+        q: "What is a common YTP technique?",
+        options: ["Sentence mixing","Linear storytelling","Long static shots"],
+        answer: 0
+      },
+      {
+        q: "Why did YTP decline in popularity?",
+        options: ["Nintendo lawsuit","Shifting YouTube landscape","Sous"],
+        answer: 1
+      },
+      {
+        q: "Which franchise was the first to be pooped?",
+        options: ["Sonice the Hedgehog","SpongeBob","Super Mario Bros"],
+        answer: 2
+      },
+      {
+        q: "Sous?",
+        options: ["Phieph","Thrieph","Mieph"],
+        answer: 0
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

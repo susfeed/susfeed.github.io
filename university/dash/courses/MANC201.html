@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MANC201 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>MANC201</h1>
+    <p>Ancient Societies</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "The Rise of Early Civilizations",
+    content: `
+      <p>
+        Early civilizations emerged in fertile river valleys such as Mesopotamia, Egypt, the Indus Valley, and China.
+        These societies developed agriculture, permanent settlements, and complex social structures.
+      </p>
+      <p>
+        With surplus food production came specialization, governance, and the earliest cities.
+        Writing systems and laws helped organize increasingly complex societies.
+      </p>
+    `
+  },
+  {
+    title: "Social Life and Leisure",
+    content: `
+      <p>
+        As societies became more structured, people had time for leisure activities.
+        Games, music, and storytelling became important parts of daily life.
+      </p>
+      <p>
+        Board games were not only entertainment but also reflected social hierarchy,
+        strategy, and sometimes religious beliefs.
+      </p>
+    `
+  },
+  {
+    title: "The Advent of Board Games",
+    content: `
+      <p>
+        Some of the earliest known board games include the Royal Game of Ur and Senet.
+        These games were played thousands of years ago and often symbolized journeys,
+        fate, or the afterlife.
+      </p>
+      <p>
+        Board games helped develop strategic thinking and were enjoyed across social classes,
+        from common citizens to royalty.
+      </p>
+    `
+  }
+]);
+
+initCourse("MANC201", [
+  {
+    title: "Quiz 1: Early Civilizations",
+    weight: 40,
+    questions: [
+      {
+        q: "Where did many early civilizations develop?",
+        options: ["Mountains","River valleys","Deserts"],
+        answer: 1
+      },
+      {
+        q: "What allowed specialization in early societies?",
+        options: ["War","Trade","Agricultural surplus"],
+        answer: 2
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Board Games",
+    weight: 60,
+    questions: [
+      {
+        q: "Which is an ancient board game?",
+        options: ["Chess","Royal Game of Ur","Monopoly"],
+        answer: 1
+      },
+      {
+        q: "Board games often represented?",
+        options: ["Only entertainment","Religious or symbolic journeys","Weather patterns"],
+        answer: 1
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MANC501 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>MANC501</h1>
+    <p>Graduate Mesopotamian Studies</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Historiography of Mesopotamia",
+    content: `
+      <p>
+        Historiography examines how history is written and interpreted.
+        In Mesopotamian studies, scholars rely on archaeological evidence,
+        cuneiform texts, and comparative analysis.
+      </p>
+      <p>
+        Interpretations often change based on new discoveries,
+        making history an evolving discipline rather than a fixed narrative.
+      </p>
+    `
+  },
+  {
+    title: "Archaeological Methodologies",
+    content: `
+      <p>
+        Modern archaeology uses scientific techniques such as carbon dating,
+        stratigraphy, and digital reconstruction to analyze ancient sites layer by layer.
+      </p>
+      <p>
+        These methods allow researchers to better understand timelines,
+        social structures, and environmental conditions.
+      </p>
+    `
+  },
+  {
+    title: "Debates in Mesopotamian Studies",
+    content: `
+      <p>
+        Scholars debate topics such as the origins of writing,
+        the role of religion in governance, and the accuracy of ancient texts.
+      </p>
+      <p>
+        These debates show that the reconstruction of ancient societies is incredibly complex.
+      </p>
+    `
+  }
+]);
+
+initCourse("MANC501", [
+  {
+    title: "Quiz 1: Historiography",
+    weight: 40,
+    questions: [
+      {
+        q: "What does historiography study?",
+        options: ["How history is written","Future predictions","Only archaeology"],
+        answer: 0
+      },
+      {
+        q: "Why do interpretations change?",
+        options: ["Random guessing","New discoveries","No reason"],
+        answer: 1
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Methods & Debates",
+    weight: 60,
+    questions: [
+      {
+        q: "What is stratigraphy used for?",
+        options: ["Writing","Trade","Layer analysis"],
+        answer: 2
+      },
+      {
+        q: "What do debates show?",
+        options: ["History is complex","History is simple","History is finished"],
+        answer: 0
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

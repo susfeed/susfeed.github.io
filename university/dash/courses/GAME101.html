@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GAME101 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>GAME101</h1>
+    <p>Mancala</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "What is Mancala?",
+    content: `
+      <p>
+        Mancala is not a single game, but a family of strategy board games played across Africa,
+        the Middle East, and parts of Asia. The word “Mancala” comes from an Arabic term meaning “to move.”
+      </p>
+      <p>
+        The defining mechanic is simple: players distribute small objects—stones, seeds, or beads—
+        across a series of pits or holes on a board.
+      </p>
+      <p>
+        Despite this simplicity, Mancala games are deeply strategic and often compared to chess
+        in terms of foresight and planning.
+      </p>
+    `
+  },
+  {
+    title: "Board Structure and Setup",
+    content: `
+      <p>
+        The most common version used in teaching is a 2-row Mancala board with 6 pits per side and
+        a larger store (or “mancala”) at each end.
+      </p>
+      <p>
+        Each small pit typically begins with 3–4 stones. Players control the row closest to them,
+        and their goal is to collect more stones in their store than their opponent.
+      </p>
+      <p>
+        The board layout creates a loop, allowing stones to circulate continuously throughout the game.
+      </p>
+    `
+  },
+  {
+    title: "Core Gameplay Mechanics",
+    content: `
+      <p>
+        A player selects one of their pits and distributes its stones one by one into subsequent pits,
+        moving counterclockwise.
+      </p>
+      <p>
+        If the last stone lands in the player’s store, they get another turn. If it lands in an empty pit
+        on their side, they may capture stones from the opposite pit.
+      </p>
+      <p>
+        These mechanics create a balance between short-term gains and long-term strategy.
+      </p>
+    `
+  },
+  {
+    title: "Strategy and Decision-Making",
+    content: `
+      <p>
+        Advanced Mancala play involves planning several moves ahead. Players must track stone distribution,
+        predict opponent responses, and set up future captures.
+      </p>
+      <p>
+        Controlling tempo (earning extra turns) is often more valuable than immediate captures.
+      </p>
+      <p>
+        Skilled players can manipulate the board state to force advantageous positions over time.
+      </p>
+    `
+  },
+  {
+    title: "Cultural and Historical Significance",
+    content: `
+      <p>
+        Mancala has been played for thousands of years and exists in many regional variations,
+        including Oware, Bao, and Kalah.
+      </p>
+      <p>
+        It has served not only as entertainment but also as a teaching tool for counting,
+        planning, and social interaction.
+      </p>
+      <p>
+        Its simplicity and depth have allowed it to endure as one of the world’s oldest continuous games.
+      </p>
+    `
+  }
+]);
+
+initCourse("GAME101", [
+  {
+    title: "Quiz: Mancala Mastery",
+    weight: 100,
+    questions: [
+      {
+        q: "What is Mancala best described as?",
+        options: ["A family of related games","A single fixed game","A card game"],
+        answer: 0
+      },
+      {
+        q: "What is the main action in Mancala?",
+        options: ["Drawing cards","Distributing stones","Rolling dice"],
+        answer: 1
+      },
+      {
+        q: "What happens if your last stone lands in your store?",
+        options: ["Turn ends","Opponent wins","You get another turn"],
+        answer: 2
+      },
+      {
+        q: "What is a key advanced strategy?",
+        options: ["Random moves","Planning ahead","Ignoring opponent"],
+        answer: 1
+      },
+      {
+        q: "What is one purpose Mancala has served historically?",
+        options: ["Military training only","Cooking","Teaching counting and strategy"],
+        answer: 2
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

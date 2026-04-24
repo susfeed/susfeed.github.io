@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MANC399 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>MANC399</h1>
+    <p>Capstone in Mesopotamian Studies</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Capstone Project</h2>
+    <div id="projectBox"></div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Synthesizing Early Civilizations",
+    content: `
+      <p>
+        It has become clear that early civilizations were complex systems of interconnected parts.
+        Agriculture, governance, religion, and culture all worked together to sustain society.
+      </p>
+    `
+  },
+  {
+    title: "Legacy and Interpretation",
+    content: `
+      <p>
+        Modern understanding of ancient societies is shaped by interpretation of artifacts, texts, and archaeological evidence.
+      </p>
+      <p>
+        From cuneiform tablets to board games like Mancala, these remnants allow us to reconstruct systems of thought, power, and daily life.
+      </p>
+    `
+  }
+]);
+
+initCourse("MANC399", [
+  {
+    title: "Final Knowledge Check",
+    weight: 30,
+    questions: [
+      {
+        q: "What connects systems like agriculture, religion, and governance?",
+        options: ["They are unrelated","They form civilization systems","They are modern inventions"],
+        answer: 1
+      },
+      {
+        q: "What allows us to understand ancient civilizations today?",
+        options: ["Artifacts and records","Guessing","Social media"],
+        answer: 0
+      }
+    ]
+  }
+]);
+
+initProject({
+  title: "Capstone: Reconstruct an Early Civilization",
+  weight: 70,
+  description: `
+    Design your own early civilization using knowledge from all previous courses.
+    Your response should include:
+    <br><br>
+    • A system of governance (who rules and how)<br>
+    • An economic system (trade, agriculture, or resources)<br>
+    • Religious or cultural beliefs<br>
+    • One leisure activity or game (inspired by historical examples)<br><br>
+    Demonstrate how these systems connect to form a functioning society.
+  `
+});
+</script>
+
+</body>
+</html>

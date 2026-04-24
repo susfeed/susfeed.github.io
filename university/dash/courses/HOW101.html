@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HOW101 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>HOW101</h1>
+    <p>Howard</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+<div id="videoSection">
+  <h2>Videos</h2>
+  <div id="videoCards" class="grid"></div>
+</div>
+
+<div id="videoModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="videoTitle"></h3>
+        <video id="videoPlayer" controls width="100%"></video>
+        <button class="btn-secondary" onclick="closeVideo()">Close</button>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initCourse("HOW101", []);
+initVideos([
+  {
+    title: "Howard (Video)",
+    src: "videos/howard.mp4",
+    weight: 100
+  }
+]);
+</script>
+
+</body>
+</html>

@@ -2,19 +2,19 @@
   "courses": [
 
     { "code": "MANC101", "title": "Foundations of Mesopotamian Civilizations", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
-    { "code": "MANC102", "title": "Early Writing Systems", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
+    { "code": "MANC102", "title": "Ea Nasir and Early Writing Systems", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
     { "code": "MANC201", "title": "Ancient Societies", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
 
-    { "code": "MANC210", "title": "Mancala Strategy", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"], "concentrations": ["Mancala"] },
+    { "code": "MANC210", "title": "History of Mancala", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"], "concentrations": ["Mancala"] },
     { "code": "MANC220", "title": "Early Civilization Systems", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"], "concentrations": ["Early Civilizations"] },
 
     { "code": "MANC301", "title": "Mesopotamian Cultural Analysis", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
-    { "code": "MANC399", "title": "BA Thesis in Mesopotamian Studies", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
+    { "code": "MANC399", "title": "Capstone in Mesopotamian Studies", "department": "meso", "credits": 15, "levels": ["undergraduate"], "programs": ["BA in Mesopotamian Studies"] },
 
     { "code": "MANC501", "title": "Graduate Mesopotamian Studies", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"] },
     { "code": "MANC502", "title": "Smeff History in Mesopotamia", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"] },
     { "code": "MANC510", "title": "Advanced Mancala Systems", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"], "concentrations": ["Mancala"] },
-    { "code": "MANC520", "title": "Advanced Mancala Systems", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"], "concentrations": ["Smeff History"] },
+    { "code": "MANC520", "title": "Old Man Smeff and the Fall of Mesopotamia", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"], "concentrations": ["Smeff History"] },
     { "code": "MANC599", "title": "MA Thesis", "department": "meso", "credits": 15, "levels": ["graduate"], "programs": ["MA in Mesopotamian Studies"] },
 
     { "code": "MANC701", "title": "Doctoral Mesopotamian Theory", "department": "meso", "credits": 15, "levels": ["phd"], "programs": ["PhD in Mesopotamian Studies"] },
@@ -98,7 +98,9 @@
 
     { "code": "SMEFF110", "title": "Smeff and You", "department": "smeff", "credits": 15, "levels": ["undergraduate"], "minors": ["Minor in Applied Smeff"] },
 
-    { "code": "CAM101", "title": "Cameron: Life and Legacy", "department": "smeff", "credits": 15, "levels": ["undergraduate"], "minors": ["Minor in Cameron Studies"] }
+    { "code": "CAM101", "title": "Cameron: Life and Legacy", "department": "smeff", "credits": 15, "levels": ["undergraduate"], "minors": ["Minor in Cameron Studies"] },
+
+    { "code": "HOW101", "title": "Howard", "department": "sus", "credits": 15, "levels": ["undergraduate"], "minors": ["Howard"] }
 
   ]
 }
