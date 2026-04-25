@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED102 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED102</h1>
+    <p>Media Ethics</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <a href="../../../susipedia/articles/content/Chip.html" class="card">Article "Chip" on SusiPedia</a>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Watching for Bias",
+    content: `
+      <p>
+        Bias is an important factor in maintaining your journalistic integrity.
+        As shown in the SusiPedia article, despite Chip being one of our faculty, we describe him solely in terms of his public perception and factual accomplishments.
+      </p>
+      <p>
+        This level of integrity is rare in journalism, but must be maintained.
+        The most important rule in reporting on politicians is you MUST be purely factual.
+        </p>
+    `
+  },
+  {
+    title: "Interviewing the Public",
+    content: `
+      <p>
+        Interviewees must be informed of the purpose of your interview, where it will go, and what will be used.
+        NEVER cut an interview to manipulate what the interviewee has said.
+        Any conduct of this sort will not be tolerated at SusFeed.
+      </p>
+      <p>
+        Interviewees must also be treated fairly and without bias.
+        Ask questions in a calm, neutral tone and make sure all parties are comfortable.
+      </p>
+    `
+  },
+  {
+    title: "Portraying the Truth",
+    content: `
+      <p>
+        Don't just interview the wealthy or the poor, black or white, man or woman.
+        Rather, interview as diverse a group as you can.
+        This will ensure the highest-quality of data and ensure your credibility.
+      </p>
+      <p>
+        Remember: journalism is for all people.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED102", [
+  {
+    title: "Quiz 1: Bias",
+    weight: 40,
+    questions: [
+      {
+        q: "What month was Chip born in?",
+        options: ["August","April","July"],
+        answer: 0
+      },
+      {
+        q: "When should you report your own opinion as fact?",
+        options: ["Sometimes","Always","Never"],
+        answer: 2
+      },
+      {
+        q: "Should you report on the negatives of an individual, even if you work for them?",
+        options: ["Yes","No"],
+        answer: 0
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Interviewees",
+    weight: 60,
+    questions: [
+      {
+        q: "Who should you interview?",
+        options: ["Just the poor","All of the general public","Just men"],
+        answer: 1
+      },
+      {
+        q: "What is banned by SusFeed?",
+        options: ["Interviewing the rich","Writing about controversial topics","Manipulating interview recordings"],
+        answer: 2
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

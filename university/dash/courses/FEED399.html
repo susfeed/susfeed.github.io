@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED399 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED399</h1>
+    <p>Journalism Capstone</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Project</h2>
+    <div id="projectBox"></div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Building a Story",
+    content: `
+      <p>
+        A strong susarticle begins with a strong idea.
+        Whether covering breaking news or a long-form investigation, the journalist must decide what the story is truly about.
+      </p>
+      <p>
+        This includes identifying key facts, finding the right people, and ensuring a positive impact on the public.
+      </p>
+    `
+  },
+  {
+    title: "Balancing Truth and Engagement",
+    content: `
+      <p>
+        Modern journalism exists in a competitive environment where attention is limited.
+        While accuracy must always come first, presentation plays a critical role in whether a story reaches its audience.
+      </p>
+      <p>
+        Headlines, structure, and tone must attract readers without distorting the truth.
+        At SusFeed, this balance is considered a core skill.
+      </p>
+    `
+  },
+  {
+    title: "Responsibility and Impact",
+    content: `
+      <p>
+        Every published story has consequences.
+        Journalists must consider how their work affects not only individuals, but can affect public knowledge.
+      </p>
+      <p>
+        Responsible reporting requires accuracy, fairness, and a willingness to stand by your work under scrutiny.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED399", [
+  {
+    title: "Final Knowledge Check",
+    weight: 30,
+    questions: [
+      {
+        q: "What is the first step in building a strong story?",
+        options: ["Writing randomly","A strong idea","Adding images"],
+        answer: 1
+      },
+      {
+        q: "What must never be sacrificed for engagement?",
+        options: ["Style","Speed","Accuracy"],
+        answer: 2
+      },
+      {
+        q: "What should journalists consider before publishing?",
+        options: ["Only views","Impact and consequences","Only length"],
+        answer: 1
+      }
+    ]
+  }
+]);
+
+initProject({
+  title: "Capstone Project: Publish a Susarticle",
+  weight: 70,
+  description: `
+    Create and outline a complete journalistic piece as if you are a SusFeed reporter.
+    <br><br>
+
+    Your project must include:
+    <br><br>
+
+    • A clear topic or event to write about<br>
+    • A structured outline of a susarticle (title, content, twist)<br>
+    • A balance between a professonal look and an absurdist punchline<br><br>
+
+    You may choose any topic, including current events, past trends, or topics inspired by media.
+    <br><br>
+
+    Your goal is to demonstrate your ability to entertain the public while maintaining conciseness, clarity, and audience engagement.
+  `
+});
+</script>
+
+</body>
+</html>

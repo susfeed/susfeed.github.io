@@ -47,6 +47,30 @@ const customLinks = [
     title: 'susipedia.org',
     url: 'susipedia/index.html',
     autoLoad: true
+  },
+  {
+    type: 'news',
+    title: 'susfeed.edu',
+    url: 'university/index.html',
+    autoLoad: true
+  },
+  {
+    type: 'news',
+    title: 'sfu.edu',
+    url: 'university/index.html',
+    autoLoad: true
+  },
+  {
+    type: 'news',
+    title: 'SusFeed University',
+    url: 'university/index.html',
+    autoLoad: false
+  },
+  {
+    type: 'news',
+    title: 'SFU',
+    url: 'university/index.html',
+    autoLoad: false
   }
 ]
 

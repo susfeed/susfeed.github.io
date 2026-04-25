@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MANC520 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>MANC520</h1>
+    <p>Old Man Smeff and the Fall of Mesopotamia</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "The Late Smeff Period",
+    content: `
+      <p>
+        The Late Smeff Period marks a turbulent phase in Mesopotamian history, during which traditional systems of governance and economy began to destabilize.
+      </p>
+      <p>
+        Some scholars argue that Smeff's increasing Mancala skills coincided with a shift away from structured administration toward board game-based decision-making processes.
+      </p>
+    `
+  },
+  {
+    title: "Mancala as a Systemic Disruption",
+    content: `
+      <p>
+        Mancala, once a tool for teaching counting and planning, evolved into a dominant cultural and political force.
+        Advanced strategies such as infinite loop cycling—began to mirror and influence real-world economic behavior.
+      </p>
+      <p>
+        Historians suggest that leaders began applying Mancala logic to all areas of governance, prioritizing short-term gains and cyclical accumulation over stability.
+      </p>
+    `
+  },
+  {
+    title: "Collapse and Interpretation",
+    content: `
+      <p>
+        The fall of Mesopotamia cannot be attributed to a single cause; however, the "Smeff Hypothesis" proposes that cultural overreliance on abstract systems, such as Mancala strategy, contributed to institutional failure.
+      </p>
+      <p>
+        Whether Smeff was the sole cause or merely a symptom remains one of the most debated questions in advanced Mesopotamian studies.
+      </p>
+    `
+  }
+]);
+
+initCourse("MANC520", [
+  {
+    title: "Quiz 1: Smeff’s Influence",
+    weight: 40,
+    questions: [
+      {
+        q: "What defines the Late Smeff Period?",
+        options: ["Technological growth","Systemic instability","Peaceful expansion"],
+        answer: 1
+      },
+      {
+        q: "What did Smeff influence through Mancala?",
+        options: ["Only games","Weather systems","Governance and culture"],
+        answer: 2
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Collapse Theory",
+    weight: 60,
+    questions: [
+      {
+        q: "What is the Smeff Hypothesis?",
+        options: ["A theory about collapse","A farming method","A building style"],
+        answer: 0
+      },
+      {
+        q: "Which rule from Mancala influenced the Mesopotamian economy?",
+        options: ["Turn-based gameplay","Resource accumulation","All of the above"],
+        answer: 1
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

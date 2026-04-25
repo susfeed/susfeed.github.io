@@ -88,6 +88,11 @@ a {
   vertical-align: middle;
 }
 
+.nav-links img:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+}
+
 .nav-links a:hover,
 .nav-links li a:hover {
   color: #ffe5e5;
@@ -440,18 +445,33 @@ button:hover {
   .homepage { grid-template-columns: 1fr; }
 }
 
-#sus-bot-button {
+#os-button {
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  left: 20px;
   background: #ba1a1a;
-  color: white;
-  font-size: 26px;
-  padding: 14px 16px;
+  padding: 10px;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(0,0,0,.25);
   z-index: 9999;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#os-button:hover {
+  transform: translateY(-2px);
+}
+
+.os-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 #sus-bot-button:hover {
@@ -649,6 +669,8 @@ button:hover {
 .breaking-item::before {
   content: "• ";
   margin-right: 4px;
+  color: #ff3b3b;
+  animation: pulse 1.2s infinite;
 }
 
 @keyframes breaking-scroll {
@@ -668,12 +690,6 @@ button:hover {
   .breaking-item {
     font-size: 11px;
   }
-}
-
-.breaking-item::before {
-  content: "● ";
-  color: #ff3b3b;
-  animation: pulse 1.2s infinite;
 }
 
 @keyframes pulse {

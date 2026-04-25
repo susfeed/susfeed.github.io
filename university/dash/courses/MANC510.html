@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MANC510 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>MANC510</h1>
+    <p>Advanced Mancala Systems</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "The Overflow Loop Strategy",
+    content: `
+      <p>
+        The Overflow Loop is a high-level Mancala technique where a player deliberately
+        cycles stones through their store repeatedly to gain multiple turns.
+      </p>
+      <p>
+        This requires precise pit counts and foresight, as a single miscalculation
+        can hand momentum to the opponent.
+      </p>
+    `
+  },
+  {
+    title: "Reverse Capture Theory",
+    content: `
+      <p>
+        Reverse Capture Theory involves intentionally setting up your opponent
+        to capture a small number of stones, while positioning yourself
+        for a larger counter-capture on the next turn.
+      </p>
+      <p>
+        This strategy is rarely used at lower levels due to its psychological
+        and mathematical complexity.
+      </p>
+    `
+  },
+  {
+    title: "Smeff’s Paradox",
+    content: `
+      <p>
+        Smeff’s Paradox states that the optimal move in Mancala is sometimes
+        the one that appears least efficient in the short term.
+      </p>
+      <p>
+        By sacrificing immediate gain, players can create long-term loops,
+        control board flow, and destabilize their opponent’s expectations.
+      </p>
+    `
+  }
+]);
+
+initCourse("MANC510", [
+  {
+    title: "Quiz 1: Advanced Mechanics",
+    weight: 40,
+    questions: [
+      {
+        q: "What is the goal of the Overflow Loop?",
+        options: ["Gain repeated turns","End the game quickly","Lose stones"],
+        answer: 0
+      },
+      {
+        q: "Reverse Capture Theory focuses on?",
+        options: ["Immediate wins","Setting traps","Random play"],
+        answer: 1
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Strategy & Theory",
+    weight: 60,
+    questions: [
+      {
+        q: "What does Smeff’s Paradox suggest?",
+        options: ["Always maximize short-term gain","Play randomly","Short-term loss can lead to long-term advantage"],
+        answer: 2
+      },
+      {
+        q: "Why are these strategies difficult?",
+        options: ["They require foresight and planning","They require no thinking","They rely on luck"],
+        answer: 0
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

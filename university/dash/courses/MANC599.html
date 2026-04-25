@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MANC599 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>MANC599</h1>
+    <p>MA Thesis</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Thesis Project</h2>
+    <div id="projectBox"></div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Mancala",
+    content: `
+      <p>
+        Civilizations function as interconnected systems.
+        Changes in one domain such as agriculture, governance, or leisure can have cascading effects across society.
+      </p>
+      <p>
+        Mancala itself changed Mesopotamia forever, acting as a model of resource flow, decision-making, and long-term planning.
+      </p>
+    `
+  },
+  {
+    title: "Smeff",
+    content: `
+      <p>
+        Theories such as the Smeff Hypothesis demonstrate how one man can cause the collapse of empires.
+      </p>
+      <p>
+        John Smeff Mancala, though a contentious figure, had an undeniable impact on Mesopotamian culture through politics, leisure, and culture.
+      </p>
+    `
+  }
+]);
+
+initCourse("MANC599", [
+  {
+    title: "Final Knowledge Check",
+    weight: 30,
+    questions: [
+      {
+        q: "What game changed Mesopotamia forever?",
+        options: ["Chess","Mancala","Fortnite"],
+        answer: 1
+      },
+      {
+        q: "What is Smeff's first name?",
+        options: ["Mancala","Cameron","John"],
+        answer: 2
+      }
+    ]
+  }
+]);
+
+initProject({
+  title: "MA Thesis: Reconstructing Systems Through Mancala",
+  weight: 70,
+  description: `
+    Develop an original thesis that applies your knowledge on Smeff and Mancala to evaluate the rise or fall of Mesopotamia.
+    <br><br>
+
+    Your submission must include:
+    <br><br>
+
+    • A detailed description of the rise or fall<br>
+    • At least one advanced Mancala strategy of Smeffian theory applied as a real-world system<br>
+    • (If you choose the fall) A discussion of potential instability or collapse (e.g., Smeff Hypothesis)<br>
+    • (If you choose the rise) A theoretical framework on how Mesopotamian culture rose to prominence<br><br>
+
+    Your goal is to demonstrate mastery of interconnected systems,
+    strategic thinking, and historical interpretation.
+  `
+});
+</script>
+
+</body>
+</html>

@@ -84,10 +84,37 @@ nav a {
 
 /* Hero */
 .hero {
-  background: linear-gradient(to bottom, #7a0f0f, #2b0a0a);
+  position: relative;
   color: #fff;
   text-align: center;
   padding: 110px 20px;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image: var(--bg, linear-gradient(to bottom, #7a0f0f, #2b0a0a));
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  z-index: 0;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(122,15,15,0.7), rgba(43,10,10,0.7));
+  z-index: 1;
+}
+
+.hero .container {
+  position: relative;
+  z-index: 2;
 }
 
 .hero h1 {
@@ -500,4 +527,26 @@ button {
 .quiz-card.locked:hover {
   transform: none;
   box-shadow: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f6f6f6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7a0f0f;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5c0b0b;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #7a0f0f #f6f6f6;
 }

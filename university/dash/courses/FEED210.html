@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED210 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED210</h1>
+    <p>Investigative Journalism</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <a href="../../../articles/16/The_Hot_New_Thing_All_Teen_Girls_Are_Doing!.html" class="card">Susarticle "The Hot New Thing All Teen Girls Are Doing!" on SusFeed</a>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "The Scoop",
+    content: `
+      <p>
+        As a journalist, you must ensure to dig deep for the highest-quality news.
+        At SusFeed, we are willing to dive deep into warzones, jungles, hostile nations, and France to report the best news we can.
+      </p>
+      <p>
+        Remember to be willing to take risks for the story, but never your life.
+        If it gets too hot, contact your higher ups or the SusFeed embassy in your area and leave immediately.
+      </p>
+    `
+  },
+  {
+    title: "The Report",
+    content: `
+      <p>
+        The report is imperative in the investigation.
+        Remember to write the report as you go along your investigation, no detail can be missed.
+      </p>
+      <p>
+        And when you report your findings live, just remember to relax.
+        You got this, you are a SusFeed trained journalist and they will know your name.
+      </p>
+    `
+  },
+  {
+    title: "The Aftermath",
+    content: `
+      <p>
+        Some stories can be controversial.
+        Be willing to accept the consequences of your report, including all critique and counterpoints.
+        Just remember: NEVER tolerate any threats of violence.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED210", [
+  {
+    title: "Quiz 1: Scoops",
+    weight: 40,
+    questions: [
+      {
+        q: "Where do we travel for news?",
+        options: ["Warzones","Jungles","All of the above"],
+        answer: 2
+      },
+      {
+        q: "What should you never risk during your investigation?",
+        options: ["Your money","Your time","Your life"],
+        answer: 2
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Reporting",
+    weight: 60,
+    questions: [
+      {
+        q: "When should you write notes on your investigation?",
+        options: ["During all points","Before","After"],
+        answer: 0
+      },
+      {
+        q: "What should you acknowledge gracefully upon publishing your report?",
+        options: ["Threats of violence","France","Critique"],
+        answer: 2
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

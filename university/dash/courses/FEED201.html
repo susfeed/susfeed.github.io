@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED201 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED201</h1>
+    <p>News Reporting</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <a href="../../../games/9/Minion_Bob_Gives_You_News_About_Gaza.html" class="card">Game "Minion Bob Gives You News About Gaza" on SusFeed</a>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "The Cutting Edge",
+    content: `
+      <p>
+        You must always be quick to report the news, or someone else will report it before you.
+        Get the facts quickly, consult with experts, and report in a concise, well-spoken manner.
+        Always conduct yourself with authority, since nobody will listen to someone who is unsure of themselves.
+      </p>
+    `
+  },
+  {
+    title: "What is Newsworthy?",
+    content: `
+      <p>
+        Anything can be newsworthy if you can make it so.
+        For example, SusFeed has a 24/7 Gaza newsfeed given by reporter Bob, a seemingly monumental task.
+        Despite the difficulty this may cause, a good enough newscaster will always have a story, just like Bob.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED201", [
+  {
+    title: "Quiz 1: Minion Bob",
+    weight: 40,
+    questions: [
+      {
+        q: "What does Minion bob report on?",
+        options: ["Iran","Gaza","Kosovo"],
+        answer: 1
+      },
+      {
+        q: "When does Minion Bob report his findings?",
+        options: ["24/7","9-5","8-6"],
+        answer: 0
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: A Hot Scoop",
+    weight: 60,
+    questions: [
+      {
+        q: "What can you make newsworthy?",
+        options: ["Only uplifting news","Only tragedies","Anything"],
+        answer: 2
+      },
+      {
+        q: "Why should you be quick to report the news?",
+        options: ["It ensures the best quality","It ensures nobody will report it before you","It ensures no bias"],
+        answer: 1
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

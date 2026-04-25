@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED101 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED101</h1>
+    <p>Intro to Journalism</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "What Is Journalism?",
+    content: `
+      <p>
+        Journalism is the practice of gathering, verifying, and presenting information to the public.
+        Its purpose is to inform, educate, and sometimes entertain.
+      </p>
+      <p>
+        Journalists play a key role in society by holding institutions accountable and providing accurate information.
+        SusFeed prides ourselves on being the very best at providing accurate, high-quality information.
+      </p>
+    `
+  },
+  {
+    title: "The Role of the Journalist",
+    content: `
+      <p>
+        Journalists are responsible for reporting facts clearly and fairly.
+        This includes verifying sources, avoiding bias, and presenting multiple perspectives.
+      </p>
+      <p>
+        At SusFeed, journalists must also balance accuracy with an adequate degree of sus, ensuring our news remains perfectly factual.
+      </p>
+    `
+  },
+  {
+    title: "News vs. Entertainment",
+    content: `
+      <p>
+        Not all media content is journalism.
+        News focuses on verified information, while entertainment corporations (such as CNN or NPR) may prioritize storytelling or biased opinion pieces.
+      </p>
+      <p>
+        Understanding this distinction is essential, especially in modern media where the lines can become blurred.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED101", [
+  {
+    title: "Quiz 1: Basics",
+    weight: 40,
+    questions: [
+      {
+        q: "What is the purpose of journalism?",
+        options: ["To confuse people","To inform the public","To sell only ads"],
+        answer: 1
+      },
+      {
+        q: "What should journalists verify?",
+        options: ["Rumors","Facts and sources","Memes"],
+        answer: 1
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Media Understanding",
+    weight: 60,
+    questions: [
+      {
+        q: "What distinguishes news from entertainment?",
+        options: ["Verification, intent, and sus","Length","Color"],
+        answer: 0
+      },
+      {
+        q: "What is a journalist’s responsibility?",
+        options: ["Bias","Ignoring facts","Fair reporting"],
+        answer: 2
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

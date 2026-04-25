@@ -1,0 +1,93 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Layover Escape</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      height: 500px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: manipulation;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+    }
+
+    #mainCanvas {
+      image-rendering: pixelated;
+      width: 100%;
+      max-width: 512px;
+    }
+
+    .scoreboard {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Cameron's Layover Escape</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/04/25 11:08 PM CET</i></p>
+
+      <div class="game-container">
+        <canvas id="mainCanvas" width="256" height="224"></canvas>
+      </div>
+
+      <div id="controller">
+        <div id="controller_dpad">
+          <div id="controller_left"></div>
+          <div id="controller_right"></div>
+          <div id="controller_up"></div>
+          <div id="controller_down"></div>
+        </div>
+        <div id="controller_select" class="capsuleBtn">Select</div>
+        <div id="controller_start" class="capsuleBtn">Start</div>
+        <div id="controller_b" class="roundBtn">B</div>
+        <div id="controller_a" class="roundBtn">A</div>
+      </div>
+
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    const customControls = {
+      "up":["ArrowUp","w"],
+      "down":["ArrowDown","s"],
+      "left":["ArrowLeft","a"],
+      "right":["ArrowRight","d"],
+      "a":["Alt","z","j"],
+      "b":["Control","k","x"],
+      "start":["Enter"],
+      "select":["Shift"]
+    };
+  </script>
+
+  <script src="binjgb.js"></script>
+  <script src="js/script.js"></script>
+  <script src="js/debugger.js"></script>
+
+</body>
+</html>

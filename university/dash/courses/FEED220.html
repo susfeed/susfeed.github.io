@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED220 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED220</h1>
+    <p>Broadcast Media Production</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <a href="../../../TV/commercials/ChipNeil.mp4" class="card">Video "Chip Attack Ad: Neil" on SusFeed Video</a>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Ideation",
+    content: `
+      <p>
+        What you broadcast is determined by the journalists working alongside you.
+        Though you will report their news, make sure to always put your personal spin on it.
+        Use editing techniques and jokes (only during good news) to really make the news your own.
+      </p>
+    `
+  },
+  {
+    title: "Production",
+    content: `
+      <p>
+        Production value will influence how people see you.
+        Never cut corners on editing and mastering, the public will notice!
+        Always film on a high-quality camera and spend more time editing than recording, it will go a long way.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED220", [
+  {
+    title: "Quiz: Video Production",
+    weight: 100,
+    questions: [
+      {
+        q: "Who will provide the stories you will broadcast?",
+        options: ["Journalists","Management","France"],
+        answer: 0
+      },
+      {
+        q: "What should you do to make your videos better?",
+        options: ["Use filters","Invest in editing","Speak French"],
+        answer: 1
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

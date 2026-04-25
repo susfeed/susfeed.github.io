@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED301 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED301</h1>
+    <p>Digital Journalism</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <a href="../../../articles/24/Fuck_It,_You_Write_the_Article.html" class="card">Susarticle "Fuck It, You Write the Article" on SusFeed</a>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Web Development",
+    content: `
+      <p>
+        Your organization will likely have their own website, but starting your own can work as well.
+        Make sure when creating your site you have a solid grasp on JavaScript and CSS, as they are the most integral part of any site.
+      </p>
+      <p>
+        While video hosting is not necessary thanks to various APIs, it is strongly encouraged so you can control your own media.
+        Plus, building your own video platform gives your site's developers far more room to play around.
+      </p>
+    `
+  },
+  {
+    title: "Social Media",
+    content: `
+      <p>
+        Articles are often shared on social media.
+        This allows for them to be spread quickly and easily by the masses, however it can lead to your work being removed from context.
+      </p>
+      <p>
+        To ensure your work is preserved, consider starting your own social media accounts to spread your work.
+        This will ensure that your brand stays consistent.
+      </p>
+    `
+  },
+  {
+    title: "Word of Mouth",
+    content: `
+      <p>
+        Word of mouth is especially important, as it's how even SusFeed itself got its start.
+        Spread word on your work through friends, family, and posters in your local area.
+        Your organization will gain popularity in no time!
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED301", [
+  {
+    title: "Quiz 1: The Web",
+    weight: 40,
+    questions: [
+      {
+        q: "What programming language should you know for web development?",
+        options: ["Java","C#","JavaScript"],
+        answer: 2
+      },
+      {
+        q: "Why should you host videos on your own site?",
+        options: ["To make more money","To control your media better","To save on overhead"],
+        answer: 1
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Spread",
+    weight: 60,
+    questions: [
+      {
+        q: "Why should you start your own social media account instead of relying on others?",
+        options: ["To spread your work quicker","To preserve your own message","To save money on ads"],
+        answer: 1
+      },
+      {
+        q: "Is word of mouth effective in advertising?",
+        options: ["Yes","No"],
+        answer: 0
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>
