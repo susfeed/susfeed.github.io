@@ -9,139 +9,350 @@
 
 <style>
 
+*{
+    box-sizing:border-box;
+}
+
+html{
+    scrollbar-width:thin;
+    scrollbar-color:#b89a58 rgba(255,255,255,0.05);
+}
+
+html::-webkit-scrollbar{
+    width:14px;
+}
+
+html::-webkit-scrollbar-track{
+    background:rgba(255,255,255,0.04);
+}
+
+html::-webkit-scrollbar-thumb{
+    background:
+        linear-gradient(
+            180deg,
+            #6f5828,
+            #d8c48f,
+            #8d6f34
+        );
+    border-radius:20px;
+    border:2px solid rgba(0,0,0,0.45);
+    box-shadow:
+        0 0 20px rgba(214,194,138,0.25);
+}
+
 body{
     margin:0;
-    background:radial-gradient(circle at center,#0a0a0f,#000000 80%);
+    background:
+        radial-gradient(circle at top,#171722 0%,#08080d 45%,#000000 100%);
     color:#e5e5e5;
     font-family:'Cinzel',serif;
+    overflow-x:hidden;
 }
 
 .container{
-    max-width:1100px;
+    max-width:1200px;
     margin:auto;
-    padding:40px;
+    padding:40px 24px 70px;
 }
 
 .title{
     font-family:'Uncial Antiqua';
     font-size:3rem;
     text-align:center;
+    color:#efe0ad;
+    text-shadow:
+        0 0 12px rgba(255,230,160,0.18),
+        0 0 40px rgba(160,120,40,0.25);
 }
 
 .subtitle{
     text-align:center;
-    opacity:0.6;
-    margin-bottom:40px;
+    opacity:0.65;
+    margin:10px 0 40px;
+    letter-spacing:3px;
 }
 
 .counter-grid{
     display:flex;
     justify-content:space-around;
     flex-wrap:wrap;
+    gap:20px;
 }
 
 .counter-box{
     text-align:center;
-    margin:20px;
+    padding:18px 22px;
+    border-radius:22px;
+    min-width:190px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.04),
+            rgba(255,255,255,0.015)
+        );
+    border:1px solid rgba(214,194,138,0.12);
+    box-shadow:
+        inset 0 0 20px rgba(255,255,255,0.02),
+        0 0 30px rgba(0,0,0,0.4);
 }
 
 .counter{
     font-size:6rem;
+    line-height:1;
     color:#d6c28a;
     text-shadow:
-        0 0 10px rgba(255,255,255,0.2),
-        0 0 30px rgba(180,150,80,0.6),
-        0 0 60px rgba(255,255,255,0.1);
+        0 0 10px rgba(255,255,255,0.18),
+        0 0 35px rgba(180,150,80,0.55),
+        0 0 70px rgba(255,255,255,0.08);
 }
 
 .label{
-    opacity:0.7;
-    font-size:0.9rem;
+    opacity:0.72;
+    font-size:0.85rem;
+    margin-top:10px;
+    letter-spacing:2px;
+}
+
+.timeline-shell{
+    margin-top:70px;
+    position:relative;
+    overflow-x:auto;
+    overflow-y:hidden;
+    border-radius:28px;
+    padding-bottom:24px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.035),
+            rgba(255,255,255,0.01)
+        );
+    border:1px solid rgba(214,194,138,0.1);
+    box-shadow:
+        inset 0 0 30px rgba(255,255,255,0.015),
+        0 0 45px rgba(0,0,0,0.45);
+    scrollbar-width:thin;
+    scrollbar-color:#b89a58 rgba(255,255,255,0.05);
+    scroll-behavior:smooth;
+}
+
+.timeline-shell::-webkit-scrollbar{
+    height:16px;
+}
+
+.timeline-shell::-webkit-scrollbar-track{
+    background:rgba(255,255,255,0.05);
+    border-radius:20px;
+}
+
+.timeline-shell::-webkit-scrollbar-thumb{
+    border-radius:20px;
+    background:
+        linear-gradient(
+            90deg,
+            #5f4b22,
+            #d8c48f,
+            #896b32
+        );
+    border:2px solid rgba(0,0,0,0.4);
+    box-shadow:
+        0 0 20px rgba(214,194,138,0.28);
+}
+
+.timeline-inner{
+    position:relative;
+    min-width:3600px;
+    padding:90px 160px 140px;
 }
 
 .timeline{
     position:relative;
-    margin:80px 0;
-    height:160px;
+    height:620px;
 }
 
 .line{
     position:absolute;
     top:50%;
+    left:0;
     width:100%;
-    height:2px;
-    background:linear-gradient(to right,transparent,#aaa,transparent);
+    height:4px;
+    border-radius:999px;
+    background:
+        linear-gradient(
+            to right,
+            transparent,
+            rgba(214,194,138,0.95),
+            transparent
+        );
+    box-shadow:
+        0 0 18px rgba(214,194,138,0.38),
+        0 0 50px rgba(214,194,138,0.18);
 }
 
 .point{
     position:absolute;
     top:50%;
     transform:translate(-50%,-50%);
-    width:12px;
-    height:12px;
+    width:18px;
+    height:18px;
     border-radius:50%;
-    background:#d6c28a;
-    box-shadow:0 0 10px rgba(255,255,255,0.6);
+    background:
+        radial-gradient(circle,#fff7df 0%,#d6c28a 45%,#7d6530 100%);
+    border:2px solid rgba(255,255,255,0.35);
+    box-shadow:
+        0 0 18px rgba(255,255,255,0.35),
+        0 0 35px rgba(214,194,138,0.4);
+    z-index:5;
     cursor:pointer;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.point:hover{
+    transform:translate(-50%,-50%) scale(1.18);
+    box-shadow:
+        0 0 25px rgba(255,255,255,0.55),
+        0 0 55px rgba(214,194,138,0.55);
 }
 
 .point-label{
     position:absolute;
-    left:50%;
     transform:translateX(-50%);
-    font-size:0.7rem;
     white-space:nowrap;
-    opacity:0.85;
-}
-
-.top{
-    top:-40px;
-}
-
-.bottom{
-    top:25px;
+    padding:10px 15px;
+    border-radius:16px;
+    font-size:0.8rem;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(20,20,30,0.96),
+            rgba(8,8,12,0.94)
+        );
+    border:1px solid rgba(214,194,138,0.16);
+    box-shadow:
+        0 0 25px rgba(0,0,0,0.45),
+        inset 0 0 15px rgba(255,255,255,0.02);
+    backdrop-filter:blur(10px);
 }
 
 .tooltip{
     position:absolute;
-    top:-70px;
+    top:-58px;
     left:50%;
     transform:translateX(-50%);
-    background:rgba(0,0,0,0.8);
-    padding:6px 10px;
-    font-size:0.7rem;
-    border:1px solid rgba(255,255,255,0.2);
+    background:
+        linear-gradient(
+            180deg,
+            rgba(22,22,32,0.98),
+            rgba(8,8,12,0.98)
+        );
+    color:#f0dfae;
+    padding:8px 12px;
+    border-radius:12px;
+    font-size:0.72rem;
+    border:1px solid rgba(214,194,138,0.18);
     opacity:0;
     pointer-events:none;
     transition:0.2s;
+    letter-spacing:1px;
+    box-shadow:
+        0 0 25px rgba(0,0,0,0.45);
 }
 
 .point:hover .tooltip{
     opacity:1;
 }
 
+.connector{
+    position:absolute;
+    width:2px;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(214,194,138,0),
+            rgba(214,194,138,0.6),
+            rgba(214,194,138,0)
+        );
+    box-shadow:
+        0 0 10px rgba(214,194,138,0.15);
+}
+
 .years{
     display:flex;
     justify-content:space-between;
-    font-size:0.7rem;
-    opacity:0.4;
+    margin-top:40px;
+    font-size:0.8rem;
+    opacity:0.55;
+    letter-spacing:2px;
+    color:#d8c999;
 }
 
 .stats{
     margin-top:60px;
-    border-top:1px solid rgba(255,255,255,0.1);
+    border-top:1px solid rgba(255,255,255,0.08);
     padding-top:40px;
 }
 
 .stat-row{
     display:flex;
     justify-content:space-between;
-    margin:15px 0;
+    align-items:center;
+    margin:16px 0;
+    padding:18px 22px;
+    border-radius:18px;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.03),
+            rgba(255,255,255,0.01)
+        );
+    border:1px solid rgba(214,194,138,0.07);
 }
 
 .stat-value{
     font-size:2rem;
     color:#d6c28a;
+    text-shadow:
+        0 0 20px rgba(214,194,138,0.2);
+}
+
+@media(max-width:900px){
+
+    .timeline-inner{
+        min-width:3200px;
+    }
+
+    .timeline{
+        height:700px;
+    }
+
+    .counter{
+        font-size:5rem;
+    }
+}
+
+@media(max-width:640px){
+
+    .container{
+        padding:30px 14px 60px;
+    }
+
+    .timeline-inner{
+        min-width:2800px;
+        padding:90px 120px 140px;
+    }
+
+    .timeline{
+        height:780px;
+    }
+
+    .counter-box{
+        width:100%;
+    }
+
+    .counter{
+        font-size:4.5rem;
+    }
 }
 
 </style>
@@ -178,11 +389,19 @@ body{
 
 </div>
 
+<div class="timeline-shell" id="timelineShell">
+
+<div class="timeline-inner">
+
 <div class="timeline" id="timeline">
 <div class="line"></div>
 </div>
 
 <div class="years" id="years"></div>
+
+</div>
+
+</div>
 
 <div class="stats">
 
@@ -198,7 +417,7 @@ body{
 
 <div class="stat-row">
 <div>Languages Learned</div>
-<div class="stat-value">2</div>
+<div class="stat-value">4</div>
 </div>
 
 <div class="stat-row">
@@ -230,144 +449,248 @@ const events = [
     {year:2021, month:8, type:"life", text:"Met Phillip"},
     {year:2022, month:2, type:"project", text:"SusFeed founded"},
     {year:2022, month:3, type:"life", text:"The Boys founded"},
+    {year:2022, month:5, type:"life", text:"Started Asian Studies minor"},
     {year:2022, month:6, type:"life", text:"Met Scott the Woz"},
     {year:2023, month:3, type:"life", text:"Rax Trip"},
+    {year:2023, month:5, type:"life", text:"Started International Studies minor"},
     {year:2023, month:9, type:"life", text:"Othellothon"},
     {year:2024, month:1, type:"life", text:"Niagara trip"},
     {year:2024, month:1, type:"life", text:"Moved to Japan"},
+    {year:2024, month:4, type:"project", text:"Started learning French as a joke"},
+    {year:2024, month:6, type:"life", text:"Japanese fluency achieved"},
     {year:2024, month:6, type:"life", text:"Returned from Japan"},
     {year:2024, month:12, type:"project", text:"Wrote minor thesis"},
     {year:2025, month:1, type:"life", text:"Montreal trip"},
     {year:2025, month:3, type:"life", text:"Universal trip"},
     {year:2025, month:4, type:"project", text:"Wrote BA thesis"},
+    {year:2025, month:4, type:"project", text:"Defended all theses to the public"},
     {year:2025, month:5, type:"life", text:"Finished undergrad"},
     {year:2026, month:8, type:"life", text:"Moved to Sweden"},
-    {year:2026, month:9, type:"life", text:"Started MA"},
-    {year:2026, month:10, type:"life", text:"Started MBA"},
+    {year:2026, month:9, type:"life", text:"Started MA in Linguistics"},
+    {year:2026, month:10, type:"life", text:"Started MBA in Data Analytics"},
 ];
 
 const now = new Date();
 
 function updateTime(){
-    const totalMonths = (now.getFullYear() - 2011) * 12 + (now.getMonth() - 10);
+
+    const totalMonths =
+        (now.getFullYear() - 2011) * 12 +
+        (now.getMonth() - 10);
+
     const years = Math.floor(totalMonths / 12);
     const months = totalMonths % 12;
+
     document.getElementById("yearsPassed").textContent = years;
     document.getElementById("monthsPassed").textContent = months;
 }
 
+function getMonthDistance(event){
+
+    return (
+        (event.year - 2011) * 12 +
+        (event.month - 11)
+    );
+}
+
 function renderTimeline(){
+
     const timeline = document.getElementById("timeline");
-    const totalMonths = (now.getFullYear() - 2011) * 12 + (now.getMonth() - 10);
+
+    const totalMonths =
+        (now.getFullYear() - 2011) * 12 +
+        (now.getMonth() - 10);
+
+    const timelineWidth =
+        timeline.offsetWidth;
 
     let lifeCount = 0;
     let projectCount = 0;
 
     const placedLabels = [];
+    const monthUsage = {};
 
     events.sort((a,b)=>{
-        return (a.year*12 + a.month) - (b.year*12 + b.month);
+        return getMonthDistance(a) - getMonthDistance(b);
     });
 
     events.forEach((e,i)=>{
 
-        const monthsFromStart = (e.year - 2011) * 12 + (e.month - 11);
-        const percent = (monthsFromStart / totalMonths) * 100;
+        const monthDistance =
+            getMonthDistance(e);
+
+        const percent =
+            monthDistance / totalMonths;
+
+        const baseX =
+            percent * timelineWidth;
+
+        if(!monthUsage[monthDistance]){
+            monthUsage[monthDistance] = 0;
+        }
+
+        const monthOffset =
+            monthUsage[monthDistance] * 42;
+
+        monthUsage[monthDistance]++;
+
+        const x =
+            baseX + monthOffset;
 
         const point = document.createElement("div");
         point.className = "point";
-        point.style.left = percent + "%";
+        point.style.left = x + "px";
 
         const tooltip = document.createElement("div");
         tooltip.className = "tooltip";
         tooltip.textContent = e.month + "/" + e.year;
 
+        point.appendChild(tooltip);
+
         const label = document.createElement("div");
         label.className = "point-label";
         label.textContent = e.text;
+        label.style.left = x + "px";
 
         timeline.appendChild(point);
         timeline.appendChild(label);
 
-        point.appendChild(tooltip);
+        let yOffset =
+            i % 2 === 0 ? -120 : 95;
 
-        label.style.left = percent + "%";
-
-        let yOffset = (i % 2 === 0 ? -40 : 25);
         let attempts = 0;
 
-        function overlaps(a, b){
-            const padding = 10;
-            return !(
-                a.right + padding < b.left ||
-                a.left - padding > b.right ||
-                a.bottom + padding < b.top ||
-                a.top - padding > b.bottom
-            );
-        }
-
         while(true){
-            label.style.top = "calc(50% + " + yOffset + "px)";
-            const rect = label.getBoundingClientRect();
+
+            label.style.top =
+                `calc(50% + ${yOffset}px)`;
+
+            const currentRect =
+                label.getBoundingClientRect();
 
             let collision = false;
 
-            for(let placed of placedLabels){
-                const placedRect = placed.getBoundingClientRect();
-                if(overlaps(rect, placedRect)){
+            for(const placed of placedLabels){
+
+                const rect =
+                    placed.getBoundingClientRect();
+
+                const overlap =
+                    !(
+                        currentRect.right + 36 < rect.left ||
+                        currentRect.left - 36 > rect.right ||
+                        currentRect.bottom + 18 < rect.top ||
+                        currentRect.top - 18 > rect.bottom
+                    );
+
+                if(overlap){
                     collision = true;
                     break;
                 }
             }
 
-            if(!collision) break;
+            if(!collision){
+                break;
+            }
 
-            yOffset += (yOffset < 0 ? -20 : 20);
+            yOffset +=
+                yOffset < 0 ? -60 : 60;
+
             attempts++;
-            if(attempts > 40) break;
+
+            if(attempts > 60){
+                break;
+            }
         }
 
         placedLabels.push(label);
 
-        const connector = document.createElement("div");
-        connector.style.position = "absolute";
-        connector.style.left = percent + "%";
-        connector.style.width = "1px";
-        connector.style.background = "rgba(255,255,255,0.3)";
+        const connector =
+            document.createElement("div");
 
-        const pointY = timeline.offsetHeight / 2;
-        const labelRect = label.getBoundingClientRect();
-        const timelineRect = timeline.getBoundingClientRect();
-
-        const labelY = labelRect.top - timelineRect.top + labelRect.height/2;
-
-        const height = Math.abs(labelY - pointY);
-
-        connector.style.top = (labelY < pointY ? labelY : pointY) + "px";
-        connector.style.height = height + "px";
+        connector.className = "connector";
+        connector.style.left = x + "px";
 
         timeline.appendChild(connector);
 
-        if(e.type==="life") lifeCount++;
-        if(e.type==="project") projectCount++;
+        const pointY =
+            timeline.offsetHeight / 2;
+
+        const labelRect =
+            label.getBoundingClientRect();
+
+        const timelineRect =
+            timeline.getBoundingClientRect();
+
+        const labelY =
+            labelRect.top -
+            timelineRect.top +
+            labelRect.height / 2;
+
+        const height =
+            Math.abs(labelY - pointY);
+
+        connector.style.top =
+            (labelY < pointY ? labelY : pointY) + "px";
+
+        connector.style.height =
+            height + "px";
+
+        if(e.type === "life"){
+            lifeCount++;
+        }
+
+        if(e.type === "project"){
+            projectCount++;
+        }
     });
 
-    document.getElementById("lifeEvents").textContent = lifeCount;
-    document.getElementById("projects").textContent = projectCount;
+    document.getElementById("lifeEvents").textContent =
+        lifeCount;
+
+    document.getElementById("projects").textContent =
+        projectCount;
 }
 
 function renderYears(){
-    const container = document.getElementById("years");
-    for(let y=2011;y<=now.getFullYear();y++){
-        let el=document.createElement("div");
-        el.textContent=y;
-        container.appendChild(el);
+
+    const container =
+        document.getElementById("years");
+
+    const totalYears =
+        now.getFullYear() - 2011;
+
+    for(let y = 2011; y <= now.getFullYear(); y++){
+
+        const year =
+            document.createElement("div");
+
+        const progress =
+            (y - 2011) / totalYears;
+
+        year.style.position = "absolute";
+        year.style.left = (progress * 100) + "%";
+        year.style.transform = "translateX(-50%)";
+
+        year.textContent = y;
+
+        container.appendChild(year);
     }
 }
 
 updateTime();
 renderTimeline();
 renderYears();
+
+window.addEventListener("load",()=>{
+
+    const shell =
+        document.getElementById("timelineShell");
+
+    shell.scrollLeft =
+        shell.scrollWidth;
+
+});
 
 </script>
 

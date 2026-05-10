@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED502 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED502</h1>
+    <p>Media Theory & Influence</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Framing and Narrative Construction",
+    content: `
+      <p>
+        Framing refers to the way information is presented to audiences.
+        The same event can be interpreted differently depending on how it is described, what details are emphasized, and what context is provided to the consumer.
+      </p>
+      <p>
+        Journalists must understand how framing shapes perception, even when reporting objectively.
+        As established in your BA, bias must be avoided to ensure high-quality news reporting.
+      </p>
+    `
+  },
+  {
+    title: "Media Influence and Public Opinion",
+    content: `
+      <p>
+        Media plays a substantial role in shaping public opinion.
+        Repetition, combined with visibility and emotional tone are all factors that influence how audiences interpret events and form beliefs.
+      </p>
+    `
+  },
+  {
+    title: "The Illusion of Neutrality",
+    content: `
+      <p>
+        Complete neutrality in journalism is difficult to achieve.
+        Choices about language and sources, especially what you choose to emphasize can introduce subtle bias, even in well-intentioned reporting.
+      </p>
+      <p>
+        Recognizing these limitations is essential for maintaining credibility and improving journalistic practice.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED502", [
+  {
+    title: "Quiz 1: Framing",
+    weight: 40,
+    questions: [
+      {
+        q: "What is framing in journalism?",
+        options: ["Ignoring facts","Presenting information in a specific way","Only using images"],
+        answer: 1
+      },
+      {
+        q: "What can framing influence?",
+        options: ["Nothing","Only journalists","Audience perception"],
+        answer: 2
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Influence",
+    weight: 60,
+    questions: [
+      {
+        q: "What shapes public opinion?",
+        options: ["Media exposure","Random chance","Silence"],
+        answer: 0
+      },
+      {
+        q: "Why is neutrality difficult?",
+        options: ["Too many rules","Choices introduce bias","Lack of tools"],
+        answer: 1
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

@@ -135,7 +135,8 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "I will do your mom if you don't shut up.",
     "Har har har har.",
     "President Chip would approve!",
-    "If you see this, I am not a bot. I am a man who is being held hostage in Reykjavik airport. Send help!"
+    "If you see this, I am not a bot. I am a man who is being held hostage in Reykjavik airport. Send help!",
+    "Go to your room, play a game of Klax, then get back to me."
   ];
 
   susBotButton.addEventListener("click", () => {

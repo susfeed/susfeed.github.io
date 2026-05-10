@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             <li><a href="../../articles.html">Susarticles</a></li>
                             <li><a href="../../quiz.html">Quizzes</a></li>
                             <li><a href="../../games.html">Games</a></li>
-                            <li><a href="../../about.html">About</a></li>
                         </ul>
                     </li>
 
@@ -28,6 +27,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     <li class="dropdown">
                         <a href="../../susipedia/index.html">SusiPedia</a>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="#">About ▾</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="../../about.html">About</a></li>
+                            <li><a href="../../corporate/index.html">Corporate</a></li>
+                        </ul>
                     </li>
 
                 </ul>

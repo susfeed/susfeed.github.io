@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED599 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED599</h1>
+    <p>MA Journalism Thesis</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <a href="../../../TV/videos/Feature Sus.mp4" class="card">Video "Feature Sus" on SusFeed Video</a>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Thesis Project</h2>
+    <div id="projectBox"></div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Narrative as Power",
+    content: `
+      <p>
+        At the highest level, journalism is not simply the communication of facts, but the construction of narratives that shape how those facts are understood.
+      </p>
+      <p>
+        Every decision, such as what to include, what to omit, and how to present information, all influences audience perception in measurable ways.
+      </p>
+    `
+  },
+  {
+    title: "The SusFeed Model",
+    content: `
+      <p>
+        SusFeed operates at the intersection of information and engagement, often portraying factual information with subversive presentation.
+      </p>
+      <p>
+        This model demonstrates that audience attention is not just a byproduct of journalism, but a system that can be engineered.
+        It is a system that can be manipulated.
+      </p>
+    `
+  },
+  {
+    title: "Credibility and Illusion",
+    content: `
+      <p>
+        A piece of media does not need to be fully accurate to feel credible.
+        Structure, tone, and familiarity can create the illusion of authority.
+      </p>
+      <p>
+        As a journalist, it is your job to always give real credibility, never an illusion.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED599", [
+  {
+    title: "Final Knowledge Check",
+    weight: 20,
+    questions: [
+      {
+        q: "What shapes audience perception most directly?",
+        options: ["Facts alone","Narrative construction","The French"],
+        answer: 1
+      },
+      {
+        q: "What can create the illusion of credibility?",
+        options: ["Structure and tone","Length only","Jingling keys"],
+        answer: 0
+      }
+    ]
+  }
+]);
+
+initProject({
+  title: "MA Thesis: Engineering a SusFeed Narrative",
+  weight: 80,
+  description: `
+    Develop a complete SusFeed media piece and accompanying analysis.
+    <br><br>
+
+    Your submission must include:
+    <br><br>
+
+    • One outline for an original SusFeed piece in any format (susarticle, quiz, game or video concept)<br>
+    • A clearly defined topic or event<br>
+    • A structured presentation (headline, format, and delivery method)<br><br>
+
+    In addition, you must provide a written analysis explaining:
+    <br><br>
+
+    • Your framing decisions and narrative construction<br>
+    • What information was emphasized and what punchline you chose<br>
+    • The intended audience reaction (humor, shock, or confusion)<br>
+    • How your work balances engagement and the proper amount of sus<br><br>
+
+    Your piece must appear credible at first glance, regardless of factuality.
+    <br><br>
+
+    Your goal is to demonstrate mastery of journalism as a means of engagement, rather than conveying facts.
+  `
+});
+</script>
+
+</body>
+</html>

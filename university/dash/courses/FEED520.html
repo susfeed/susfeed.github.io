@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED520 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED520</h1>
+    <p>SusFeed Video</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <a href="../../../TV/index.html" class="card">SusFeed Video</a>
+    <a href="../../../TV/videos/Coke on Coke.mp4" class="card">Video "Coke on Coke" on SusFeed Video</a>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Coke on Coke",
+    content: `
+      <p>
+        SusFeed Video launched in 2022, shortly after SusFeed itself.
+        The first video, "Coke on Coke", led to the start of SusFeed Video as a YouTube channel.
+        Coke on Coke is often regarded as one of the "Core SusFeed Properties".
+      </p>
+      <p>
+        Though it started as a YouTube channel, SusFeed Video is now hosted live as an independent streaming service on SusFeed.com.
+      </p>
+    `
+  },
+  {
+    title: "The Mad God",
+    content: `
+      <p>
+        SusFeed Video hosts music made by composer Cameron Impostor.
+        This music often portrays the SusFeed staff as gods, showing the powerful connection between all SusFeed staff.
+        Due to this, Cameron is sometimes referred to as "The Mad God".
+      </p>
+    `
+  },
+  {
+    title: "Ballout",
+    content: `
+      <p>
+        As the content on the platform got higher and higher in quality, the videos started to have a more scattered release.
+        Due to this, SusFeed Video hosts several TV channels that rerun many of SusFeed's old programs.
+        This ensures a constant stream of viewers at all times.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED520", [
+  {
+    title: "Quiz 1: Coke on Coke",
+    weight: 40,
+    questions: [
+      {
+        q: "What was the first SusFeed Video?",
+        options: ["Pepsi on Pepsi","Zingo on Zingo","Coke on Coke"],
+        answer: 2
+      },
+      {
+        q: "Where is SusFeed Video now hosted?",
+        options: ["YouTube","SusFeed.com","Pornhub"],
+        answer: 1
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: Madness",
+    weight: 60,
+    questions: [
+      {
+        q: "What is Cameron Impostor also referred to as?",
+        options: ["The CEO","The Impostor","The Mad God"],
+        answer: 2
+      },
+      {
+        q: "What does SusFeed Video run to keep constant viewership?",
+        options: ["TV channels","Livestreams","A fascist dictatorship"],
+        answer: 0
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEED510 · SusFeed University</title>
+  <link rel="shortcut icon" href="../../img/favicon.png">
+  <link rel="stylesheet" href="../../index.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">Course Page</div>
+</div>
+
+<div id="header"></div>
+
+<section class="hero">
+  <div class="container">
+    <h1>FEED510</h1>
+    <p>SusFeed News</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <h2>Readings</h2>
+    <a href="../../../susipedia/articles/content/SusFeed.html" class="card">Article "SusFeed" on SusiPedia</a>
+    <a href="../../../susipedia/articles/content/Susarticle.html" class="card">Article "Susarticle" on SusiPedia</a>
+    <div id="readingCards" class="grid"></div>
+
+    <div id="readingModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="readingTitle"></h3>
+        <div id="readingContent"></div>
+        <button class="btn-secondary" onclick="closeReading()">Close</button>
+      </div>
+    </div>
+
+    <h2>Quizzes</h2>
+    <div id="quizCards" class="grid"></div>
+
+    <div id="quizModal" class="quiz-modal hidden">
+      <div class="quiz-box">
+        <h3 id="quizTitle"></h3>
+        <div id="quizQuestions"></div>
+        <button class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+        <button class="btn-secondary" onclick="closeQuiz()">Close</button>
+        <p id="quizScore"></p>
+      </div>
+    </div>
+
+    <h2>Final Status</h2>
+    <p id="statusText"></p>
+    <p id="finalScore"></p>
+
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="header.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+initReadings([
+  {
+    title: "Susarticles: A Perfected Medium",
+    content: `
+      <p>
+        Susarticles were created in February of 2022 by Cameron and Phillip as a means to convey humorous news to the public.
+        The first susarticle, "Top 10 Farts in Existence", is considered one of the greatest articles ever written.
+        While the composition of a susarticle is advanced technique, a few of its rules are known at the lower levels.
+      </p>
+      <p>
+        Susarticles must always have a title that conveys either a setup to be subverted, or hit you with the punchline immediately. The third option, direct absurdism is generally disallowed.
+      </p>
+      <p>
+        All susarticles must serve to subvert regular news conventions. Be it a listicle, news article, or something original crafted in the SusFeed labs.
+      </p>
+      <p>
+        Finally, all susarticles must be made for fun. No matter who makes them, there is no point in writing one if you are not having a good time.
+      </p>
+    `
+  },
+  {
+    title: "Quizzes: Refined and Graceful",
+    content: `
+      <p>
+        Quizzes were introduced in early-2025 after years of planning, with the first quiz mirroring the first susarticle.
+        Quizzes act as a subversion of typical online quizzes.
+        While quizzes are the least developed part of SusFeed News, they tend to follow the same conventions as the susarticle.
+        As such, their details are virtually the same.
+      </p>
+    `
+  },
+  {
+    title: "SusFeed Games: The New Era",
+    content: `
+      <p>
+        SusFeed Games is the final primary part of SusFeed News.
+        The games on the site follow the same joke structure as susarticles, but have far more complexity in execution.
+      </p>
+      <p>
+        All games are made in JavaScript or Assembly, with various advancements made in both by the SusFeed writers.
+        3D games made by SusFeed run in the SUS Engine, a proprietary engine made in-house for the purpose of creating the highest-quality games available.
+      </p>
+    `
+  }
+]);
+
+initCourse("FEED510", [
+  {
+    title: "Quiz 1: Susarticles",
+    weight: 40,
+    questions: [
+      {
+        q: "When were susarticles first invented?",
+        options: ["2022","2023","2024"],
+        answer: 0
+      },
+      {
+        q: "What is important in writing a susarticle?",
+        options: ["Subversion","Interviews","France"],
+        answer: 0
+      }
+    ]
+  },
+  {
+    title: "Quiz 2: SusFeed News",
+    weight: 60,
+    questions: [
+      {
+        q: "How long after the first susarticle was the first quiz released?",
+        options: ["1 year","2 years","3 years"],
+        answer: 2
+      },
+      {
+        q: "What is the SusFeed 3D engine called?",
+        options: ["SMEFF Engine","SUS Engine","FEED Engine"],
+        answer: 1
+      }
+    ]
+  }
+]);
+</script>
+
+</body>
+</html>

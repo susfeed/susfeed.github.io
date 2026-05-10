@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SusFeed</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="shortcut icon" href="../img/amogus.webp" type="image/x-icon" />
+</head>
+<body>
+
+<header class="header">
+  <div class="container header-inner">
+    <img src="../img/susfeed.webp" class="logo">
+    <nav class="nav">
+      <a href="../index.html"><img src="../img/logo.webp"></a>
+      <a href="../TV/index.html"><img src="../TV/img/logo.png"></a>
+      <a href="../university/index.html"><img src="../university/img/logo.png"></a>
+      <a href="../susipedia/index.html"><img src="../susipedia/logo.png"></a>
+      <a href="../os/os.html"><img src="../os/img/logo.png"></a>
+    </nav>
+  </div>
+</header>
+
+<div class="ticker" id="ticker"></div>
+
+<main>
+
+<section class="hero">
+  <div class="container hero-inner">
+    <h1>Digital Media Infrastructure</h1>
+    <p>SusFeed Corporation operates a multi-platform ecosystem spanning content, education, and interactive systems.</p>
+  </div>
+</section>
+
+<section class="metrics">
+  <div class="container metrics-grid">
+    <div><h2>5+</h2><p>Platforms</p></div>
+    <div><h2>10M+</h2><p>Users</p></div>
+    <div><h2>24/7</h2><p>Content Flow</p></div>
+    <div><h2>∞</h2><p>Sus</p></div>
+  </div>
+</section>
+
+<section class="section container">
+  <h2>Business Units</h2>
+  <div class="grid">
+    <a href="../index.html" class="card">
+      <img src="../img/logo.webp">
+      <h3>SusFeed News</h3>
+      <p>Editorial publishing and distribution.</p>
+    </a>
+    <a href="../TV/index.html" class="card">
+      <img src="../TV/img/logo.png">
+      <h3>SusFeed Video</h3>
+      <p>Streaming platform.</p>
+    </a>
+    <a href="../university/index.html" class="card">
+      <img src="../university/img/logo.png">
+      <h3>SusFeed University</h3>
+      <p>Public university.</p>
+    </a>
+    <a href="../susipedia/index.html" class="card">
+      <img src="../susipedia/logo.png">
+      <h3>SusiPedia</h3>
+      <p>The free ensusipedia.</p>
+    </a>
+    <a href="../os/os.html" class="card">
+      <img src="../os/img/logo.png">
+      <h3>SUOS Team</h3>
+      <p>Proprietary operating system and search engine.</p>
+    </a>
+  </div>
+</section>
+
+<section class="section container">
+  <h2>Leadership</h2>
+  <div class="people">
+    <div class="person">
+      <img src="../university/img/cam.png">
+      <h3>Cameron Impostor</h3>
+      <p>CEO, CO-Founder</p>
+    </div>
+    <div class="person">
+      <img src="../university/img/phil.png">
+      <h3>Phillip</h3>
+      <p>COO, Co-Founder</p>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container investor-grid">
+
+    <div>
+      <h2>Investor Relations</h2>
+
+      <div class="chart bars" id="barChart"></div>
+      <div class="chart line">
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>
+
+    <div class="investor-text">
+      <p>
+        SusFeed has demonstrated consistent upward momentum across all operational verticals. Growth is driven by platform expansion, user engagement, and scalable content infrastructure.
+      </p>
+      <p>
+        Quarterly projections indicate continued acceleration, supported by diversified revenue streams and aggressive strategic positioning.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<section class="section container">
+  <h2>Careers</h2>
+  <div class="press-item">Email SusFeedLLC@gmail.com with your resume and intended position to apply!</div>
+  <br>
+  <div class="jobs">
+    <div class="job" onclick="openModal('Content Strategist')">
+      <h3>Content Strategist</h3>
+      <p>Full-time • Remote</p>
+    </div>
+    <div class="job" onclick="openModal('Platform Engineer')">
+      <h3>Writer</h3>
+      <p>Full-time • Remote</p>
+    </div>
+    <div class="job" onclick="openModal('Platform Engineer')">
+      <h3>Video Editor</h3>
+      <p>Full-time • Remote</p>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <h2>Press</h2>
+    <div class="press">
+      <div class="press-item">“A rapidly expanding digital ecosystem.”</div>
+      <div class="press-item">“Sus but effective.”</div>
+      <div class="press-item">“Changed my life.”</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h2 id="jobTitle"></h2>
+    <p>Submit your application to join SusFeed.</p>
+    <button onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>© <span id="year"></span> SusFeed</p>
+  </div>
+</footer>
+
+<script src="index.js"></script>
+</body>
+</html>

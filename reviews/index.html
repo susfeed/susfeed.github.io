@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SFGN</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container nav">
+    <a href="#" class="brand">
+      <img src="img/logo.png" alt="SFGN" class="logo">
+    </a>
+
+    <nav>
+      <a href="#">Reviews</a>
+      <a href="#">Features</a>
+      <a href="#">Lists</a>
+      <a href="#">News</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-main">
+      <div class="hero-image"></div>
+
+      <div class="hero-content">
+        <span class="tag">Featured Review</span>
+        <h2>Klax Still Delivers One of Arcade Gaming’s Most Addictive Experiences</h2>
+        <p>
+          A timeless puzzle game revisited through a modern lens with strategy,
+          speed, and pure arcade chaos.
+        </p>
+
+        <a href="reviews/klax.html" class="hero-button">Read Review</a>
+      </div>
+    </div>
+
+    <aside class="trending">
+      <h3>Trending</h3>
+
+      <a href="reviews/klax.html" class="trend-card">
+        <span class="trend-category">GAME REVIEW</span>
+        <h4>Klax Still Delivers One of Arcade Gaming’s Most Addictive Experiences</h4>
+      </a>
+
+      <a href="reviews/klax.html" class="trend-card">
+        <span class="trend-category">RETRO</span>
+        <h4>Why Classic Puzzle Games Are Dominating Again</h4>
+      </a>
+
+      <a href="reviews/klax.html" class="trend-card">
+        <span class="trend-category">EDITORIAL</span>
+        <h4>The Timeless Appeal of Arcade High Scores</h4>
+      </a>
+    </aside>
+  </div>
+</section>
+
+<main class="container">
+
+  <section class="section-header">
+    <div>
+      <h2>Latest Reviews</h2>
+      <p>Fresh opinions across games, movies, books, and more.</p>
+    </div>
+
+    <input type="text" id="search" placeholder="Search reviews..." />
+  </section>
+
+  <section id="review-grid" class="review-grid"></section>
+
+  <div class="load-more-wrap">
+    <button id="load-more">Load More</button>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>
+      <img src="img/logo.png" alt="Critix" class="footer-logo">
+      <p>Independent reviews and editorials.</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<script src="index.js"></script>
+</body>
+</html>
