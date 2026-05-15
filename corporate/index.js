@@ -5,7 +5,7 @@ function randomStock() {
   return (Math.random() * 1000 + 100).toFixed(2);
 }
 setInterval(() => {
-  ticker.textContent = `SUS ${randomStock()} ▲  |  VIDEO ${randomStock()} ▲  |  SFU ${randomStock()} ▲  |  PEDIA ${randomStock()} ▲  |  SUOS ${randomStock()} ▲`;
+  ticker.textContent = `SUS ${randomStock()} ▲  |  VIDEO ${randomStock()} ▲  |  SFU ${randomStock()} ▲  |  PEDIA ${randomStock()} ▲  |  SUOS ${randomStock()} ▲  |  SFGN ${randomStock()} ▲`;
 }, 1500);
 
 const barChart = document.getElementById("barChart");

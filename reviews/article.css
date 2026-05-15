@@ -1,0 +1,145 @@
+.article-page {
+  padding-bottom: 60px;
+}
+
+.article-hero {
+  padding: 60px 0 30px;
+}
+
+.article-hero-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.article-cover-wrap {
+  background: #181b22;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.article-cover {
+  width: 100%;
+  display: block;
+}
+
+.article-hero-content h1 {
+  font-size: 56px;
+  line-height: 1.05;
+  margin: 20px 0;
+}
+
+.article-subtitle {
+  color: rgba(255,255,255,0.7);
+  font-size: 18px;
+  max-width: 700px;
+}
+
+.review-score {
+  margin-top: 30px;
+  width: 110px;
+  height: 110px;
+  border-radius: 24px;
+  background: #ff3c3c;
+  display: grid;
+  place-items: center;
+  font-size: 42px;
+  font-weight: 800;
+}
+
+.article-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 40px;
+  margin-top: 30px;
+}
+
+.article-content {
+  background: #181b22;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 24px;
+  padding: 40px;
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 30px;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+}
+
+.article-content p {
+  color: rgba(255,255,255,0.82);
+  font-size: 18px;
+  line-height: 1.9;
+  margin-bottom: 28px;
+}
+
+.article-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sidebar-card {
+  background: #181b22;
+  border-radius: 24px;
+  padding: 28px;
+  border: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 110px;
+}
+
+.sidebar-label {
+  color: #ff5c5c;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.sidebar-card h3 {
+  font-size: 28px;
+  margin: 14px 0;
+}
+
+.sidebar-card p {
+  color: rgba(255,255,255,0.7);
+}
+
+@media (max-width: 1000px) {
+  .article-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .article-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .article-hero-content h1 {
+    font-size: 42px;
+  }
+
+  .sidebar-card {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .article-content {
+    padding: 28px;
+  }
+
+  .article-hero-content h1 {
+    font-size: 34px;
+  }
+
+  .review-score {
+    width: 90px;
+    height: 90px;
+    font-size: 34px;
+  }
+}
