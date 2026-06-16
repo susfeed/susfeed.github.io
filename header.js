@@ -26,7 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     </li>
 
                     <li class="dropdown">
-                        <a href="susipedia/index.html">SusiPedia</a>
+                        <a href="#">SusFeed Edu ▾</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="susipedia/index.html">SusiPedia</a></li>
+                        </ul>
                     </li>
 
                     <li class="dropdown">
