@@ -173,6 +173,51 @@ margin-bottom:12px;
 .restart{
 margin-top:18px;
 }
+
+@media (max-width: 768px){
+body{
+overflow:hidden;
+touch-action:manipulation;
+}
+
+#ui{
+left:0;
+right:0;
+bottom:max(12px, env(safe-area-inset-bottom));
+transform:none;
+width:100%;
+padding:0 12px;
+}
+
+#panel{
+padding:18px;
+border-radius:20px;
+}
+
+#text{
+font-size:18px;
+line-height:1.45;
+}
+
+button{
+width:100%;
+min-height:52px;
+padding:14px 18px;
+font-size:16px;
+}
+
+.buttons{
+flex-direction:column;
+gap:10px;
+}
+
+#cam{
+left:-22vw;
+height:85vh;
+max-height:85vh;
+}
+}
+
 </style>
 </head>
 <body>
@@ -327,7 +372,7 @@ say(`
 
 <br><br>
 
-"You did say the word 'banana' three times."
+"You did say the word 'among us' three times."
 
 <div class="buttons">
 <button onclick="ending('Mystery Noise','The truth remains hidden forever.')">Accept fate</button>
