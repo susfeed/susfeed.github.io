@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Waking up next to Cameron Simulator</title>
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Inter,Segoe UI,Arial,sans-serif;
+}
+
+body{
+overflow:hidden;
+background:#000;
+}
+
+#game{
+position:fixed;
+inset:0;
+background:url("room.webp") center center/cover no-repeat;
+overflow:hidden;
+}
+
+#world{
+position:absolute;
+inset:0;
+animation:sway 8s ease-in-out infinite;
+filter:blur(12px);
+transition:filter 4s ease;
+}
+
+.awake #world{
+filter:blur(0);
+}
+
+@keyframes sway{
+0%{transform:translateX(-6px) translateY(2px);}
+25%{transform:translateX(4px) translateY(-3px);}
+50%{transform:translateX(7px) translateY(1px);}
+75%{transform:translateX(-3px) translateY(4px);}
+100%{transform:translateX(-6px) translateY(2px);}
+}
+
+#cam{
+position:absolute;
+left:-8vh;
+top:50%;
+height:105vh;
+transform:translateY(-50%) rotate(90deg);
+filter:drop-shadow(0 0 35px rgba(0,0,0,.5));
+animation:breathe 4s ease-in-out infinite;
+pointer-events:none;
+display:none;
+}
+
+@keyframes breathe{
+0%{scale:1;}
+50%{scale:1.015;}
+100%{scale:1;}
+}
+
+#vignette{
+position:absolute;
+inset:0;
+background:radial-gradient(circle,transparent 45%,rgba(0,0,0,.45) 100%);
+pointer-events:none;
+}
+
+#topLid,#bottomLid{
+position:absolute;
+left:0;
+width:100%;
+height:50%;
+background:black;
+z-index:100;
+transition:transform .2s ease;
+}
+
+#topLid{top:0;}
+#bottomLid{bottom:0;}
+
+.open #topLid{
+transform:translateY(-100%);
+}
+
+.open #bottomLid{
+transform:translateY(100%);
+}
+
+#ui{
+position:absolute;
+left:50%;
+bottom:28px;
+transform:translateX(-50%);
+width:min(900px,92vw);
+z-index:200;
+}
+
+#panel{
+background:rgba(15,15,25,.68);
+backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,.15);
+border-radius:28px;
+padding:24px;
+color:white;
+text-align:center;
+box-shadow:0 15px 50px rgba(0,0,0,.45);
+}
+
+#text{
+font-size:24px;
+line-height:1.55;
+}
+
+#hint{
+margin-top:10px;
+font-size:14px;
+opacity:.65;
+}
+
+.buttons{
+display:flex;
+justify-content:center;
+gap:12px;
+flex-wrap:wrap;
+margin-top:18px;
+}
+
+button{
+border:none;
+padding:14px 24px;
+border-radius:16px;
+cursor:pointer;
+font-size:16px;
+font-weight:700;
+color:white;
+background:linear-gradient(135deg,#5f83ff,#9b66ff);
+box-shadow:0 8px 24px rgba(95,131,255,.4);
+transition:.15s;
+}
+
+button:hover{
+transform:translateY(-2px) scale(1.03);
+}
+
+button:active{
+transform:scale(.97);
+}
+
+.fade{
+animation:fade .45s;
+}
+
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(8px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.ending{
+font-size:34px;
+margin-bottom:12px;
+}
+
+.restart{
+margin-top:18px;
+}
+</style>
+</head>
+<body>
+
+<div id="game">
+
+<div id="world">
+<img id="cam" src="cam.png">
+</div>
+
+<div id="vignette"></div>
+
+<div id="topLid"></div>
+<div id="bottomLid"></div>
+
+<div id="ui">
+<div id="panel">
+<div id="text">...</div>
+<div id="hint"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const body=document.body;
+const cam=document.getElementById("cam");
+const text=document.getElementById("text");
+const hint=document.getElementById("hint");
+
+const randomGreetings=[
+'"Morning."',
+'"You finally woke up."',
+'"You were asleep forever."',
+'"Nice of you to join reality."',
+'"Good morning, sleepyhead."'
+];
+
+function say(html,h=""){
+text.classList.remove("fade");
+void text.offsetWidth;
+text.classList.add("fade");
+text.innerHTML=html;
+hint.innerHTML=h;
+}
+
+function wait(ms){
+return new Promise(r=>setTimeout(r,ms));
+}
+
+function openEyes(){
+body.classList.add("open");
+cam.style.display="block";
+}
+
+function closeEyes(){
+body.classList.remove("open");
+cam.style.display="none";
+}
+
+function ending(title,desc){
+say(`
+<div class="ending">🏆 ${title}</div>
+${desc}
+<div class="buttons restart">
+<button onclick="location.reload()">Wake Up Again</button>
+</div>
+`);
+}
+
+async function intro(){
+
+await wait(1000);
+
+openEyes();
+await wait(300);
+
+closeEyes();
+await wait(700);
+
+openEyes();
+await wait(500);
+
+closeEyes();
+await wait(500);
+
+openEyes();
+await wait(900);
+
+closeEyes();
+await wait(250);
+
+openEyes();
+
+body.classList.add("awake");
+
+say("You slowly wake up...");
+
+await wait(2200);
+
+say("The room comes into focus.");
+
+await wait(2200);
+
+say("You realize Cameron is lying right beside you.");
+
+await wait(2200);
+
+say(randomGreetings[Math.floor(Math.random()*randomGreetings.length)]);
+
+await wait(1700);
+
+mainMenu();
+}
+
+function mainMenu(){
+say(`
+What do you do?
+
+<div class="buttons">
+<button onclick="goodMorning()">Say good morning</button>
+<button onclick="pretendSleep()">Pretend to still be asleep</button>
+<button onclick="lookAround()">Look around</button>
+<button onclick="getUp()">Get up immediately</button>
+</div>
+`);
+}
+
+function goodMorning(){
+say(`
+You say good morning.
+
+<br><br>
+
+Cameron smiles.
+
+<br><br>
+
+"Did you know you were talking in your sleep?"
+
+<div class="buttons">
+<button onclick="askNoise()">Ask what you said</button>
+<button onclick="laughOff()">Laugh it off</button>
+<button onclick="denyEverything()">Deny everything</button>
+</div>
+`);
+}
+
+function askNoise(){
+say(`
+"I couldn't understand most of it."
+
+<br><br>
+
+"You did say the word 'banana' three times."
+
+<div class="buttons">
+<button onclick="ending('Mystery Noise','The truth remains hidden forever.')">Accept fate</button>
+<button onclick="ending('Why Is Cameron Laughing?','You spend ten minutes trying to explain yourself.')">Explain yourself</button>
+</div>
+`);
+}
+
+function laughOff(){
+say(`
+Cameron starts laughing too.
+
+<div class="buttons">
+<button onclick="ending('Accidental Comedian','Neither of you can stop laughing.')">Keep laughing</button>
+</div>
+`);
+}
+
+function denyEverything(){
+ending(
+"The Awkward Silence",
+'You deny everything. Cameron clearly does not believe you.'
+);
+}
+
+function pretendSleep(){
+say(`
+You keep your eyes closed.
+
+<br><br>
+
+"I know you're awake."
+
+<div class="buttons">
+<button onclick="keepPretending()">Keep pretending</button>
+<button onclick="oneEye()">Open one eye</button>
+<button onclick="sitUp()">Suddenly sit up</button>
+</div>
+`);
+}
+
+function keepPretending(){
+ending(
+"Professional Pretender",
+'You commit fully to the bit and refuse to break character.'
+);
+}
+
+function oneEye(){
+ending(
+"Too Awake To Sleep",
+'You try to fake sleep but immediately get caught.'
+);
+}
+
+function sitUp(){
+ending(
+"Early Bird",
+'You sit up so suddenly that you surprise both yourself and Cameron.'
+);
+}
+
+function lookAround(){
+say(`
+The room is quiet.
+
+<div class="buttons">
+<button onclick="windowRoute()">Look at the window</button>
+<button onclick="camRoute()">Look at Cameron</button>
+<button onclick="phoneRoute()">Check your phone</button>
+</div>
+`);
+}
+
+function windowRoute(){
+ending(
+"Window Watcher",
+'You spend a peaceful moment watching the morning light.'
+);
+}
+
+function camRoute(){
+say(`
+Cameron notices you looking.
+
+<br><br>
+
+"What?"
+
+<div class="buttons">
+<button onclick="ending('Perfect Morning','You both laugh and enjoy the calm morning.')">Smile</button>
+<button onclick="ending('Awkward Silence 2','Neither of you says anything.')">Look away</button>
+</div>
+`);
+}
+
+function phoneRoute(){
+ending(
+"Slept Through Everything",
+'Your phone reveals that it is much later than you expected.'
+);
+}
+
+function getUp(){
+say(`
+You carefully get out of bed.
+
+<div class="buttons">
+<button onclick="breakfastRoute()">Make breakfast</button>
+<button onclick="waterRoute()">Get water</button>
+<button onclick="tripRoute()">Walk too fast</button>
+</div>
+`);
+}
+
+function breakfastRoute(){
+say(`
+The smell of breakfast fills the room.
+
+<br><br>
+
+"That actually smells good."
+
+<div class="buttons">
+<button onclick="ending('Breakfast Buddy','You end up sharing breakfast together.')">Serve breakfast</button>
+<button onclick="ending('Shared Breakfast','The morning becomes surprisingly wholesome.')">Eat together</button>
+</div>
+`);
+}
+
+function waterRoute(){
+ending(
+"Hydration Champion",
+'You successfully complete the difficult quest of obtaining water.'
+);
+}
+
+function tripRoute(){
+ending(
+"Gravity Wins",
+'You immediately trip over something and lose all dignity.'
+);
+}
+
+intro();
+</script>
+
+</body>
+</html>
