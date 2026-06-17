@@ -242,7 +242,18 @@ max-height:85vh;
 
 </div>
 
+<audio id="bgm" loop preload="auto">
+    <source src="bgm.mp3" type="audio/mpeg">
+</audio>
+
 <script>
+const bgm = document.getElementById("bgm");
+
+const clickSound = new Audio("click.wav");
+clickSound.preload = "auto";
+
+let musicStarted = false;
+
 const body=document.body;
 const cam=document.getElementById("cam");
 const text=document.getElementById("text");
@@ -286,6 +297,37 @@ ${desc}
 <button onclick="location.reload()">Wake Up Again</button>
 </div>
 `);
+}
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+async function playClick(){
+    const response = await fetch("click.wav");
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+    const source = audioCtx.createBufferSource();
+    const gainNode = audioCtx.createGain();
+
+    gainNode.gain.value = 2.0; // 2x louder
+
+    source.buffer = buffer;
+    source.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    source.start();
+}
+
+function startBGM(){
+    if(musicStarted) return;
+
+    musicStarted = true;
+
+    bgm.volume = 0.4;
+
+    bgm.play().catch(()=>{
+        musicStarted = false;
+    });
 }
 
 async function intro(){
@@ -516,6 +558,15 @@ ending(
 'You immediately trip over something and lose all dignity.'
 );
 }
+
+document.addEventListener("click", e => {
+    if(e.target.tagName === "BUTTON"){
+        playClick();
+        startBGM();
+    }
+});
+
+document.addEventListener("pointerdown", startBGM, { once:true });
 
 intro();
 </script>
