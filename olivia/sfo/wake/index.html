@@ -211,11 +211,19 @@ flex-direction:column;
 gap:10px;
 }
 
-#cam{
-left:-22vw;
-height:85vh;
-max-height:85vh;
-}
+  #cam{
+    position:absolute;
+    left:25%;
+    top:50%;
+
+    width:90vw;
+    height:auto;
+    max-width:none;
+
+    transform:translate(-50%, -50%) rotate(90deg);
+
+    object-fit:contain;
+  }
 }
 
 </style>

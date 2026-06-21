@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WLC</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+body{
+    font-family:Segoe UI,Tahoma,sans-serif;
+    background:
+        linear-gradient(to bottom,#1a1a1a,#0d0d0d);
+    color:white;
+    text-align:center;
+    overflow-x:hidden;
+}
+
+h1{
+    margin-top:15px;
+    font-size:2.5rem;
+    text-shadow:0 0 15px #ff9900;
+}
+
+#topbar{
+    width:min(1000px,95%);
+    margin:15px auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;
+}
+
+.stat{
+    background:#222;
+    border:2px solid #444;
+    border-radius:15px;
+    padding:15px;
+    box-shadow:0 0 15px rgba(255,153,0,.2);
+}
+
+.stat span{
+    font-size:1.5rem;
+    color:#ffb347;
+}
+
+#gym{
+    margin:20px auto;
+    width:min(700px,95%);
+    height:320px;
+    position:relative;
+    overflow:hidden;
+}
+
+#liftZone{
+    position:absolute;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    width:320px;
+    height:240px;
+}
+
+#progressContainer{
+    width:300px;
+    height:18px;
+    margin:0 auto 20px;
+    background:#333;
+    border-radius:999px;
+    overflow:hidden;
+    border:2px solid #555;
+}
+
+#progress{
+    width:0%;
+    height:100%;
+    background:linear-gradient(90deg,#00ff88,#33ffcc);
+    transition:.05s;
+}
+
+#barbell{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:0;
+    width:300px;
+    height:24px;
+    background:linear-gradient(#d9d9d9,#777);
+    border-radius:999px;
+    touch-action:none;
+    cursor:grab;
+}
+
+.plate{
+    position:absolute;
+    top:-28px;
+    width:22px;
+    height:80px;
+    border-radius:8px;
+    background:linear-gradient(#111,#444);
+    border:2px solid #666;
+}
+
+.l1{left:-10px;}
+.l2{left:-36px;}
+.r1{right:-10px;}
+.r2{right:-36px;}
+
+.floor{
+    width:100%;
+    height:60px;
+    background:#2a2a2a;
+    border-top:4px solid #555;
+    position:absolute;
+    bottom:0;
+}
+
+#message{
+    height:30px;
+    color:#6cff6c;
+    font-weight:bold;
+}
+
+.section{
+    width:min(1100px,95%);
+    margin:25px auto;
+}
+
+.section h2{
+    margin-bottom:15px;
+    color:#ffb347;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:12px;
+}
+
+.card{
+    background:#222;
+    border:2px solid #444;
+    border-radius:15px;
+    padding:12px;
+    transition:.2s;
+    box-shadow:0 0 12px rgba(0,0,0,.5);
+}
+
+.card:hover{
+    transform:translateY(-3px);
+}
+
+.card h3{
+    margin-bottom:8px;
+}
+
+.buyBtn{
+    width:100%;
+    border:none;
+    border-radius:12px;
+    padding:10px;
+    font-weight:bold;
+    color:white;
+    cursor:pointer;
+    margin-top:10px;
+    background:linear-gradient(135deg,#ff8c00,#ff4d00);
+    transition:.15s;
+}
+
+.buyBtn:hover{
+    transform:scale(1.03);
+}
+
+.buyBtn:active{
+    transform:scale(.97);
+}
+
+#saveRow{
+    margin:20px;
+}
+
+.actionBtn{
+    border:none;
+    border-radius:12px;
+    padding:10px 18px;
+    margin:5px;
+    cursor:pointer;
+    color:white;
+    font-weight:bold;
+    background:linear-gradient(135deg,#00a2ff,#0066ff);
+}
+
+.floatText{
+    position:absolute;
+    font-weight:bold;
+    color:#00ff88;
+    animation:floatUp 1s forwards;
+    pointer-events:none;
+}
+
+@keyframes floatUp{
+    from{
+        opacity:1;
+        transform:translateY(0);
+    }
+    to{
+        opacity:0;
+        transform:translateY(-80px);
+    }
+}
+
+body{display:flex;min-height:100vh;}
+#mainContent{flex:1;padding-right:360px;}
+#upgradeSidebar{
+position:fixed;
+right:0;
+top:0;
+width:350px;
+height:100vh;
+overflow-y:auto;
+background:linear-gradient(180deg,#2f2f2f,#171717 30%,#0f0f0f);
+border-left:4px solid #777;
+box-shadow:-10px 0 30px rgba(0,0,0,.7);
+padding:12px;
+}
+.shopTabs{
+display:flex;
+gap:8px;
+margin-bottom:12px;
+position:sticky;
+top:0;
+background:#111;
+padding:8px 0;
+z-index:10;
+}
+.shopTab{
+flex:1;
+padding:10px;
+border:none;
+border-radius:12px;
+background:#333;
+color:#fff;
+font-weight:bold;
+}
+.shopTab.active{background:#ff8c00;}
+.shopPanel{display:none;}
+.shopPanel.active{display:block;}
+::-webkit-scrollbar{
+    width:18px;
+}
+
+::-webkit-scrollbar-track{
+    background:#111;
+    border-radius:999px;
+}
+
+::-webkit-scrollbar-thumb{
+    border-radius:999px;
+
+    background:
+        radial-gradient(circle at center 8px,
+            #1a1a1a 0 4px,
+            #888 4px 6px,
+            #1a1a1a 6px 8px,
+            transparent 8px),
+
+        radial-gradient(circle at center 16px,
+            #222 0 3px,
+            #666 3px 5px,
+            transparent 5px),
+
+        radial-gradient(circle at center calc(100% - 8px),
+            #1a1a1a 0 4px,
+            #888 4px 6px,
+            #1a1a1a 6px 8px,
+            transparent 8px),
+
+        radial-gradient(circle at center calc(100% - 16px),
+            #222 0 3px,
+            #666 3px 5px,
+            transparent 5px),
+
+        linear-gradient(
+            90deg,
+            #555 0%,
+            #d9d9d9 30%,
+            #ffffff 50%,
+            #d9d9d9 70%,
+            #555 100%
+        );
+
+    background-size:
+        100% 16px,
+        100% 10px,
+        100% 16px,
+        100% 10px,
+        4px 100%;
+
+    background-position:
+        center top,
+        center 12px,
+        center bottom,
+        center calc(100% - 12px),
+        center center;
+
+    background-repeat:no-repeat;
+
+    border:2px solid #444;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    filter:brightness(1.15);
+}
+@media (max-width:900px){
+body{display:block;}
+#mainContent{padding-right:0;padding-bottom:58vh;}
+#upgradeSidebar{
+width:100%;
+height:55vh;
+top:auto;
+bottom:0;
+border-left:none;
+border-top:4px solid #777;
+}
+.mobileSplit{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+.shopTabs{display:none;}
+.shopPanel{display:block!important;}
+}
+</style>
+</head>
+
+<body>
+<div id="mainContent">
+
+
+<h1>🏋 Ultimate Weight Lifting Clicker</h1>
+
+<div id="topbar">
+    <div class="stat">Strength<br><span id="strength">0</span></div>
+    <div class="stat">Per Lift<br><span id="perLift">1</span></div>
+    <div class="stat">Auto / Sec<br><span id="autoRate">0</span></div>
+</div>
+
+<div id="gym">
+
+    <div id="progressContainer">
+        <div id="progress"></div>
+    </div>
+
+    <div id="liftZone">
+        <div id="barbell">
+            <div class="plate l2"></div>
+            <div class="plate l1"></div>
+            <div class="plate r1"></div>
+            <div class="plate r2"></div>
+        </div>
+    </div>
+
+    <div class="floor"></div>
+</div>
+
+<div id="message">Drag the barbell upward!</div>
+
+<div id="saveRow">
+    <button class="actionBtn" onclick="saveGame()">Save</button>
+    <button class="actionBtn" onclick="resetGame()">Reset</button>
+</div>
+
+</div>
+<div id="upgradeSidebar">
+<div class="shopTabs">
+<button class="shopTab active" onclick="switchTab('strengthPanel',this)">💪 Strength</button>
+<button class="shopTab" onclick="switchTab('autoPanel',this)">🤝 Partners</button>
+</div>
+
+<div class="mobileSplit">
+<div id="strengthPanel" class="shopPanel active">
+<h2>💪 Strength</h2>
+<div class="grid" id="strengthUpgrades"></div>
+</div>
+
+<div id="autoPanel" class="shopPanel">
+<h2>🤝 Partners</h2>
+<div class="grid" id="autoUpgrades"></div>
+</div>
+</div>
+</div>
+
+<script>
+
+let strength = 0;
+let perLift = 1;
+let autoRate = 0;
+
+const SAVE_KEY = "ultimateWeightLifterSave";
+
+const strengthUpgrades = [
+["Chicken Breast",10,1],
+["Protein Shake",50,2],
+["Kvarg",150,4],
+["Cheese",500,8],
+["Peanut Butter",1500,15],
+["Mac and Cheese",5000,30],
+["Creatine",15000,60],
+["Pink Monster",50000,120],
+["Reese's Protein Powder",150000,250],
+["Chokladboll",500000,500]
+];
+
+const autoUpgrades = [
+["A Dog With Skateboard",25,1],
+["Neil",100,2],
+["Xi Jinping",300,4],
+["Sabrina",1000,8],
+["Shin",3500,15],
+["Yoshi",12000,30],
+["Phillip",40000,60],
+["A Bear",125000,120],
+["Olivia",400000,250],
+["Cameron",1000000,500]
+];
+
+const strengthEl=document.getElementById("strength");
+const perLiftEl=document.getElementById("perLift");
+const autoRateEl=document.getElementById("autoRate");
+const progress=document.getElementById("progress");
+const barbell=document.getElementById("barbell");
+const gym=document.getElementById("gym");
+
+const dropSound = new Audio("pipe.mp3");
+const liftSound = new Audio("lift.wav");
+const clickSound = new Audio("../wake/click.wav");
+
+function playSound(sound, volume = 1) {
+    sound.volume = volume;
+    sound.currentTime = 0; // allow rapid replay
+    sound.play().catch(() => {});
+}
+
+function format(n){
+    if(n>=1e9) return (n/1e9).toFixed(1)+"B";
+    if(n>=1e6) return (n/1e6).toFixed(1)+"M";
+    if(n>=1e3) return (n/1e3).toFixed(1)+"K";
+    return Math.floor(n);
+}
+
+function updateUI(){
+    strengthEl.textContent=format(strength);
+    perLiftEl.textContent=format(perLift);
+    autoRateEl.textContent=format(autoRate);
+}
+
+function showFloat(amount){
+    const div=document.createElement("div");
+    div.className="floatText";
+    div.textContent="+"+amount;
+    div.style.left=(window.innerWidth/2-20)+"px";
+    div.style.top="170px";
+    document.body.appendChild(div);
+
+    setTimeout(()=>div.remove(),1000);
+}
+
+function saveGame(){
+    localStorage.setItem(SAVE_KEY,JSON.stringify({
+        strength,
+        perLift,
+        autoRate,
+        strengthUpgrades,
+        autoUpgrades
+    }));
+}
+
+function loadGame(){
+    const data=localStorage.getItem(SAVE_KEY);
+    if(!data) return;
+
+    const s=JSON.parse(data);
+
+    strength=s.strength||0;
+    perLift=s.perLift||1;
+    autoRate=s.autoRate||0;
+
+    if(s.strengthUpgrades){
+        for(let i=0;i<10;i++)
+            strengthUpgrades[i][1]=s.strengthUpgrades[i][1];
+    }
+
+    if(s.autoUpgrades){
+        for(let i=0;i<10;i++)
+            autoUpgrades[i][1]=s.autoUpgrades[i][1];
+    }
+}
+
+function resetGame(){
+    if(confirm("Reset everything?")){
+        localStorage.removeItem(SAVE_KEY);
+        location.reload();
+    }
+}
+
+function createCards(){
+
+    const strengthBox=document.getElementById("strengthUpgrades");
+    const autoBox=document.getElementById("autoUpgrades");
+
+    strengthBox.innerHTML="";
+    autoBox.innerHTML="";
+
+    strengthUpgrades.forEach(upg=>{
+        const card=document.createElement("div");
+        card.className="card";
+
+        card.innerHTML=`
+        <h3>${upg[0]}</h3>
+        <p>+${upg[2]} Per Lift</p>
+        <p>Cost: ${format(upg[1])}</p>
+        `;
+
+        const btn=document.createElement("button");
+        btn.className="buyBtn";
+        btn.textContent="Buy";
+
+        btn.onclick=()=>{
+            if(strength>=upg[1]){
+                strength-=upg[1];
+                perLift+=upg[2];
+                upg[1]=Math.floor(upg[1]*1.8);
+                createCards();
+                updateUI();
+            }
+        };
+
+        card.appendChild(btn);
+        strengthBox.appendChild(card);
+    });
+
+    autoUpgrades.forEach(upg=>{
+        const card=document.createElement("div");
+        card.className="card";
+
+        card.innerHTML=`
+        <h3>${upg[0]}</h3>
+        <p>+${upg[2]}/sec</p>
+        <p>Cost: ${format(upg[1])}</p>
+        `;
+
+        const btn=document.createElement("button");
+        btn.className="buyBtn";
+        btn.textContent="Buy";
+
+        btn.onclick=()=>{
+            if(strength>=upg[1]){
+                strength-=upg[1];
+                autoRate+=upg[2];
+                upg[1]=Math.floor(upg[1]*1.8);
+                createCards();
+                updateUI();
+            }
+        };
+
+        card.appendChild(btn);
+        autoBox.appendChild(card);
+    });
+}
+
+let dragging=false;
+let startY=0;
+let currentLift=0;
+const liftGoal=120;
+
+barbell.addEventListener("pointerdown",(e)=>{
+    dragging=true;
+    startY=e.clientY;
+    barbell.style.cursor="grabbing";
+
+    playSound(liftSound, 1);
+});
+
+window.addEventListener("pointermove",(e)=>{
+
+    if(!dragging) return;
+
+    let distance=Math.max(0,startY-e.clientY);
+
+    if(distance>liftGoal)
+        distance=liftGoal;
+
+    currentLift=distance;
+
+    progress.style.width=(distance/liftGoal*100)+"%";
+
+    barbell.style.bottom=distance+"px";
+});
+
+window.addEventListener("pointerup",()=>{
+
+    if(!dragging) return;
+
+    dragging=false;
+
+    if(currentLift>=liftGoal){
+
+        strength+=perLift;
+        showFloat(perLift);
+
+        document.getElementById("message").textContent=
+        "Successful Lift! +" + perLift;
+    }
+
+    playSound(dropSound, 0.2);
+
+    currentLift=0;
+    progress.style.width="0%";
+    barbell.style.bottom="0px";
+    barbell.style.cursor="grab";
+
+    updateUI();
+});
+
+setInterval(()=>{
+    strength += autoRate / 10;
+    updateUI();
+},100);
+
+setInterval(saveGame,5000);
+
+loadGame();
+createCards();
+updateUI();
+
+
+function switchTab(id,btn){
+document.querySelectorAll('.shopPanel').forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('.shopTab').forEach(x=>x.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+btn.classList.add('active');
+}
+
+document.addEventListener("click", (e) => {
+    if (
+        e.target.matches("button") ||
+        e.target.closest("button")
+    ) {
+        playSound(clickSound, 1);
+    }
+});
+</script>
+
+
+</body>
+</html>
