@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SFO</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -11,30 +16,79 @@
 <canvas id="particles"></canvas>
 
 <header>
-    <h1>SFO</h1>
-    <p>Games for Olivia, enjoy!</p>
+    <div class="logo">SFO</div>
+
+    <nav>
+        <a href="#">Home</a>
+    </nav>
 </header>
 
 <main>
+
+    <section class="hero">
+
+        <div class="hero-content">
+            <span class="tag">FEATURED GAME</span>
+
+            <h1>Ultimate Weight Lifting Clicker</h1>
+
+            <p>
+                Get fucking shredded.
+            </p>
+
+            <a href="weight/index.html" class="play-btn">
+                PLAY NOW
+            </a>
+        </div>
+
+        <img src="weight/cover.png" alt="Featured Game">
+
+    </section>
+
+    <section class="section-title">
+        <h2>NEW GAMES</h2>
+    </section>
+
     <section class="games-grid">
 
-        <a href="wake/index.html" class="game-card">
-            <img src="wake/cover.png" alt="Waking Up Next To Cameron Simulator">
+        <a href="weight/index.html" class="game-card">
+
+            <img src="weight/cover.png" alt="Ultimate Weight Lifting Clicker">
+
             <div class="game-info">
-                <h2>Waking Up Next To Cameron Simulator</h2>
-                <p>Simulate your favorite activity!</p>
+                <h3>Ultimate Weight Lifting Clicker</h3>
+
+                <p>
+                    Get fucking shredded.
+                </p>
+
+                <span class="play-small">
+                    PLAY
+                </span>
             </div>
+
         </a>
 
-        <a href="weight/index.html" class="game-card">
-            <img src="weight/cover.png" alt="Ultimate Weight Lifting Clicker">
+        <a href="wake/index.html" class="game-card">
+
+            <img src="wake/cover.png" alt="Waking Up Next To Cameron Simulator">
+
             <div class="game-info">
-                <h2>Ultimate Weight Lifting Clicker</h2>
-                <p>Get fucking shredded!</p>
+                <h3>Waking Up Next To Cameron Simulator</h3>
+
+                <p>
+                    Simulate your favorite activity.
+                </p>
+
+                <span class="play-small">
+                    PLAY
+                </span>
             </div>
+
         </a>
 
     </section>
+
 </main>
 
 <script src="index.js"></script>
