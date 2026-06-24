@@ -14,7 +14,7 @@
 
 <div class="title-screen" id="titleScreen">
   <div class="title-panel">
-    <div class="version-corner">v1.0.0</div>
+    <div class="version-corner">v1.1.0</div>
 
     <h1>THE BOYS</h1>
     <p class="subtitle">CHOOSE YOUR FATE</p>
@@ -136,6 +136,24 @@
   </button>
   <div class="char-name">Furret</div>
 </div>
+
+      </div>
+
+      <h2>DLC CHARACTERS</h2>
+      <div class="row">
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(13,this)">
+    <img src="olivia.png">
+  </button>
+  <div class="char-name">Olivia</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(14,this)">
+    <img src="kaeru.png">
+  </button>
+  <div class="char-name">Shogun Kaeru</div>
+</div>
       </div>
 
       <h2>STORY THEMES</h2>
@@ -157,6 +175,12 @@
         <button class="theme-btn theme-ringo" data-theme="10" onclick="pickTheme(10, this)">OCTOPUS'S GARDEN</button>
         <button class="theme-btn theme-rax" data-theme="11" onclick="pickTheme(11, this)">RAX</button>
         <button class="theme-btn theme-furret" data-theme="12" onclick="pickTheme(12, this)">ROUTE 1</button>
+      </div>
+
+      <h2>DLC THEMES</h2>
+      <div class="row">
+        <button class="theme-btn theme-mountain" data-theme="13" onclick="pickTheme(13,this)">MOUNTAIN</button>
+        <button class="theme-btn theme-SOL" data-theme="14" onclick="pickTheme(14, this)">SOL</button>
       </div>
 
       <button class="start-run" onclick="startSelected()">BEGIN RUN</button>
@@ -212,7 +236,7 @@
 <script src="story.js"></script>
 <script src="menus.js"></script>
 <script>
-const CHARACTER_COST = [0, 500, 500, 500, 500, 500, 500, 1000, 1000, 1000, 1000, 1000, 1000]
+const CHARACTER_COST = [0, 500, 500, 500, 500, 500, 500, 1000, 1000, 1000, 1000, 1000, 1000, 500, 500]
 
 let unlockedCharacters = JSON.parse(
   localStorage.getItem("unlockedCharacters") || "[0]"

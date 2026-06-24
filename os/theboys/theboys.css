@@ -373,6 +373,15 @@ canvas{
   color:#006609;
 }
 
+.theme-mountain{
+  background:linear-gradient(180deg,#b4b4b4, #7f7f7f);
+  color:#000ea6;
+}
+
+.theme-SOL{
+  background:linear-gradient(180deg,#6a6a6a, #4e4e4e);
+  color:#c0b300;
+}
 
 .hidden{
   display:none;

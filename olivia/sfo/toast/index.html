@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Toast Cameron</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --panel-gap:10px;
+}
+
+html{
+    height:100%;
+}
+
+body{
+    min-height:100svh;
+    background:radial-gradient(circle at top,#31415f 0%,#121722 65%);
+    font-family:Inter,system-ui,sans-serif;
+    color:white;
+    overflow-x:hidden;
+    overflow-y:auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:12px;
+}
+
+.panel{
+    width:min(900px,95vw);
+    max-height:calc(100svh - 24px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:var(--panel-gap);
+}
+
+h1{
+    font-size:clamp(2rem,5vw,3rem);
+    letter-spacing:.08em;
+    text-shadow:0 0 20px rgba(255,255,255,.2);
+}
+
+.goal{
+    font-size:clamp(1rem,3vw,1.5rem);
+    color:#ffd56b;
+    font-weight:700;
+}
+
+.result{
+    min-height:28px;
+    font-size:clamp(.95rem,2.5vw,1.2rem);
+}
+
+.toaster-wrap{
+    position:relative;
+    width:min(72vw,48vh,400px);
+    height:min(72vw,48vh,400px);
+    flex-shrink:0;
+}
+
+.toaster{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    transform:translateX(-50%);
+    width:78%;
+    height:55%;
+    border-radius:40px;
+    background:linear-gradient(145deg,#d7dce2,#9099a3);
+    box-shadow:
+        inset 0 2px 10px rgba(255,255,255,.8),
+        inset 0 -15px 25px rgba(0,0,0,.18),
+        0 20px 50px rgba(0,0,0,.35);
+}
+
+.slot{
+    position:absolute;
+    left:50%;
+    top:8%;
+    transform:translateX(-50%);
+    width:55%;
+    height:10%;
+    background:#191919;
+    border-radius:999px;
+}
+
+.toast{
+    position:absolute;
+    width:34%;
+    left:50%;
+    transform:translateX(-50%);
+    top:16%;
+    pointer-events:none;
+    transition:
+        top .18s ease,
+        filter .35s ease;
+}
+
+.toast.hidden{
+    top:31%;
+}
+
+.heater{
+    position:absolute;
+    left:50%;
+    top:20%;
+    transform:translateX(-50%);
+    width:42%;
+    height:8px;
+    border-radius:999px;
+    background:#4d1e00;
+    transition:.2s;
+}
+
+.heater.on{
+    background:#ff8f2a;
+    box-shadow:
+        0 0 10px #ff8f2a,
+        0 0 30px #ff5e00;
+}
+
+.light{
+    position:absolute;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    left:12%;
+    bottom:18%;
+    background:#383c00;
+    transition:.2s;
+}
+
+.light.on{
+    background:#f7ff63;
+    box-shadow:
+        0 0 12px #f7ff63,
+        0 0 24px #f7ff63;
+}
+
+.lever-track{
+    position:absolute;
+    right:4%;
+    top:25%;
+    width:10px;
+    height:34%;
+    border-radius:999px;
+    background:#3e4650;
+}
+
+.lever{
+    position:absolute;
+    right:0;
+    top:25%;
+    width:48px;
+    height:18px;
+    border-radius:999px;
+    background:linear-gradient(#7f8791,#bcc4cb);
+    cursor:grab;
+    touch-action:none;
+    user-select:none;
+}
+
+.lever:before{
+    content:"";
+    position:absolute;
+    right:-10px;
+    top:50%;
+    transform:translateY(-50%);
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,#fff,#aab1b8);
+}
+
+.smoke{
+    position:absolute;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:rgba(255,255,255,.4);
+    opacity:0;
+}
+
+.s1{
+    left:50%;
+    top:10%;
+}
+
+.s2{
+    left:44%;
+    top:12%;
+}
+
+.s3{
+    left:56%;
+    top:12%;
+}
+
+.smoke.active{
+    animation:smoke 2.4s infinite;
+}
+
+.s2.active{
+    animation-delay:.7s;
+}
+
+.s3.active{
+    animation-delay:1.2s;
+}
+
+@keyframes smoke{
+    0%{
+        opacity:0;
+        transform:translateY(0) scale(.5);
+    }
+    25%{
+        opacity:.45;
+    }
+    100%{
+        opacity:0;
+        transform:translateY(-80px) scale(3);
+    }
+}
+
+.controls{
+    display:flex;
+    justify-content:center;
+}
+
+button{
+    border:none;
+    background:linear-gradient(135deg,#ffb548,#ff7d29);
+    color:white;
+    padding:12px 22px;
+    border-radius:14px;
+    font-weight:700;
+    cursor:pointer;
+    min-height:48px;
+}
+
+.stats{
+    color:#8fe8ff;
+    font-weight:700;
+}
+
+.score{
+    color:#ffd9a6;
+    min-height:22px;
+}
+
+.instructions{
+    color:#cbd3dd;
+    font-size:.92rem;
+    max-width:600px;
+}
+
+@media (max-width:600px){
+
+    .toaster-wrap{
+        width:min(68vw,40vh,300px);
+        height:min(68vw,40vh,300px);
+    }
+
+    .instructions{
+        font-size:.85rem;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="panel">
+
+    <h1>TOAST CAMERON</h1>
+
+    <div class="goal" id="goal">
+        Target: --
+    </div>
+
+    <div class="result" id="result">
+        Pull the lever down and hold.
+    </div>
+
+    <div class="toaster-wrap">
+
+        <div class="smoke s1"></div>
+        <div class="smoke s2"></div>
+        <div class="smoke s3"></div>
+
+        <img
+            src="../wake/cam.png"
+            class="toast"
+            id="toast"
+            alt="toast">
+
+        <div class="toaster">
+            <div class="slot"></div>
+            <div class="heater" id="heater"></div>
+            <div class="light" id="light"></div>
+        </div>
+
+        <div class="lever-track" id="track"></div>
+        <div class="lever" id="lever"></div>
+
+    </div>
+
+    <div class="controls">
+        <button id="newGame">
+            New Target
+        </button>
+    </div>
+
+    <div class="stats" id="stats">
+        Wins: 0 | Games: 0 | Best: --
+    </div>
+
+    <div class="score" id="score"></div>
+
+    <div class="instructions">
+        Pull the lever down to start toasting. Keep holding it.
+        Release when you think you've matched the target time.
+        You cannot see your timer while toasting.
+    </div>
+
+</div>
+
+<script>
+const lever = document.getElementById("lever");
+const track = document.getElementById("track");
+const toast = document.getElementById("toast");
+const goalText = document.getElementById("goal");
+const result = document.getElementById("result");
+const score = document.getElementById("score");
+const light = document.getElementById("light");
+const heater = document.getElementById("heater");
+const statsDiv = document.getElementById("stats");
+const smokes = document.querySelectorAll(".smoke");
+
+const WIN_THRESHOLD = 0.15;
+
+const stats = JSON.parse(
+    localStorage.getItem("toastStats") ||
+    '{"wins":0,"games":0,"best":null}'
+);
+
+let target = 0;
+let dragging = false;
+let started = false;
+let toasting = false;
+let startTime = 0;
+
+function saveStats(){
+    localStorage.setItem(
+        "toastStats",
+        JSON.stringify(stats)
+    );
+}
+
+function renderStats(){
+    statsDiv.textContent =
+        `Wins: ${stats.wins} | Games: ${stats.games} | Best: ${
+            stats.best === null
+            ? "--"
+            : stats.best.toFixed(3) + "s"
+        }`;
+}
+
+function newRound(){
+
+    target =
+        (Math.random() * 8 + 2)
+        .toFixed(2);
+
+    goalText.textContent =
+        `Target: ${target} seconds`;
+
+    result.textContent =
+        "Pull the lever down and hold.";
+
+    score.textContent = "";
+
+    toast.style.filter =
+        "brightness(1)";
+}
+
+function startToast(){
+
+    if(toasting) return;
+
+    started = true;
+    toasting = true;
+
+    startTime = performance.now();
+
+    toast.classList.add("hidden");
+    light.classList.add("on");
+    heater.classList.add("on");
+
+    smokes.forEach(s =>
+        s.classList.add("active")
+    );
+
+    result.textContent =
+        "Toasting...";
+}
+
+function stopToast(){
+
+    if(!toasting) return;
+
+    toasting = false;
+
+    const elapsed =
+        (performance.now() - startTime) / 1000;
+
+    const diff =
+        Math.abs(elapsed - parseFloat(target));
+
+    toast.classList.remove("hidden");
+    light.classList.remove("on");
+    heater.classList.remove("on");
+
+    smokes.forEach(s =>
+        s.classList.remove("active")
+    );
+
+    stats.games++;
+
+    if(diff <= WIN_THRESHOLD){
+        stats.wins++;
+    }
+
+    if(
+        stats.best === null ||
+        diff < stats.best
+    ){
+        stats.best = diff;
+    }
+
+    saveStats();
+    renderStats();
+
+    const darkness =
+        Math.min(elapsed / 10,1);
+
+    toast.style.filter =
+        `brightness(${1 - darkness * .45})
+        sepia(${darkness})
+        saturate(${1 + darkness})`;
+
+    const msg =
+        diff < .05 ? "PERFECT!" :
+        diff < .15 ? "AMAZING!" :
+        diff < .35 ? "GREAT!" :
+        diff < .75 ? "GOOD!" :
+        "MISS!";
+
+    result.textContent =
+        `${msg} Toasted ${elapsed.toFixed(2)}s`;
+
+    score.textContent =
+        `Off by ${diff.toFixed(2)}s`;
+
+    setTimeout(newRound,2500);
+}
+
+function moveLever(clientY){
+
+    const rect =
+        track.getBoundingClientRect();
+
+    let percent =
+        ((clientY - rect.top) /
+        rect.height);
+
+    percent =
+        Math.max(0,
+        Math.min(1,percent));
+
+    const travel =
+        rect.height * .9;
+
+    lever.style.transform =
+        `translateY(${travel * percent}px)`;
+
+    if(percent > .85 && !started){
+        startToast();
+    }
+}
+
+lever.addEventListener(
+    "pointerdown",
+    e=>{
+        dragging = true;
+        started = false;
+        lever.setPointerCapture(
+            e.pointerId
+        );
+        moveLever(e.clientY);
+    }
+);
+
+lever.addEventListener(
+    "pointermove",
+    e=>{
+        if(!dragging) return;
+        moveLever(e.clientY);
+    }
+);
+
+function releaseLever(){
+
+    if(!dragging) return;
+
+    dragging = false;
+
+    lever.style.transform =
+        "translateY(0px)";
+
+    if(toasting){
+        stopToast();
+    }
+}
+
+lever.addEventListener(
+    "pointerup",
+    releaseLever
+);
+
+lever.addEventListener(
+    "pointercancel",
+    releaseLever
+);
+
+document.addEventListener(
+    "pointerup",
+    releaseLever
+);
+
+document
+.getElementById("newGame")
+.addEventListener(
+    "click",
+    ()=>{
+        if(toasting) return;
+        newRound();
+    }
+);
+
+renderStats();
+newRound();
+</script>
+
+</body>
+</html>

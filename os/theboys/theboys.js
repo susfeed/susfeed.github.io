@@ -122,14 +122,14 @@ song:"songs/song5.mp3"
 },
 {
 name:"THE SERVER",
-bg:"linear-gradient(#ffb347 0%, #000000 60%, #000000 100%)",
+bg:"linear-gradient(#00bf0d 0%, #000000 60%, #000000 100%)",
 platform:()=>["#00ff4c","#009719","#004811"][(Math.random()*3)|0],
 sprite:"phil.png",
 song:"songs/song6.mp3"
 },
 {
 name:"SUSFEED HQ",
-bg:"linear-gradient(#ffb347 0%, #ffffff 60%, #ffffff 100%)",
+bg:"linear-gradient(#ffffff 0%, #ffffff 60%, #ffffff 100%)",
 platform:()=>["#ff0000","#970000","#480000"][(Math.random()*3)|0],
 sprite:"red.png",
 song:"songs/song7.mp3"
@@ -157,24 +157,38 @@ song:"songs/s3.mp3"
 },
 {
 name:"OCTOPUS'S GARDEN",
-bg:"linear-gradient(#ffb347 0%, #4e4e4e 60%, #919191 100%)",
+bg:"linear-gradient(#fe5200 0%, #551e0a 60%, #fdef14 100%)",
 platform:()=>["#fe5200","#551e0a","#fdef14"][(Math.random()*3)|0],
 sprite:"ringo.png",
 song:"songs/s4.mp3"
 },
 {
 name:"RAX",
-bg:"linear-gradient(#ffb347 0%, #62cbff 60%, #01ccff 100%)",
+bg:"linear-gradient(#ffffff 0%, #62cbff 60%, #01ccff 100%)",
 platform:()=>["#fe5200","#a75c16","#000000"][(Math.random()*3)|0],
 sprite:"delicious.png",
 song:"songs/s5.mp3"
 },
 {
 name:"ROUTE 1",
-bg:"linear-gradient(#ffb347 0%, #62cbff 60%, #ffffff 100%)",
+bg:"linear-gradient(#1a99d8 0%, #62cbff 60%, #ffffff 100%)",
 platform:()=>["#00ff08","#00a205","#399b50"][(Math.random()*3)|0],
 sprite:"furret.png",
 song:"songs/s6.mp3"
+},
+{
+name:"MOUNTAIN",
+bg:"linear-gradient(#00a5f8 0%, #8b8b8b 60%, #e1e1e1 100%)",
+platform:()=>["#ffffff","#6d6d6d","#929292"][(Math.random()*3)|0],
+sprite:"olivia.png",
+song:"songs/song8.mp3"
+},
+{
+name:"SOL",
+bg:"linear-gradient(#8b8b8b 0%, #00a5f8 60%, #343434 100%)",
+platform:()=>["#0a0074","#b9bc00","#ffffff"][(Math.random()*3)|0],
+sprite:"kaeru.png",
+song:"songs/s7.mp3"
 }
 ]
 

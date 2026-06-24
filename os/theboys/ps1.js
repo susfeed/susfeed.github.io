@@ -177,6 +177,20 @@ bg:"linear-gradient(#ffb347 0%, #62cbff 60%, #ffffff 100%)",
 platform:()=>["#00ff08","#00a205","#399b50"][(Math.random()*3)|0],
 sprite:"furret.png",
 song:"songs/s6.mp3"
+},
+{
+name:"MOUNTAIN",
+bg:"linear-gradient(#00a5f8 0%, #8b8b8b 60%, #e1e1e1 100%)",
+platform:()=>["#ffffff","#6d6d6d","#929292"][(Math.random()*3)|0],
+sprite:"olivia.png",
+song:"songs/song8.mp3"
+},
+{
+name:"SOL",
+bg:"linear-gradient(#8b8b8b 0%, #00a5f8 60%, #343434 100%)",
+platform:()=>["#0a0074","#b9bc00","#ffffff"][(Math.random()*3)|0],
+sprite:"kaeru.png",
+song:"songs/s7.mp3"
 }
 ]
 

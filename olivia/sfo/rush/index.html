@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Pink Monster Rush</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{overflow:hidden;background:#05070d}
+canvas{display:block}
+#ui{position:absolute;left:16px;top:16px;color:white;z-index:10}
+#title{font-size:30px;font-weight:900;color:#ffb38a;text-shadow:0 0 20px #ff8c42}
+.bar{width:260px;height:20px;border:1px solid #ffb38a;margin-top:8px}
+#energyFill{height:100%;background:linear-gradient(90deg,#ffb36b,#ff5ea8)}
+#overlay{
+    position:absolute;
+    inset:0;
+
+    background:
+    radial-gradient(
+        circle at center,
+        #1b1028,
+        #05070d 70%
+    );
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:white;
+}
+button{
+    margin-top:24px;
+    padding:16px 38px;
+    border:none;
+    border-radius:14px;
+    font-size:20px;
+    font-weight:800;
+    color:white;
+    cursor:pointer;
+    background:linear-gradient(
+        135deg,
+        #ff9a57,
+        #ff5ebc
+    );
+    box-shadow:
+        0 0 20px rgba(255,94,188,.5),
+        0 0 40px rgba(255,154,87,.35);
+    transition:.15s;
+}
+
+button:hover{
+    transform:translateY(-2px) scale(1.04);
+    box-shadow:
+        0 0 30px rgba(255,94,188,.8),
+        0 0 60px rgba(255,154,87,.5);
+}
+
+button:active{
+    transform:scale(.96);
+}
+#overlay h1{
+    font-size:72px;
+    font-weight:900;
+    letter-spacing:4px;
+    text-transform:uppercase;
+
+    background:linear-gradient(
+        90deg,
+        #ffd2a8,
+        #ff9a57,
+        #ff5ebc
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+
+    text-shadow:
+        0 0 30px rgba(255,140,80,.6);
+
+    animation:pulse 2s infinite ease-in-out;
+}
+
+#overlay p{
+    color:#ffd9c0;
+    font-size:20px;
+    margin-top:10px;
+}
+
+@keyframes pulse{
+    0%,100%{
+        transform:scale(1);
+    }
+
+    50%{
+        transform:scale(1.03);
+    }
+}
+</style>
+</head>
+<body>
+<div id="ui">
+<div id="title">PINK MONSTER RUSH</div>
+<div>Score: <span id="score">0</span></div>
+<div>High Score: <span id="high">0</span></div>
+<div class="bar"><div id="energyFill"></div></div>
+</div>
+<div id="overlay"><h1>PINK MONSTER RUSH</h1><p>Collect Monster cans. Dodge crystal shards.</p><button onclick="startGame()">START</button></div>
+<canvas id="game"></canvas>
+<script>
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}resize();addEventListener("resize",resize);
+
+const bgm = new Audio("bgm.mp3");
+bgm.loop = true;
+bgm.volume = 0.35;
+
+const canImage=new Image();
+canImage.src="can.png";
+
+const ground=120;
+const scoreEl=document.getElementById("score");
+const energyFill=document.getElementById("energyFill");
+const highEl=document.getElementById("high");
+const overlay=document.getElementById("overlay");
+
+let high=localStorage.getItem("peachRushHigh")||0;
+highEl.textContent=high;
+
+const player={x:canvas.width*0.28,y:0,w:52,h:52,vy:0,jump:-17};
+let running=false,frame=0,score=0,energy=100,speed=7;
+let obstacles=[],cans=[];
+
+function reset(){
+player.x=canvas.width*0.28; // moved right for visibility
+player.y=canvas.height-ground-player.h;
+player.vy=0;
+frame=0;score=0;energy=100;speed=7;
+obstacles=[];cans=[];
+}
+
+function startGame(){
+
+    if(bgm.paused){
+        bgm.play().catch(()=>{});
+    }
+
+    reset();
+    running=true;
+    overlay.style.display="none";
+}
+function gameOver(){
+running=false;
+if(score>high){high=Math.floor(score);localStorage.setItem("peachRushHigh",high);highEl.textContent=high;}
+overlay.innerHTML=`<h1>Game Over</h1><p>Score ${Math.floor(score)}</p><button onclick="startGame()">Replay</button>`;
+overlay.style.display="flex";
+}
+
+function jump(){
+const floor=canvas.height-ground-player.h;
+if(player.y>=floor-1) player.vy=player.jump;
+}
+addEventListener("keydown",e=>{if(e.code==="Space"||e.code==="ArrowUp")jump();});
+canvas.addEventListener("mousedown",jump);
+canvas.addEventListener("touchstart",jump);
+
+function hit(a,b){
+return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+}
+
+function spawnObstacle(){
+// guaranteed jumpable sizes
+const h=35+Math.random()*45;
+const w=50+Math.random()*25;
+obstacles.push({x:canvas.width+80,w,h});
+}
+
+function spawnCan(){
+cans.push({
+x:canvas.width+100,
+y:canvas.height-ground-170-Math.random()*80,
+w:42,h:72
+});
+}
+
+function bg(){
+ctx.fillStyle="#05070d";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+for(let i=0;i<90;i++){
+ctx.fillStyle="rgba(255,255,255,.4)";
+ctx.fillRect((i*211-frame*.4)%canvas.width,(i*67)%canvas.height,2,2);
+}
+
+[0.15,0.3,0.5].forEach((s,idx)=>{
+for(let i=-1;i<8;i++){
+const x=i*320-(frame*speed*s)%320;
+const y=240-idx*35;
+ctx.fillStyle=["#221133","#2d1d52","#3a2870"][idx];
+ctx.beginPath();
+ctx.moveTo(x,y+180);
+ctx.lineTo(x+100,y);
+ctx.lineTo(x+200,y+180);
+ctx.fill();
+}
+});
+
+const glow=ctx.createRadialGradient(canvas.width*.7,120,10,canvas.width*.7,120,500);
+glow.addColorStop(0,"rgba(255,150,90,.18)");
+glow.addColorStop(1,"rgba(0,0,0,0)");
+ctx.fillStyle=glow;
+ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
+function groundDraw(){
+const y=canvas.height-ground;
+ctx.fillStyle="#0b1320";
+ctx.fillRect(0,y,canvas.width,ground);
+}
+
+function drawPlayer(){
+ctx.save();
+ctx.translate(player.x+26,player.y+26);
+ctx.rotate(Math.sin(frame*.15)*0.12);
+ctx.shadowBlur=25;
+ctx.shadowColor="#8df";
+const g=ctx.createLinearGradient(-26,-26,26,26);
+g.addColorStop(0,"#fff");
+g.addColorStop(1,"#74f7ff");
+ctx.fillStyle=g;
+ctx.fillRect(-26,-26,52,52);
+ctx.restore();
+}
+
+function drawObstacles(){
+for(const o of obstacles){
+o.x-=speed;
+const y=canvas.height-ground-o.h;
+
+ctx.shadowBlur=20;
+ctx.shadowColor="#ff5ec9";
+ctx.fillStyle="#ff69d9";
+ctx.beginPath();
+ctx.moveTo(o.x,y+o.h);
+ctx.lineTo(o.x+o.w*.2,y);
+ctx.lineTo(o.x+o.w*.7,y+o.h*.25);
+ctx.lineTo(o.x+o.w,y+o.h);
+ctx.fill();
+ctx.shadowBlur=0;
+
+if(hit(player,{x:o.x,y,w:o.w,h:o.h})) gameOver();
+}
+obstacles=obstacles.filter(o=>o.x+o.w>0);
+}
+
+function drawCans(){
+for(let i=cans.length-1;i>=0;i--){
+const c=cans[i];
+c.x-=speed;
+
+ctx.save();
+ctx.shadowBlur=30;
+ctx.shadowColor="#ffb36b";
+ctx.drawImage(canImage,c.x,c.y,c.w,c.h);
+ctx.restore();
+
+if(hit(player,{x:c.x,y:c.y,w:c.w,h:c.h})){
+energy=Math.min(100,energy+25);
+score+=100;
+cans.splice(i,1);
+}
+}
+cans=cans.filter(c=>c.x+c.w>0);
+}
+
+function loop(){
+requestAnimationFrame(loop);
+if(!running) return;
+
+frame++;
+score+=0.15;
+energy-=0.025;
+speed+=0.001;
+
+if(frame%130===0) spawnObstacle(); // spacing tuned for guaranteed jumps
+if(frame%220===0) spawnCan();
+
+player.vy+=0.8;
+player.y+=player.vy;
+const floor=canvas.height-ground-player.h;
+if(player.y>floor){player.y=floor;player.vy=0;}
+
+if(energy<=0) gameOver();
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+bg();
+groundDraw();
+drawPlayer();
+drawObstacles();
+drawCans();
+
+scoreEl.textContent=Math.floor(score);
+energyFill.style.width=energy+"%";
+}
+reset();
+loop();
+</script>
+</body>
+</html>

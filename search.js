@@ -71,6 +71,18 @@ const customLinks = [
     title: 'SFU',
     url: 'university/index.html',
     autoLoad: false
+  },
+  {
+    type: 'news',
+    title: 'Corporate',
+    url: 'corporate/index.html',
+    autoLoad: false
+  },
+  {
+    type: 'news',
+    title: 'SusFeed Corporate',
+    url: 'corporate/index.html',
+    autoLoad: false
   }
 ]
 

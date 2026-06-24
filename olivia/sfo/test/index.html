@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Can Rider</title>
+<style>
+:root{
+--bg:#0f172a;
+--panel:#111827dd;
+--accent:#38bdf8;
+--text:#e5e7eb;
+}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:Inter,Arial,sans-serif}
+canvas{display:block}
+#toolbar{
+position:fixed;left:12px;top:12px;z-index:10;
+background:var(--panel);backdrop-filter:blur(8px);
+padding:12px;border-radius:14px;color:var(--text);
+box-shadow:0 8px 30px rgba(0,0,0,.35)
+}
+button{
+background:#1f2937;color:white;border:none;padding:8px 10px;
+border-radius:8px;margin:2px;cursor:pointer
+}
+button:hover{background:#374151}
+#status{margin-top:8px;font-size:12px}
+</style>
+</head>
+<body>
+<div id="toolbar">
+<div>
+<button onclick="setTool('draw')">Draw</button>
+<button onclick="setTool('select')">Select</button>
+<button onclick="setTool('erase')">Erase</button>
+</div>
+<div>
+<button onclick="togglePlay()">Play/Pause</button>
+<button onclick="resetRider()">Reset</button>
+<button onclick="toggleFollow()">Follow</button>
+<button onclick="toggleGrid()">Grid</button>
+</div>
+<div id="status"></div>
+</div>
+
+<canvas id="c"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
+<script>
+const {Engine,World,Bodies,Body,Bounds}=Matter;
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
+resize(); addEventListener("resize",resize);
+
+const engine=Engine.create();
+engine.gravity.y=1;
+
+let tool="draw";
+let running=false;
+let follow=true;
+let showGrid=true;
+
+const canImg=new Image();
+canImg.src="../tmp/can.png";
+
+let rider;
+let tracks=[];
+let selected=[];
+
+function createRider(){
+ if(rider) World.remove(engine.world,rider);
+ rider=Bodies.rectangle(0,-200,70,130,{
+ density:0.003,
+ friction:0.01,
+ frictionAir:0.001,
+ restitution:0.05
+ });
+ World.add(engine.world,rider);
+ running=false;
+}
+createRider();
+
+let camX=0,camY=0,zoom=1;
+let drawing=false;
+let panning=false;
+let selecting=false;
+let points=[];
+let selectStart=null;
+
+function setTool(t){tool=t}
+function togglePlay(){running=!running}
+function toggleFollow(){follow=!follow}
+function toggleGrid(){showGrid=!showGrid}
+function resetRider(){createRider()}
+
+function screenToWorld(x,y){
+ return {
+ x:(x-canvas.width/2)/zoom+camX,
+ y:(y-canvas.height/2)/zoom+camY
+ };
+}
+
+canvas.oncontextmenu=e=>e.preventDefault();
+
+canvas.addEventListener("mousedown",e=>{
+ const p=screenToWorld(e.clientX,e.clientY);
+
+ if(e.button===2){
+   panning=true;
+   return;
+ }
+
+ if(tool==="draw"){
+   drawing=true;
+   points=[p];
+ }
+
+ if(tool==="select"){
+   selecting=true;
+   selectStart=p;
+   selected=[];
+ }
+
+ if(tool==="erase"){
+   for(let i=tracks.length-1;i>=0;i--){
+      if(Bounds.contains(tracks[i].bounds,p)){
+         World.remove(engine.world,tracks[i]);
+         tracks.splice(i,1);
+         break;
+      }
+   }
+ }
+});
+
+canvas.addEventListener("mousemove",e=>{
+ const p=screenToWorld(e.clientX,e.clientY);
+
+ if(panning){
+   camX-=e.movementX/zoom;
+   camY-=e.movementY/zoom;
+   follow=false;
+ }
+
+ if(drawing){
+   const last=points[points.length-1];
+   if(Math.hypot(p.x-last.x,p.y-last.y)>8) points.push(p);
+ }
+
+ if(selecting && selected.length===1 && e.buttons===1){
+   Body.translate(selected[0],{
+      x:e.movementX/zoom,
+      y:e.movementY/zoom
+   });
+ }
+});
+
+addEventListener("mouseup",e=>{
+
+ if(drawing){
+   for(let i=0;i<points.length-1;i++){
+      const a=points[i], b=points[i+1];
+      const len=Math.hypot(b.x-a.x,b.y-a.y);
+      if(len<2) continue;
+
+      const seg=Bodies.rectangle(
+      (a.x+b.x)/2,
+      (a.y+b.y)/2,
+      len,
+      8,
+      {
+       isStatic:true,
+       friction:0.001
+      });
+
+      Body.setAngle(seg,Math.atan2(b.y-a.y,b.x-a.x));
+      tracks.push(seg);
+      World.add(engine.world,seg);
+   }
+ }
+
+ if(selecting && selectStart){
+   const end=screenToWorld(event.clientX,event.clientY);
+
+   const minX=Math.min(selectStart.x,end.x);
+   const minY=Math.min(selectStart.y,end.y);
+   const maxX=Math.max(selectStart.x,end.x);
+   const maxY=Math.max(selectStart.y,end.y);
+
+   selected=tracks.filter(t=>
+      t.position.x>=minX &&
+      t.position.x<=maxX &&
+      t.position.y>=minY &&
+      t.position.y<=maxY
+   );
+ }
+
+ drawing=false;
+ panning=false;
+ selecting=false;
+ selectStart=null;
+});
+
+canvas.addEventListener("wheel",e=>{
+ e.preventDefault();
+
+ const before=screenToWorld(e.clientX,e.clientY);
+
+ zoom*=e.deltaY<0?1.1:0.9;
+ zoom=Math.max(.1,Math.min(6,zoom));
+
+ const after=screenToWorld(e.clientX,e.clientY);
+
+ camX+=before.x-after.x;
+ camY+=before.y-after.y;
+},{passive:false});
+
+addEventListener("keydown",e=>{
+ if(e.code==="Space") running=!running;
+ if(e.key==="r"||e.key==="R") resetRider();
+ if(e.key==="c"||e.key==="C"){
+   tracks.forEach(t=>World.remove(engine.world,t));
+   tracks=[];
+ }
+});
+
+function drawTrack(t){
+ ctx.save();
+ ctx.translate(t.position.x,t.position.y);
+ ctx.rotate(t.angle);
+
+ const w=t.bounds.max.x-t.bounds.min.x;
+
+ ctx.fillStyle=selected.includes(t)?"#38bdf8":"#f8fafc";
+ ctx.fillRect(-w/2,-4,w,8);
+
+ ctx.restore();
+}
+
+function drawRider(){
+ ctx.save();
+ ctx.translate(rider.position.x,rider.position.y);
+ ctx.rotate(rider.angle);
+
+ if(canImg.complete){
+   ctx.drawImage(canImg,-35,-65,70,130);
+ }else{
+   ctx.fillStyle="orange";
+   ctx.fillRect(-35,-65,70,130);
+ }
+
+ ctx.restore();
+}
+
+function loop(){
+ requestAnimationFrame(loop);
+
+ if(running) Engine.update(engine,1000/60);
+
+ if(follow){
+   camX+=(rider.position.x-camX)*0.08;
+   camY+=(rider.position.y-camY)*0.08;
+ }
+
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ ctx.save();
+ ctx.translate(canvas.width/2,canvas.height/2);
+ ctx.scale(zoom,zoom);
+ ctx.translate(-camX,-camY);
+
+ if(showGrid){
+   ctx.beginPath();
+   for(let x=-5000;x<=5000;x+=100){
+      ctx.moveTo(x,-5000);
+      ctx.lineTo(x,5000);
+   }
+   for(let y=-5000;y<=5000;y+=100){
+      ctx.moveTo(-5000,y);
+      ctx.lineTo(5000,y);
+   }
+   ctx.strokeStyle="#1e293b";
+   ctx.lineWidth=1/zoom;
+   ctx.stroke();
+ }
+
+ tracks.forEach(drawTrack);
+ drawRider();
+
+ ctx.restore();
+
+ document.getElementById("status").innerHTML=
+ "Tool: "+tool+
+ " | Zoom: "+zoom.toFixed(2)+
+ " | Tracks: "+tracks.length+
+ " | Right-drag = Pan Camera";
+}
+
+loop();
+</script>
+</body>
+</html>

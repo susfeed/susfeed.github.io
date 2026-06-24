@@ -5,7 +5,8 @@ const ThemeTypes = {
   WOODS: 3,
   UNIVERSAL: 4,
   SERVER: 5,
-  SUSFEED_HQ: 6
+  SUSFEED_HQ: 6,
+  MOUNTAIN: 13
 }
 
 function initPlatformTheme(p, theme, special) {
@@ -76,6 +77,14 @@ function initPlatformTheme(p, theme, special) {
   p.cooldown = 0
 
   p.color = "#ff0000"
+}
+if (theme === ThemeTypes.MOUNTAIN) {
+  p.sliding = false
+  p.slideDir = Math.random() < 0.5 ? -1 : 1
+  p.slideSpeed = 0
+  p.maxSlideSpeed = 7
+  p.acceleration = 0.18
+  p.color = "#6dd6ff"
 }
 }
 
@@ -148,6 +157,20 @@ function updatePlatformTheme(p) {
 
   if (p.cooldown > 0) p.cooldown--
 }
+if (p.theme === ThemeTypes.MOUNTAIN && p.sliding) {
+  p.slideSpeed = Math.min(
+    p.maxSlideSpeed,
+    p.slideSpeed + p.acceleration
+  )
+
+  p.x += p.slideDir * p.slideSpeed
+
+  p.timer++
+
+  if (p.timer > 120) {
+    p.active = false
+  }
+}
 }
 
 function onPlatformLand(p, player) {
@@ -184,5 +207,8 @@ function onPlatformLand(p, player) {
     player.jumps = 0
     p.cooldown = 80
   }
+}
+if (p.theme === ThemeTypes.MOUNTAIN) {
+  p.sliding = true
 }
 }
