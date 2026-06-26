@@ -1,0 +1,54 @@
+{
+  "featured": "weight",
+  "games": [
+    {
+      "id": "weight",
+      "title": "Ultimate Weight Lifting Clicker",
+      "description": "Get fucking shredded.",
+      "folder": "weight",
+      "cover": "weight/cover.png"
+    },
+    {
+      "id": "blunt",
+      "title": "Dream Blunt Rotation",
+      "description": "Pass the blunt to the friendo on your left.",
+      "folder": "blunt",
+      "cover": "blunt/cover.png"
+    },
+    {
+      "id": "fps",
+      "title": "DASM",
+      "description": "Destroy all saltlakrits Marabou.",
+      "folder": "fps",
+      "cover": "fps/cover.png"
+    },
+    {
+      "id": "toast",
+      "title": "Toast Cameron",
+      "description": "Toast Cameron, try to get the perfect timing!",
+      "folder": "toast",
+      "cover": "toast/cover.png"
+    },
+    {
+      "id": "rush",
+      "title": "Pink Monster Rush",
+      "description": "Grab Pink Monster to survive!",
+      "folder": "rush",
+      "cover": "rush/cover.png"
+    },
+    {
+      "id": "pop",
+      "title": "Puyo Puyo But More Handsome",
+      "description": "Enjoy the hottest puzzle game ever!",
+      "folder": "pop",
+      "cover": "pop/cover.png"
+    },
+    {
+      "id": "wake",
+      "title": "Waking Up Next To Cameron Simulator",
+      "description": "Simulate your favorite activity.",
+      "folder": "wake",
+      "cover": "wake/cover.png"
+    }
+  ]
+}

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Dream Blunt Rotation</title>
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+user-select:none;
+-webkit-tap-highlight-color:transparent;
+}
+html,body{
+width:100%;
+height:100%;
+overflow:hidden;
+font-family:Inter,Arial,sans-serif;
+background:#000;
+touch-action:none;
+}
+canvas{
+position:fixed;
+inset:0;
+display:block;
+touch-action:none;
+}
+#overlay{
+position:fixed;
+inset:0;
+pointer-events:none;
+}
+.panel{
+position:absolute;
+left:20px;
+top:20px;
+background:rgba(20,20,20,.45);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,.15);
+border-radius:22px;
+padding:18px 22px;
+color:#fff;
+min-width:200px;
+box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+@media (max-width:600px){
+.panel{
+left:10px;
+top:10px;
+padding:12px 16px;
+min-width:160px;
+}
+.stat{
+font-size:18px;
+margin:5px 0;
+}
+#combo{
+font-size:24px;
+}
+}
+.stat{
+display:flex;
+justify-content:space-between;
+margin:8px 0;
+font-size:22px;
+}
+.value{
+font-weight:bold;
+color:#65ff7b;
+}
+#combo{
+font-size:32px;
+font-weight:bold;
+color:#ffd34d;
+text-align:center;
+margin-top:10px;
+transition:.2s;
+}
+.centerMenu{
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+width:min(700px,92vw);
+padding:35px 25px;
+background:rgba(25,25,25,.55);
+backdrop-filter:blur(25px);
+-webkit-backdrop-filter:blur(25px);
+border-radius:30px;
+border:1px solid rgba(255,255,255,.18);
+text-align:center;
+color:white;
+pointer-events:auto;
+}
+@media (max-width:600px){
+.centerMenu{
+padding:25px 20px;
+}
+.centerMenu h1{
+font-size:36px;
+}
+.centerMenu p{
+font-size:18px;
+}
+button{
+padding:14px 28px;
+font-size:20px;
+}
+}
+.centerMenu h1{
+font-size:64px;
+margin-bottom:15px;
+}
+.centerMenu p{
+font-size:22px;
+opacity:.9;
+margin-bottom:25px;
+}
+button{
+background:#58d26b;
+border:none;
+color:white;
+padding:16px 36px;
+font-size:24px;
+font-weight:bold;
+border-radius:16px;
+cursor:pointer;
+transition:.2s;
+touch-action:manipulation;
+}
+button:hover{
+transform:scale(1.05);
+background:#69e77b;
+}
+button:active{
+transform:scale(0.95);
+}
+.hidden{
+display:none;
+}
+#message{
+position:absolute;
+top:90px;
+left:50%;
+transform:translateX(-50%);
+font-size:40px;
+font-weight:bold;
+color:white;
+text-shadow:0 0 20px #000;
+pointer-events:none;
+text-align:center;
+}
+@media (max-width:600px){
+#message{
+font-size:28px;
+top:80px;
+}
+}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="overlay">
+<div class="panel">
+<div class="stat">
+<span>Score</span>
+<span id="score" class="value">0</span>
+</div>
+<div class="stat">
+<span>High</span>
+<span id="high" class="value">0</span>
+</div>
+<div class="stat">
+<span>Lives</span>
+<span id="lives" class="value">❤❤❤</span>
+</div>
+<div id="combo"></div>
+</div>
+<div id="message"></div>
+<div id="menu" class="centerMenu">
+<h1>🚬 BLUNT ROTATION</h1>
+<p>
+Tap exactly when the blunt reaches the highlighted person.
+Perfect timing builds combos.
+Miss three passes and the rotation dies.
+</p>
+<button id="startBtn">Start Rotation</button>
+</div>
+<div id="gameOver" class="centerMenu hidden">
+<h1>💨 Rotation Dead</h1>
+<h2 id="finalScore"></h2>
+<h3 id="comboBonus" style="color:#ffd34d;margin-top:10px;font-size:20px;"></h3>
+<br>
+<button id="restartBtn">Play Again</button>
+</div>
+</div>
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+function resize(){
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+}
+window.addEventListener("resize",resize);
+window.addEventListener("orientationchange",()=>{
+setTimeout(resize,200);
+});
+resize();
+const bg=new Image();
+bg.src="bg.jpg";
+const blunt=new Image();
+blunt.src="blunt.webp";
+const players=[];
+for(let i=0;i<10;i++){
+const img=new Image();
+img.src=i+".png";
+players.push(img);
+}
+const ui={
+score:document.getElementById("score"),
+high:document.getElementById("high"),
+combo:document.getElementById("combo"),
+lives:document.getElementById("lives"),
+message:document.getElementById("message"),
+menu:document.getElementById("menu"),
+gameOver:document.getElementById("gameOver"),
+final:document.getElementById("finalScore"),
+comboBonus:document.getElementById("comboBonus")
+};
+let high=Number(localStorage.getItem("rotationHigh")||0);
+ui.high.textContent=high;
+const game={
+running:false,
+score:0,
+combo:0,
+maxCombo:0,
+lives:3,
+speed:.09,
+progress:0,
+target:1,
+shake:0,
+particles:[],
+texts:[]
+};
+const positions=[];
+function buildCircle(){
+positions.length=0;
+const cx=canvas.width/2;
+const cy=canvas.height/2;
+const r=Math.min(canvas.width,canvas.height)*0.34;
+for(let i=0;i<10;i++){
+const a=i*Math.PI*2/10-Math.PI/2;
+positions.push({
+x:cx+Math.cos(a)*r,
+y:cy+Math.sin(a)*r
+});
+}
+}
+buildCircle();
+window.addEventListener("resize",buildCircle);
+window.addEventListener("orientationchange",()=>{
+setTimeout(buildCircle,200);
+});
+function lerp(a,b,t){
+return a+(b-a)*t;
+}
+function getBluntPosition(){
+const total=10;
+const index=Math.floor(game.progress)%total;
+const next=(index+1)%total;
+const t=game.progress-index;
+const p1=positions[index];
+const p2=positions[next];
+return{
+x:lerp(p1.x,p2.x,t),
+y:lerp(p1.y,p2.y,t),
+angle:Math.atan2(p2.y-p1.y,p2.x-p1.x)
+};
+}
+function addText(text,x,y,color){
+game.texts.push({
+text,
+x,
+y,
+vy:-1.2,
+life:1,
+color
+});
+}
+function addSmoke(x,y){
+for(let i=0;i<14;i++){
+game.particles.push({
+x,
+y,
+vx:(Math.random()-0.5)*3,
+vy:(Math.random()-0.5)*3,
+size:10+Math.random()*20,
+alpha:1
+});
+}
+}
+function resetGame(){
+game.running=true;
+game.score=0;
+game.combo=0;
+game.maxCombo=0;
+game.lives=3;
+game.speed=.09;
+game.progress=0;
+game.target=Math.floor(Math.random()*10);
+game.shake=0;
+game.particles=[];
+game.texts=[];
+ui.score.textContent=0;
+ui.combo.textContent="";
+ui.lives.textContent="❤❤❤";
+ui.menu.classList.add("hidden");
+ui.gameOver.classList.add("hidden");
+}
+document.getElementById("startBtn").addEventListener("click",resetGame);
+document.getElementById("startBtn").addEventListener("touchend",(e)=>{
+e.preventDefault();
+resetGame();
+});
+document.getElementById("restartBtn").addEventListener("click",resetGame);
+document.getElementById("restartBtn").addEventListener("touchend",(e)=>{
+e.preventDefault();
+resetGame();
+});
+function success(points,label){
+const hitPos=positions[game.target];
+game.score+=points;
+game.combo++;
+if(game.combo>game.maxCombo) game.maxCombo=game.combo;
+game.speed+=0.005;
+ui.score.textContent=game.score;
+ui.combo.textContent="x"+game.combo;
+addSmoke(hitPos.x,hitPos.y);
+addText("+"+points+" "+label,hitPos.x,hitPos.y-50,"#7dff7d");
+ui.message.textContent=label.toUpperCase();
+setTimeout(()=>{
+if(ui.message.textContent===label.toUpperCase())
+ui.message.textContent="";
+},400);
+game.target=(game.target+1)%10;
+}
+function fail(){
+game.combo=0;
+ui.combo.textContent="";
+game.lives--;
+ui.lives.textContent="❤".repeat(game.lives);
+game.shake=18;
+const p=positions[game.target];
+addText("MISS",p.x,p.y,"#ff6565");
+if(game.lives<=0){
+game.running=false;
+const comboBonus=Math.floor(game.maxCombo*0.5);
+const totalScore=game.score+comboBonus;
+if(totalScore>high){
+high=totalScore;
+localStorage.setItem("rotationHigh",high);
+ui.high.textContent=high;
+}
+ui.final.textContent="Score: "+game.score;
+ui.comboBonus.textContent="Combo Bonus: +"+comboBonus+" (Max Combo: x"+game.maxCombo+")";
+ui.gameOver.classList.remove("hidden");
+}
+}
+function handleTap(e){
+if(e) e.preventDefault();
+if(!game.running) return;
+let diff=game.progress-game.target;
+while(diff>5) diff-=10;
+while(diff<-5) diff+=10;
+diff=Math.abs(diff);
+if(diff<0.08){
+success(3,"Perfect");
+}else if(diff<0.18){
+success(2,"Great");
+}else if(diff<0.32){
+success(1,"Good");
+}else{
+fail();
+}
+}
+canvas.addEventListener("pointerdown",handleTap);
+canvas.addEventListener("touchstart",(e)=>{
+e.preventDefault();
+handleTap(e);
+},{passive:false});
+let last=performance.now();
+function update(now){
+requestAnimationFrame(update);
+const dt=(now-last)/1000;
+last=now;
+if(game.running){
+game.progress+=game.speed*dt*60;
+if(game.progress>=10) game.progress-=10;
+}
+for(let i=game.particles.length-1;i>=0;i--){
+const p=game.particles[i];
+p.x+=p.vx;
+p.y+=p.vy;
+p.alpha-=0.02;
+p.size*=1.01;
+if(p.alpha<=0) game.particles.splice(i,1);
+}
+for(let i=game.texts.length-1;i>=0;i--){
+const t=game.texts[i];
+t.y+=t.vy;
+t.life-=0.02;
+if(t.life<=0) game.texts.splice(i,1);
+}
+draw();
+}
+function draw(){
+let shakeX=0,shakeY=0;
+if(game.shake>0){
+shakeX=(Math.random()-0.5)*game.shake;
+shakeY=(Math.random()-0.5)*game.shake;
+game.shake*=0.90;
+}
+ctx.setTransform(1,0,0,1,0,0);
+ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.save();
+ctx.translate(shakeX,shakeY);
+if(bg.complete){
+ctx.drawImage(bg,0,0,canvas.width,canvas.height);
+}else{
+const g=ctx.createLinearGradient(0,0,0,canvas.height);
+g.addColorStop(0,"#1f3523");
+g.addColorStop(1,"#09110b");
+ctx.fillStyle=g;
+ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+const pulse=1+Math.sin(performance.now()/180)*0.08;
+const targetPos=positions[game.target];
+if(targetPos&&game.running){
+ctx.save();
+const progress=game.progress%1;
+const nextTarget=(game.target+1)%10;
+const p1=positions[game.target];
+const p2=positions[nextTarget];
+if(p1&&p2){
+const ringX=lerp(p1.x,p2.x,progress);
+const ringY=lerp(p1.y,p2.y,progress);
+const ringPulse=1+0.15*Math.sin(performance.now()/200);
+ctx.shadowColor="rgba(255,255,100,0.3)";
+ctx.shadowBlur=40;
+ctx.beginPath();
+ctx.arc(ringX,ringY,65*ringPulse,0,Math.PI*2);
+ctx.strokeStyle=`rgba(255,255,100,${0.3+0.2*Math.sin(performance.now()/300)})`;
+ctx.lineWidth=3;
+ctx.setLineDash([8,12]);
+ctx.stroke();
+ctx.setLineDash([]);
+ctx.shadowBlur=0;
+ctx.beginPath();
+ctx.arc(ringX,ringY,40,0,Math.PI*2);
+ctx.strokeStyle=`rgba(255,255,100,${0.15+0.1*Math.sin(performance.now()/250)})`;
+ctx.lineWidth=2;
+ctx.stroke();
+}
+ctx.restore();
+}
+positions.forEach((p,i)=>{
+const isTarget=(i===game.target);
+ctx.save();
+if(isTarget){
+ctx.shadowColor="rgba(124,255,124,0.5)";
+ctx.shadowBlur=30;
+}
+if(players[i].complete){
+const s=isTarget?100*pulse:90;
+ctx.shadowColor="rgba(0,0,0,0.8)";
+ctx.shadowBlur=25;
+ctx.drawImage(players[i],p.x-s/2,p.y-s/2,s,s);
+ctx.shadowBlur=0;
+if(isTarget){
+ctx.shadowBlur=0;
+ctx.beginPath();
+ctx.arc(p.x,p.y,s/2+3,0,Math.PI*2);
+ctx.strokeStyle="rgba(124,255,124,0.7)";
+ctx.lineWidth=3;
+ctx.stroke();
+ctx.shadowColor="rgba(124,255,124,0.2)";
+ctx.shadowBlur=20;
+ctx.beginPath();
+ctx.arc(p.x,p.y,s/2+8,0,Math.PI*2);
+ctx.strokeStyle="rgba(124,255,124,0.15)";
+ctx.lineWidth=2;
+ctx.stroke();
+}
+}else{
+ctx.shadowBlur=0;
+ctx.beginPath();
+ctx.arc(p.x,p.y,45,0,Math.PI*2);
+ctx.fillStyle="#666";
+ctx.fill();
+}
+ctx.restore();
+});
+game.particles.forEach(p=>{
+ctx.globalAlpha=p.alpha;
+ctx.shadowBlur=0;
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+ctx.fillStyle="white";
+ctx.fill();
+});
+ctx.globalAlpha=1;
+const b=getBluntPosition();
+ctx.save();
+ctx.translate(b.x,b.y);
+ctx.rotate(b.angle);
+ctx.shadowColor="rgba(0,0,0,0.9)";
+ctx.shadowBlur=30;
+if(blunt.complete){
+const bw=76,bh=28;
+ctx.drawImage(blunt,-bw/2,-bh/2,bw,bh);
+ctx.shadowBlur=0;
+ctx.shadowColor="rgba(0,0,0,0.5)";
+ctx.shadowBlur=12;
+ctx.beginPath();
+const radius=4;
+ctx.moveTo(-bw/2+radius,-bh/2);
+ctx.lineTo(bw/2-radius,-bh/2);
+ctx.quadraticCurveTo(bw/2,-bh/2,bw/2,-bh/2+radius);
+ctx.lineTo(bw/2,bh/2-radius);
+ctx.quadraticCurveTo(bw/2,bh/2,bw/2-radius,bh/2);
+ctx.lineTo(-bw/2+radius,bh/2);
+ctx.quadraticCurveTo(-bw/2,bh/2,-bw/2,bh/2-radius);
+ctx.lineTo(-bw/2,-bh/2+radius);
+ctx.quadraticCurveTo(-bw/2,-bh/2,-bw/2+radius,-bh/2);
+ctx.closePath();
+ctx.strokeStyle="rgba(255,255,255,0.85)";
+ctx.lineWidth=2.5;
+ctx.stroke();
+ctx.shadowBlur=0;
+ctx.shadowColor="rgba(0,0,0,0.3)";
+ctx.shadowBlur=8;
+ctx.beginPath();
+ctx.arc(-bw/2+8,-bh/2+8,3,0,Math.PI*2);
+ctx.strokeStyle="rgba(255,255,255,0.3)";
+ctx.lineWidth=1;
+ctx.stroke();
+ctx.shadowBlur=0;
+}else{
+ctx.fillStyle="#c69a5a";
+ctx.shadowBlur=25;
+ctx.fillRect(-30,-6,60,12);
+ctx.shadowBlur=0;
+ctx.strokeStyle="rgba(255,255,255,0.9)";
+ctx.lineWidth=2;
+ctx.strokeRect(-30,-6,60,12);
+}
+ctx.restore();
+game.texts.forEach(t=>{
+ctx.globalAlpha=t.life;
+ctx.shadowBlur=0;
+ctx.fillStyle=t.color;
+ctx.font="bold 32px Arial";
+ctx.textAlign="center";
+ctx.shadowColor="rgba(0,0,0,0.95)";
+ctx.shadowBlur=20;
+ctx.fillText(t.text,t.x,t.y);
+});
+ctx.globalAlpha=1;
+ctx.shadowBlur=0;
+ctx.restore();
+}
+requestAnimationFrame(update);
+</script>
+</body>
+</html>

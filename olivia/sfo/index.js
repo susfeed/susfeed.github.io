@@ -72,3 +72,58 @@ requestAnimationFrame(animate)
 }
 
 animate()
+
+async function loadGames() {
+
+    const response = await fetch("games.json");
+    const data = await response.json();
+
+    const featured = data.games.find(
+        game => game.id === data.featured
+    );
+
+    document.getElementById("featured-game").innerHTML = `
+        <div class="hero-content">
+            <span class="tag">FEATURED GAME</span>
+
+            <h1>${featured.title}</h1>
+
+            <p>${featured.description}</p>
+
+            <a href="${featured.folder}/index.html" class="play-btn">
+                PLAY NOW
+            </a>
+        </div>
+
+        <img src="${featured.cover}" alt="${featured.title}">
+    `;
+
+    const grid = document.getElementById("games-grid");
+
+    data.games.forEach(game => {
+
+        grid.innerHTML += `
+            <a href="${game.folder}/index.html" class="game-card">
+
+                <img src="${game.cover}" alt="${game.title}">
+
+                <div class="game-info">
+
+                    <h3>${game.title}</h3>
+
+                    <p>${game.description}</p>
+
+                    <span class="play-small">
+                        PLAY
+                    </span>
+
+                </div>
+
+            </a>
+        `;
+
+    });
+
+}
+
+loadGames();
