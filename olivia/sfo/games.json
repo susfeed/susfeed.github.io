@@ -2,13 +2,6 @@
   "featured": "weight",
   "games": [
     {
-      "id": "weight",
-      "title": "Ultimate Weight Lifting Clicker",
-      "description": "Get fucking shredded.",
-      "folder": "weight",
-      "cover": "weight/cover.png"
-    },
-    {
       "id": "blunt",
       "title": "Dream Blunt Rotation",
       "description": "Pass the blunt to the friendo on your left.",
@@ -42,6 +35,13 @@
       "description": "Enjoy the hottest puzzle game ever!",
       "folder": "pop",
       "cover": "pop/cover.png"
+    },
+    {
+      "id": "weight",
+      "title": "Ultimate Weight Lifting Clicker",
+      "description": "Get fucking shredded.",
+      "folder": "weight",
+      "cover": "weight/cover.png"
     },
     {
       "id": "wake",
