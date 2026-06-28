@@ -2,6 +2,13 @@
   "featured": "weight",
   "games": [
     {
+      "id": "milk",
+      "title": "Milk Mastery",
+      "description": "Perfectly fill a glass of milk",
+      "folder": "milk",
+      "cover": "milk/cover.png"
+    },
+    {
       "id": "blunt",
       "title": "Dream Blunt Rotation",
       "description": "Pass the blunt to the friendo on your left.",

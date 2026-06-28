@@ -1,0 +1,66 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Milk Mastery</title><style>
+body{margin:0;background:linear-gradient(#69b,#123);font-family:system-ui;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden}
+#game{display:flex;gap:40px;align-items:center}
+#panel{width:240px}.card{background:#0006;padding:14px;border-radius:16px;backdrop-filter:blur(8px);margin-bottom:12px}
+#glass{width:180px;height:420px;border:8px solid #eef;border-top:none;border-radius:0 0 26px 26px;position:relative;background:#ffffff14;overflow:hidden;box-shadow:0 0 40px #0006}
+#milk{position:absolute;bottom:0;width:100%;height:0;background:linear-gradient(#fff,#f3f0dd)}
+#wave{position:absolute;top:-10px;left:-10%;width:120%;height:20px;background:#fff8;border-radius:50%}
+#line{position:absolute;width:100%;height:4px;background:#ff4d4d;box-shadow:0 0 10px red}
+#msg{font-size:22px;font-weight:700;min-height:32px}
+button{width:100%;padding:18px;border:none;border-radius:14px;font-size:22px;background:#ffd54a}
+.small{opacity:.8}
+</style></head><body><div id=game><div id=panel>
+<div class=card><h1>🥛 Milk Mastery</h1><div>Score <b id=sc>0</b></div><div>Best <b id=hi>0</b></div><div>Perfects <b id=pf>0</b></div><div>Games <b id=gp>0</b></div><div>Level <b id=lv>1</b></div></div>
+<div class=card><div id=msg>Hold to pour!</div><div class=small>Release near the red line.</div></div>
+<button id=btn>HOLD TO POUR</button></div>
+<div id=glass><div id=milk><div id=wave></div></div><div id=line></div></div></div>
+<script>
+const pourSound = new Audio("pour.mp3");
+pourSound.loop = true;
+pourSound.volume = 0.5;
+
+const clickSound = new Audio("../wake/click.wav");
+clickSound.volume = 0.7;
+let S=JSON.parse(localStorage.perfectPour||'{"hi":0,"pf":0,"gp":0}'),score=0,level=1,m=0,t=150,run=false,speed=1.4;
+hi.textContent=S.hi;pf.textContent=S.pf;gp.textContent=S.gp;
+function round(){m=0;milk.style.height='0px';t=70+Math.random()*270;line.style.bottom=t+'px';msg.textContent='Hold to pour!';}
+function finish(over){
+pourSound.pause();
+pourSound.currentTime = 0;
+run=false;S.gp++;gp.textContent=S.gp;
+let pts=0;
+if(!over){let d=Math.abs(m-t);pts=Math.max(0,150-Math.round(d));if(d<3){pts+=200;S.pf++;pf.textContent=S.pf;msg.textContent='PERFECT!';}else if(d<10)msg.textContent='Amazing!';else if(d<25)msg.textContent='Great!';else msg.textContent='Close!';score+=pts;}
+else msg.textContent='Overflow!';
+sc.textContent=score;
+if(score>S.hi){S.hi=score;hi.textContent=score;}
+level=1+Math.floor(score/500);lv.textContent=level;speed=1.4+level*.25;
+localStorage.perfectPour=JSON.stringify(S);
+setTimeout(round,1200);
+}
+function loop(){
+if(run){m+=speed+Math.random()*0.7;milk.style.height=Math.min(m,420)+'px';wave.style.transform='translateX('+Math.sin(Date.now()/90)*6+'px)';if(m>=420){finish(true);}}
+requestAnimationFrame(loop)}
+loop();round();
+function st(){
+    if(!run){
+        clickSound.currentTime = 0;
+        clickSound.play();
+
+        run = true;
+        msg.textContent = "Pouring...";
+
+        pourSound.currentTime = 0;
+        pourSound.play();
+    }
+}
+function sp(){
+    if(run){
+        pourSound.pause();
+        pourSound.currentTime = 0;
+        finish(false);
+    }
+}
+['mousedown','touchstart'].forEach(e=>btn.addEventListener(e,x=>{x.preventDefault();st()}));
+['mouseup','mouseleave','touchend','touchcancel'].forEach(e=>btn.addEventListener(e,x=>{x.preventDefault();sp()}));
+</script></body></html>

@@ -345,6 +345,12 @@ const heater = document.getElementById("heater");
 const statsDiv = document.getElementById("stats");
 const smokes = document.querySelectorAll(".smoke");
 
+const pressSound = new Audio("press.mp3");
+const popSound = new Audio("pop.mp3");
+const toastSound = new Audio("toast.mp3");
+
+toastSound.loop = true;
+
 const WIN_THRESHOLD = 0.15;
 
 const stats = JSON.parse(
@@ -396,6 +402,12 @@ function startToast(){
 
     if(toasting) return;
 
+    pressSound.currentTime = 0;
+    pressSound.play();
+
+    toastSound.currentTime = 0;
+    toastSound.play();
+
     started = true;
     toasting = true;
 
@@ -416,6 +428,12 @@ function startToast(){
 function stopToast(){
 
     if(!toasting) return;
+
+    toastSound.pause();
+    toastSound.currentTime = 0;
+
+    popSound.currentTime = 0;
+    popSound.play();
 
     toasting = false;
 
