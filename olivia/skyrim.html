@@ -4,28 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Life Since Skyrim</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Uncial+Antiqua&display=swap" rel="stylesheet">
-
 <style>
-
 *{
     box-sizing:border-box;
 }
-
 html{
     scrollbar-width:thin;
     scrollbar-color:#b89a58 rgba(255,255,255,0.05);
 }
-
 html::-webkit-scrollbar{
     width:14px;
 }
-
 html::-webkit-scrollbar-track{
     background:rgba(255,255,255,0.04);
 }
-
 html::-webkit-scrollbar-thumb{
     background:
         linear-gradient(
@@ -39,7 +32,6 @@ html::-webkit-scrollbar-thumb{
     box-shadow:
         0 0 20px rgba(214,194,138,0.25);
 }
-
 body{
     margin:0;
     background:
@@ -48,13 +40,11 @@ body{
     font-family:'Cinzel',serif;
     overflow-x:hidden;
 }
-
 .container{
     max-width:1200px;
     margin:auto;
     padding:40px 24px 70px;
 }
-
 .title{
     font-family:'Uncial Antiqua';
     font-size:3rem;
@@ -64,21 +54,18 @@ body{
         0 0 12px rgba(255,230,160,0.18),
         0 0 40px rgba(160,120,40,0.25);
 }
-
 .subtitle{
     text-align:center;
     opacity:0.65;
     margin:10px 0 40px;
     letter-spacing:3px;
 }
-
 .counter-grid{
     display:flex;
     justify-content:space-around;
     flex-wrap:wrap;
     gap:20px;
 }
-
 .counter-box{
     text-align:center;
     padding:18px 22px;
@@ -95,7 +82,6 @@ body{
         inset 0 0 20px rgba(255,255,255,0.02),
         0 0 30px rgba(0,0,0,0.4);
 }
-
 .counter{
     font-size:6rem;
     line-height:1;
@@ -105,14 +91,12 @@ body{
         0 0 35px rgba(180,150,80,0.55),
         0 0 70px rgba(255,255,255,0.08);
 }
-
 .label{
     opacity:0.72;
     font-size:0.85rem;
     margin-top:10px;
     letter-spacing:2px;
 }
-
 .timeline-shell{
     margin-top:70px;
     position:relative;
@@ -134,16 +118,13 @@ body{
     scrollbar-color:#b89a58 rgba(255,255,255,0.05);
     scroll-behavior:smooth;
 }
-
 .timeline-shell::-webkit-scrollbar{
     height:16px;
 }
-
 .timeline-shell::-webkit-scrollbar-track{
     background:rgba(255,255,255,0.05);
     border-radius:20px;
 }
-
 .timeline-shell::-webkit-scrollbar-thumb{
     border-radius:20px;
     background:
@@ -157,18 +138,15 @@ body{
     box-shadow:
         0 0 20px rgba(214,194,138,0.28);
 }
-
 .timeline-inner{
     position:relative;
     min-width:3600px;
     padding:90px 160px 140px;
 }
-
 .timeline{
     position:relative;
     height:620px;
 }
-
 .line{
     position:absolute;
     top:50%;
@@ -187,7 +165,6 @@ body{
         0 0 18px rgba(214,194,138,0.38),
         0 0 50px rgba(214,194,138,0.18);
 }
-
 .point{
     position:absolute;
     top:50%;
@@ -207,14 +184,12 @@ body{
         transform 0.25s ease,
         box-shadow 0.25s ease;
 }
-
 .point:hover{
     transform:translate(-50%,-50%) scale(1.18);
     box-shadow:
         0 0 25px rgba(255,255,255,0.55),
         0 0 55px rgba(214,194,138,0.55);
 }
-
 .point-label{
     position:absolute;
     transform:translateX(-50%);
@@ -234,7 +209,6 @@ body{
         inset 0 0 15px rgba(255,255,255,0.02);
     backdrop-filter:blur(10px);
 }
-
 .tooltip{
     position:absolute;
     top:-58px;
@@ -258,11 +232,9 @@ body{
     box-shadow:
         0 0 25px rgba(0,0,0,0.45);
 }
-
 .point:hover .tooltip{
     opacity:1;
 }
-
 .connector{
     position:absolute;
     width:2px;
@@ -276,7 +248,6 @@ body{
     box-shadow:
         0 0 10px rgba(214,194,138,0.15);
 }
-
 .years{
     display:flex;
     justify-content:space-between;
@@ -286,13 +257,11 @@ body{
     letter-spacing:2px;
     color:#d8c999;
 }
-
 .stats{
     margin-top:60px;
     border-top:1px solid rgba(255,255,255,0.08);
     padding-top:40px;
 }
-
 .stat-row{
     display:flex;
     justify-content:space-between;
@@ -308,136 +277,204 @@ body{
         );
     border:1px solid rgba(214,194,138,0.07);
 }
-
 .stat-value{
     font-size:2rem;
     color:#d6c28a;
     text-shadow:
         0 0 20px rgba(214,194,138,0.2);
 }
-
+.credit-section{
+    margin-top:40px;
+    border-top:1px solid rgba(255,255,255,0.08);
+    padding-top:30px;
+}
+.credit-section h2{
+    font-family:'Uncial Antiqua';
+    color:#efe0ad;
+    text-shadow:0 0 12px rgba(255,230,160,0.15);
+    letter-spacing:2px;
+    font-size:1.6rem;
+    margin-bottom:20px;
+}
+.credit-totals{
+    display:flex;
+    gap:30px;
+    flex-wrap:wrap;
+    margin-bottom:24px;
+    padding:16px 20px;
+    border-radius:18px;
+    background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+    border:1px solid rgba(214,194,138,0.1);
+}
+.credit-total-item{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+.credit-total-item .label{
+    font-size:0.7rem;
+    opacity:0.6;
+    margin:0;
+    letter-spacing:1px;
+}
+.credit-total-item .value{
+    font-size:1.8rem;
+    color:#d6c28a;
+    text-shadow:0 0 20px rgba(214,194,138,0.2);
+}
+.credit-country{
+    background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));
+    border:1px solid rgba(214,194,138,0.1);
+    border-radius:18px;
+    padding:16px 20px;
+    margin-bottom:18px;
+}
+.credit-country h3{
+    color:#d6c28a;
+    font-size:1.2rem;
+    margin:0 0 8px 0;
+    letter-spacing:1px;
+}
+.credit-row{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+    font-size:0.95rem;
+}
+.credit-row:last-child{
+    border-bottom:0;
+}
+.credit-row .credit-label{
+    opacity:0.7;
+}
+.credit-row .credit-number{
+    color:#d6c28a;
+    font-weight:700;
+}
 @media(max-width:900px){
-
     .timeline-inner{
         min-width:3200px;
     }
-
     .timeline{
         height:700px;
     }
-
     .counter{
         font-size:5rem;
     }
 }
-
 @media(max-width:640px){
-
     .container{
         padding:30px 14px 60px;
     }
-
     .timeline-inner{
         min-width:2800px;
         padding:90px 120px 140px;
     }
-
     .timeline{
         height:780px;
     }
-
     .counter-box{
         width:100%;
     }
-
     .counter{
         font-size:4.5rem;
     }
 }
-
 </style>
 </head>
-
 <body>
-
 <div class="container">
-
 <div class="title">Since Skyrim Released</div>
 <div class="subtitle">11 • 11 • 2011</div>
-
 <div class="counter-grid">
-
 <div class="counter-box">
 <div class="counter" id="yearsPassed">0</div>
 <div class="label">Years</div>
 </div>
-
 <div class="counter-box">
 <div class="counter" id="monthsPassed">0</div>
 <div class="label">Months</div>
 </div>
-
 <div class="counter-box">
 <div class="counter" id="lifeEvents">0</div>
 <div class="label">Life Events</div>
 </div>
-
 <div class="counter-box">
 <div class="counter" id="projects">0</div>
 <div class="label">Projects</div>
 </div>
-
 </div>
-
 <div class="timeline-shell" id="timelineShell">
-
 <div class="timeline-inner">
-
 <div class="timeline" id="timeline">
 <div class="line"></div>
 </div>
-
 <div class="years" id="years"></div>
-
 </div>
-
 </div>
-
 <div class="stats">
-
 <div class="stat-row">
 <div>Degrees Obtained</div>
 <div class="stat-value">4</div>
 </div>
-
 <div class="stat-row">
 <div>Certificates Obtained</div>
 <div class="stat-value">1</div>
 </div>
-
 <div class="stat-row">
 <div>Languages Learned</div>
 <div class="stat-value">4</div>
 </div>
-
 <div class="stat-row">
 <div>Countries Visited</div>
 <div class="stat-value">6</div>
 </div>
-
 <div class="stat-row">
 <div>Jobs Worked</div>
 <div class="stat-value">4</div>
 </div>
-
 </div>
-
+<div class="credit-section">
+<h2>University Credits</h2>
+<div class="credit-totals">
+<div class="credit-total-item">
+<span class="label">Undergrad total (ECTS)</span>
+<span class="value" id="totalUndergrad">0</span>
 </div>
-
+<div class="credit-total-item">
+<span class="label">Master's total (ECTS)</span>
+<span class="value" id="totalMasters">0</span>
+</div>
+<div class="credit-total-item">
+<span class="label">Doctorate total (ECTS)</span>
+<span class="value" id="totalDoctorate">0</span>
+</div>
+</div>
+<div id="creditContainer">
+<div class="credit-country" data-country="us">
+<h3>United States</h3>
+<div class="credit-row"><span class="credit-label">Undergrad total</span><span class="credit-number" data-undergrad="us">288</span></div>
+<div class="credit-row"><span class="credit-label">Master's total</span><span class="credit-number" data-masters="us">24</span></div>
+<div class="credit-row"><span class="credit-label">Doctorate total</span><span class="credit-number" data-doctorate="us">0</span></div>
+</div>
+<div class="credit-country" data-country="japan">
+<h3>Japan</h3>
+<div class="credit-row"><span class="credit-label">Undergrad total</span><span class="credit-number" data-undergrad="japan">22</span></div>
+<div class="credit-row"><span class="credit-label">Master's total</span><span class="credit-number" data-masters="japan">0</span></div>
+<div class="credit-row"><span class="credit-label">Doctorate total</span><span class="credit-number" data-doctorate="japan">0</span></div>
+</div>
+<div class="credit-country" data-country="sweden">
+<h3>Sweden</h3>
+<div class="credit-row"><span class="credit-label">Undergrad total</span><span class="credit-number" data-undergrad="sweden">0</span></div>
+<div class="credit-row"><span class="credit-label">Master's total</span><span class="credit-number" data-masters="sweden">60</span></div>
+<div class="credit-row"><span class="credit-label">Doctorate total</span><span class="credit-number" data-doctorate="sweden">0</span></div>
+</div>
+</div>
+</div>
+</div>
 <script>
-
 const startDate = new Date(2011,10,11);
-
 const events = [
     {year:2015, month:6, type:"life", text:"Finished elementary school"},
     {year:2018, month:6, type:"life", text:"Finished middle school"},
@@ -469,112 +506,76 @@ const events = [
     {year:2026, month:9, type:"life", text:"Started MA in Linguistics"},
     {year:2026, month:10, type:"life", text:"Started MBA in Data Analytics"},
 ];
-
 const now = new Date();
-
 function updateTime(){
-
     const totalMonths =
         (now.getFullYear() - 2011) * 12 +
         (now.getMonth() - 10);
-
     const years = Math.floor(totalMonths / 12);
     const months = totalMonths % 12;
-
     document.getElementById("yearsPassed").textContent = years;
     document.getElementById("monthsPassed").textContent = months;
 }
-
 function getMonthDistance(event){
-
     return (
         (event.year - 2011) * 12 +
         (event.month - 11)
     );
 }
-
 function renderTimeline(){
-
     const timeline = document.getElementById("timeline");
-
     const totalMonths =
         (now.getFullYear() - 2011) * 12 +
         (now.getMonth() - 10);
-
     const timelineWidth =
         timeline.offsetWidth;
-
     let lifeCount = 0;
     let projectCount = 0;
-
     const placedLabels = [];
     const monthUsage = {};
-
     events.sort((a,b)=>{
         return getMonthDistance(a) - getMonthDistance(b);
     });
-
     events.forEach((e,i)=>{
-
         const monthDistance =
             getMonthDistance(e);
-
         const percent =
             monthDistance / totalMonths;
-
         const baseX =
             percent * timelineWidth;
-
         if(!monthUsage[monthDistance]){
             monthUsage[monthDistance] = 0;
         }
-
         const monthOffset =
             monthUsage[monthDistance] * 42;
-
         monthUsage[monthDistance]++;
-
         const x =
             baseX + monthOffset;
-
         const point = document.createElement("div");
         point.className = "point";
         point.style.left = x + "px";
-
         const tooltip = document.createElement("div");
         tooltip.className = "tooltip";
         tooltip.textContent = e.month + "/" + e.year;
-
         point.appendChild(tooltip);
-
         const label = document.createElement("div");
         label.className = "point-label";
         label.textContent = e.text;
         label.style.left = x + "px";
-
         timeline.appendChild(point);
         timeline.appendChild(label);
-
         let yOffset =
             i % 2 === 0 ? -120 : 95;
-
         let attempts = 0;
-
         while(true){
-
             label.style.top =
                 `calc(50% + ${yOffset}px)`;
-
             const currentRect =
                 label.getBoundingClientRect();
-
             let collision = false;
-
             for(const placed of placedLabels){
-
                 const rect =
                     placed.getBoundingClientRect();
-
                 const overlap =
                     !(
                         currentRect.right + 36 < rect.left ||
@@ -582,117 +583,98 @@ function renderTimeline(){
                         currentRect.bottom + 18 < rect.top ||
                         currentRect.top - 18 > rect.bottom
                     );
-
                 if(overlap){
                     collision = true;
                     break;
                 }
             }
-
             if(!collision){
                 break;
             }
-
             yOffset +=
                 yOffset < 0 ? -60 : 60;
-
             attempts++;
-
             if(attempts > 60){
                 break;
             }
         }
-
         placedLabels.push(label);
-
         const connector =
             document.createElement("div");
-
         connector.className = "connector";
         connector.style.left = x + "px";
-
         timeline.appendChild(connector);
-
         const pointY =
             timeline.offsetHeight / 2;
-
         const labelRect =
             label.getBoundingClientRect();
-
         const timelineRect =
             timeline.getBoundingClientRect();
-
         const labelY =
             labelRect.top -
             timelineRect.top +
             labelRect.height / 2;
-
         const height =
             Math.abs(labelY - pointY);
-
         connector.style.top =
             (labelY < pointY ? labelY : pointY) + "px";
-
         connector.style.height =
             height + "px";
-
         if(e.type === "life"){
             lifeCount++;
         }
-
         if(e.type === "project"){
             projectCount++;
         }
     });
-
     document.getElementById("lifeEvents").textContent =
         lifeCount;
-
     document.getElementById("projects").textContent =
         projectCount;
 }
-
 function renderYears(){
-
     const container =
         document.getElementById("years");
-
     const totalYears =
         now.getFullYear() - 2011;
-
     for(let y = 2011; y <= now.getFullYear(); y++){
-
         const year =
             document.createElement("div");
-
         const progress =
             (y - 2011) / totalYears;
-
         year.style.position = "absolute";
         year.style.left = (progress * 100) + "%";
         year.style.transform = "translateX(-50%)";
-
         year.textContent = y;
-
         container.appendChild(year);
     }
 }
-
+function updateCreditTotals(){
+    let totalUndergrad = 0;
+    let totalMasters = 0;
+    let totalDoctorate = 0;
+    document.querySelectorAll('.credit-country').forEach(country => {
+        const undergrad = parseInt(country.querySelector('[data-undergrad]')?.textContent || '0');
+        const masters = parseInt(country.querySelector('[data-masters]')?.textContent || '0');
+        const doctorate = parseInt(country.querySelector('[data-doctorate]')?.textContent || '0');
+        totalUndergrad += undergrad;
+        totalMasters += masters;
+        totalDoctorate += doctorate;
+    });
+    document.getElementById('totalUndergrad').textContent = totalUndergrad;
+    document.getElementById('totalMasters').textContent = totalMasters;
+    document.getElementById('totalDoctorate').textContent = totalDoctorate;
+}
 updateTime();
 renderTimeline();
 renderYears();
-
+updateCreditTotals();
 window.addEventListener("load",()=>{
-
     const shell =
         document.getElementById("timelineShell");
-
     shell.scrollLeft =
         shell.scrollWidth;
-
 });
-
 </script>
-
 </body>
 </html>

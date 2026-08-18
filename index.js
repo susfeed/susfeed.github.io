@@ -138,7 +138,8 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "If you see this, I am not a bot. I am a man who is being held hostage in Reykjavik airport. Send help!",
     "Go to your room, play a game of Klax, then get back to me.",
     "WARIO!",
-    "Shred up you social security card and go on the run."
+    "Shred up you social security card and go on the run.",
+    "Bilbo has a plan for that."
   ];
 
   susBotButton.addEventListener("click", () => {
