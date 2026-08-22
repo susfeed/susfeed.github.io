@@ -1,9 +1,16 @@
 [
   {
-    "file": "klax.html",
+    "file": "Klax.html",
     "cover": "img/klax.jpg",
     "category": "GAME REVIEW",
     "score": "10",
     "description": "A timeless arcade puzzle game that remains incredibly addictive decades later."
+  },
+  {
+    "file": "My Immortal.html",
+    "cover": "img/myimmortal.jpg",
+    "category": "BOOK REVIEW",
+    "score": "10",
+    "description": "A masterpiece beyond time from the early age of the internet."
   }
 ]
