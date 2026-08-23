@@ -184,11 +184,25 @@ sprite:"olivia.png",
 song:"songs/song8.mp3"
 },
 {
+name:"SMÅLAND",
+bg:"linear-gradient(#000000 0%, #000000 60%, #ff0000 100%)",
+platform:()=>["#ffffff","#fffb00","#ff0000"][(Math.random()*3)|0],
+sprite:"lukas.png",
+song:"songs/song9.mp3"
+},
+{
 name:"SOL",
 bg:"linear-gradient(#8b8b8b 0%, #00a5f8 60%, #343434 100%)",
 platform:()=>["#0a0074","#b9bc00","#ffffff"][(Math.random()*3)|0],
 sprite:"kaeru.png",
 song:"songs/s7.mp3"
+},
+{
+name:"WOKELERLAND",
+bg:"linear-gradient(#eb9bff 0%, #ff70c4 60%, #eb9bff 100%)",
+platform:()=>["#00ff6e","#bc0077","#6600ff"][(Math.random()*3)|0],
+sprite:"wokeler.png",
+song:"songs/s8.mp3"
 }
 ]
 

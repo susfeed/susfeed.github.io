@@ -14,7 +14,7 @@
 
 <div class="title-screen" id="titleScreen">
   <div class="title-panel">
-    <div class="version-corner">v1.1.0</div>
+    <div class="version-corner">v1.2.0</div>
 
     <h1>THE BOYS</h1>
     <p class="subtitle">CHOOSE YOUR FATE</p>
@@ -150,9 +150,23 @@
 
 <div class="char-wrap">
   <button class="char-btn" onclick="pickCharacter(14,this)">
+    <img src="lukas.png">
+  </button>
+  <div class="char-name">Lukas</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(15,this)">
     <img src="kaeru.png">
   </button>
   <div class="char-name">Shogun Kaeru</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(16,this)">
+    <img src="wokeler.png">
+  </button>
+  <div class="char-name">The Wokeler</div>
 </div>
       </div>
 
@@ -180,7 +194,9 @@
       <h2>DLC THEMES</h2>
       <div class="row">
         <button class="theme-btn theme-mountain" data-theme="13" onclick="pickTheme(13,this)">MOUNTAIN</button>
-        <button class="theme-btn theme-SOL" data-theme="14" onclick="pickTheme(14, this)">SOL</button>
+        <button class="theme-btn theme-smaland" data-theme="13" onclick="pickTheme(14,this)">SMÅLAND</button>
+        <button class="theme-btn theme-SOL" data-theme="14" onclick="pickTheme(15, this)">SOL</button>
+        <button class="theme-btn theme-woke" data-theme="14" onclick="pickTheme(16, this)">WOKELERLAND</button>
       </div>
 
       <button class="start-run" onclick="startSelected()">BEGIN RUN</button>
@@ -236,7 +252,7 @@
 <script src="story.js"></script>
 <script src="menus.js"></script>
 <script>
-const CHARACTER_COST = [0, 500, 500, 500, 500, 500, 500, 1000, 1000, 1000, 1000, 1000, 1000, 500, 500]
+const CHARACTER_COST = [0, 500, 500, 500, 500, 500, 500, 1000, 1000, 1000, 1000, 1000, 1000, 500, 500, 500, 500]
 
 let unlockedCharacters = JSON.parse(
   localStorage.getItem("unlockedCharacters") || "[0]"

@@ -383,6 +383,16 @@ canvas{
   color:#c0b300;
 }
 
+.theme-smaland{
+  background:linear-gradient(180deg,#6a6a6a, #000000);
+  color:#c00000;
+}
+
+.theme-woke{
+  background:linear-gradient(180deg,#ff56f4, #f172ff);
+  color:#2ce767;
+}
+
 .hidden{
   display:none;
 }
