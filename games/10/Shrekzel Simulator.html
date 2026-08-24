@@ -21,6 +21,68 @@ transparent 2px,
 transparent 8px
 );
 animation:bgShift 20s linear infinite;
+
+.main-nav {
+  background-color: #ba1a1a;
+  box-shadow: inset 0 -2px 0 #ffcccc;
+}
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 12px 0;
+  gap: 40px;
+}
+
+.nav-links a,
+.nav-links li a {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  position: relative;
+  padding: 4px 0;
+}
+
+.nav-links img {
+  height: 2em;
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.nav-links img:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+}
+
+.nav-links a:hover,
+.nav-links li a:hover {
+  color: #ffe5e5;
+}
+
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 0;
+  height: 3px;
+  background: #ffe5e5;
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .header-top { padding: 10px 0; }
+  .logo { width: 170px; }
+  .nav-links { flex-wrap: wrap; gap: 14px; padding: 10px; }
+  .nav-links a { font-size: 14px; }
+  .main-nav { box-shadow: none; }
+}
 }
 
 @keyframes bgShift{

@@ -73,6 +73,255 @@ keys[e.key.toLowerCase()]=true
 })
 addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false)
 
+let joystick = null;
+let joystickData = { x: 0, y: 0 };
+let jumpButton = null;
+let isMobile = false;
+
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+}
+
+function createMobileControls() {
+    if (!isMobileDevice()) return;
+    isMobile = true;
+
+    const controlsContainer = document.createElement('div');
+    controlsContainer.id = 'mobileControls';
+    controlsContainer.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+        pointer-events: none;
+        z-index: 1000;
+    `;
+
+    const joystickContainer = document.createElement('div');
+    joystickContainer.style.cssText = `
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        position: relative;
+        pointer-events: auto;
+        touch-action: none;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(5px);
+    `;
+
+    const knob = document.createElement('div');
+    knob.style.cssText = `
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+    `;
+    joystickContainer.appendChild(knob);
+    joystick = {
+        container: joystickContainer,
+        knob: knob,
+        active: false,
+        touchId: null
+    };
+
+    const jumpBtn = document.createElement('div');
+    jumpBtn.style.cssText = `
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        touch-action: none;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(5px);
+        font-size: 16px;
+        color: white;
+        font-weight: bold;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        user-select: none;
+        -webkit-user-select: none;
+    `;
+    jumpBtn.textContent = 'JUMP';
+    jumpButton = jumpBtn;
+
+    controlsContainer.appendChild(joystickContainer);
+    controlsContainer.appendChild(jumpBtn);
+    document.body.appendChild(controlsContainer);
+
+    setupJoystickEvents();
+    setupJumpEvents();
+}
+
+function setupJoystickEvents() {
+    if (!joystick) return;
+
+    const container = joystick.container;
+    const knob = joystick.knob;
+    const radius = 35;
+
+    function handleStart(touch) {
+        joystick.active = true;
+        joystick.touchId = touch.identifier;
+        updateJoystickPosition(touch);
+        container.style.background = 'rgba(255, 255, 255, 0.3)';
+    }
+
+    function handleMove(touch) {
+        if (joystick.active && joystick.touchId === touch.identifier) {
+            updateJoystickPosition(touch);
+        }
+    }
+
+    function handleEnd() {
+        joystick.active = false;
+        joystick.touchId = null;
+        joystickData.x = 0;
+        joystickData.y = 0;
+        knob.style.transform = 'translate(-50%, -50%)';
+        container.style.background = 'rgba(255, 255, 255, 0.2)';
+    }
+
+    function updateJoystickPosition(touch) {
+        const rect = container.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        let dx = touch.clientX - centerX;
+        let dy = touch.clientY - centerY;
+
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > radius) {
+            dx = (dx / dist) * radius;
+            dy = (dy / dist) * radius;
+        }
+
+        knob.style.transform = `translate(${dx - 25}px, ${dy - 25}px)`;
+        joystickData.x = dx / radius;
+        joystickData.y = dy / radius;
+    }
+
+    container.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.changedTouches[0];
+        handleStart(touch);
+    });
+
+    container.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        for (const touch of e.changedTouches) {
+            if (touch.identifier === joystick.touchId) {
+                handleMove(touch);
+            }
+        }
+    });
+
+    container.addEventListener('touchend', (e) => {
+        for (const touch of e.changedTouches) {
+            if (touch.identifier === joystick.touchId) {
+                handleEnd();
+            }
+        }
+    });
+
+    container.addEventListener('touchcancel', handleEnd);
+
+    let mouseDown = false;
+    container.addEventListener('mousedown', (e) => {
+        if (!isMobileDevice()) {
+            mouseDown = true;
+            const touch = { clientX: e.clientX, clientY: e.clientY, identifier: 0 };
+            handleStart(touch);
+        }
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (mouseDown) {
+            const touch = { clientX: e.clientX, clientY: e.clientY, identifier: 0 };
+            handleMove(touch);
+        }
+    });
+
+    container.addEventListener('mouseup', () => {
+        if (mouseDown) {
+            mouseDown = false;
+            handleEnd();
+        }
+    });
+
+    container.addEventListener('mouseleave', () => {
+        if (mouseDown) {
+            mouseDown = false;
+            handleEnd();
+        }
+    });
+}
+
+function setupJumpEvents() {
+    if (!jumpButton) return;
+
+    function jump() {
+        if (player.jumps < maxJumps) {
+            player.vy = -jumpPower;
+            player.jumps++;
+        }
+    }
+
+    jumpButton.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        jump();
+        jumpButton.style.transform = 'scale(0.9)';
+        jumpButton.style.background = 'rgba(255, 255, 255, 0.4)';
+    });
+
+    jumpButton.addEventListener('touchend', (e) => {
+        jumpButton.style.transform = 'scale(1)';
+        jumpButton.style.background = 'rgba(255, 255, 255, 0.2)';
+    });
+
+    jumpButton.addEventListener('touchcancel', (e) => {
+        jumpButton.style.transform = 'scale(1)';
+        jumpButton.style.background = 'rgba(255, 255, 255, 0.2)';
+    });
+
+    jumpButton.addEventListener('mousedown', (e) => {
+        if (!isMobileDevice()) {
+            jump();
+            jumpButton.style.transform = 'scale(0.9)';
+            jumpButton.style.background = 'rgba(255, 255, 255, 0.4)';
+        }
+    });
+
+    jumpButton.addEventListener('mouseup', (e) => {
+        if (!isMobileDevice()) {
+            jumpButton.style.transform = 'scale(1)';
+            jumpButton.style.background = 'rgba(255, 255, 255, 0.2)';
+        }
+    });
+
+    jumpButton.addEventListener('mouseleave', (e) => {
+        if (!isMobileDevice()) {
+            jumpButton.style.transform = 'scale(1)';
+            jumpButton.style.background = 'rgba(255, 255, 255, 0.2)';
+        }
+    });
+}
+
+createMobileControls();
+
 let drag=false,lx=0,ly=0
 c.addEventListener("pointerdown",e=>{drag=true;lx=e.clientX;ly=e.clientY})
 addEventListener("pointerup",()=>drag=false)
@@ -485,6 +734,13 @@ if(keys.w){player.vx+=dx*moveSpeed;player.vz-=dz*moveSpeed}
 if(keys.s){player.vx-=dx*moveSpeed;player.vz+=dz*moveSpeed}
 if(keys.a){player.vx-=dz*moveSpeed;player.vz-=dx*moveSpeed}
 if(keys.d){player.vx+=dz*moveSpeed;player.vz+=dx*moveSpeed}
+
+if(isMobile && joystick.active){
+    const forward = -joystickData.y;
+    const strafe = joystickData.x;
+    player.vx += (dx * forward + dz * strafe) * moveSpeed * 1.5;
+    player.vz += (-dz * forward + dx * strafe) * moveSpeed * 1.5;
+}
 
 if(keys[" "]&&player.jumps<maxJumps){
 player.vy=-jumpPower

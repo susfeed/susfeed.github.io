@@ -75,6 +75,286 @@ keys[e.key.toLowerCase()]=true
 })
 addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false)
 
+let joystick = null;
+let joystickData = { x: 0, y: 0 };
+let jumpButton = null;
+let isMobile = false;
+
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+}
+
+function createMobileControls() {
+    if (!isMobileDevice()) return;
+    isMobile = true;
+
+    const controlsContainer = document.createElement('div');
+    controlsContainer.id = 'mobileControls';
+    controlsContainer.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 25px;
+        pointer-events: none;
+        z-index: 1000;
+        image-rendering: pixelated;
+    `;
+
+    const joystickContainer = document.createElement('div');
+    joystickContainer.style.cssText = `
+        width: 130px;
+        height: 130px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        position: relative;
+        pointer-events: auto;
+        touch-action: none;
+        border: 3px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 
+            inset 0 0 30px rgba(0,0,0,0.5),
+            0 0 20px rgba(0,0,0,0.3),
+            0 0 40px rgba(0,0,0,0.2);
+        backdrop-filter: blur(2px);
+        image-rendering: pixelated;
+    `;
+
+    const knob = document.createElement('div');
+    knob.style.cssText = `
+        width: 55px;
+        height: 55px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 
+            inset 0 -3px 8px rgba(0,0,0,0.3),
+            0 0 15px rgba(0,0,0,0.2);
+        transition: background 0.1s;
+    `;
+    joystickContainer.appendChild(knob);
+    joystick = {
+        container: joystickContainer,
+        knob: knob,
+        active: false,
+        touchId: null
+    };
+
+    const jumpBtn = document.createElement('div');
+    jumpBtn.style.cssText = `
+        width: 90px;
+        height: 90px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        touch-action: none;
+        border: 3px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 
+            inset 0 -5px 15px rgba(0,0,0,0.5),
+            0 0 20px rgba(0,0,0,0.3),
+            0 0 40px rgba(0,0,0,0.2);
+        backdrop-filter: blur(2px);
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: bold;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        user-select: none;
+        -webkit-user-select: none;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 2px;
+        image-rendering: pixelated;
+        transition: all 0.1s;
+        text-transform: uppercase;
+    `;
+    jumpBtn.textContent = '▲';
+    jumpButton = jumpBtn;
+
+    controlsContainer.appendChild(joystickContainer);
+    controlsContainer.appendChild(jumpBtn);
+    document.body.appendChild(controlsContainer);
+
+    setupJoystickEvents();
+    setupJumpEvents();
+}
+
+function setupJoystickEvents() {
+    if (!joystick) return;
+
+    const container = joystick.container;
+    const knob = joystick.knob;
+    const radius = 40;
+
+    function handleStart(touch) {
+        joystick.active = true;
+        joystick.touchId = touch.identifier;
+        updateJoystickPosition(touch);
+        container.style.background = 'rgba(255, 255, 255, 0.08)';
+        container.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        knob.style.background = 'rgba(255, 255, 255, 0.25)';
+    }
+
+    function handleMove(touch) {
+        if (joystick.active && joystick.touchId === touch.identifier) {
+            updateJoystickPosition(touch);
+        }
+    }
+
+    function handleEnd() {
+        joystick.active = false;
+        joystick.touchId = null;
+        joystickData.x = 0;
+        joystickData.y = 0;
+        knob.style.transform = 'translate(-50%, -50%)';
+        container.style.background = 'rgba(0, 0, 0, 0.5)';
+        container.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        knob.style.background = 'rgba(255, 255, 255, 0.15)';
+    }
+
+    function updateJoystickPosition(touch) {
+        const rect = container.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        let dx = touch.clientX - centerX;
+        let dy = touch.clientY - centerY;
+
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > radius) {
+            dx = (dx / dist) * radius;
+            dy = (dy / dist) * radius;
+        }
+
+        knob.style.transform = `translate(${dx - 27.5}px, ${dy - 27.5}px)`;
+        joystickData.x = dx / radius;
+        joystickData.y = dy / radius;
+    }
+
+    container.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.changedTouches[0];
+        handleStart(touch);
+    });
+
+    container.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        for (const touch of e.changedTouches) {
+            if (touch.identifier === joystick.touchId) {
+                handleMove(touch);
+            }
+        }
+    });
+
+    container.addEventListener('touchend', (e) => {
+        for (const touch of e.changedTouches) {
+            if (touch.identifier === joystick.touchId) {
+                handleEnd();
+            }
+        }
+    });
+
+    container.addEventListener('touchcancel', handleEnd);
+
+    let mouseDown = false;
+    container.addEventListener('mousedown', (e) => {
+        if (!isMobileDevice()) {
+            mouseDown = true;
+            const touch = { clientX: e.clientX, clientY: e.clientY, identifier: 0 };
+            handleStart(touch);
+        }
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (mouseDown) {
+            const touch = { clientX: e.clientX, clientY: e.clientY, identifier: 0 };
+            handleMove(touch);
+        }
+    });
+
+    container.addEventListener('mouseup', () => {
+        if (mouseDown) {
+            mouseDown = false;
+            handleEnd();
+        }
+    });
+
+    container.addEventListener('mouseleave', () => {
+        if (mouseDown) {
+            mouseDown = false;
+            handleEnd();
+        }
+    });
+}
+
+function setupJumpEvents() {
+    if (!jumpButton) return;
+
+    function jump() {
+        if (player.jumps < maxJumps) {
+            player.vy = -jumpPower;
+            player.jumps++;
+            jumpButton.style.transform = 'scale(0.85)';
+            jumpButton.style.background = 'rgba(255, 255, 255, 0.15)';
+            jumpButton.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+            setTimeout(() => {
+                jumpButton.style.transform = 'scale(1)';
+                jumpButton.style.background = 'rgba(0, 0, 0, 0.5)';
+                jumpButton.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+            }, 100);
+        }
+    }
+
+    jumpButton.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        jump();
+    });
+
+    jumpButton.addEventListener('touchend', (e) => {
+        jumpButton.style.transform = 'scale(1)';
+        jumpButton.style.background = 'rgba(0, 0, 0, 0.5)';
+        jumpButton.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+    });
+
+    jumpButton.addEventListener('touchcancel', (e) => {
+        jumpButton.style.transform = 'scale(1)';
+        jumpButton.style.background = 'rgba(0, 0, 0, 0.5)';
+        jumpButton.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+    });
+
+    jumpButton.addEventListener('mousedown', (e) => {
+        if (!isMobileDevice()) {
+            jump();
+        }
+    });
+
+    jumpButton.addEventListener('mouseup', (e) => {
+        if (!isMobileDevice()) {
+            jumpButton.style.transform = 'scale(1)';
+            jumpButton.style.background = 'rgba(0, 0, 0, 0.5)';
+            jumpButton.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        }
+    });
+
+    jumpButton.addEventListener('mouseleave', (e) => {
+        if (!isMobileDevice()) {
+            jumpButton.style.transform = 'scale(1)';
+            jumpButton.style.background = 'rgba(0, 0, 0, 0.5)';
+            jumpButton.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        }
+    });
+}
+
+createMobileControls();
+
 let drag=false,lx=0,ly=0
 c.addEventListener("pointerdown",e=>{drag=true;lx=e.clientX;ly=e.clientY})
 addEventListener("pointerup",()=>drag=false)
@@ -492,6 +772,14 @@ if(keys.w){player.vx+=dx*moveSpeed;player.vz-=dz*moveSpeed}
 if(keys.s){player.vx-=dx*moveSpeed;player.vz+=dz*moveSpeed}
 if(keys.a){player.vx-=dz*moveSpeed;player.vz-=dx*moveSpeed}
 if(keys.d){player.vx+=dz*moveSpeed;player.vz+=dx*moveSpeed}
+
+if(isMobile && joystick.active){
+    const forward = -joystickData.y;
+    const strafe = joystickData.x;
+    const mobileSpeed = moveSpeed * 1.5;
+    player.vx += (dx * forward + dz * strafe) * mobileSpeed;
+    player.vz += (-dz * forward + dx * strafe) * mobileSpeed;
+}
 
 if(keys[" "]&&player.jumps<maxJumps){
 player.vy=-jumpPower
