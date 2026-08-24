@@ -21,7 +21,11 @@ function render(items) {
   items.forEach(({ folder, file }) => {
     const itemPath = `${path}/${folder}/${file}`
     const imagePath = `${path}/${folder}/cover.webp`
-    const title = file.replace(/_/g, " ").replace(".html", "")
+    let title = file.replace(/_/g, " ").replace(".html", "")
+    
+    if (title.includes("/")) {
+      title = title.substring(title.lastIndexOf("/") + 1)
+    }
 
     const index = allItems.findIndex(i => i.folder === folder && i.file === file)
     const isClassic = classicCheck(index)

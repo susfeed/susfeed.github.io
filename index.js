@@ -43,7 +43,12 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
         const container = document.getElementById(containerId);
 
         topThree.forEach(item => {
-          const title = item.file.replace(/_/g, ' ').replace(/\.html$/, '');
+          let title = item.file.replace(/_/g, ' ').replace(/\.html$/, '');
+          
+          if (title.includes("/")) {
+            title = title.substring(title.lastIndexOf("/") + 1);
+          }
+          
           const card = document.createElement('a');
           card.href = `${baseDir}/${item.folder}/${item.file}`;
           card.className = 'block-card';
