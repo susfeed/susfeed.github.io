@@ -145,8 +145,21 @@ const storyLevels = [
       { text: "The Boys escape." },
       { speaker: "Phil", icon: "phil.png", text: "Alright, let's look at the code." },
       { speaker: "Cam", icon: "cam.png", text: "Uhhhhh..." },
-      { speaker: "Cam", icon: "cam.png", text: "It's encrypted?" },
-      { text: "To be continued." }
+      { speaker: "Cam", icon: "cam.png", text: "It's encrypted?" }
+    ]
+  },
+  {
+    id: 7,
+    name: "SKÅNE",
+    character: 6,
+    theme: 6,
+    color: "linear-gradient(180deg,#1a1a1ae5,#000000)",
+    icon: "red.png",
+    intro: [
+      { text: "Rural Sweden, winter." },
+      { speaker: "Cam", icon: "cam.png", text: "We have come to you to crack this encryption algorithm." }
+    ],
+    outro: [
     ]
   }
 ]

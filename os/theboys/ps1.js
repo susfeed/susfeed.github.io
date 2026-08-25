@@ -485,6 +485,34 @@ bg:"linear-gradient(#eb9bff 0%, #ff70c4 60%, #eb9bff 100%)",
 platform:()=>["#00ff6e","#bc0077","#6600ff"][(Math.random()*3)|0],
 sprite:"wokeler.png",
 song:"songs/s8.mp3"
+},
+{
+name:"HIRAKATA",
+bg:"linear-gradient(#ffffff 0%, #1c067d 60%, #35166f 100%)",
+platform:()=>["#770079","#ff0000","#f7f7f7"][(Math.random()*3)|0],
+sprite:"andrew.png",
+song:"songs/song10.mp3"
+},
+{
+name:"ATAKARIHA",
+bg:"linear-gradient(#ff34fc 0%, #000000 60%, #e880ff 100%)",
+platform:()=>["#ff009d","#6f00ff","#ff00f2"][(Math.random()*3)|0],
+sprite:"evilandrew.png",
+song:"songs/song11.mp3"
+},
+{
+name:"THE GARDEN",
+bg:"linear-gradient(#ffffff 0%, #00a5f8 60%, #006412 100%)",
+platform:()=>["#ff0000","#6600ff","#fff200"][(Math.random()*3)|0],
+sprite:"pikmin.png",
+song:"songs/s9.mp3"
+},
+{
+name:"LAWSON",
+bg:"linear-gradient(#ffffff 0%, #3200d4 60%, #2e00c4 100%)",
+platform:()=>["#ffffff","#ffffff","#7d7d7d"][(Math.random()*3)|0],
+sprite:"karaagekun.png",
+song:"songs/s10.mp3"
 }
 ]
 

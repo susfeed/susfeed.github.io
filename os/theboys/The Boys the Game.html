@@ -168,6 +168,34 @@
   </button>
   <div class="char-name">The Wokeler</div>
 </div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(17,this)">
+    <img src="andrew.png">
+  </button>
+  <div class="char-name">Andrew</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(18,this)">
+    <img src="evilandrew.png">
+  </button>
+  <div class="char-name">Evil Andrew</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(19,this)">
+    <img src="pikmin.png">
+  </button>
+  <div class="char-name">Pikmin With a Blunt</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(20,this)">
+    <img src="karaagekun.png">
+  </button>
+  <div class="char-name">Karaage Kun</div>
+</div>
       </div>
 
       <h2>STORY THEMES</h2>
@@ -194,9 +222,13 @@
       <h2>DLC THEMES</h2>
       <div class="row">
         <button class="theme-btn theme-mountain" data-theme="13" onclick="pickTheme(13,this)">MOUNTAIN</button>
-        <button class="theme-btn theme-smaland" data-theme="13" onclick="pickTheme(14,this)">SMÅLAND</button>
-        <button class="theme-btn theme-SOL" data-theme="14" onclick="pickTheme(15, this)">SOL</button>
-        <button class="theme-btn theme-woke" data-theme="14" onclick="pickTheme(16, this)">WOKELERLAND</button>
+        <button class="theme-btn theme-smaland" data-theme="14" onclick="pickTheme(14,this)">SMÅLAND</button>
+        <button class="theme-btn theme-SOL" data-theme="15" onclick="pickTheme(15, this)">SOL</button>
+        <button class="theme-btn theme-woke" data-theme="16" onclick="pickTheme(16, this)">WOKELERLAND</button>
+        <button class="theme-btn theme-hirakata" data-theme="17" onclick="pickTheme(17,this)">HIRAKATA</button>
+        <button class="theme-btn theme-akatariha" data-theme="18" onclick="pickTheme(18,this)">ATAKARIHA</button>
+        <button class="theme-btn theme-pikmin" data-theme="19" onclick="pickTheme(19, this)">THE GARDEN</button>
+        <button class="theme-btn theme-lawson" data-theme="20" onclick="pickTheme(20, this)">LAWSON</button>
       </div>
 
       <button class="start-run" onclick="startSelected()">BEGIN RUN</button>
@@ -252,7 +284,7 @@
 <script src="story.js"></script>
 <script src="menus.js"></script>
 <script>
-const CHARACTER_COST = [0, 500, 500, 500, 500, 500, 500, 1000, 1000, 1000, 1000, 1000, 1000, 500, 500, 500, 500]
+const CHARACTER_COST = [0, 500, 500, 500, 500, 500, 500, 1000, 1000, 1000, 1000, 1000, 1000, 500, 500, 500, 500, 500, 500, 500, 500]
 
 let unlockedCharacters = JSON.parse(
   localStorage.getItem("unlockedCharacters") || "[0]"

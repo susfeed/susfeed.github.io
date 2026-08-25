@@ -393,6 +393,26 @@ canvas{
   color:#2ce767;
 }
 
+.theme-hirakata{
+  background:linear-gradient(180deg,#8100b8, #ff0000);
+  color:#feffff;
+}
+
+.theme-akatariha{
+  background:linear-gradient(180deg,#7EFF4F, #00FFFF);
+  color:#000000;
+}
+
+.theme-pikmin{
+  background:linear-gradient(180deg,#007d23, #06ba39);
+  color:#ffe600;
+}
+
+.theme-lawson{
+  background:linear-gradient(180deg,#2100c6, #3819d6);
+  color:#ffffff;
+}
+
 .hidden{
   display:none;
 }
