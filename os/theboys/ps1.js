@@ -404,17 +404,59 @@ song:"songs/song5.mp3"
 },
 {
 name:"THE SERVER",
-bg:"linear-gradient(#ffb347 0%, #000000 60%, #000000 100%)",
+bg:"linear-gradient(#00bf0d 0%, #000000 60%, #000000 100%)",
 platform:()=>["#00ff4c","#009719","#004811"][(Math.random()*3)|0],
 sprite:"phil.png",
 song:"songs/song6.mp3"
 },
 {
 name:"SUSFEED HQ",
-bg:"linear-gradient(#ffb347 0%, #ffffff 60%, #ffffff 100%)",
+bg:"linear-gradient(#ffffff 0%, #ffffff 60%, #ffffff 100%)",
 platform:()=>["#ff0000","#970000","#480000"][(Math.random()*3)|0],
 sprite:"red.png",
 song:"songs/song7.mp3"
+},
+{
+name:"MOUNTAIN",
+bg:"linear-gradient(#00a5f8 0%, #8b8b8b 60%, #e1e1e1 100%)",
+platform:()=>["#ffffff","#6d6d6d","#929292"][(Math.random()*3)|0],
+sprite:"olivia.png",
+song:"songs/song8.mp3"
+},
+{
+name:"SMÅLAND",
+bg:"linear-gradient(#000000 0%, #000000 60%, #ff0000 100%)",
+platform:()=>["#ffffff","#fffb00","#ff0000"][(Math.random()*3)|0],
+sprite:"lukas.png",
+song:"songs/song9.mp3"
+},
+{
+name:"HIRAKATA",
+bg:"linear-gradient(#ffffff 0%, #1c067d 60%, #35166f 100%)",
+platform:()=>["#770079","#ff0000","#f7f7f7"][(Math.random()*3)|0],
+sprite:"andrew.png",
+song:"songs/song10.mp3"
+},
+{
+name:"ATAKARIHA",
+bg:"linear-gradient(#ff34fc 0%, #000000 60%, #e880ff 100%)",
+platform:()=>["#ff009d","#6f00ff","#ff00f2"][(Math.random()*3)|0],
+sprite:"evilandrew.png",
+song:"songs/song11.mp3"
+},
+{
+name:"LANCASTER",
+bg:"linear-gradient(#ffffff 0%, #f2aef1 60%, #fa4ceb 100%)",
+platform:()=>["#ffffff","#000000","#ff0000"][(Math.random()*3)|0],
+sprite:"ellie.png",
+song:"songs/song12.mp3"
+},
+{
+name:"SUSFEED HOMEPAGE",
+bg:"linear-gradient(#d40000 0%, #ffffff 60%, #ffffff 100%)",
+platform:()=>["#8400ff","#0004ff","#ff0000"][(Math.random()*3)|0],
+sprite:"johnsusfeed.png",
+song:"songs/song13.mp3"
 },
 {
 name:"DOJO",
@@ -439,38 +481,24 @@ song:"songs/s3.mp3"
 },
 {
 name:"OCTOPUS'S GARDEN",
-bg:"linear-gradient(#ffb347 0%, #4e4e4e 60%, #919191 100%)",
+bg:"linear-gradient(#fe5200 0%, #551e0a 60%, #fdef14 100%)",
 platform:()=>["#fe5200","#551e0a","#fdef14"][(Math.random()*3)|0],
 sprite:"ringo.png",
 song:"songs/s4.mp3"
 },
 {
 name:"RAX",
-bg:"linear-gradient(#ffb347 0%, #62cbff 60%, #01ccff 100%)",
+bg:"linear-gradient(#ffffff 0%, #62cbff 60%, #01ccff 100%)",
 platform:()=>["#fe5200","#a75c16","#000000"][(Math.random()*3)|0],
 sprite:"delicious.png",
 song:"songs/s5.mp3"
 },
 {
 name:"ROUTE 1",
-bg:"linear-gradient(#ffb347 0%, #62cbff 60%, #ffffff 100%)",
+bg:"linear-gradient(#1a99d8 0%, #62cbff 60%, #ffffff 100%)",
 platform:()=>["#00ff08","#00a205","#399b50"][(Math.random()*3)|0],
 sprite:"furret.png",
 song:"songs/s6.mp3"
-},
-{
-name:"MOUNTAIN",
-bg:"linear-gradient(#00a5f8 0%, #8b8b8b 60%, #e1e1e1 100%)",
-platform:()=>["#ffffff","#6d6d6d","#929292"][(Math.random()*3)|0],
-sprite:"olivia.png",
-song:"songs/song8.mp3"
-},
-{
-name:"SMÅLAND",
-bg:"linear-gradient(#000000 0%, #000000 60%, #ff0000 100%)",
-platform:()=>["#ffffff","#fffb00","#ff0000"][(Math.random()*3)|0],
-sprite:"lukas.png",
-song:"songs/song9.mp3"
 },
 {
 name:"SOL",
@@ -487,20 +515,6 @@ sprite:"wokeler.png",
 song:"songs/s8.mp3"
 },
 {
-name:"HIRAKATA",
-bg:"linear-gradient(#ffffff 0%, #1c067d 60%, #35166f 100%)",
-platform:()=>["#770079","#ff0000","#f7f7f7"][(Math.random()*3)|0],
-sprite:"andrew.png",
-song:"songs/song10.mp3"
-},
-{
-name:"ATAKARIHA",
-bg:"linear-gradient(#ff34fc 0%, #000000 60%, #e880ff 100%)",
-platform:()=>["#ff009d","#6f00ff","#ff00f2"][(Math.random()*3)|0],
-sprite:"evilandrew.png",
-song:"songs/song11.mp3"
-},
-{
 name:"THE GARDEN",
 bg:"linear-gradient(#ffffff 0%, #00a5f8 60%, #006412 100%)",
 platform:()=>["#ff0000","#6600ff","#fff200"][(Math.random()*3)|0],
@@ -513,6 +527,27 @@ bg:"linear-gradient(#ffffff 0%, #3200d4 60%, #2e00c4 100%)",
 platform:()=>["#ffffff","#ffffff","#7d7d7d"][(Math.random()*3)|0],
 sprite:"karaagekun.png",
 song:"songs/s10.mp3"
+},
+{
+name:"",
+bg:"linear-gradient(#ffffff 0%, #3200d4 60%, #2e00c4 100%)",
+platform:()=>["#ffffff","#ffffff","#7d7d7d"][(Math.random()*3)|0],
+sprite:".png",
+song:"songs/s11.mp3"
+},
+{
+name:"DEEPSUS AL DATA CENTER",
+bg:"linear-gradient(#d40000 0%, #ffffff 60%, #ffffff 100%)",
+platform:()=>["#000000","#000000","#000000"][(Math.random()*3)|0],
+sprite:"howard.png",
+song:"songs/s12.mp3"
+},
+{
+name:"DEEPSPACE",
+bg:"linear-gradient(#140058 0%, #3200d4 60%, #2e00c4 100%)",
+platform:()=>["#f2ff00","#ffffff","#00c8ff"][(Math.random()*3)|0],
+sprite:"sylus.png",
+song:"songs/s13.mp3"
 }
 ]
 
@@ -736,7 +771,7 @@ best=p
 return best
 }
 
-const THEME_UNLOCK_STEP = 12500
+const THEME_UNLOCK_STEP = 10000
 
 function themeRequirement(i){
   if(i === 0) return 0

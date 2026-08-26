@@ -398,7 +398,7 @@ canvas{
   color:#feffff;
 }
 
-.theme-akatariha{
+.theme-atakariha{
   background:linear-gradient(180deg,#7EFF4F, #00FFFF);
   color:#000000;
 }
@@ -410,6 +410,31 @@ canvas{
 
 .theme-lawson{
   background:linear-gradient(180deg,#2100c6, #3819d6);
+  color:#ffffff;
+}
+
+.theme-lancaster{
+  background:linear-gradient(180deg,#000000, #ff0000);
+  color:#ffffff;
+}
+
+.theme-sus{
+  background:linear-gradient(180deg,#ff0000, #ff0000);
+  color:#ffffff;
+}
+
+.theme-folgers{
+  background:linear-gradient(180deg,#ff0000, #fffb00);
+  color:#ffffff;
+}
+
+.theme-howard{
+  background:linear-gradient(180deg, #000000, #525252);
+  color:#ffffff;
+}
+
+.theme-deepspace{
+  background:linear-gradient(180deg,#2100c6, #000000);
   color:#ffffff;
 }
 
@@ -552,18 +577,18 @@ canvas{
   scrollbar-color: #ff9c2a #0a0502;
 }
 
-.title-panel::-webkit-scrollbar{
+::-webkit-scrollbar{
   width: 10px;
 }
 
-.title-panel::-webkit-scrollbar-track{
+::-webkit-scrollbar-track{
   background:
     linear-gradient(180deg,#0a0502,#020100);
   border-radius: 12px;
   box-shadow: inset 0 0 10px rgba(0,0,0,.9);
 }
 
-.title-panel::-webkit-scrollbar-thumb{
+::-webkit-scrollbar-thumb{
   background:
     linear-gradient(180deg,#ffd27d,#ff6a00);
   border-radius: 12px;
@@ -573,12 +598,12 @@ canvas{
     0 0 10px rgba(255,120,40,.6);
 }
 
-.title-panel::-webkit-scrollbar-thumb:hover{
+::-webkit-scrollbar-thumb:hover{
   background:
     linear-gradient(180deg,#ffe3a8,#ff7a18);
 }
 
-.title-panel::-webkit-scrollbar-thumb:active{
+::-webkit-scrollbar-thumb:active{
   background:
     linear-gradient(180deg,#ffb347,#d14f00);
 }
@@ -1032,4 +1057,19 @@ body[data-colorblind="tritan"]{filter:hue-rotate(90deg)}
     padding-right: max(12px, env(safe-area-inset-right));
     padding-bottom: max(0px, env(safe-area-inset-bottom));
   }
+}
+
+.header img,
+.title-panel img {
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) 
+          drop-shadow(0 0 40px rgba(255, 200, 0, 0.4)) 
+          drop-shadow(0 0 80px rgba(255, 180, 0, 0.2));
+  transition: filter 0.3s ease;
+}
+
+.header img:hover,
+.title-panel img:hover {
+  filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.8)) 
+          drop-shadow(0 0 50px rgba(255, 200, 0, 0.5)) 
+          drop-shadow(0 0 100px rgba(255, 180, 0, 0.3));
 }

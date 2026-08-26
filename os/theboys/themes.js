@@ -6,7 +6,7 @@ const ThemeTypes = {
   UNIVERSAL: 4,
   SERVER: 5,
   SUSFEED_HQ: 6,
-  MOUNTAIN: 13
+  MOUNTAIN: 7
 }
 
 function initPlatformTheme(p, theme, special) {

@@ -14,10 +14,10 @@
 
 <div class="title-screen" id="titleScreen">
   <div class="title-panel">
-    <div class="version-corner">v1.2.0</div>
+    <div class="version-corner">v1.4.0</div>
 
-    <h1>THE BOYS</h1>
-    <p class="subtitle">CHOOSE YOUR FATE</p>
+    <img src="logo.png">
+    <p class="subtitle">START YOUR ADVENTURE</p>
     <p class="subtitle">COINS: <span id="coinTitle">0</span></p>
 
     <div class="menu">
@@ -91,47 +91,91 @@
   accept="image/*"
   hidden
 />
+</div>
+
+<div class="row">
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(7,this)">
+    <img src="olivia.png">
+  </button>
+  <div class="char-name">Olivia</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(8,this)">
+    <img src="lukas.png">
+  </button>
+  <div class="char-name">Lukas</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(9,this)">
+    <img src="andrew.png">
+  </button>
+  <div class="char-name">Andrew</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(10,this)">
+    <img src="evilandrew.png">
+  </button>
+  <div class="char-name">Evil Andrew</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(11,this)">
+    <img src="ellie.png">
+  </button>
+  <div class="char-name">Ellie</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(12,this)">
+    <img src="johnsusfeed.png">
+  </button>
+  <div class="char-name">John SusFeed</div>
+</div>
       </div>
 
       <h2>CHARACTERS</h2>
       <div class="row">
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(7,this)">
+  <button class="char-btn" onclick="pickCharacter(13,this)">
     <img src="antonio.png">
   </button>
   <div class="char-name">Antonio</div>
 </div>
 
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(8,this)">
+  <button class="char-btn" onclick="pickCharacter(14,this)">
     <img src="chog e choggers.png">
   </button>
   <div class="char-name">Chog E Choggers</div>
 </div>
 
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(9,this)">
+  <button class="char-btn" onclick="pickCharacter(15,this)">
     <img src="takochan.png">
   </button>
   <div class="char-name">Takochan</div>
 </div>
 
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(10,this)">
+  <button class="char-btn" onclick="pickCharacter(16,this)">
     <img src="ringo.png">
   </button>
   <div class="char-name">Ringo Starr</div>
 </div>
 
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(11,this)">
+  <button class="char-btn" onclick="pickCharacter(17,this)">
     <img src="delicious.png">
   </button>
   <div class="char-name">Mr Delicious</div>
 </div>
 
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(12,this)">
+  <button class="char-btn" onclick="pickCharacter(18,this)">
     <img src="furret.png">
   </button>
   <div class="char-name">Furret</div>
@@ -139,62 +183,54 @@
 
       </div>
 
-      <h2>DLC CHARACTERS</h2>
       <div class="row">
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(13,this)">
-    <img src="olivia.png">
-  </button>
-  <div class="char-name">Olivia</div>
-</div>
-
-<div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(14,this)">
-    <img src="lukas.png">
-  </button>
-  <div class="char-name">Lukas</div>
-</div>
-
-<div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(15,this)">
+  <button class="char-btn" onclick="pickCharacter(19,this)">
     <img src="kaeru.png">
   </button>
   <div class="char-name">Shogun Kaeru</div>
 </div>
 
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(16,this)">
+  <button class="char-btn" onclick="pickCharacter(20,this)">
     <img src="wokeler.png">
   </button>
   <div class="char-name">The Wokeler</div>
 </div>
 
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(17,this)">
-    <img src="andrew.png">
-  </button>
-  <div class="char-name">Andrew</div>
-</div>
-
-<div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(18,this)">
-    <img src="evilandrew.png">
-  </button>
-  <div class="char-name">Evil Andrew</div>
-</div>
-
-<div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(19,this)">
+  <button class="char-btn" onclick="pickCharacter(21,this)">
     <img src="pikmin.png">
   </button>
   <div class="char-name">Pikmin With a Blunt</div>
 </div>
 
 <div class="char-wrap">
-  <button class="char-btn" onclick="pickCharacter(20,this)">
+  <button class="char-btn" onclick="pickCharacter(22,this)">
     <img src="karaagekun.png">
   </button>
   <div class="char-name">Karaage Kun</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(23,this)">
+    <img src="sister.png">
+  </button>
+  <div class="char-name">Sister</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(24,this)">
+    <img src="howard.png">
+  </button>
+  <div class="char-name">Howard</div>
+</div>
+
+<div class="char-wrap">
+  <button class="char-btn" onclick="pickCharacter(25,this)">
+    <img src="sylus.png">
+  </button>
+  <div class="char-name">Sylus</div>
 </div>
       </div>
 
@@ -207,28 +243,33 @@
         <button class="theme-btn theme-universal" data-theme="4" onclick="pickTheme(4,this)">UNIVERSAL</button>
         <button class="theme-btn theme-server" data-theme="5" onclick="pickTheme(5,this)">THE SERVER</button>
         <button class="theme-btn theme-susfeed" data-theme="6" onclick="pickTheme(6,this)">SUSFEED HQ</button>
+        </div>
+        <div class="row">
+        <button class="theme-btn theme-mountain" data-theme="7" onclick="pickTheme(7,this)">MOUNTAIN</button>
+        <button class="theme-btn theme-smaland" data-theme="8" onclick="pickTheme(8,this)">SMÅLAND</button>
+        <button class="theme-btn theme-hirakata" data-theme="9" onclick="pickTheme(9,this)">HIRAKATA</button>
+        <button class="theme-btn theme-atakariha" data-theme="10" onclick="pickTheme(10,this)">ATAKARIHA</button>
+        <button class="theme-btn theme-lancaster" data-theme="11" onclick="pickTheme(11,this)">LANCASTER</button>
+        <button class="theme-btn theme-sus" data-theme="12" onclick="pickTheme(12,this)">SUSFEED HOMEPAGE</button>
       </div>
 
       <h2>THEMES</h2>
       <div class="row">
-        <button class="theme-btn theme-dojo" data-theme="7" onclick="pickTheme(7, this)">DOJO</button>
-        <button class="theme-btn theme-choggers" data-theme="8" onclick="pickTheme(8, this)">CHUCK E CHEESE'S</button>
-        <button class="theme-btn theme-tako" data-theme="9" onclick="pickTheme(9, this)">OSAKA</button>
-        <button class="theme-btn theme-ringo" data-theme="10" onclick="pickTheme(10, this)">OCTOPUS'S GARDEN</button>
-        <button class="theme-btn theme-rax" data-theme="11" onclick="pickTheme(11, this)">RAX</button>
-        <button class="theme-btn theme-furret" data-theme="12" onclick="pickTheme(12, this)">ROUTE 1</button>
+        <button class="theme-btn theme-dojo" data-theme="13" onclick="pickTheme(13, this)">DOJO</button>
+        <button class="theme-btn theme-choggers" data-theme="14" onclick="pickTheme(14, this)">CHUCK E CHEESE'S</button>
+        <button class="theme-btn theme-tako" data-theme="15" onclick="pickTheme(15, this)">OSAKA</button>
+        <button class="theme-btn theme-ringo" data-theme="16" onclick="pickTheme(16, this)">OCTOPUS'S GARDEN</button>
+        <button class="theme-btn theme-rax" data-theme="17" onclick="pickTheme(17, this)">RAX</button>
+        <button class="theme-btn theme-furret" data-theme="18" onclick="pickTheme(18, this)">ROUTE 1</button>
       </div>
-
-      <h2>DLC THEMES</h2>
       <div class="row">
-        <button class="theme-btn theme-mountain" data-theme="13" onclick="pickTheme(13,this)">MOUNTAIN</button>
-        <button class="theme-btn theme-smaland" data-theme="14" onclick="pickTheme(14,this)">SMÅLAND</button>
-        <button class="theme-btn theme-SOL" data-theme="15" onclick="pickTheme(15, this)">SOL</button>
-        <button class="theme-btn theme-woke" data-theme="16" onclick="pickTheme(16, this)">WOKELERLAND</button>
-        <button class="theme-btn theme-hirakata" data-theme="17" onclick="pickTheme(17,this)">HIRAKATA</button>
-        <button class="theme-btn theme-akatariha" data-theme="18" onclick="pickTheme(18,this)">ATAKARIHA</button>
-        <button class="theme-btn theme-pikmin" data-theme="19" onclick="pickTheme(19, this)">THE GARDEN</button>
-        <button class="theme-btn theme-lawson" data-theme="20" onclick="pickTheme(20, this)">LAWSON</button>
+        <button class="theme-btn theme-SOL" data-theme="19" onclick="pickTheme(19, this)">SOL</button>
+        <button class="theme-btn theme-woke" data-theme="20" onclick="pickTheme(20, this)">WOKELERLAND</button>
+        <button class="theme-btn theme-pikmin" data-theme="21" onclick="pickTheme(21, this)">THE GARDEN</button>
+        <button class="theme-btn theme-lawson" data-theme="22" onclick="pickTheme(22, this)">LAWSON</button>
+        <button class="theme-btn theme-folgers" data-theme="23" onclick="pickTheme(23, this)">WEST AFRICA</button>
+        <button class="theme-btn theme-howard" data-theme="24" onclick="pickTheme(24, this)">DEEPSUS AL DATA CENTER</button>
+        <button class="theme-btn theme-deepspace" data-theme="25" onclick="pickTheme(25, this)">DEEPSPACE</button>
       </div>
 
       <button class="start-run" onclick="startSelected()">BEGIN RUN</button>
@@ -239,8 +280,7 @@
 
 <div class="page">
   <header class="header">
-    <h1>The Boys</h1>
-    <p>The Game</p>
+    <img src="logo.png">
   </header>
 
   <div class="game-shell">
@@ -284,7 +324,7 @@
 <script src="story.js"></script>
 <script src="menus.js"></script>
 <script>
-const CHARACTER_COST = [0, 500, 500, 500, 500, 500, 500, 1000, 1000, 1000, 1000, 1000, 1000, 500, 500, 500, 500, 500, 500, 500, 500]
+const CHARACTER_COST = [0, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
 
 let unlockedCharacters = JSON.parse(
   localStorage.getItem("unlockedCharacters") || "[0]"

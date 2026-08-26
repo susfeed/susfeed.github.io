@@ -384,6 +384,48 @@ sprite:"red.png",
 song:"songs/song7.mp3"
 },
 {
+name:"MOUNTAIN",
+bg:"linear-gradient(#00a5f8 0%, #8b8b8b 60%, #e1e1e1 100%)",
+platform:()=>["#ffffff","#6d6d6d","#929292"][(Math.random()*3)|0],
+sprite:"olivia.png",
+song:"songs/song8.mp3"
+},
+{
+name:"SMÅLAND",
+bg:"linear-gradient(#000000 0%, #000000 60%, #ff0000 100%)",
+platform:()=>["#ffffff","#fffb00","#ff0000"][(Math.random()*3)|0],
+sprite:"lukas.png",
+song:"songs/song9.mp3"
+},
+{
+name:"HIRAKATA",
+bg:"linear-gradient(#ffffff 0%, #1c067d 60%, #35166f 100%)",
+platform:()=>["#770079","#ff0000","#f7f7f7"][(Math.random()*3)|0],
+sprite:"andrew.png",
+song:"songs/song10.mp3"
+},
+{
+name:"ATAKARIHA",
+bg:"linear-gradient(#ff34fc 0%, #000000 60%, #e880ff 100%)",
+platform:()=>["#ff009d","#6f00ff","#ff00f2"][(Math.random()*3)|0],
+sprite:"evilandrew.png",
+song:"songs/song11.mp3"
+},
+{
+name:"LANCASTER",
+bg:"linear-gradient(#ffffff 0%, #f2aef1 60%, #fa4ceb 100%)",
+platform:()=>["#ffffff","#000000","#ff0000"][(Math.random()*3)|0],
+sprite:"ellie.png",
+song:"songs/song12.mp3"
+},
+{
+name:"SUSFEED HOMEPAGE",
+bg:"linear-gradient(#d40000 0%, #ffffff 60%, #ffffff 100%)",
+platform:()=>["#8400ff","#0004ff","#ff0000"][(Math.random()*3)|0],
+sprite:"johnsusfeed.png",
+song:"songs/song13.mp3"
+},
+{
 name:"DOJO",
 bg:"linear-gradient(#ffb347 0%, #f6ff00 60%, #b97b00 100%)",
 platform:()=>["#2b00ff","#00590f","#ff0000"][(Math.random()*3)|0],
@@ -426,20 +468,6 @@ sprite:"furret.png",
 song:"songs/s6.mp3"
 },
 {
-name:"MOUNTAIN",
-bg:"linear-gradient(#00a5f8 0%, #8b8b8b 60%, #e1e1e1 100%)",
-platform:()=>["#ffffff","#6d6d6d","#929292"][(Math.random()*3)|0],
-sprite:"olivia.png",
-song:"songs/song8.mp3"
-},
-{
-name:"SMÅLAND",
-bg:"linear-gradient(#000000 0%, #000000 60%, #ff0000 100%)",
-platform:()=>["#ffffff","#fffb00","#ff0000"][(Math.random()*3)|0],
-sprite:"lukas.png",
-song:"songs/song9.mp3"
-},
-{
 name:"SOL",
 bg:"linear-gradient(#8b8b8b 0%, #00a5f8 60%, #343434 100%)",
 platform:()=>["#0a0074","#b9bc00","#ffffff"][(Math.random()*3)|0],
@@ -454,20 +482,6 @@ sprite:"wokeler.png",
 song:"songs/s8.mp3"
 },
 {
-name:"HIRAKATA",
-bg:"linear-gradient(#ffffff 0%, #1c067d 60%, #35166f 100%)",
-platform:()=>["#770079","#ff0000","#f7f7f7"][(Math.random()*3)|0],
-sprite:"andrew.png",
-song:"songs/song10.mp3"
-},
-{
-name:"ATAKARIHA",
-bg:"linear-gradient(#ff34fc 0%, #000000 60%, #e880ff 100%)",
-platform:()=>["#ff009d","#6f00ff","#ff00f2"][(Math.random()*3)|0],
-sprite:"evilandrew.png",
-song:"songs/song11.mp3"
-},
-{
 name:"THE GARDEN",
 bg:"linear-gradient(#ffffff 0%, #00a5f8 60%, #006412 100%)",
 platform:()=>["#ff0000","#6600ff","#fff200"][(Math.random()*3)|0],
@@ -480,6 +494,27 @@ bg:"linear-gradient(#ffffff 0%, #3200d4 60%, #2e00c4 100%)",
 platform:()=>["#ffffff","#ffffff","#7d7d7d"][(Math.random()*3)|0],
 sprite:"karaagekun.png",
 song:"songs/s10.mp3"
+},
+{
+name:"WEST AFRICA",
+bg:"linear-gradient(#fffb00 0%, #3200d4 60%, #ff0000 100%)",
+platform:()=>["#9c4900","#382700","#794900"][(Math.random()*3)|0],
+sprite:"sister.png",
+song:"songs/s11.mp3"
+},
+{
+name:"DEEPSUS AL DATA CENTER",
+bg:"linear-gradient(#d40000 0%, #ffffff 60%, #ffffff 100%)",
+platform:()=>["#000000","#000000","#000000"][(Math.random()*3)|0],
+sprite:"howard.png",
+song:"songs/s12.mp3"
+},
+{
+name:"DEEPSPACE",
+bg:"linear-gradient(#140058 0%, #3200d4 60%, #2e00c4 100%)",
+platform:()=>["#f2ff00","#ffffff","#00c8ff"][(Math.random()*3)|0],
+sprite:"sylus.png",
+song:"songs/s13.mp3"
 }
 ]
 
@@ -598,7 +633,7 @@ p.phase=Math.random()*Math.PI*2
 p.color=themes[currentTheme].platform()
 platformCount++
 if(gameMode==="infinite"){
-const nextTheme=Math.min(themes.length-1,Math.floor(platformCount/100))
+const nextTheme=Math.min(themes.length-1,Math.floor(platformCount/80))
 if(nextTheme!==currentTheme)applyTheme(nextTheme)
 }
 const special = Math.random() < 0.35
@@ -698,7 +733,7 @@ best=p
 return best
 }
 
-const THEME_UNLOCK_STEP = 12500
+const THEME_UNLOCK_STEP = 10000
 
 function themeRequirement(i){
   if(i === 0) return 0
