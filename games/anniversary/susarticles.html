@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SusArticles</title>
+  <link rel="shortcut icon" href="amogus.png" type="image/x-icon" />
+  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="susarticles.css" />
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <header class="site-header">
+      <div class="logo-wrap">
+        <a href="index.html"><img class="logo" src="logo.png" alt="SusFeed"></a>
+      </div>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#">Susarticles</a>
+        <img src="amogus.png" alt="" class="amogus">
+        <a href="#">Quizes</a>
+        <img src="amogus.png" alt="" class="amogus">
+        <a href="about.html">About</a>
+      </nav>
+    </header>
+
+    <main class="articles-grid">
+      <h1 class="page-title">All Susarticles</h1>
+
+      <div id="article-list" class="article-list"></div>
+    </main>
+
+  </div>
+
+  <script>
+    (function() {
+      var container = document.getElementById('article-list');
+      if (!container) return;
+
+      function getTitleFromFile(filename) {
+        return filename
+          .replace(/\.html$/, '')
+          .replace(/_/g, ' ')
+          .replace(/\b(Top|Things|Sexiest|Photos|Reasons|Most|Secret|Heroic)\b/g, function(match) {
+            return match;
+          });
+      }
+
+      fetch('index.json')
+        .then(function(response) {
+          if (!response.ok) {
+            throw new Error('Failed to load index.json');
+          }
+          return response.json();
+        })
+        .then(function(articles) {
+          articles.forEach(function(article) {
+            var card = document.createElement('div');
+            card.className = 'article-card';
+
+            var link = document.createElement('a');
+            link.href = article.folder + '/' + article.file;
+            link.className = 'article-link';
+
+            var img = document.createElement('img');
+            img.className = 'card-cover';
+            img.src = article.folder + '/cover.webp';
+            img.alt = 'Article cover';
+            img.loading = 'lazy';
+
+            var title = document.createElement('h2');
+            title.className = 'card-title';
+            var rawTitle = getTitleFromFile(article.file);
+            title.textContent = rawTitle;
+
+            link.appendChild(img);
+            link.appendChild(title);
+            card.appendChild(link);
+            container.appendChild(card);
+          });
+        })
+        .catch(function(error) {
+          console.error('Error loading articles:', error);
+          container.innerHTML = '<p style="text-align:center;font-size:20px;padding:40px 0;">Failed to load articles. Please try again later.</p>';
+        });
+    })();
+  </script>
+</body>
+</html>

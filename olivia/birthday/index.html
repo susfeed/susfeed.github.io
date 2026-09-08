@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bestie's Birthday Night</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #05020b;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    body {
+      color: white;
+      user-select: none;
+    }
+    .club {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 50% 105%, rgba(255, 0, 153, .28), transparent 34%),
+        radial-gradient(circle at 50% 35%, rgba(88, 0, 255, .24), transparent 42%),
+        linear-gradient(180deg, #090019 0%, #14002b 48%, #05020b 100%);
+    }
+    .club::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(115deg, transparent 0 45%, rgba(255,255,255,.045) 46%, transparent 47%),
+        linear-gradient(65deg, transparent 0 52%, rgba(255,255,255,.035) 53%, transparent 54%);
+      background-size: 120px 120px;
+      opacity: .45;
+    }
+    .vignette {
+      position: absolute;
+      inset: -10%;
+      z-index: 10;
+      pointer-events: none;
+      background: radial-gradient(circle, transparent 42%, rgba(0,0,0,.65) 100%);
+    }
+    .spotlight {
+      position: absolute;
+      top: -20%;
+      width: 28vw;
+      height: 125vh;
+      opacity: .17;
+      filter: blur(1px);
+      transform-origin: 50% 0;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+    .spotlight.one {
+      left: 2%;
+      background: linear-gradient(to bottom, rgba(255,0,180,.9), transparent 72%);
+      clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+      animation: sweepOne 6s ease-in-out infinite alternate;
+    }
+    .spotlight.two {
+      right: 2%;
+      background: linear-gradient(to bottom, rgba(0,200,255,.9), transparent 72%);
+      clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+      animation: sweepTwo 7s ease-in-out infinite alternate;
+    }
+    @keyframes sweepOne {
+      from { transform: rotate(-25deg); }
+      to   { transform: rotate(22deg); }
+    }
+    @keyframes sweepTwo {
+      from { transform: rotate(24deg); }
+      to   { transform: rotate(-23deg); }
+    }
+    .laser {
+      position: absolute;
+      height: 2px;
+      width: 130vw;
+      left: -15vw;
+      background: white;
+      box-shadow: 0 0 7px currentColor, 0 0 20px currentColor;
+      opacity: .6;
+      transform-origin: center;
+      pointer-events: none;
+      animation: laserMove 4s ease-in-out infinite alternate;
+    }
+    .laser.l1 { top: 28%; color: #ff32d2; transform: rotate(12deg); }
+    .laser.l2 { top: 43%; color: #28eaff; animation-delay: -1.2s; transform: rotate(-8deg); }
+    .laser.l3 { top: 61%; color: #b36bff; animation-delay: -2.1s; transform: rotate(5deg); }
+    @keyframes laserMove {
+      from { translate: -5vw 0; }
+      to { translate: 5vw 0; }
+    }
+    .header {
+      position: absolute;
+      top: 4vh;
+      left: 50%;
+      z-index: 20;
+      transform: translateX(-50%);
+      text-align: center;
+      width: min(92vw, 900px);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+    .header.visible {
+      opacity: 1;
+    }
+    .eyebrow {
+      margin: 0 0 7px;
+      font-size: clamp(11px, 1.5vw, 16px);
+      letter-spacing: .42em;
+      text-transform: uppercase;
+      opacity: .75;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(42px, 8vw, 108px);
+      line-height: .88;
+      letter-spacing: -.045em;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 8px rgba(255,255,255,.8),
+        0 0 26px rgba(255,0,196,.75),
+        0 0 55px rgba(126,0,255,.6);
+      animation: titlePulse 2.1s ease-in-out infinite;
+    }
+    .name {
+      margin-top: 13px;
+      font-size: clamp(17px, 2.6vw, 29px);
+      font-weight: 800;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+    @keyframes titlePulse {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.025); filter: brightness(1.18); }
+    }
+    .stage {
+      position: absolute;
+      left: 50%;
+      bottom: -2vh;
+      width: min(1000px, 96vw);
+      height: 72vh;
+      transform: translateX(-50%);
+    }
+    .floor {
+      position: absolute;
+      left: 50%;
+      bottom: -10vh;
+      width: 125%;
+      height: 45%;
+      transform: translateX(-50%) perspective(400px) rotateX(58deg);
+      transform-origin: bottom;
+      background:
+        linear-gradient(90deg, transparent 49.5%, rgba(255,255,255,.12) 50%, transparent 50.5%),
+        linear-gradient(0deg, transparent 49.5%, rgba(255,255,255,.1) 50%, transparent 50.5%);
+      background-size: 110px 110px;
+      box-shadow: 0 -10px 80px rgba(214, 0, 255, .3);
+      opacity: .65;
+    }
+    .dancer {
+      position: absolute;
+      bottom: 3vh;
+      width: min(42vw, 410px);
+      height: auto;
+      max-height: 67vh;
+      object-fit: contain;
+      object-position: bottom center;
+      transform-origin: 50% 90%;
+      filter:
+        drop-shadow(0 0 8px rgba(255,255,255,.35))
+        drop-shadow(0 0 22px rgba(255,0,190,.55));
+      will-change: transform, filter;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .dancer.visible {
+      opacity: 1;
+    }
+    .dancer.left {
+      left: -1%;
+      z-index: 2;
+      animation: none;
+    }
+    .dancer.left.dancing {
+      animation: danceLeft 1.35s ease-in-out infinite;
+    }
+    .dancer.center {
+      left: 50%;
+      z-index: 4;
+      transform: translateX(-50%);
+      width: min(46vw, 450px);
+      animation: none;
+    }
+    .dancer.center.dancing {
+      animation: danceCenter 1.08s ease-in-out infinite;
+    }
+    .dancer.right {
+      right: -1%;
+      z-index: 2;
+      transform: scaleX(-1);
+      animation: none;
+    }
+    .dancer.right.dancing {
+      animation: danceRight 1.52s ease-in-out infinite;
+    }
+    @keyframes danceLeft {
+      0%,100% { transform: rotate(-7deg) translateY(4px) scale(.92); }
+      25% { transform: rotate(9deg) translateY(-15px) scale(.97); }
+      50% { transform: rotate(-3deg) translateY(-28px) scale(1); }
+      75% { transform: rotate(12deg) translateY(-9px) scale(.95); }
+    }
+    @keyframes danceCenter {
+      0%,100% { transform: translateX(-50%) rotate(0deg) translateY(0) scale(1); }
+      20% { transform: translateX(-50%) rotate(-9deg) translateY(-16px) scale(1.02); }
+      50% { transform: translateX(-50%) rotate(8deg) translateY(-34px) scale(1.06); }
+      75% { transform: translateX(-50%) rotate(-5deg) translateY(-11px) scale(1.015); }
+    }
+    @keyframes danceRight {
+      0%,100% { transform: scaleX(-1) rotate(7deg) translateY(4px) scale(.92); }
+      25% { transform: scaleX(-1) rotate(-10deg) translateY(-18px) scale(.98); }
+      50% { transform: scaleX(-1) rotate(4deg) translateY(-26px) scale(1); }
+      75% { transform: scaleX(-1) rotate(-12deg) translateY(-8px) scale(.95); }
+    }
+    .floorGlow {
+      position: absolute;
+      left: 50%;
+      bottom: 3%;
+      z-index: 1;
+      width: 72%;
+      height: 10%;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: rgba(255, 0, 185, .5);
+      filter: blur(35px);
+      animation: floorPulse .75s ease-in-out infinite alternate;
+    }
+    @keyframes floorPulse {
+      from { opacity: .45; transform: translateX(-50%) scaleX(.9); }
+      to { opacity: .9; transform: translateX(-50%) scaleX(1.12); }
+    }
+    .particles {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 10px currentColor;
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      from { transform: translateY(15vh) scale(.4); opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: .8; }
+      to { transform: translateY(-110vh) scale(1.1); opacity: 0; }
+    }
+    .controls {
+      position: absolute;
+      left: 50%;
+      bottom: 3vh;
+      z-index: 30;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    button {
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 999px;
+      padding: 16px 36px;
+      color: white;
+      background: rgba(10, 4, 25, .58);
+      backdrop-filter: blur(12px);
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: .08em;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(255,0,204,.18);
+      transition: transform .2s, background .2s, box-shadow .2s, opacity .5s;
+    }
+    button:hover { transform: scale(1.06); background: rgba(255,0,180,.18); box-shadow: 0 0 40px rgba(255,0,204,.35); }
+    button:active { transform: scale(.97); }
+    button.party-mode {
+      animation: buttonPulse 0.8s ease-in-out infinite alternate;
+      border-color: #ff44dd;
+      box-shadow: 0 0 40px rgba(255,0,204,.5);
+      opacity: 0.6;
+      cursor: default;
+      pointer-events: none;
+    }
+    button.party-mode:hover {
+      transform: none;
+      background: rgba(10, 4, 25, .58);
+    }
+    @keyframes buttonPulse {
+      from { box-shadow: 0 0 20px rgba(255,0,204,.3); }
+      to { box-shadow: 0 0 60px rgba(255,0,204,.7), 0 0 100px rgba(255,0,204,.3); }
+    }
+    .hint {
+      position: absolute;
+      top: 2.2vh;
+      right: 2vw;
+      z-index: 30;
+      font-size: 11px;
+      letter-spacing: .12em;
+      opacity: .45;
+    }
+    .flash {
+      position: absolute;
+      inset: 0;
+      z-index: 25;
+      background: white;
+      pointer-events: none;
+      opacity: 0;
+    }
+    .disco-ball {
+      position: absolute;
+      top: 8%;
+      left: 50%;
+      z-index: 5;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #eee, #999);
+      box-shadow: 0 0 60px rgba(255,255,255,0.3), 0 0 120px rgba(255,0,200,0.15);
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      pointer-events: none;
+    }
+    .disco-ball.visible {
+      opacity: 1;
+    }
+    .disco-ball::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #fff8 0%, #fff0 10%, #fff8 20%, #fff0 30%, #fff8 40%, #fff0 50%, #fff8 60%, #fff0 70%, #fff8 80%, #fff0 90%, #fff8 100%);
+      animation: spinDisco 4s linear infinite;
+    }
+    @keyframes spinDisco {
+      to { transform: rotate(360deg); }
+    }
+    @media (max-width: 700px) {
+      .header { top: 5vh; }
+      .stage { height: 70vh; }
+      .dancer { width: 57vw; max-height: 57vh; bottom: 7vh; }
+      .dancer.center { width: 62vw; }
+      .dancer.left { left: -14%; }
+      .dancer.right { right: -14%; }
+      .floor { width: 180%; }
+      .controls { bottom: 2vh; }
+      button { padding: 12px 24px; font-size: 1rem; }
+      .disco-ball { width: 25px; height: 25px; top: 10%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 5s !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="club">
+    <div class="spotlight one"></div>
+    <div class="spotlight two"></div>
+    <div class="laser l1"></div>
+    <div class="laser l2"></div>
+    <div class="laser l3"></div>
+
+    <div class="disco-ball" id="discoBall"></div>
+
+    <section class="header" id="header">
+      <p class="eyebrow">Tonight's main event</p>
+      <h1>Happy Birthday</h1>
+      <div class="name">OLIVIA</div>
+    </section>
+
+    <section class="stage" aria-label="Birthday dance floor">
+      <div class="floor"></div>
+      <div class="floorGlow" id="floorGlow"></div>
+      <img class="dancer left" id="dancerLeft" src="cam.png" alt="">
+      <img class="dancer center" id="dancerCenter" src="cam.png" alt="">
+      <img class="dancer right" id="dancerRight" src="cam.png" alt="">
+    </section>
+
+    <div class="particles" id="particles"></div>
+    <div class="flash" id="flash"></div>
+
+    <div class="hint">SOUND ON</div>
+
+    <div class="controls">
+      <button id="mainBtn">🎉 START THE PARTY</button>
+    </div>
+
+    <audio id="song" preload="auto"></audio>
+    <div class="vignette"></div>
+  </main>
+
+  <script>
+    const friendName = "OLIVIA";
+    const SONG_SOURCES = [
+      "song.mp3"
+    ];
+    let currentSongIndex = 0;
+
+    const header = document.getElementById("header");
+    const dancers = [
+      document.getElementById("dancerLeft"),
+      document.getElementById("dancerCenter"),
+      document.getElementById("dancerRight")
+    ];
+    const discoBall = document.getElementById("discoBall");
+    const mainBtn = document.getElementById("mainBtn");
+    const flash = document.getElementById("flash");
+    const song = document.getElementById("song");
+    const particlesContainer = document.getElementById("particles");
+    const floorGlow = document.getElementById("floorGlow");
+
+    let partyStarted = false;
+    let audioCtx, analyser, source, data;
+
+    for (let i = 0; i < 55; i++) {
+      const p = document.createElement("span");
+      p.className = "particle";
+      p.style.left = `${Math.random() * 100}%`;
+      p.style.bottom = `${-10 - Math.random() * 25}%`;
+      p.style.animationDuration = `${4 + Math.random() * 7}s`;
+      p.style.animationDelay = `${-Math.random() * 8}s`;
+      p.style.opacity = `${.2 + Math.random() * .8}`;
+      p.style.width = p.style.height = `${2 + Math.random() * 4}px`;
+      p.style.color = `hsl(${Math.random() * 60 + 300}, 100%, 70%)`;
+      particlesContainer.appendChild(p);
+    }
+
+    function tryLoadSong(index) {
+      if (index >= SONG_SOURCES.length) {
+        console.warn("All song sources failed.");
+        return false;
+      }
+      song.src = SONG_SOURCES[index];
+      song.load();
+      return true;
+    }
+
+    tryLoadSong(0);
+
+    async function startParty() {
+      if (partyStarted) return;
+
+      partyStarted = true;
+
+      header.classList.add("visible");
+      dancers.forEach(d => d.classList.add("visible"));
+      discoBall.classList.add("visible");
+
+      dancers.forEach(d => d.classList.add("dancing"));
+
+      mainBtn.textContent = "🎶 TORUING IN PROGRESS";
+      mainBtn.classList.add("party-mode");
+
+      try {
+        if (audioCtx && audioCtx.state === "suspended") {
+          await audioCtx.resume();
+        }
+        await song.play();
+      } catch (err) {
+        if (currentSongIndex === 0) {
+          currentSongIndex++;
+          if (tryLoadSong(currentSongIndex)) {
+            try {
+              await song.play();
+            } catch (e2) {
+              console.log("Audio playback failed:", e2);
+            }
+          }
+        }
+      }
+
+      setupAudioVisualizer();
+
+      partyBurst();
+
+      document.addEventListener("click", (e) => {
+        if (partyStarted && e.target !== mainBtn) {
+          partyBurst();
+        }
+      });
+    }
+
+    function partyBurst() {
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement("span");
+        p.className = "particle";
+        p.style.left = "50%";
+        p.style.bottom = "35%";
+        p.style.width = p.style.height = `${3 + Math.random() * 6}px`;
+        p.style.background = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        p.style.boxShadow = `0 0 15px currentColor`;
+        p.style.animation = `none`;
+        p.style.transition = "transform 1000ms ease-out, opacity 1000ms ease-out";
+        p.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+        particlesContainer.appendChild(p);
+
+        requestAnimationFrame(() => {
+          const angle = Math.random() * Math.PI * 2;
+          const distance = 80 + Math.random() * 300;
+          p.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance - 100}px)`;
+          p.style.opacity = "0";
+        });
+
+        setTimeout(() => p.remove(), 1100);
+      }
+    }
+
+    function setupAudioVisualizer() {
+      if (audioCtx) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        if (audioCtx.state === "suspended") {
+          audioCtx.resume();
+        }
+        
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 128;
+        data = new Uint8Array(analyser.frequencyBinCount);
+
+        source = audioCtx.createMediaElementSource(song);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
+        function tick() {
+          if (!analyser) return;
+          analyser.getByteFrequencyData(data);
+          const avg = data.reduce((a, b) => a + b, 0) / data.length;
+          const beat = Math.min(1, avg / 145);
+
+          floorGlow.style.filter = `blur(${35 + beat * 25}px)`;
+          floorGlow.style.opacity = .4 + beat * .5;
+
+          dancers.forEach((d) => {
+            const extra = 1 + beat * 0.12;
+            if (d.classList.contains('left')) {
+              d.style.transform = `scale(${extra})`;
+            } else if (d.classList.contains('right')) {
+              d.style.transform = `scaleX(-1) scale(${extra})`;
+            } else {
+              d.style.transform = `translateX(-50%) scale(${extra})`;
+            }
+          });
+
+          requestAnimationFrame(tick);
+        }
+        tick();
+      } catch (e) {
+        console.log("Visualizer not available");
+      }
+    }
+
+    mainBtn.addEventListener("click", startParty);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        if (!partyStarted) {
+          startParty();
+        } else {
+          partyBurst();
+        }
+      }
+      if (e.key.toLowerCase() === "f" && partyStarted) {
+        partyBurst();
+      }
+    });
+
+    document.addEventListener("pointerdown", () => {
+      if (!partyStarted) startParty();
+    }, { once: true });
+
+    song.addEventListener("error", () => {
+      if (currentSongIndex < SONG_SOURCES.length - 1) {
+        currentSongIndex++;
+        if (tryLoadSong(currentSongIndex)) {
+          if (partyStarted) {
+            song.play().catch(() => {});
+          }
+        }
+      }
+    });
+
+    document.addEventListener("pointerdown", () => {
+      if (!audioCtx) {
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {}
+      }
+    }, { once: true });
+
+    console.log("🎉 Happy Birthday! Click START or press SPACE.");
+    console.log("💡 Press 'F' for a confetti burst during the party!");
+  </script>
+</body>
+</html>

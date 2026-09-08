@@ -1,0 +1,188 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Times New Roman", Times, serif;
+}
+
+/* Screenshot: two thin rules with the logo centered between the page top
+   and the navigation. The supplied logo is used at its native proportions. */
+.site-header {
+  margin: 0 10px;
+  text-align: center;
+  padding-top: 28px;  /* margin above the logo */
+}
+
+.logo-wrap {
+  height: 68px;
+  border-bottom: 1px solid #aaa;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+.logo {
+  display: block;
+  width: 382px;
+  height: auto;
+  margin-top: -2px;
+}
+
+/* Navigation is approximately 50px high in the reference. */
+.nav {
+  height: 51px;
+  border-bottom: 1px solid #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.nav a {
+  color: #000;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+.amogus {
+  width: 29px;
+  height: 29px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Main content */
+.featured {
+  text-align: center;
+  padding-top: 47px;
+  padding-bottom: 60px;  /* margin below the text */
+}
+
+.featured h1 {
+  margin: 0 0 29px;
+  font-size: 36px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+/* Reference image pair is centered around the page midpoint. */
+.feature-cover {
+  display: flex;
+  justify-content: center;
+}
+
+.feature-cover img {
+  display: block;
+  width: 614px;
+  height: 442px;
+  object-fit: cover;
+}
+
+/* Reference headline is roughly 50px Times New Roman and wraps into two lines. */
+.featured h2 {
+  margin: 22px auto 0;
+  max-width: 1280px;
+  font-size: 48px;
+  line-height: 1.13;
+  font-weight: 700;
+}
+
+/* Article link: always black, no color change, no underline by default */
+.article-link {
+  color: #000;
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* ensure link never changes color on any state */
+.article-link:link,
+.article-link:visited,
+.article-link:hover,
+.article-link:active,
+.article-link:focus {
+  color: #000;
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .logo {
+    width: 330px;
+  }
+
+  .nav {
+    font-size: 23px;
+  }
+
+  .amogus {
+    width: 24px;
+    height: 24px;
+  }
+
+  .feature-cover img {
+    width: min(614px, 92vw);
+    height: auto;
+  }
+
+  .featured h2 {
+    padding: 0 20px;
+    font-size: 38px;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-header {
+    padding-top: 16px;  /* less top margin on small screens */
+  }
+
+  .logo-wrap {
+    height: 58px;
+  }
+
+  .logo {
+    width: 280px;
+  }
+
+  .nav {
+    height: 45px;
+    font-size: 19px;
+    gap: 5px;
+  }
+
+  .amogus {
+    width: 20px;
+    height: 20px;
+  }
+
+  .featured {
+    padding-top: 28px;
+    padding-bottom: 40px;  /* less bottom margin on small screens */
+  }
+
+  .featured h1 {
+    font-size: 30px;
+    margin-bottom: 20px;
+  }
+
+  .feature-cover img {
+    width: 92vw;
+    height: auto;
+  }
+
+  .featured h2 {
+    font-size: 30px;
+  }
+}

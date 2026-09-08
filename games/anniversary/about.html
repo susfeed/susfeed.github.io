@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About</title>
+  <link rel="shortcut icon" href="amogus.png" type="image/x-icon" />
+  <link rel="stylesheet" href="index.css">
+  <style>
+    .about {
+      min-height: calc(100vh - 119px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .about-title {
+      margin: 0 0 34px;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 48px;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .chaos-scroll {
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1;
+      transform: rotate(-3deg) scale(1.05);
+    }
+
+    .chaos-track {
+      display: inline-flex;
+      align-items: center;
+      gap: 24px;
+      animation: chaos-scroll 8s linear infinite;
+    }
+
+    .chaos-word {
+      display: inline-block;
+      animation: rainbow-flash 0.65s steps(1, end) infinite;
+    }
+
+    .chaos-separator {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    @keyframes chaos-scroll {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    @keyframes rainbow-flash {
+      0%   { color: #ff0000; }
+      16%  { color: #ff7a00; }
+      33%  { color: #ffff00; }
+      50%  { color: #00c853; }
+      66%  { color: #00a8ff; }
+      83%  { color: #8a2be2; }
+      100% { color: #ff00aa; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .chaos-track {
+        animation: none;
+      }
+
+      .chaos-word {
+        animation: none;
+        color: #ff0000;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .about-title {
+        font-size: 34px;
+        margin-bottom: 24px;
+      }
+
+      .chaos-scroll {
+        font-size: 42px;
+      }
+
+      .chaos-separator {
+        width: 38px;
+        height: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo-wrap">
+      <a href="index.html"><img class="logo" src="logo.png" alt="SusFeed"></a>
+    </div>
+
+    <nav class="nav" aria-label="Main navigation">
+      <a href="susarticles.html">Susarticles</a>
+      <img src="amogus.png" alt="" class="amogus">
+      <a href="#">Quizes</a>
+      <img src="amogus.png" alt="" class="amogus">
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main class="about">
+    <h1 class="about-title">What are we about?</h1>
+    <div class="chaos-scroll" aria-label="Chaos">
+      <div class="chaos-track">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+        <span class="chaos-word">CHAOS</span>
+        <img class="chaos-separator" src="amogus.png" alt="">
+      </div>
+    </div>
+  </main>
+</body>
+</html>
