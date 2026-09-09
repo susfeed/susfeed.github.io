@@ -27,7 +27,7 @@
   nav.appendChild(icon1);
 
   var link2 = document.createElement('a');
-  link2.href = '#';
+  link2.href = '../quizzes.html';
   link2.textContent = 'Quizes';
   nav.appendChild(link2);
 

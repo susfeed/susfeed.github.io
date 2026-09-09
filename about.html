@@ -6,33 +6,301 @@
   <link rel="shortcut icon" href="img/amogus.webp" type="image/x-icon" />
   <link rel="stylesheet" href="index.css" />
   <title>About</title>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255, 0, 100, 0.12), transparent 25%),
+        radial-gradient(circle at 90% 70%, rgba(0, 200, 255, 0.12), transparent 25%);
+    }
+
+    .about-section {
+      position: relative;
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .header1 {
+      position: relative;
+      z-index: 5;
+      padding: 40px 0;
+    }
+
+    .section-title {
+      font-size: clamp(3rem, 8vw, 8rem);
+      line-height: 0.9;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: -0.06em;
+      transform: rotate(-2deg);
+      text-shadow:
+        5px 5px 0 #ff3cac,
+        -3px -3px 0 #00e5ff;
+    }
+
+    .about-section::before,
+    .about-section::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .about-section::before {
+      width: 45vw;
+      height: 45vw;
+      max-width: 700px;
+      max-height: 700px;
+      right: -15vw;
+      top: 10%;
+      border: 4px solid rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      transform: rotate(20deg);
+      box-shadow:
+        0 0 0 30px rgba(255, 255, 255, 0.015),
+        0 0 0 60px rgba(255, 255, 255, 0.01);
+    }
+
+    .about-section::after {
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
     }
 
     .scrolling-content {
+      position: relative;
+      z-index: 3;
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
       overflow: hidden;
-      width: 100%;
+      padding: 35px 0;
+      transform: rotate(-3deg) scale(1.05);
+      background: #fff;
+      color: #080808;
+      border-top: 5px solid #080808;
+      border-bottom: 5px solid #080808;
+      box-shadow:
+        0 12px 0 #ff3cac,
+        0 -8px 0 #00e5ff;
     }
 
     .scroll-track {
       display: flex;
-      flex-wrap: nowrap;
+      width: max-content;
+      animation: chaos-scroll 14s linear infinite;
+      will-change: transform;
     }
 
     .rainbow-text {
       display: flex;
       align-items: center;
-      gap: 20px;
+      flex: 0 0 max-content;
+      width: max-content;
       white-space: nowrap;
     }
 
+    .rainbow-text span {
+      display: inline-block;
+      font-size: clamp(3rem, 7vw, 7rem);
+      font-weight: 1000;
+      line-height: 0.8;
+      letter-spacing: -0.06em;
+      text-transform: uppercase;
+      padding: 0 25px;
+      transform: skew(-8deg);
+    }
+
+    .rainbow-text span:nth-of-type(1) {
+      color: #ff3cac;
+    }
+
+    .rainbow-text span:nth-of-type(2) {
+      color: #111;
+    }
+
+    .rainbow-text span:nth-of-type(3) {
+      color: #00bcd4;
+    }
+
+    .rainbow-text span:nth-of-type(4) {
+      color: #111;
+    }
+
     .scrolling-gif {
-      height: 50px;
+      width: clamp(45px, 6vw, 90px);
+      height: clamp(45px, 6vw, 90px);
+      object-fit: contain;
+      margin: 0 10px;
+      transform: rotate(8deg);
+      flex-shrink: 0;
+    }
+
+    .scrolling-gif:nth-of-type(even) {
+      transform: rotate(-12deg) scale(1.15);
+    }
+
+    @keyframes chaos-scroll {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    .chaos-row {
+      position: relative;
+      z-index: 2;
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-top: 70px;
+      overflow: hidden;
+      transform: rotate(2deg) scale(1.08);
+      background: #b30000;
+      color: white;
+      border-top: 4px solid #080808;
+      border-bottom: 4px solid #080808;
+    }
+
+    .chaos-track {
+      display: flex;
+      width: max-content;
+      animation: chaos-scroll-reverse 19s linear infinite;
+      will-change: transform;
+    }
+
+    .chaos-track > div {
+      flex: 0 0 max-content;
+      width: max-content;
+    }
+
+    .chaos-track span {
+      display: block;
+      padding: 15px 30px;
+      font-size: clamp(1.5rem, 3vw, 3rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    @keyframes chaos-scroll-reverse {
+      from {
+        transform: translateX(-50%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    .bg-shape {
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bg-star {
+      font-size: clamp(2rem, 5vw, 5rem);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .star-1 {
+      top: 15%;
+      left: 8%;
+      transform: rotate(15deg);
+    }
+
+    .star-2 {
+      right: 12%;
+      bottom: 15%;
+      transform: rotate(-20deg);
+      animation-delay: -2s;
+    }
+
+    .star-3 {
+      left: 35%;
+      bottom: 5%;
+      font-size: 2rem;
+      animation-delay: -1s;
+    }
+
+    .bg-circle {
+      width: 25px;
+      height: 25px;
+      border: 5px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .circle-1 {
+      top: 25%;
+      left: 25%;
+    }
+
+    .circle-2 {
+      right: 30%;
+      bottom: 20%;
+      width: 45px;
+      height: 45px;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        translate: 0 0;
+      }
+
+      50% {
+        translate: 0 -20px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .about-section {
+        min-height: 80vh;
+      }
+
+      .header1 {
+        padding: 30px 15px;
+      }
+
+      .scrolling-content {
+        padding: 25px 0;
+        transform: rotate(-4deg) scale(1.12);
+      }
+
+      .chaos-row {
+        margin-top: 50px;
+        transform: rotate(3deg) scale(1.15);
+      }
+
+      .bg-star {
+        opacity: 0.5;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-track,
+      .chaos-track,
+      .bg-star {
+        animation: none;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <div class="wrapper">
@@ -40,26 +308,75 @@
     <div class="site-header"></div>
 
     <main>
+
       <section class="about-section container">
+
+        <div class="bg-shape bg-star star-1">✦</div>
+        <div class="bg-shape bg-star star-2">✹</div>
+        <div class="bg-shape bg-star star-3">★</div>
+
+        <div class="bg-shape bg-circle circle-1"></div>
+        <div class="bg-shape bg-circle circle-2"></div>
+
         <div class="header1">
-          <h2 class="section-title"><u>What are we about?</u></h2>
+          <h2 class="section-title">
+            <u>What are we about?</u>
+          </h2>
         </div>
 
         <div class="scrolling-content">
-          <div class="scroll-track" id="scrollTrack">
-            <div class="rainbow-text scroll-segment" id="scrollSegment">
+
+          <div class="scroll-track">
+
+            <div class="rainbow-text">
               <img src="img/amogus.gif" class="scrolling-gif" />
-              <i>Chaos</i>
+              <span>CHAOS</span>
+
               <img src="img/amogus.gif" class="scrolling-gif" />
-              <i>Chaos</i>
+              <span>CHAOS</span>
+
               <img src="img/amogus.gif" class="scrolling-gif" />
-              <i>Chaos</i>
+              <span>CHAOS</span>
+
               <img src="img/amogus.gif" class="scrolling-gif" />
-              <i>Chaos</i>
+              <span>CHAOS</span>
             </div>
+
+            <div class="rainbow-text" aria-hidden="true">
+              <img src="img/amogus.gif" class="scrolling-gif" />
+              <span>CHAOS</span>
+
+              <img src="img/amogus.gif" class="scrolling-gif" />
+              <span>CHAOS</span>
+
+              <img src="img/amogus.gif" class="scrolling-gif" />
+              <span>CHAOS</span>
+
+              <img src="img/amogus.gif" class="scrolling-gif" />
+              <span>CHAOS</span>
+            </div>
+
           </div>
         </div>
+
+        <div class="chaos-row">
+
+          <div class="chaos-track">
+
+            <div>
+              <span>★ SUS ★ AMONG ★ SMEFF ★ MAYO ★ FARD ★</span>
+            </div>
+
+            <div aria-hidden="true">
+              <span>★ SUS ★ AMONG ★ SMEFF ★ MAYO ★ FARD ★</span>
+            </div>
+
+          </div>
+
+        </div>
+
       </section>
+
     </main>
 
     <div class="site-footer"></div>
@@ -67,39 +384,7 @@
   </div>
 
   <script src="header.js"></script>
-  <script>
-    const track = document.getElementById("scrollTrack");
-    const segment = document.getElementById("scrollSegment");
 
-    function fill() {
-      const screenWidth = window.innerWidth;
-      let totalWidth = segment.offsetWidth;
-
-      while (totalWidth < screenWidth * 2) {
-        const clone = segment.cloneNode(true);
-        track.appendChild(clone);
-        totalWidth += segment.offsetWidth;
-      }
-    }
-
-    fill();
-
-    let x = 0;
-    const speed = 2;
-    const loopWidth = segment.offsetWidth;
-
-    function animate() {
-      x -= speed;
-
-      if (Math.abs(x) >= loopWidth) {
-        x += loopWidth;
-      }
-
-      track.style.transform = `translateX(${x}px)`;
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-  </script>
 </body>
 </html>
+```
