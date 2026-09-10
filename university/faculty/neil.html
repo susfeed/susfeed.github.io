@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vice President Neil Divins · SusFeed University</title>
+  <link rel="shortcut icon" href="../img/favicon.png" type="image/x-icon" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@300;400;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: #ffeef5;
+      color: #3d1a2e;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255, 105, 180, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 60%, rgba(255, 182, 193, 0.2) 0%, transparent 45%),
+        radial-gradient(circle at 50% 90%, rgba(255, 20, 147, 0.08) 0%, transparent 50%);
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, #ff69b4, #ff1493, #ff69b4);
+      color: #fff;
+      padding: 10px 0;
+      text-align: center;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+      font-size: 13px;
+      font-weight: 600;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .header {
+      background: #fff5fa;
+      border-bottom: 3px solid #ffb6d9;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 12px rgba(255, 105, 180, 0.15);
+    }
+
+    .nav {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+    }
+
+    .logo img {
+      height: 38px;
+      filter: hue-rotate(300deg) saturate(1.3) brightness(1.1);
+    }
+
+    nav {
+      display: flex;
+      gap: 28px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #c2185b;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 600;
+      transition: 0.3s;
+      padding: 6px 0;
+    }
+
+    nav a:hover {
+      color: #ff1493;
+      text-shadow: 0 0 12px rgba(255, 105, 180, 0.5);
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background: #fff5fa;
+      border: 2px solid #ffb6d9;
+      top: 100%;
+      min-width: 170px;
+      box-shadow: 0 8px 24px rgba(255, 105, 180, 0.25);
+      z-index: 999;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 10px 16px;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #ffe0ef;
+    }
+
+    .dropdown-content a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-content a:hover {
+      background: #ffe0ef;
+      color: #ff1493;
+    }
+
+    .dropdown:hover .dropdown-content,
+    .dropdown.open .dropdown-content {
+      display: block;
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 26px;
+      cursor: pointer;
+      color: #c2185b;
+    }
+
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 100px 20px 80px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 25% 30%, rgba(255, 105, 180, 0.25) 0%, transparent 50%),
+        radial-gradient(circle at 75% 70%, rgba(255, 20, 147, 0.15) 0%, transparent 50%),
+        linear-gradient(180deg, #ffeef5 0%, #ffd6e8 50%, #ffeef5 100%);
+      border-bottom: 5px solid #ff69b4;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
+      top: 20px;
+      left: 40px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+      bottom: 30px;
+      right: 60px;
+    }
+
+    .hero .container {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .hero-avatar {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 5px solid #ff69b4;
+      box-shadow: 0 0 40px rgba(255, 105, 180, 0.5), 0 8px 32px rgba(255, 20, 147, 0.2);
+      object-fit: cover;
+      margin-bottom: 24px;
+      background: #fff;
+      animation: bounce 3s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .hero h1 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #c2185b;
+      margin-bottom: 6px;
+      text-shadow: 0 2px 8px rgba(255, 105, 180, 0.3);
+    }
+
+    .hero .title {
+      font-size: 15px;
+      color: #ff1493;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .hero .faculty-badge {
+      display: inline-block;
+      background: linear-gradient(90deg, #ff69b4, #ff1493);
+      border: none;
+      border-radius: 30px;
+      padding: 10px 32px;
+      font-size: 12px;
+      color: #fff;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(255, 20, 147, 0.35);
+    }
+
+    .section {
+      padding: 70px 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .section h2 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 32px;
+      font-weight: 700;
+      color: #c2185b;
+      text-align: center;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
+
+    .section p {
+      font-size: 16px;
+      line-height: 1.9;
+      color: #6d3a52;
+      max-width: 760px;
+      margin: 0 auto 20px;
+      text-align: center;
+      font-weight: 400;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: #fff;
+      border: 2px solid #ffd6e8;
+      border-radius: 20px;
+      padding: 28px;
+      transition: 0.3s;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(255, 105, 180, 0.08);
+    }
+
+    .card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: #ff69b4;
+      box-shadow: 0 12px 32px rgba(255, 20, 147, 0.2);
+    }
+
+    .card h3 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 20px;
+      font-weight: 700;
+      color: #c2185b;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .card p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #7a4a62;
+      text-align: left;
+      margin: 0;
+    }
+
+    .quote-block {
+      background: linear-gradient(135deg, #ff69b4, #ff1493);
+      padding: 40px 45px;
+      border-radius: 24px;
+      margin: 40px auto;
+      max-width: 760px;
+      position: relative;
+      box-shadow: 0 12px 40px rgba(255, 20, 147, 0.3);
+    }
+
+    .quote-block p {
+      font-style: italic;
+      font-size: 20px;
+      color: #fff;
+      text-align: left;
+      margin: 0;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    .quote-block .attribution {
+      font-style: normal;
+      font-size: 13px;
+      color: #ffe0ef;
+      margin-top: 20px;
+      text-align: right;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 600;
+    }
+
+    .cta {
+      background: linear-gradient(135deg, #ff69b4, #ff1493);
+      text-align: center;
+      padding: 70px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: "";
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .cta::after {
+      content: "";
+      position: absolute;
+      bottom: -80px;
+      left: -30px;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .cta h2 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 34px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta p {
+      font-size: 16px;
+      color: #ffe0ef;
+      margin-bottom: 28px;
+      font-weight: 400;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta button {
+      background: #fff;
+      color: #ff1493;
+      border: none;
+      padding: 15px 44px;
+      border-radius: 30px;
+      font-family: 'Baloo 2', cursive;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .footer {
+      background: #4a1a30;
+      color: #ffb6d9;
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .footer p {
+      margin: 4px 0;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        background: #fff5fa;
+        flex-direction: column;
+        width: 220px;
+        padding: 20px;
+        display: none;
+        border: 2px solid #ffb6d9;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(255, 105, 180, 0.3);
+        gap: 15px;
+      }
+
+      nav.active {
+        display: flex;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      .hero-avatar {
+        width: 130px;
+        height: 130px;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #ffeef5;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ff69b4;
+      border-radius: 10px;
+      border: 2px solid #ffeef5;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ff1493;
+    }
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #ff69b4 #ffeef5;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  Vice President Neil Divins · Global Affairs &amp; Institutional Vision
+</div>
+
+<header class="header">
+  <div class="nav">
+    <a href="../index.html"><div class="logo"><img src="../img/logo.png" alt="SusFeed University"></div></a>
+    <div class="menu-toggle">☰</div>
+    <nav>
+      <div class="dropdown">
+        <a href="#">About</a>
+        <div class="dropdown-content">
+          <a href="../overview.html">Overview</a>
+          <a href="../mission.html">Mission</a>
+          <a href="../leadership.html">Leadership</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="../programs.html">Programs</a>
+        <div class="dropdown-content">
+          <a href="../programs.html">All</a>
+          <a href="../programs.html?level=certificate">Certificates</a>
+          <a href="../programs.html?level=minor">Minors</a>
+          <a href="../programs.html?level=undergraduate">Undergraduate</a>
+          <a href="../programs.html?level=graduate">Graduate</a>
+          <a href="../programs.html?level=phd">Doctoral</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="../research.html">Research</a>
+      </div>
+      <div class="dropdown">
+        <a href="../admissions.html">Admissions</a>
+      </div>
+      <div class="dropdown">
+        <a href="../dash/index.html">Course Portal</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <img src="../img/neil.png" alt="Vice President Neil Divins" class="hero-avatar">
+    <h1>Vice President Neil Divins</h1>
+    <p class="title">Global Affairs &amp; Institutional Vision</p>
+    <span class="faculty-badge">Faculty Profile</span>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Biography</h2>
+  <p>
+    Vice President Neil Divins serves as the university's lead on Global Affairs and Institutional Vision. 
+    Ensuring universal alignment with the broader goals of knowledge and existence, Neil has shaped 
+    SusFeed University's international presence and long-term strategic direction. His visionary approach 
+    has connected the university to academic networks across the globe.
+  </p>
+  <p>
+    When not steering institutional vision, Neil can often be found lying about inventing Smeff.
+  </p>
+</section>
+
+<section class="section">
+  <div class="quote-block">
+    <p>"I literally literally literally invented Smeff."</p>
+    <p class="attribution">— Vice President Neil Divins</p>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Positions Held</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Vice President</h3>
+      <p>Global Affairs &amp; Institutional Vision for SusFeed University.</p>
+    </div>
+    <div class="card">
+      <h3>Head, Applied Smeff</h3>
+      <p>Pioneering applied Smeff methodologies and interdisciplinary integration.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Courses Taught</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>SMEFF701: Doctoral Smeff Theory</h3>
+      <p>Advanced theoretical frameworks of Smeff and their applications across disciplines.</p>
+    </div>
+    <div class="card">
+      <h3>SMEFF501: Graduate Smeff Theory</h3>
+      <p>Advanced theoretical foundations of Smeff systems and their academic applications.</p>
+    </div>
+    <div class="card">
+      <h3>SMEFF201: Smeff: Early History</h3>
+      <p>Foundational study of Smeff origins and early development.</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Study with a Liar</h2>
+  <p>Learn from Vice President Neil Divins and expand your academic universe.</p>
+  <button onclick="window.location.href='../admissions.html'">Apply Now</button>
+</section>
+
+<footer class="footer">
+  <p>SusFeed University</p>
+  <p>Email: info@susfeed.edu</p>
+  <p>&copy; 2026 SusFeed University</p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var toggle = document.querySelector(".menu-toggle");
+  var nav = document.querySelector("nav");
+  if (toggle && nav) {
+    toggle.addEventListener("click", function() {
+      nav.classList.toggle("active");
+    });
+  }
+  document.querySelectorAll(".dropdown > a").forEach(function(link) {
+    link.addEventListener("click", function(e) {
+      if (window.innerWidth <= 768) {
+        e.preventDefault();
+        this.parentElement.classList.toggle("open");
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

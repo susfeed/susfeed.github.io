@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dr. John Smeff Mancala · SusFeed University</title>
+  <link rel="shortcut icon" href="../img/favicon.png" type="image/x-icon" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'EB Garamond', Georgia, serif;
+      background: #f4ecd8;
+      color: #2a1810;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at 20% 30%, rgba(139, 105, 20, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 70%, rgba(90, 60, 20, 0.06) 0%, transparent 55%),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='10' y='10' width='20' height='20' fill='none' stroke='%238b6914' stroke-width='0.5' opacity='0.06'/%3E%3Crect x='60' y='40' width='20' height='20' fill='none' stroke='%238b6914' stroke-width='0.5' opacity='0.05'/%3E%3Crect x='35' y='70' width='16' height='16' fill='none' stroke='%238b6914' stroke-width='0.5' opacity='0.04'/%3E%3C/svg%3E");
+    }
+
+    .topbar {
+      background: #2a1810;
+      border-bottom: 3px double #8b6914;
+      color: #d4b483;
+      padding: 10px 0;
+      text-align: center;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .header {
+      background: #f4ecd8;
+      border-bottom: 2px solid #8b6914;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(42, 24, 16, 0.1);
+    }
+
+    .nav {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+    }
+
+    .logo img {
+      height: 38px;
+      filter: sepia(1) saturate(0.7) brightness(0.75);
+    }
+
+    nav {
+      display: flex;
+      gap: 30px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #2a1810;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+      font-weight: 500;
+      transition: 0.3s;
+      padding-bottom: 4px;
+      border-bottom: 1px solid transparent;
+    }
+
+    nav a:hover {
+      color: #8b6914;
+      border-bottom-color: #8b6914;
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background: #f4ecd8;
+      border: 1px solid #8b6914;
+      top: 100%;
+      min-width: 180px;
+      box-shadow: 0 8px 24px rgba(42, 24, 16, 0.15);
+      z-index: 999;
+      margin-top: 8px;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 11px 18px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #e0d4b8;
+      border-bottom: none;
+    }
+
+    .dropdown-content a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-content a:hover {
+      background: #e8dcc0;
+      color: #8b6914;
+      border-bottom-color: transparent;
+    }
+
+    .dropdown:hover .dropdown-content,
+    .dropdown.open .dropdown-content {
+      display: block;
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 26px;
+      cursor: pointer;
+      color: #2a1810;
+    }
+
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 110px 20px 90px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, #f4ecd8 0%, #e8dcc0 50%, #d4c4a0 100%);
+      border-bottom: 4px double #8b6914;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: repeating-linear-gradient(
+        90deg,
+        #8b6914 0px, #8b6914 40px,
+        #2a1810 40px, #2a1810 80px
+      );
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #8b6914, transparent);
+    }
+
+    .hero .container {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .hero-avatar {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 4px solid #8b6914;
+      box-shadow: 0 0 0 8px #f4ecd8, 0 0 0 9px #8b6914, 0 12px 32px rgba(42, 24, 16, 0.3);
+      object-fit: cover;
+      margin-bottom: 28px;
+      background: #e8dcc0;
+    }
+
+    .hero h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 44px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: #2a1810;
+      margin-bottom: 8px;
+    }
+
+    .hero .title {
+      font-size: 14px;
+      color: #8b6914;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin-bottom: 26px;
+      font-weight: 500;
+      font-family: 'Cinzel', serif;
+    }
+
+    .hero .faculty-badge {
+      display: inline-block;
+      background: #2a1810;
+      border: 1px solid #8b6914;
+      border-radius: 2px;
+      padding: 11px 30px;
+      font-size: 11px;
+      color: #d4b483;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+      font-weight: 500;
+    }
+
+    .section {
+      padding: 70px 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .section h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: #2a1810;
+      text-align: center;
+      margin-bottom: 34px;
+      letter-spacing: 3px;
+      position: relative;
+      padding-bottom: 18px;
+      text-transform: uppercase;
+    }
+
+    .section h2::after {
+      content: "❧";
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #8b6914;
+      font-size: 18px;
+      background: #f4ecd8;
+      padding: 0 12px;
+    }
+
+    .section p {
+      font-size: 17px;
+      line-height: 1.95;
+      color: #3d2817;
+      max-width: 760px;
+      margin: 0 auto 20px;
+      text-align: center;
+      font-weight: 400;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: #fffdf5;
+      border: 1px solid #c4b48a;
+      border-radius: 2px;
+      padding: 30px;
+      transition: 0.3s;
+      position: relative;
+      box-shadow: 4px 4px 0 rgba(139, 105, 20, 0.1);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      border: 1px solid rgba(139, 105, 20, 0.15);
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translate(-2px, -2px);
+      border-color: #8b6914;
+      box-shadow: 8px 8px 0 rgba(139, 105, 20, 0.2);
+    }
+
+    .card h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #2a1810;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .card p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #5a4030;
+      text-align: left;
+      margin: 0;
+      font-family: 'EB Garamond', Georgia, serif;
+    }
+
+    .quote-block {
+      background: #2a1810;
+      padding: 45px 50px;
+      border-radius: 2px;
+      margin: 40px auto;
+      max-width: 760px;
+      position: relative;
+      border-left: 6px solid #8b6914;
+      border-right: 6px solid #8b6914;
+    }
+
+    .quote-block::before {
+      content: "❝";
+      position: absolute;
+      top: -18px;
+      left: 30px;
+      font-size: 56px;
+      color: #8b6914;
+      font-family: 'Cinzel', serif;
+      line-height: 1;
+    }
+
+    .quote-block p {
+      font-style: italic;
+      font-size: 21px;
+      color: #f4ecd8;
+      text-align: left;
+      margin: 0;
+      line-height: 1.7;
+      font-weight: 400;
+      font-family: 'EB Garamond', Georgia, serif;
+    }
+
+    .quote-block .attribution {
+      font-style: normal;
+      font-size: 12px;
+      color: #d4b483;
+      margin-top: 22px;
+      text-align: right;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+    }
+
+    .cta {
+      background: #2a1810;
+      text-align: center;
+      padding: 75px 20px;
+      border-top: 4px double #8b6914;
+      border-bottom: 4px double #8b6914;
+      position: relative;
+    }
+
+    .cta::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 20px;
+      right: 20px;
+      height: 1px;
+      background: rgba(139, 105, 20, 0.4);
+    }
+
+    .cta::after {
+      content: "";
+      position: absolute;
+      bottom: 12px;
+      left: 20px;
+      right: 20px;
+      height: 1px;
+      background: rgba(139, 105, 20, 0.4);
+    }
+
+    .cta h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 30px;
+      font-weight: 600;
+      color: #f4ecd8;
+      margin-bottom: 15px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .cta p {
+      font-size: 16px;
+      color: #d4b483;
+      margin-bottom: 30px;
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    .cta button {
+      background: transparent;
+      color: #d4b483;
+      border: 2px solid #8b6914;
+      padding: 14px 44px;
+      border-radius: 0;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .cta button:hover {
+      background: #8b6914;
+      color: #2a1810;
+    }
+
+    .footer {
+      background: #2a1810;
+      color: #8b6914;
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 13px;
+      border-top: 1px solid #8b6914;
+      letter-spacing: 2px;
+      font-family: 'Cinzel', serif;
+    }
+
+    .footer p {
+      margin: 4px 0;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        background: #f4ecd8;
+        flex-direction: column;
+        width: 220px;
+        padding: 20px;
+        display: none;
+        border: 1px solid #8b6914;
+        box-shadow: 0 8px 32px rgba(42, 24, 16, 0.2);
+        gap: 15px;
+      }
+
+      nav.active {
+        display: flex;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .hero h1 {
+        font-size: 30px;
+      }
+
+      .hero-avatar {
+        width: 130px;
+        height: 130px;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #e8dcc0;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #8b6914;
+      border-radius: 0;
+      border: 2px solid #e8dcc0;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2a1810;
+    }
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #8b6914 #e8dcc0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  Dr. John Smeff Mancala · Dean, Faculty of Arts &amp; Humanities
+</div>
+
+<header class="header">
+  <div class="nav">
+    <a href="../index.html"><div class="logo"><img src="../img/logo.png" alt="SusFeed University"></div></a>
+    <div class="menu-toggle">☰</div>
+    <nav>
+      <div class="dropdown">
+        <a href="#">About</a>
+        <div class="dropdown-content">
+          <a href="../overview.html">Overview</a>
+          <a href="../mission.html">Mission</a>
+          <a href="../leadership.html">Leadership</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="../programs.html">Programs</a>
+        <div class="dropdown-content">
+          <a href="../programs.html">All</a>
+          <a href="../programs.html?level=certificate">Certificates</a>
+          <a href="../programs.html?level=minor">Minors</a>
+          <a href="../programs.html?level=undergraduate">Undergraduate</a>
+          <a href="../programs.html?level=graduate">Graduate</a>
+          <a href="../programs.html?level=phd">Doctoral</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="../research.html">Research</a>
+      </div>
+      <div class="dropdown">
+        <a href="../admissions.html">Admissions</a>
+      </div>
+      <div class="dropdown">
+        <a href="../dash/index.html">Course Portal</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <img src="../img/smeffdean.png" alt="Dr. John Smeff Mancala" class="hero-avatar">
+    <h1>Dr. John Smeff Mancala</h1>
+    <p class="title">Dean, Faculty of Arts &amp; Humanities</p>
+    <span class="faculty-badge">Faculty Profile</span>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Biography</h2>
+  <p>
+    Dr. John Smeff Mancala is a distinguished scholar and the Dean of the Faculty of Arts & Humanities. 
+    A specialist in cultural philosophy and interdisciplinary humanities research, he has devoted his 
+    career to the study of ancient civilizations and the optimal Mancala strategy.
+    His work is known throughout time.
+  </p>
+  <p>
+    When not guiding the faculty's academic mission, Dr. Mancala can often be found studying the 
+    ancient game of Mancala and documenting its first game.
+  </p>
+</section>
+
+<section class="section">
+  <div class="quote-block">
+    <p>"6,000 years ago, during the first game of Mancala."</p>
+    <p class="attribution">— Dr. John Smeff Mancala</p>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Positions Held</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Dean, Faculty of Arts &amp; Humanities</h3>
+      <p>Leading the faculty in cultural philosophy and interdisciplinary humanities research.</p>
+    </div>
+    <div class="card">
+      <h3>Head, Mesopotamian Studies</h3>
+      <p>Expert in ancient civilizations and early written language systems.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Courses Taught</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>MANC101: Foundations of Mesopotamian Civilizations</h3>
+      <p>Foundational study of the world's earliest civilizations and their development.</p>
+    </div>
+    <div class="card">
+      <h3>MANC102: Ea Nasir and Early Writing Systems</h3>
+      <p>Examination of early writing systems through the lens of history's most famous complaint tablet.</p>
+    </div>
+    <div class="card">
+      <h3>MANC301: Mesopotamian Cultural Analysis</h3>
+      <p>Advanced analysis of cultural systems and societal structures in ancient Mesopotamia.</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Study Under a Scholar of Historic Proportions</h2>
+  <p>Learn from Dr. Mancala and discover the foundations of civilization.</p>
+  <button onclick="window.location.href='../admissions.html'">Apply Now</button>
+</section>
+
+<footer class="footer">
+  <p>SusFeed University</p>
+  <p>Email: info@susfeed.edu</p>
+  <p>&copy; 2026 SusFeed University</p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var toggle = document.querySelector(".menu-toggle");
+  var nav = document.querySelector("nav");
+  if (toggle && nav) {
+    toggle.addEventListener("click", function() {
+      nav.classList.toggle("active");
+    });
+  }
+  document.querySelectorAll(".dropdown > a").forEach(function(link) {
+    link.addEventListener("click", function(e) {
+      if (window.innerWidth <= 768) {
+        e.preventDefault();
+        this.parentElement.classList.toggle("open");
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>
