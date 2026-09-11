@@ -147,7 +147,10 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "Bilbo has a plan for that.",
     "What the Klax are you talking about?",
     "Draco wuz here.",
-    "Klax it."
+    "Klax it.",
+    "Play Gyromite or Stack Up.",
+    "What did Milli Vanilli even make?",
+    "9/11 joke."
   ];
 
   susBotButton.addEventListener("click", () => {
