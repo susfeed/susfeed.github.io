@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SusFeed Conferences · SusFeed University</title>
+  <link rel="shortcut icon" href="../img/favicon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="conferences.css">
+</head>
+<body>
+
+<div class="topbar">
+  Established 1892 · Conference Hub
+</div>
+
+<header class="header">
+  <div class="nav">
+    <a href="../index.html">
+      <div class="logo">
+        <img src="../img/logo.png" alt="SusFeed University">
+        <span class="logo-text">Conferences</span>
+      </div>
+    </a>
+    <div class="menu-toggle">☰</div>
+    <nav>
+      <div class="dropdown">
+        <a href="#">About</a>
+        <div class="dropdown-content">
+          <a href="../overview.html">Overview</a>
+          <a href="../mission.html">Mission</a>
+          <a href="../leadership.html">Leadership</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="../programs.html">Programs</a>
+        <div class="dropdown-content">
+          <a href="../programs.html">All</a>
+          <a href="../programs.html?level=certificate">Certificates</a>
+          <a href="../programs.html?level=minor">Minors</a>
+          <a href="../programs.html?level=undergraduate">Undergraduate</a>
+          <a href="../programs.html?level=graduate">Graduate</a>
+          <a href="../programs.html?level=phd">Doctoral</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="../research.html">Research</a>
+      </div>
+      <div class="dropdown">
+        <a href="../admissions.html">Admissions</a>
+      </div>
+      <div class="dropdown">
+        <a href="../dash/index.html">Course Portal</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="live-pill">
+      <span class="live-dot"></span>
+      Live Now
+    </div>
+    <h1>Academic programming <em>archive</em></h1>
+    <p>
+      Watch keynotes and lectures from SusFeed University's international conferences. 
+      Live broadcasts and an on-demand archive available for students.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div>
+      <h2>Featured Sessions</h2>
+      <p class="sub">Selected talks from the current conference season</p>
+    </div>
+  </div>
+
+  <div class="video-grid" id="videoGrid">
+  </div>
+</section>
+
+<section class="section" style="padding-top: 0;">
+  <div class="section-head">
+    <div>
+      <h2>Past Conferences</h2>
+      <p class="sub">Full archive of previous conference seasons</p>
+    </div>
+  </div>
+
+  <div class="archive-strip" id="archiveStrip">
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Submit to the Current Season</h2>
+  <p>SusFeed University invites faculty, students, and visiting scholars to submit papers, panels, and workshops for the upcoming conference year.</p>
+  <button onclick="window.location.href='../admissions.html'">Submit a Proposal</button>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">SusFeed University · Conferences</div>
+    <div class="footer-links">
+      <a href="../research.html">Research</a>
+      <a href="../overview.html">Overview</a>
+      <a href="../admissions.html">Admissions</a>
+      <a href="../dash/index.html">Course Portal</a>
+    </div>
+    <div class="footer-copy">© 2026 SusFeed University · info@susfeed.edu</div>
+  </div>
+</footer>
+
+<div class="video-modal" id="videoModal">
+  <div class="video-modal-backdrop" onclick="closeVideo()"></div>
+  <div class="video-modal-content">
+    <button class="video-modal-close" onclick="closeVideo()">✕</button>
+    <div class="video-modal-player">
+      <video id="videoPlayer" controls playsinline></video>
+    </div>
+    <div class="video-modal-info" id="videoModalInfo"></div>
+  </div>
+</div>
+
+<script src="conferences.js"></script>
+
+</body>
+</html>

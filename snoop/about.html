@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About · Dr. Bombay Ice Cream</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1e0f2e;
+      font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+      color: #fef7e6;
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 30% 20%, #3e1a58 0%, #1a0b24 70%, #0b0614 100%);
+      z-index: -2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" opacity="0.06"><circle cx="30" cy="30" r="5" fill="%23f5b342"/><circle cx="170" cy="70" r="7" fill="%23b77fdb"/><circle cx="80" cy="140" r="8" fill="%23f5b342"/><circle cx="140" cy="180" r="4" fill="%23d9a5f0"/><circle cx="40" cy="190" r="6" fill="%23f5b342"/><circle cx="190" cy="20" r="8" fill="%23b77fdb"/><circle cx="110" cy="40" r="5" fill="%23f5b342"/><circle cx="20" cy="100" r="7" fill="%23d9a5f0"/></svg>');
+      background-size: 280px 280px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .page-wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0 1.25rem;
+      border-bottom: 2px solid rgba(245, 179, 66, 0.3);
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 1.8rem;
+      color: #fef7e6;
+      text-shadow: 3px 3px 0 #4a1d6b;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-style: italic;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo .dr {
+      color: #f5b342;
+      font-style: normal;
+      font-weight: 900;
+      font-size: 2rem;
+    }
+
+    .logo .bombay {
+      color: #fef7e6;
+      font-weight: 700;
+    }
+
+    .logo .pill {
+      background: #f5b342;
+      padding: 0.15rem 0.75rem 0.2rem;
+      border-radius: 40px 40px 40px 8px;
+      font-size: 1.2rem;
+      color: #1e0f2e;
+      text-shadow: none;
+      font-weight: 900;
+      transform: rotate(-2deg);
+      display: inline-block;
+      font-style: normal;
+      font-family: 'Segoe UI', sans-serif;
+      margin-left: 0.3rem;
+      letter-spacing: 1px;
+    }
+
+    .about-link {
+      color: #fef7e6;
+      background: #3a1852;
+      padding: 0.6rem 1.8rem;
+      border-radius: 60px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      border: 2px solid #f5b342;
+      box-shadow: 0 5px 0 #1f0a2b, 0 6px 12px rgba(0, 0, 0, 0.4);
+      transition: 0.12s ease;
+      text-transform: uppercase;
+    }
+
+    .about-link:hover {
+      background: #f5b342;
+      color: #1e0f2e;
+      border-color: #fef7e6;
+      box-shadow: 0 3px 0 #1f0a2b, 0 5px 10px rgba(0, 0, 0, 0.5);
+      transform: translateY(2px);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 3rem;
+      align-items: center;
+      margin: 2rem 0 3rem;
+    }
+
+    .about-image-card {
+      background: rgba(43, 15, 59, 0.7);
+      backdrop-filter: blur(10px);
+      border: 3px solid #b77fdb;
+      border-radius: 40px 40px 40px 16px;
+      padding: 1.5rem;
+      box-shadow: 0 16px 0 #1f0a2b, 0 22px 28px rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.2s ease;
+    }
+
+    .about-image-card:hover {
+      transform: scale(1.01);
+      border-color: #f5b342;
+    }
+
+    .about-image-card img {
+      width: 100%;
+      max-width: 360px;
+      height: auto;
+      border-radius: 28px;
+      border: 3px solid #f5b342;
+      box-shadow: 0 0 0 2px #1a0b24, 0 12px 20px rgba(0, 0, 0, 0.6);
+      display: block;
+      object-fit: cover;
+    }
+
+    .about-text h1 {
+      font-size: 3.6rem;
+      line-height: 1.1;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      margin-bottom: 1.2rem;
+      color: #fef7e6;
+      text-shadow: 4px 4px 0 #4a1d6b, 7px 7px 0 #f5b342;
+    }
+
+    .about-text h1 .highlight {
+      background: linear-gradient(145deg, #d9a5f0, #b77fdb);
+      color: #1e0f2e;
+      padding: 0.1rem 1rem 0.2rem;
+      border-radius: 50px 50px 50px 8px;
+      display: inline-block;
+      text-shadow: none;
+      box-shadow: 0 6px 0 #2b0f3b;
+    }
+
+    .about-text p {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      color: #e2d0f0;
+      text-shadow: 1px 1px 0 #1e0f2e;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+    }
+
+    .about-text .signature {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-top: 2rem;
+      color: #f5b342;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-left: 6px solid #b77fdb;
+      padding-left: 1.2rem;
+    }
+
+    .about-text .signature span {
+      background: #2b0f3b;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid #b77fdb;
+      box-shadow: 0 3px 0 #0b0614;
+      font-size: 0.9rem;
+    }
+
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #f5b342;
+      color: #1e0f2e;
+      padding: 0.8rem 2rem;
+      border-radius: 60px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      text-decoration: none;
+      letter-spacing: 1.2px;
+      border: 3px solid #fef7e6;
+      box-shadow: 0 7px 0 #3a1852, 0 10px 18px rgba(0, 0, 0, 0.6);
+      transition: 0.1s linear;
+      cursor: pointer;
+      text-transform: uppercase;
+      margin-top: 1rem;
+    }
+
+    .back-home:hover {
+      background: #d9a5f0;
+      box-shadow: 0 4px 0 #3a1852, 0 8px 14px rgba(0, 0, 0, 0.7);
+      transform: translateY(3px);
+      border-color: #f5b342;
+    }
+
+    .back-home .arrow {
+      font-size: 1.4rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.3));
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 4rem;
+      color: #b77fdb;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      border-top: 2px dashed #3a1852;
+      padding-top: 2.2rem;
+    }
+
+    @media (max-width: 900px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
+      }
+      .about-image-card {
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .about-text h1 {
+        font-size: 3rem;
+      }
+      .about-text .signature {
+        justify-content: center;
+        border-left: none;
+        padding-left: 0;
+      }
+      .site-header {
+        justify-content: center;
+      }
+      .page-wrapper {
+        padding: 1rem 1.2rem 3rem;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .about-text h1 {
+        font-size: 2.4rem;
+      }
+      .logo {
+        font-size: 1.5rem;
+      }
+      .logo .dr {
+        font-size: 1.7rem;
+      }
+      .logo .pill {
+        font-size: 1rem;
+      }
+      .back-home {
+        font-size: 1rem;
+        padding: 0.7rem 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="site-header">
+      <div class="logo">
+        <span class="dr">Dr.</span>
+        <span class="bombay">Bombay</span>
+        <span class="pill">ICE CREAM</span>
+      </div>
+      <a href="index.html" class="about-link">HOME →</a>
+    </header>
+
+    <section class="about-grid">
+      <div class="about-image-card">
+        <img src="../university/img/cam.png" alt="Dr. Bombay portrait">
+      </div>
+      <div class="about-text">
+        <h1>
+          MEET<br>
+          <span class="highlight">CAMERON</span>
+        </h1>
+        <p>
+          I have travelled the world searching for teh best ice cream.
+          I believe there is nothing better than the perfect bowl or cone.
+          I have seen many flavors, from the US to Japan, and enjoyed them all.
+        </p>
+        <p>
+          I grew up pickign wild black raspberries, which I often put on my own pancakes.
+          As I am studying abroad for a bit longer, I miss black raspberries, since they are only sold in North America.
+          I hope to return to this flavor to remind me of why I love the fruit so much.
+        </p>
+        <p>
+          I can taste the most subtle of nuances in ice cream.
+          Milk quality, flavor quality, vanilla, sweetener, I can scrutinize every detail.
+          I will find the perfect ice cream and then help you make yours even better, if that's possible.
+        </p>
+        <div class="signature">
+          Contact me: +1 717 727 5469 <span>cameronhollabaugh@yahoo.com</span>
+        </div>
+        <a href="index.html" class="back-home">
+          <span class="arrow">←</span> BACK TO FLAVOR
+        </a>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      BLACK RASPBERRY PANCAKE · 2026
+    </div>
+  </div>
+</body>
+</html>
