@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Will It Blow? · Ordinary Sausage</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../styles/90s.css" />
+  <link rel="stylesheet" href="../../content.css" />
+  <style>
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: none;
+      background: #000;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      border: 4px solid #3a5e77;
+      box-shadow: 0 0 0 4px #1f2e3a, 0 8px 0 #0a1a2a;
+    }
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+      background: #000;
+    }
+    .hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .crosshair {
+      display: none;
+    }
+    .score-display {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 18px;
+      color: #e8dcc8;
+      text-shadow: 2px 2px 0 #0a1a2a;
+      letter-spacing: 1px;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .shots-display {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 18px;
+      color: #e8dcc8;
+      text-shadow: 2px 2px 0 #0a1a2a;
+      letter-spacing: 1px;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hit-marker {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0);
+      z-index: 25;
+      opacity: 0.9;
+    }
+    .hit-marker::before,
+    .hit-marker::after {
+      content: '';
+      position: absolute;
+      background: #ff6b4a;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      transform-origin: center;
+    }
+    .hit-marker::before {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+    .hit-marker::after {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+    @keyframes hitPop {
+      0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+    }
+    .hit-marker.active {
+      animation: hitPop 0.25s ease-out forwards;
+    }
+    .mobile-controls {
+      display: none;
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      gap: 20px;
+      z-index: 30;
+      pointer-events: none;
+    }
+    .mobile-controls button {
+      pointer-events: auto;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(240, 196, 90, 0.6);
+      background: rgba(0, 0, 0, 0.5);
+      color: #e8dcc8;
+      font-size: 24px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-controls button:active {
+      background: rgba(240, 196, 90, 0.3);
+      transform: scale(0.95);
+    }
+    @media (pointer: coarse) {
+      .mobile-controls {
+        display: flex;
+      }
+    }
+    .scoreboard {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-family: 'Courier New', Courier, monospace;
+      color: #9bb8d4;
+      text-shadow: 2px 2px 0 #0a1a2a;
+      letter-spacing: 1px;
+    }
+    .restart-btn {
+      pointer-events: auto;
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 32px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 20px;
+      font-weight: bold;
+      color: #e8dcc8;
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #f0c45a;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 0 #0a1a2a;
+      backdrop-filter: blur(4px);
+      display: none;
+      z-index: 30;
+    }
+    .restart-btn:hover {
+      background: rgba(240, 196, 90, 0.2);
+    }
+    #btnShoot {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid rgba(240, 196, 90, 0.6);
+      background: rgba(200, 80, 40, 0.5);
+      color: #fff;
+      font-size: 28px;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @media (pointer: coarse) {
+      #btnShoot {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="site-header"></div>
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Will It Blow?</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 1993/08/12 12:30 PM CET</i></p>
+
+      <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="hud">
+          <div class="hit-marker" id="hitMarker"></div>
+          <div class="score-display" id="scoreDisplay">SCORE 0</div>
+          <div class="shots-display" id="shotsDisplay">SHOTS 0</div>
+          <div class="mobile-controls">
+            <button id="btnUp">▲</button>
+            <button id="btnDown">▼</button>
+            <button id="btnLeft">◀</button>
+            <button id="btnRight">▶</button>
+          </div>
+          <button class="restart-btn" id="restartBtn">RESTART</button>
+          <button id="btnShoot">O</button>
+        </div>
+      </div>
+
+      <div class="scoreboard">
+        <p><i>AIM & CLICK / TAP TO SHOOT SAUSAGE BITS</i></p>
+      </div>
+    </main>
+    <div class="site-footer"></div>
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+    const canvas = document.getElementById('gameCanvas');
+    const hitMarkerEl = document.getElementById('hitMarker');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const shotsDisplay = document.getElementById('shotsDisplay');
+    const restartBtn = document.getElementById('restartBtn');
+    const btnShoot = document.getElementById('btnShoot');
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+    scene.fog = new THREE.FogExp2(0x000000, 0.022);
+
+    const camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.bias = 0.0003;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+
+    const labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0px';
+    labelRenderer.domElement.style.left = '0px';
+    labelRenderer.domElement.style.pointerEvents = 'none';
+    canvas.parentElement.appendChild(labelRenderer.domElement);
+
+    const tableCanvas = document.createElement('canvas');
+    tableCanvas.width = 1024;
+    tableCanvas.height = 1024;
+    const tCtx = tableCanvas.getContext('2d');
+    tCtx.fillStyle = '#2a1f18';
+    tCtx.fillRect(0, 0, 1024, 1024);
+    for (let i = 0; i < 40; i++) {
+      tCtx.strokeStyle = `rgba(60, 40, 25, ${0.1 + Math.random() * 0.2})`;
+      tCtx.lineWidth = 1 + Math.random() * 4;
+      tCtx.beginPath();
+      const y = Math.random() * 1024;
+      tCtx.moveTo(0, y);
+      for (let x = 0; x < 1024; x += 40) {
+        tCtx.lineTo(x, y + Math.sin(x * 0.01) * 15 + Math.random() * 8);
+      }
+      tCtx.stroke();
+    }
+    for (let i = 0; i < 8; i++) {
+      tCtx.beginPath();
+      tCtx.ellipse(Math.random() * 1024, Math.random() * 1024, 20 + Math.random() * 40, 10 + Math.random() * 20, Math.random() * Math.PI, 0, Math.PI * 2);
+      tCtx.fillStyle = `rgba(20, 12, 8, ${0.3 + Math.random() * 0.3})`;
+      tCtx.fill();
+    }
+    tCtx.strokeStyle = '#1a120c';
+    tCtx.lineWidth = 40;
+    tCtx.strokeRect(0, 0, 1024, 1024);
+    const tableTexture = new THREE.CanvasTexture(tableCanvas);
+    tableTexture.wrapS = THREE.RepeatWrapping;
+    tableTexture.wrapT = THREE.RepeatWrapping;
+    const tableMat = new THREE.MeshStandardMaterial({ map: tableTexture, roughness: 0.85, metalness: 0.05, color: 0x8a7a6a });
+    const tableGeo = new THREE.PlaneGeometry(14, 14);
+    const table = new THREE.Mesh(tableGeo, tableMat);
+    table.rotation.x = -Math.PI / 2;
+    table.position.y = 0;
+    table.receiveShadow = true;
+    scene.add(table);
+
+    const rimMat = new THREE.MeshStandardMaterial({ color: 0x1a120c, roughness: 0.9 });
+    const rimGeo = new THREE.TorusGeometry(7.05, 0.15, 8, 64);
+    const rim = new THREE.Mesh(rimGeo, rimMat);
+    rim.rotation.x = Math.PI / 2;
+    rim.position.y = 0.02;
+    scene.add(rim);
+
+    const ambient = new THREE.AmbientLight(0x1a1a2a, 0.6);
+    scene.add(ambient);
+
+    const spotLight = new THREE.SpotLight(0xffeedd, 1.8);
+    spotLight.position.set(2, 6, 4);
+    spotLight.target.position.set(0, 0.8, 0);
+    spotLight.angle = 0.5;
+    spotLight.penumbra = 0.6;
+    spotLight.decay = 1.5;
+    spotLight.distance = 25;
+    spotLight.castShadow = true;
+    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.height = 1024;
+    spotLight.shadow.bias = -0.0005;
+    spotLight.shadow.camera.near = 1;
+    spotLight.shadow.camera.far = 20;
+    scene.add(spotLight);
+    scene.add(spotLight.target);
+
+    const fillLight = new THREE.PointLight(0xffaa66, 0.5);
+    fillLight.position.set(4, 2, 3);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.PointLight(0x6688aa, 0.4);
+    rimLight.position.set(-3, 3, -4);
+    scene.add(rimLight);
+
+    const bounceLight = new THREE.PointLight(0x443322, 0.3);
+    bounceLight.position.set(0, -1, 2);
+    scene.add(bounceLight);
+
+    const targetGroup = new THREE.Group();
+    targetGroup.position.set(0, 1.4, 0);
+
+    const boxWidth = 2.0;
+    const boxHeight = 2.6;
+    const boxDepth = 0.35;
+
+    const textureLoader = new THREE.TextureLoader();
+    const markTexture = textureLoader.load('mark.jpg',
+      (tex) => { tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; },
+      undefined,
+      () => {
+        const fbCanvas = document.createElement('canvas');
+        fbCanvas.width = 512;
+        fbCanvas.height = 640;
+        const fctx = fbCanvas.getContext('2d');
+        fctx.fillStyle = '#d4a373';
+        fctx.fillRect(0, 0, 512, 640);
+        fctx.strokeStyle = '#f0c45a';
+        fctx.lineWidth = 20;
+        fctx.strokeRect(10, 10, 492, 620);
+        fctx.fillStyle = '#2a1e0e';
+        fctx.font = 'bold 80px sans-serif';
+        fctx.textAlign = 'center';
+        fctx.fillText('MARK', 256, 200);
+        fctx.fillText('BOX', 256, 300);
+        fctx.font = 'bold 50px sans-serif';
+        fctx.fillText('ALO', 256, 400);
+        fctx.font = 'bold 30px sans-serif';
+        fctx.fillText('WILL IT BLOW?', 256, 580);
+        const fallbackTex = new THREE.CanvasTexture(fbCanvas);
+        materials[4].map = fallbackTex;
+        materials[4].needsUpdate = true;
+      }
+    );
+    markTexture.minFilter = THREE.LinearFilter;
+    markTexture.magFilter = THREE.LinearFilter;
+
+    const materials = [
+      new THREE.MeshStandardMaterial({ color: 0xb5835a, roughness: 0.5 }),
+      new THREE.MeshStandardMaterial({ color: 0xb5835a, roughness: 0.5 }),
+      new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.5 }),
+      new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.5 }),
+      new THREE.MeshStandardMaterial({ map: markTexture, roughness: 0.4, emissive: new THREE.Color(0x1a1008), emissiveIntensity: 0.2 }),
+      new THREE.MeshStandardMaterial({ color: 0x8a6a4a, roughness: 0.6 })
+    ];
+
+    const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth), materials);
+    boxMesh.castShadow = true;
+    boxMesh.receiveShadow = true;
+    targetGroup.add(boxMesh);
+
+    const edges = new THREE.EdgesGeometry(boxMesh.geometry);
+    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xf0c45a, transparent: true, opacity: 0.15 }));
+    targetGroup.add(line);
+
+    const standMat = new THREE.MeshStandardMaterial({ color: 0x2a1e14, roughness: 0.8 });
+    const standBase = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, 0.15, 12), standMat);
+    standBase.position.y = -1.4;
+    standBase.receiveShadow = true;
+    standBase.castShadow = true;
+    targetGroup.add(standBase);
+
+    const standPole = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 1.0, 8), standMat);
+    standPole.position.y = -0.85;
+    standPole.castShadow = true;
+    standPole.receiveShadow = true;
+    targetGroup.add(standPole);
+
+    scene.add(targetGroup);
+
+    const labelDiv = document.createElement('div');
+    labelDiv.textContent = 'MARK BOXALO';
+    labelDiv.style.color = 'rgba(255, 240, 200, 0.4)';
+    labelDiv.style.fontSize = '11px';
+    labelDiv.style.fontWeight = '600';
+    labelDiv.style.letterSpacing = '3px';
+    labelDiv.style.textTransform = 'uppercase';
+    labelDiv.style.textShadow = '0 2px 8px rgba(0,0,0,0.8)';
+    labelDiv.style.whiteSpace = 'nowrap';
+    const labelObj = new CSS2DObject(labelDiv);
+    labelObj.position.set(0, 3.0, 0);
+    targetGroup.add(labelObj);
+
+    let targetAngleX = 0;
+    let targetAngleY = 0.15;
+    let currentAngleX = 0;
+    let currentAngleY = 0.15;
+    const cameraDistance = 6.5;
+    const lookAtPoint = new THREE.Vector3(0, 1.4, 0);
+    const ANGLE_X_MIN = -0.7;
+    const ANGLE_X_MAX = 0.7;
+    const ANGLE_Y_MIN = -0.1;
+    const ANGLE_Y_MAX = 0.5;
+
+    let crosshairX = canvas.clientWidth / 2;
+    let crosshairY = canvas.clientHeight / 2;
+
+    function updateAnglesFromPointer(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const nx = (clientX - rect.left) / rect.width;
+      const ny = (clientY - rect.top) / rect.height;
+
+      const angleX = ANGLE_X_MIN + (nx - 0.5) * 2 * (ANGLE_X_MAX - ANGLE_X_MIN) * 0.9;
+      const angleY = ANGLE_Y_MIN + (1 - ny - 0.5) * 2 * (ANGLE_Y_MAX - ANGLE_Y_MIN) * 0.9;
+
+      targetAngleX = Math.max(ANGLE_X_MIN, Math.min(ANGLE_X_MAX, angleX));
+      targetAngleY = Math.max(ANGLE_Y_MIN, Math.min(ANGLE_Y_MAX, angleY));
+    }
+
+    let pointerX = canvas.clientWidth / 2;
+    let pointerY = canvas.clientHeight / 2;
+    let hasPointer = false;
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      pointerX = e.clientX - rect.left;
+      pointerY = e.clientY - rect.top;
+      hasPointer = true;
+      updateAnglesFromPointer(e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (e.touches.length > 0) {
+        const rect = canvas.getBoundingClientRect();
+        pointerX = e.touches[0].clientX - rect.left;
+        pointerY = e.touches[0].clientY - rect.top;
+        hasPointer = true;
+        updateAnglesFromPointer(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        const rect = canvas.getBoundingClientRect();
+        pointerX = e.touches[0].clientX - rect.left;
+        pointerY = e.touches[0].clientY - rect.top;
+        hasPointer = true;
+        updateAnglesFromPointer(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    const splatters = [];
+    const MAX_SPLATTERS = 40;
+
+    function createSplatterTexture() {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 128;
+      const ctx = c.getContext('2d');
+      ctx.beginPath();
+      ctx.arc(64, 64, 28 + Math.random() * 18, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(180, 90, 50, ${0.75 + Math.random() * 0.25})`;
+      ctx.fill();
+      for (let i = 0; i < 8; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 22 + Math.random() * 35;
+        const x = 64 + Math.cos(angle) * dist;
+        const y = 64 + Math.sin(angle) * dist;
+        const size = 4 + Math.random() * 14;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(160, 70, 40, ${0.5 + Math.random() * 0.4})`;
+        ctx.fill();
+      }
+      for (let i = 0; i < 5; i++) {
+        const x = 45 + Math.random() * 38;
+        const startY = 55 + Math.random() * 25;
+        const endY = startY + 25 + Math.random() * 35;
+        ctx.beginPath();
+        ctx.moveTo(x, startY);
+        ctx.lineTo(x + (Math.random() - 0.5) * 12, endY);
+        ctx.strokeStyle = `rgba(150, 65, 35, ${0.4 + Math.random() * 0.4})`;
+        ctx.lineWidth = 2 + Math.random() * 5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      }
+      for (let i = 0; i < 12; i++) {
+        const x = Math.random() * 128;
+        const y = Math.random() * 128;
+        const size = 1 + Math.random() * 3;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(190, 100, 55, ${0.3 + Math.random() * 0.4})`;
+        ctx.fill();
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    function createSplatter(position, normal, size = 1) {
+      const tex = createSplatterTexture();
+      const mat = new THREE.MeshStandardMaterial({
+        map: tex,
+        transparent: true,
+        depthWrite: false,
+        opacity: 0.9,
+        roughness: 0.9,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+        polygonOffsetUnits: -2
+      });
+      const geo = new THREE.PlaneGeometry(0.45 * size, 0.45 * size);
+      const splatter = new THREE.Mesh(geo, mat);
+      splatter.position.copy(position).addScaledVector(normal, 0.015);
+      splatter.lookAt(position.clone().add(normal));
+      splatter.rotateZ(Math.random() * Math.PI * 2);
+      splatter.castShadow = false;
+      splatter.receiveShadow = false;
+      scene.add(splatter);
+      splatters.push(splatter);
+      if (splatters.length > MAX_SPLATTERS) {
+        const old = splatters.shift();
+        scene.remove(old);
+        old.geometry.dispose();
+        old.material.map.dispose();
+        old.material.dispose();
+      }
+    }
+
+    const projectiles = [];
+    const projectileSpeed = 18;
+    const bitGeo = new THREE.SphereGeometry(0.16, 7, 7);
+    const bitMat = new THREE.MeshStandardMaterial({ color: 0xc47a4a, roughness: 0.75, emissive: new THREE.Color(0x331100), emissiveIntensity: 0.4 });
+
+    const pipeGroup = new THREE.Group();
+    const pipeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55, metalness: 0.0, emissive: new THREE.Color(0x333333), emissiveIntensity: 0.6 });
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.6, 8), pipeMat);
+    pipe.rotation.x = Math.PI / 2;
+    pipe.position.set(0.35, -0.25, -0.8);
+    pipeGroup.add(pipe);
+    const pipeTip = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.015, 6, 12), pipeMat);
+    pipeTip.position.set(0.35, -0.25, -1.1);
+    pipeGroup.add(pipeTip);
+    camera.add(pipeGroup);
+    scene.add(camera);
+
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playShootSound() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    function playHitSound() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    const raycaster = new THREE.Raycaster();
+    let score = 0;
+    let shots = 0;
+    let gameActive = true;
+
+    function shoot() {
+      if (!gameActive) return;
+      initAudio();
+      shots++;
+      shotsDisplay.textContent = 'SHOTS ' + shots;
+
+      const rect = canvas.getBoundingClientRect();
+      const nx = (pointerX / rect.width) * 2 - 1;
+      const ny = -(pointerY / rect.height) * 2 + 1;
+      raycaster.setFromCamera({ x: nx, y: ny }, camera);
+
+      const targets = [boxMesh, table, ...splatters];
+      const intersects = raycaster.intersectObjects(targets, false);
+
+      let targetPoint = raycaster.ray.at(25, new THREE.Vector3());
+
+      if (intersects.length > 0) {
+        targetPoint = intersects[0].point;
+      }
+
+      const proj = new THREE.Mesh(bitGeo, bitMat.clone());
+      proj.castShadow = true;
+      proj.receiveShadow = true;
+
+      const pipeTipWorld = new THREE.Vector3(0.35, -0.25, -1.1).applyMatrix4(camera.matrixWorld);
+      proj.position.copy(pipeTipWorld);
+
+      const dir = targetPoint.clone().sub(pipeTipWorld).normalize();
+      dir.x += (Math.random() - 0.5) * 0.04;
+      dir.y += (Math.random() - 0.5) * 0.04;
+      dir.z += (Math.random() - 0.5) * 0.04;
+      dir.normalize();
+
+      proj.userData = {
+        velocity: dir.multiplyScalar(projectileSpeed),
+        life: 2.5,
+        stuck: false
+      };
+
+      scene.add(proj);
+      projectiles.push(proj);
+
+      const flash = new THREE.PointLight(0xffaa55, 1.5, 2.5);
+      flash.position.copy(pipeTipWorld);
+      scene.add(flash);
+      setTimeout(() => scene.remove(flash), 40);
+
+      playShootSound();
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') {
+        if (e.button !== 0) return;
+      }
+      const rect = canvas.getBoundingClientRect();
+      pointerX = e.clientX - rect.left;
+      pointerY = e.clientY - rect.top;
+      updateAnglesFromPointer(e.clientX, e.clientY);
+      shoot();
+    });
+
+    canvas.addEventListener('pointerup', (e) => {
+    });
+
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    const btnUp = document.getElementById('btnUp');
+    const btnDown = document.getElementById('btnDown');
+    const btnLeft = document.getElementById('btnLeft');
+    const btnRight = document.getElementById('btnRight');
+
+    let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
+
+    function setupHold(btn, onDown, onUp) {
+      btn.addEventListener('touchstart', (e) => { e.preventDefault(); onDown(); }, { passive: false });
+      btn.addEventListener('touchend', (e) => { e.preventDefault(); onUp(); }, { passive: false });
+      btn.addEventListener('touchcancel', (e) => { e.preventDefault(); onUp(); }, { passive: false });
+      btn.addEventListener('mousedown', (e) => { e.preventDefault(); onDown(); });
+      btn.addEventListener('mouseup', (e) => { e.preventDefault(); onUp(); });
+      btn.addEventListener('mouseleave', onUp);
+    }
+
+    setupHold(btnUp, () => moveUp = true, () => moveUp = false);
+    setupHold(btnDown, () => moveDown = true, () => moveDown = false);
+    setupHold(btnLeft, () => moveLeft = true, () => moveLeft = false);
+    setupHold(btnRight, () => moveRight = true, () => moveRight = false);
+
+    btnShoot.addEventListener('click', (e) => {
+      e.preventDefault();
+      shoot();
+    });
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      const delta = Math.min(clock.getDelta(), 0.05);
+
+      if (moveLeft) targetAngleX = Math.max(ANGLE_X_MIN, targetAngleX - 0.03);
+      if (moveRight) targetAngleX = Math.min(ANGLE_X_MAX, targetAngleX + 0.03);
+      if (moveUp) targetAngleY = Math.min(ANGLE_Y_MAX, targetAngleY + 0.02);
+      if (moveDown) targetAngleY = Math.max(ANGLE_Y_MIN, targetAngleY - 0.02);
+
+      currentAngleX += (targetAngleX - currentAngleX) * 0.1;
+      currentAngleY += (targetAngleY - currentAngleY) * 0.1;
+
+      const camX = lookAtPoint.x + cameraDistance * Math.sin(currentAngleX) * Math.cos(currentAngleY);
+      const camY = lookAtPoint.y + cameraDistance * Math.sin(currentAngleY) + 0.4;
+      const camZ = lookAtPoint.z + cameraDistance * Math.cos(currentAngleX) * Math.cos(currentAngleY);
+
+      camera.position.set(camX, camY, camZ);
+      camera.lookAt(lookAtPoint);
+
+      const swayX = Math.sin(Date.now() * 0.002) * 0.01;
+      const swayY = Math.cos(Date.now() * 0.0015) * 0.008;
+      pipeGroup.position.set(swayX, swayY, 0);
+
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const p = projectiles[i];
+
+        if (p.userData.stuck) {
+          p.userData.life -= delta;
+          if (p.userData.life <= 0) {
+            scene.remove(p);
+            projectiles.splice(i, 1);
+          }
+          continue;
+        }
+
+        p.position.addScaledVector(p.userData.velocity, delta);
+        p.rotation.x += delta * 8;
+        p.rotation.y += delta * 5;
+
+        const boxWorldPos = targetGroup.position.clone().add(boxMesh.position);
+        const localPos = p.position.clone().sub(boxWorldPos);
+        const halfW = boxWidth / 2 + 0.1;
+        const halfH = boxHeight / 2 + 0.1;
+        const halfD = boxDepth / 2 + 0.1;
+
+        if (Math.abs(localPos.x) < halfW && Math.abs(localPos.y) < halfH && Math.abs(localPos.z) < halfD) {
+          const dx = halfW - Math.abs(localPos.x);
+          const dy = halfH - Math.abs(localPos.y);
+          const dz = halfD - Math.abs(localPos.z);
+
+          let normal = new THREE.Vector3();
+          let surfacePos = new THREE.Vector3();
+
+          if (dx < dy && dx < dz) {
+            normal.set(Math.sign(localPos.x), 0, 0);
+            surfacePos.copy(boxWorldPos).add(new THREE.Vector3(Math.sign(localPos.x) * halfW, localPos.y, localPos.z));
+          } else if (dy < dz) {
+            normal.set(0, Math.sign(localPos.y), 0);
+            surfacePos.copy(boxWorldPos).add(new THREE.Vector3(localPos.x, Math.sign(localPos.y) * halfH, localPos.z));
+          } else {
+            normal.set(0, 0, Math.sign(localPos.z));
+            surfacePos.copy(boxWorldPos).add(new THREE.Vector3(localPos.x, localPos.y, Math.sign(localPos.z) * halfD));
+          }
+
+          p.userData.stuck = true;
+          p.userData.life = 4.0;
+          p.userData.velocity.set(0, 0, 0);
+          p.position.copy(surfacePos).addScaledVector(normal, 0.05);
+          p.scale.set(1.6 + Math.random() * 0.4, 1.6 + Math.random() * 0.4, 0.3);
+          p.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
+
+          createSplatter(surfacePos, normal, 1.2 + Math.random() * 0.6);
+
+          score++;
+          scoreDisplay.textContent = 'SCORE ' + score;
+
+          hitMarkerEl.classList.remove('active');
+          void hitMarkerEl.offsetWidth;
+          hitMarkerEl.classList.add('active');
+          hitMarkerEl.style.left = pointerX + 'px';
+          hitMarkerEl.style.top = pointerY + 'px';
+
+          playHitSound();
+
+          setTimeout(() => {
+            if (p.parent) {
+              scene.remove(p);
+              const idx = projectiles.indexOf(p);
+              if (idx > -1) projectiles.splice(idx, 1);
+            }
+          }, 3500);
+
+          continue;
+        }
+
+        if (p.position.y < 0.05 && p.userData.velocity.y < 0) {
+          p.userData.stuck = true;
+          p.userData.life = 3.0;
+          p.userData.velocity.set(0, 0, 0);
+          p.position.y = 0.04;
+          p.scale.set(1.4 + Math.random() * 0.3, 1.4 + Math.random() * 0.3, 0.3);
+          p.rotation.set(-Math.PI / 2 + (Math.random() - 0.5) * 0.5, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
+
+          createSplatter(p.position.clone(), new THREE.Vector3(0, 1, 0), 1.0 + Math.random() * 0.6);
+
+          setTimeout(() => {
+            if (p.parent) {
+              scene.remove(p);
+              const idx = projectiles.indexOf(p);
+              if (idx > -1) projectiles.splice(idx, 1);
+            }
+          }, 2500);
+
+          continue;
+        }
+
+        p.userData.life -= delta;
+        if (p.userData.life <= 0 || p.position.length() > 30) {
+          scene.remove(p);
+          projectiles.splice(i, 1);
+        }
+      }
+
+      renderer.render(scene, camera);
+      labelRenderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    function onResize() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      if (w === 0 || h === 0) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+      labelRenderer.setSize(w, h);
+    }
+
+    window.addEventListener('resize', onResize);
+    if (window.ResizeObserver) {
+      new ResizeObserver(onResize).observe(canvas.parentElement);
+    }
+
+    window.addEventListener('contextmenu', e => e.preventDefault());
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        shoot();
+      }
+    });
+  </script>
+</body>
+</html>
