@@ -151,7 +151,9 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "Play Gyromite or Stack Up.",
     "What did Milli Vanilli even make?",
     "9/11 joke.",
-    "Let's sausage!"
+    "Let's sausage!",
+    "Ask Alf",
+    "Don't have a cow man!"
   ];
 
   susBotButton.addEventListener("click", () => {

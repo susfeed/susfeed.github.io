@@ -83,6 +83,24 @@ const customLinks = [
     title: 'SusFeed Corporate',
     url: 'corporate/index.html',
     autoLoad: false
+  },
+  {
+    type: 'news',
+    title: 'sfgn.com',
+    url: 'reviews/index.html',
+    autoLoad: true
+  },
+  {
+    type: 'news',
+    title: 'SFGN',
+    url: 'reviews/index.html',
+    autoLoad: false
+  },
+  {
+    type: 'news',
+    title: 'Journalism',
+    url: 'university/departments/journalism.html',
+    autoLoad: false
   }
 ]
 

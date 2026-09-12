@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Which Simpson's Episode?</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../styles/90s.css" />
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>We'll Tell You Your Favorite Simpson's Episode Based on Your Choice of Banquet Frozen Meals</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 1993/09/12 3:20 PM CET</i></p>
+
+      <p class="intro">Your life is sad enough, the least we can give you is something to watch.</p>
+
+      <form id="quiz-form">
+
+        <div class="question-block">
+          <h2 class="title">1. Pick your Banquet dinner:</h2>
+          <label><input type="radio" name="q1" value="chickenfried" data-result="chickenfried" data-points="3" /> Chicken Fried Chicken Meal</label><br>
+          <label><input type="radio" name="q1" value="meatloaf" data-result="meatloaf" data-points="3" /> Meatloaf with Mashed Potatoes</label><br>
+          <label><input type="radio" name="q1" value="bbq" data-result="bbq" data-points="3" /> Backyard BBQ Meal</label><br>
+          <label><input type="radio" name="q1" value="chickenstrips" data-result="chickenstrips" data-points="3" /> Chicken Strips Meal</label>
+        </div>
+        
+        <div class="question-block">
+          <h2 class="title">2. Pick your Banquet side:</h2>
+          <label><input type="radio" name="q2" value="mac" data-result="mac" data-points="3" /> Macaroni and Cheese</label><br>
+          <label><input type="radio" name="q2" value="mashed" data-result="mashed" data-points="3" /> Creamy Mashed Potatoes</label><br>
+          <label><input type="radio" name="q2" value="corn" data-result="corn" data-points="3" /> Sweet Corn</label><br>
+          <label><input type="radio" name="q2" value="apple" data-result="apple" data-points="3" /> Cinnamon Apple Dessert</label>
+        </div>
+        
+        <div class="question-block">
+          <h2 class="title">3. Pick your Banquet protein:</h2>
+          <label><input type="radio" name="q3" value="chicken" data-result="chicken" data-points="3" /> Breaded Chicken</label><br>
+          <label><input type="radio" name="q3" value="meatloaf2" data-result="meatloaf2" data-points="3" /> Meatloaf Patty</label><br>
+          <label><input type="radio" name="q3" value="riblet" data-result="riblet" data-points="3" /> Pork Riblet</label><br>
+          <label><input type="radio" name="q3" value="beef" data-result="beef" data-points="3" /> Beef Patty</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">4. Pick your Banquet meal style:</h2>
+          <label><input type="radio" name="q4" value="classic" data-result="classic" data-points="3" /> Classic Dinner</label><br>
+          <label><input type="radio" name="q4" value="mega" data-result="mega" data-points="3" /> MEGA Bowl</label><br>
+          <label><input type="radio" name="q4" value="breakfast" data-result="breakfast" data-points="3" /> Breakfast Bowl</label><br>
+          <label><input type="radio" name="q4" value="sandwich" data-result="sandwich" data-points="3" /> Breakfast Sandwich</label>
+        </div>
+
+        <div class="question-block">
+          <h2 class="title">5. Pick your Banquet craving:</h2>
+          <label><input type="radio" name="q5" value="comfort" data-result="comfort" data-points="3" /> Comfort Food</label><br>
+          <label><input type="radio" name="q5" value="southern" data-result="southern" data-points="3" /> Southern Classic</label><br>
+          <label><input type="radio" name="q5" value="bbq2" data-result="bbq2" data-points="3" /> BBQ Fix</label><br>
+          <label><input type="radio" name="q5" value="quick" data-result="quick" data-points="3" /> Quick & Easy</label>
+        </div>
+        
+        <div class="question-block" style="text-align:center; margin-top:40px;">
+          <button type="button" onclick="getResult()">See My Episode</button>
+        </div>        
+
+      </form>
+
+      <div id="result" class="description" style="text-align: center; display: none; margin-top: 40px;">
+        <div id="result-chickenfried" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Flaming Moe's"!</h2>
+          <p>Moe a real bitch in this one.</p>
+        </div>
+      
+        <div id="result-meatloaf" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "I Married Marge"!</h2>
+          <p>You like MILFs.</p>
+        </div>
+      
+        <div id="result-bbq" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Homer at the Bat"!</h2>
+          <p>You have poor taste.</p>
+        </div>
+      
+        <div id="result-chickenstrips" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Kamp Krusty"!</h2>
+          <p>You enjoy kidnapping children!</p>
+        </div>
+      
+        <div id="result-mac" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Lisa's Pony"!</h2>
+          <p>I am so sorry. You are a horse girl.</p>
+        </div>
+      
+        <div id="result-mashed" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Homer Alone"!</h2>
+          <p>You don't believe in god.</p>
+        </div>
+      
+        <div id="result-corn" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Mr. Lisa Goes to Washington"!</h2>
+          <p>Imagine having faith in the american government lmao.</p>
+        </div>
+      
+        <div id="result-apple" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Lisa the Greek"!</h2>
+          <p>You have taste.</p>
+        </div>
+      
+        <div id="result-chicken" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "When Flanders Failed"!</h2>
+          <p>You have a darn-diddly iddly biddly diddly...</p>
+        </div>
+      
+        <div id="result-meatloaf2" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Bart the Murderer"!</h2>
+          <p>You enjoy Banquet meals, of course you're a psychopath.</p>
+        </div>
+      
+        <div id="result-riblet" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Colonel Homer"!</h2>
+          <p>You know how to pronounce the word colonel. You should be able to afford better food.</p>
+        </div>
+      
+        <div id="result-beef" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Homer Defined"!</h2>
+          <p>You are not afriad of food poisoning.</p>
+        </div>
+      
+        <div id="result-classic" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Stark Raving Dad"!</h2>
+          <p>You just eat these because your dad liked them.</p>
+        </div>
+      
+        <div id="result-mega" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Bart's Friend Falls in Love"!</h2>
+          <p>We are running out of episodes.</p>
+        </div>
+      
+        <div id="result-breakfast" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Kamp Krusty"!</h2>
+          <p>You have childhood trauma.</p>
+        </div>
+      
+        <div id="result-sandwich" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Radio Bart"!</h2>
+          <p>You need to shut up sometimes.</p>
+        </div>
+      
+        <div id="result-comfort" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Homer Alone"!</h2>
+          <p>You just want a little peace and some shit food.</p>
+        </div>
+      
+        <div id="result-southern" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Homer at the Bat"!</h2>
+          <p>You like Banquet meals, why would we give you a better episode.</p>
+        </div>
+      
+        <div id="result-bbq2" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Separate Vocations"!</h2>
+          <p>You have no job.</p>
+        </div>
+      
+        <div id="result-quick" class="quiz-result" style="display: none;">
+          <h2 class="title">You're... "Bart the Lover"!</h2>
+          <p>Just like how you love Banquet meals.</p>
+        </div>
+      </div>            
+
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../content.js"></script>
+  <script src="../../contentheader.js"></script>
+</body>
+</html>
