@@ -153,7 +153,8 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "9/11 joke.",
     "Let's sausage!",
     "Ask Alf",
-    "Don't have a cow man!"
+    "Don't have a cow man!",
+    "Oh Bubble, you always know how to make me say this exact sentence."
   ];
 
   susBotButton.addEventListener("click", () => {

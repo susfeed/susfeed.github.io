@@ -13,12 +13,10 @@ body {
   font-family: "Times New Roman", Times, serif;
 }
 
-/* Screenshot: two thin rules with the logo centered between the page top
-   and the navigation. The supplied logo is used at its native proportions. */
 .site-header {
   margin: 0 10px;
   text-align: center;
-  padding-top: 28px;  /* margin above the logo */
+  padding-top: 28px;
 }
 
 .logo-wrap {
@@ -37,7 +35,6 @@ body {
   margin-top: -2px;
 }
 
-/* Navigation is approximately 50px high in the reference. */
 .nav {
   height: 51px;
   border-bottom: 1px solid #aaa;
@@ -65,11 +62,10 @@ body {
   display: block;
 }
 
-/* Main content */
 .featured {
   text-align: center;
   padding-top: 47px;
-  padding-bottom: 60px;  /* margin below the text */
+  padding-bottom: 60px;
 }
 
 .featured h1 {
@@ -79,7 +75,6 @@ body {
   font-weight: 700;
 }
 
-/* Reference image pair is centered around the page midpoint. */
 .feature-cover {
   display: flex;
   justify-content: center;
@@ -92,7 +87,6 @@ body {
   object-fit: cover;
 }
 
-/* Reference headline is roughly 50px Times New Roman and wraps into two lines. */
 .featured h2 {
   margin: 22px auto 0;
   max-width: 1280px;
@@ -101,14 +95,12 @@ body {
   font-weight: 700;
 }
 
-/* Article link: always black, no color change, no underline by default */
 .article-link {
   color: #000;
   text-decoration: none;
   display: inline-block;
 }
 
-/* ensure link never changes color on any state */
 .article-link:link,
 .article-link:visited,
 .article-link:hover,
@@ -145,7 +137,7 @@ body {
 
 @media (max-width: 600px) {
   .site-header {
-    padding-top: 16px;  /* less top margin on small screens */
+    padding-top: 16px;
   }
 
   .logo-wrap {
@@ -169,7 +161,7 @@ body {
 
   .featured {
     padding-top: 28px;
-    padding-bottom: 40px;  /* less bottom margin on small screens */
+    padding-bottom: 40px;
   }
 
   .featured h1 {
