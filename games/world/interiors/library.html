@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - Interior</title>
+    <link rel="icon" href="../../../img/amogus.webp">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #1a0f08; color: white; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; z-index: 100; transition: all 0.15s ease; box-shadow: 0 0 4px rgba(0,0,0,0.5); }
+        #crosshair.active { background: rgba(255,230,0,0.95); transform: translate(-50%,-50%) scale(1.6); box-shadow: 0 0 10px rgba(255,215,0,0.9); }
+        #hud { position: absolute; top: 16px; left: 16px; z-index: 100; pointer-events: none; display: flex; flex-direction: column; gap: 8px; }
+        #location { font-size: 16px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-shadow: 1px 1px 3px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 6px 14px; border-radius: 4px; border-left: 3px solid #d4a574; align-self: flex-start; backdrop-filter: blur(4px); }
+        #controls-hint { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: rgba(255,255,255,0.65); text-shadow: 1px 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.5px; background: rgba(0,0,0,0.35); padding: 8px 12px; border-radius: 4px; backdrop-filter: blur(4px); align-self: flex-start; }
+        #controls-hint b { color: #d4a574; font-weight: 700; }
+        #prompt { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); color: #d4a574; text-shadow: 2px 2px 4px black; pointer-events: none; z-index: 100; font-size: 15px; font-weight: 600; letter-spacing: 1.5px; display: none; background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 4px; border: 1px solid rgba(212,165,116,0.4); backdrop-filter: blur(4px); animation: pulse 1.8s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); display: flex; justify-content: center; align-items: center; z-index: 200; color: white; cursor: pointer; flex-direction: column; gap: 10px; transition: opacity 0.3s; }
+        #overlay h1 { color: #d4a574; text-shadow: 0 0 20px rgba(212,165,116,0.6); font-size: 52px; letter-spacing: 6px; font-weight: 700; }
+        #overlay p { font-size: 16px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        #inventory { position: absolute; bottom: 16px; left: 16px; z-index: 100; background: rgba(0,0,0,0.7); padding: 10px 16px; border-radius: 6px; border: 1px solid #d4a574; font-size: 14px; display: none; }
+        #inventory b { color: #d4a574; }
+    </style>
+</head>
+<body>
+    <div id="crosshair"></div>
+    <div id="hud">
+        <div id="location">Library — SusiPedia Collection</div>
+        <div id="controls-hint"><span><b>WASD</b> Move</span><span><b>Shift</b> Sprint</span><span><b>Space</b> Jump</span><span><b>Click</b> Interact</span></div>
+    </div>
+    <div id="prompt">Press E or Click to Interact</div>
+    <div id="inventory">Reading: <b id="book-name">Nothing</b></div>
+    <div id="overlay"><h1>LIBRARY</h1><p>Click to Enter</p></div>
+
+    <div id="viewer-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); z-index:500; justify-content:center; align-items:center; flex-direction:column;">
+        <button onclick="Engine.closeOverlay()" style="position:absolute; top:20px; right:20px; background:#ba1a1a; color:white; border:none; padding:12px 24px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:16px; z-index:501;">Close (Esc)</button>
+        <iframe id="viewer-frame" style="width:85vw; height:85vh; border:4px solid #d4a574; border-radius:8px; background:#fff;"></iframe>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <script src="../engine.js"></script>
+
+    <script>
+        const SUSIPEDIA_ROOT = '../../../susipedia/';
+        const ARTICLES_JSON = SUSIPEDIA_ROOT + 'articles/articles.json';
+        const ARTICLES_CONTENT = SUSIPEDIA_ROOT + 'articles/content/';
+
+        const SHELF_BOARD_YS = [0.6, 1.5, 2.4, 3.3];
+        const SHELF_BOARD_THICK = 0.1;
+        const SHELF_DEPTH = 1.2;
+        const SHELF_WIDTH = 4.2;
+
+        const BOOK_H = 0.72;
+        const BOOK_W = 0.34;
+        const BOOK_D = 0.5;
+
+        let allArticles = [];
+
+        const _tmpVec = new THREE.Vector3();
+        const _tmpVec2 = new THREE.Vector3();
+
+        function makeBookSpineTexture(title, colorHex) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            const color = '#' + colorHex.toString(16).padStart(6, '0');
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, 128, 512);
+
+            const darker = shade(color, -0.25);
+            ctx.fillStyle = darker;
+            ctx.fillRect(0, 0, 128, 16);
+            ctx.fillRect(0, 496, 128, 16);
+            ctx.fillRect(0, 0, 10, 512);
+            ctx.fillRect(118, 0, 10, 512);
+
+            ctx.save();
+            ctx.translate(64, 256);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = '#f7e7c8';
+            ctx.font = 'bold 34px Georgia, serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            let text = title;
+            const maxWidth = 440;
+            while (ctx.measureText(text).width > maxWidth && text.length > 3) {
+                text = text.slice(0, -1);
+            }
+            if (text !== title) text = text.slice(0, -1) + '…';
+
+            ctx.fillText(text, 0, 0);
+            ctx.restore();
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 8;
+            tex.minFilter = THREE.LinearFilter;
+            tex.generateMipmaps = false;
+            return tex;
+        }
+
+        function shade(hex, pct) {
+            const n = parseInt(hex.slice(1), 16);
+            let r = (n >> 16) & 0xff;
+            let g = (n >> 8) & 0xff;
+            let b = n & 0xff;
+            r = Math.max(0, Math.min(255, Math.round(r + 255 * pct)));
+            g = Math.max(0, Math.min(255, Math.round(g + 255 * pct)));
+            b = Math.max(0, Math.min(255, Math.round(b + 255 * pct)));
+            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+        }
+
+        function flashPrompt(text) {
+            const prompt = document.getElementById('prompt');
+            if (!prompt) return;
+            const original = prompt.textContent;
+            prompt.textContent = text;
+            prompt.style.display = 'block';
+            setTimeout(() => {
+                prompt.textContent = original;
+            }, 1500);
+        }
+
+        function addBoxCollider(cx, cz, w, d) {
+            const r = 0.9;
+            const spanX = Math.max(w - r * 2, 0);
+            const count = Math.max(Math.ceil(spanX / (r * 1.4)), 1);
+            if (count === 1) {
+                Engine.addCollider(cx, cz, r);
+                return;
+            }
+            const step = spanX / (count - 1);
+            for (let i = 0; i < count; i++) {
+                const x = cx - spanX / 2 + i * step;
+                Engine.addCollider(x, cz, r);
+            }
+            const depthPad = d / 2;
+            if (depthPad > r) {
+                for (let i = 0; i < count; i++) {
+                    const x = cx - spanX / 2 + i * step;
+                    Engine.addCollider(x, cz + (depthPad - r) * 1.2, r * 0.9);
+                    Engine.addCollider(x, cz - (depthPad - r) * 1.2, r * 0.9);
+                }
+            }
+        }
+
+        async function loadArticles() {
+            try {
+                const res = await fetch(ARTICLES_JSON);
+                const data = await res.json();
+                data.sort((a, b) => a.id - b.id);
+                allArticles = data;
+            } catch (e) {
+                console.warn('Could not load SusiPedia articles:', e);
+                allArticles = [];
+            }
+        }
+
+        function buildLibrary() {
+            const S = Engine.scene;
+
+            S.add(new THREE.HemisphereLight(0xffe4c0, 0x2a1a10, 0.55));
+            S.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+            const ceilingLights = [
+                [-14, 4.9, -18], [0, 4.9, -18], [14, 4.9, -18],
+                [-14, 4.9, -6], [0, 4.9, -6], [14, 4.9, -6],
+                [-14, 4.9, 6], [0, 4.9, 6], [14, 4.9, 6],
+                [-14, 4.9, 18], [0, 4.9, 18], [14, 4.9, 18],
+                [-14, 4.9, 26], [0, 4.9, 26], [14, 4.9, 26]
+            ];
+            ceilingLights.forEach(pos => {
+                const light = new THREE.PointLight(0xffd0a0, 0.7, 22);
+                light.position.set(pos[0], pos[1], pos[2]);
+                S.add(light);
+                const fixture = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.5, 0.5, 0.15, 14),
+                    new THREE.MeshBasicMaterial({ color: 0xffd0a0 })
+                );
+                fixture.position.set(pos[0], pos[1] + 0.1, pos[2]);
+                S.add(fixture);
+            });
+
+            const floorMat = new THREE.MeshLambertMaterial({ color: 0x5a3a1c });
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(56, 60), floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            S.add(floor);
+
+            const rugMat = new THREE.MeshLambertMaterial({ color: 0x6b1e1e });
+            const rug = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), rugMat);
+            rug.rotation.x = -Math.PI / 2;
+            rug.position.set(0, 0.01, 8);
+            rug.receiveShadow = true;
+            S.add(rug);
+
+            const rugTrimMat = new THREE.MeshLambertMaterial({ color: 0xd4a574 });
+            const rugTrim = new THREE.Mesh(new THREE.PlaneGeometry(14.4, 14.4), rugTrimMat);
+            rugTrim.rotation.x = -Math.PI / 2;
+            rugTrim.position.set(0, 0.005, 8);
+            S.add(rugTrim);
+
+            const ceilMat = new THREE.MeshLambertMaterial({ color: 0x3a2410 });
+            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(56, 60), ceilMat);
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.y = 5.2;
+            S.add(ceiling);
+
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x6b4a26 });
+            const addWall = (x, y, z, w, h, d) => {
+                const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+                wall.position.set(x, y, z);
+                wall.receiveShadow = true;
+                S.add(wall);
+            };
+            addWall(0, 2.6, -30, 56, 5.2, 0.5);
+            addWall(-28, 2.6, 0, 0.5, 5.2, 60);
+            addWall(28, 2.6, 0, 0.5, 5.2, 60);
+            addWall(-14, 2.6, 30, 28, 5.2, 0.5);
+            addWall(14, 2.6, 30, 28, 5.2, 0.5);
+
+            const trimMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            [-28, 28].forEach(x => {
+                const trim = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 60), trimMat);
+                trim.position.set(x + (x < 0 ? 0.35 : -0.35), 0.4, 0);
+                S.add(trim);
+            });
+
+            buildWindowWall(S);
+            buildShelfRowLeft(S);
+            buildShelfRowRight(S);
+            buildShelfRowBack(S);
+            buildReadingArea(S);
+            buildLibrarianDesk(S);
+            buildExit(S);
+        }
+
+        function buildWindowWall(S) {
+            const frameMat = new THREE.MeshLambertMaterial({ color: 0x3a2410 });
+            const glassMat = new THREE.MeshBasicMaterial({ color: 0x9fc9e8, transparent: true, opacity: 0.35 });
+
+            for (let i = -3; i <= 3; i++) {
+                const x = i * 6;
+                const frame = new THREE.Mesh(new THREE.BoxGeometry(4.6, 3.6, 0.3), frameMat);
+                frame.position.set(x, 3.0, -29.7);
+                S.add(frame);
+
+                const glass = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 3.0), glassMat);
+                glass.position.set(x, 3.0, -29.5);
+                S.add(glass);
+
+                const mullionV = new THREE.Mesh(new THREE.BoxGeometry(0.12, 3.0, 0.15), frameMat);
+                mullionV.position.set(x, 3.0, -29.45);
+                S.add(mullionV);
+
+                const mullionH = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.12, 0.15), frameMat);
+                mullionH.position.set(x, 3.0, -29.45);
+                S.add(mullionH);
+            }
+        }
+
+        function buildShelfRowLeft(S) {
+            const shelfSpots = [
+                { x: -22, z: -22, rot: Math.PI / 2 },
+                { x: -22, z: -14, rot: Math.PI / 2 },
+                { x: -22, z: -6, rot: Math.PI / 2 },
+                { x: -22, z: 2, rot: Math.PI / 2 },
+                { x: -22, z: 10, rot: Math.PI / 2 },
+                { x: -22, z: 18, rot: Math.PI / 2 }
+            ];
+            shelfSpots.forEach(spot => buildShelfUnit(S, spot.x, spot.z, spot.rot));
+        }
+
+        function buildShelfRowRight(S) {
+            const shelfSpots = [
+                { x: 22, z: -22, rot: -Math.PI / 2 },
+                { x: 22, z: -14, rot: -Math.PI / 2 },
+                { x: 22, z: -6, rot: -Math.PI / 2 },
+                { x: 22, z: 2, rot: -Math.PI / 2 },
+                { x: 22, z: 10, rot: -Math.PI / 2 },
+                { x: 22, z: 18, rot: -Math.PI / 2 }
+            ];
+            shelfSpots.forEach(spot => buildShelfUnit(S, spot.x, spot.z, spot.rot));
+        }
+
+        function buildShelfRowBack(S) {
+            const shelfSpots = [
+                { x: -12, z: 26, rot: Math.PI },
+                { x: -4, z: 26, rot: Math.PI },
+                { x: 4, z: 26, rot: Math.PI },
+                { x: 12, z: 26, rot: Math.PI }
+            ];
+            shelfSpots.forEach(spot => buildShelfUnit(S, spot.x, spot.z, spot.rot));
+        }
+
+        const SHELF_UNITS = [];
+
+        function buildShelfUnit(S, x, z, rot) {
+            const group = new THREE.Group();
+            group.position.set(x, 0, z);
+            group.rotation.y = rot;
+
+            const W = SHELF_WIDTH;
+            const H = 4.1;
+            const D = SHELF_DEPTH;
+
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x4a2c14 });
+            const boardMat = new THREE.MeshLambertMaterial({ color: 0x2e1a0c });
+            const backingMat = new THREE.MeshLambertMaterial({ color: 0x241208 });
+
+            const backing = new THREE.Mesh(new THREE.BoxGeometry(W, H, 0.1), backingMat);
+            backing.position.set(0, H / 2, -D / 2 + 0.05);
+            backing.receiveShadow = true;
+            group.add(backing);
+
+            [-W / 2, W / 2].forEach(sx => {
+                const side = new THREE.Mesh(new THREE.BoxGeometry(0.15, H, D), woodMat);
+                side.position.set(sx, H / 2, 0);
+                side.castShadow = true;
+                side.receiveShadow = true;
+                group.add(side);
+            });
+
+            const topCap = new THREE.Mesh(new THREE.BoxGeometry(W + 0.4, 0.25, D + 0.2), woodMat);
+            topCap.position.set(0, H + 0.1, 0);
+            topCap.castShadow = true;
+            group.add(topCap);
+
+            const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.4, 0.5, D + 0.2), woodMat);
+            base.position.set(0, 0.25, 0);
+            base.castShadow = true;
+            base.receiveShadow = true;
+            group.add(base);
+
+            SHELF_BOARD_YS.forEach((sy, rowIdx) => {
+                const board = new THREE.Mesh(
+                    new THREE.BoxGeometry(W - 0.1, SHELF_BOARD_THICK, D - 0.15),
+                    boardMat
+                );
+                board.position.set(0, sy, 0);
+                board.castShadow = true;
+                board.receiveShadow = true;
+                group.add(board);
+
+                SHELF_UNITS.push({
+                    group: group,
+                    localY: sy,
+                    rowIdx: rowIdx
+                });
+            });
+
+            S.add(group);
+
+            const sideOffset = 0.35;
+            if (rot === Math.PI / 2) {
+                addBoxCollider(x - sideOffset, z, D, W);
+            } else if (rot === -Math.PI / 2) {
+                addBoxCollider(x + sideOffset, z, D, W);
+            } else if (rot === Math.PI) {
+                addBoxCollider(x, z + sideOffset, W, D);
+            } else {
+                addBoxCollider(x, z - sideOffset, W, D);
+            }
+        }
+
+        function populateShelves() {
+            if (allArticles.length === 0) return;
+
+            const bookColors = [
+                0x8b2020, 0x20408b, 0x208b40, 0x8b8b20, 0x8b208b,
+                0x8b4a20, 0x20208b, 0x3a6b3a, 0x6b3a6b, 0x8b6b20,
+                0x2e4a6b, 0x6b2e4a, 0x4a6b2e
+            ];
+
+            const colorMats = bookColors.map(c => new THREE.MeshLambertMaterial({ color: c }));
+
+            let articleIdx = 0;
+
+            SHELF_UNITS.forEach(slot => {
+                const surfaceY = slot.localY + SHELF_BOARD_THICK / 2;
+                const usableW = SHELF_WIDTH - 0.5;
+
+                const bookCount = 5;
+                const bookW = BOOK_W;
+                const gap = (usableW - bookCount * bookW) / (bookCount + 1);
+
+                for (let i = 0; i < bookCount; i++) {
+                    const article = allArticles[articleIdx % allArticles.length];
+                    articleIdx++;
+
+                    const colorIdx = (slot.rowIdx * 5 + i * 3) % bookColors.length;
+                    const colorMat = colorMats[colorIdx];
+                    const h = BOOK_H - ((i * 5 + slot.rowIdx * 11) % 3) * 0.03;
+                    const w = bookW + ((i + slot.rowIdx) % 2) * 0.02;
+                    const d = BOOK_D + ((i * 3 + slot.rowIdx) % 3) * 0.03;
+
+                    let title;
+                    let filePath;
+
+                    if (article) {
+                        title = article.title;
+                        filePath = ARTICLES_CONTENT + article.file;
+                    } else {
+                        title = 'Untitled';
+                        filePath = null;
+                    }
+
+                    const spineTex = makeBookSpineTexture(title, bookColors[colorIdx]);
+                    const spineMat = new THREE.MeshBasicMaterial({ map: spineTex });
+
+                    const geo = new THREE.BoxGeometry(w, h, d);
+                    const book = new THREE.Mesh(
+                        geo,
+                        [colorMat, colorMat, colorMat, colorMat, spineMat, colorMat]
+                    );
+
+                    const localX = -usableW / 2 + gap + i * (bookW + gap) + w / 2;
+                    const z = -SHELF_DEPTH / 2 + 0.1 + d / 2;
+                    book.position.set(localX, surfaceY + h / 2 + 0.005, z);
+                    book.castShadow = false;
+                    book.receiveShadow = false;
+
+                    book.userData.isLibraryBook = true;
+                    if (filePath) {
+                        book.userData.onInteract = function() {
+                            Engine.openOverlay(filePath);
+                        };
+                        book.userData.label = title;
+                    }
+
+                    slot.group.add(book);
+                }
+            });
+        }
+
+        function buildReadingArea(S) {
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x4a2c14 });
+            const lampMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+            const shadeMat = new THREE.MeshLambertMaterial({ color: 0x2e6b3c, emissive: 0x1a3a22 });
+
+            const tablePositions = [
+                { x: -8, z: 8 },
+                { x: 8, z: 8 },
+                { x: -8, z: 16 },
+                { x: 8, z: 16 }
+            ];
+
+            tablePositions.forEach(pos => {
+                const table = new THREE.Group();
+
+                const top = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.15, 2.5), woodMat);
+                top.position.y = 1.0;
+                top.castShadow = true;
+                top.receiveShadow = true;
+                table.add(top);
+
+                [-1.9, 1.9].forEach(tx => {
+                    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.0, 0.15), woodMat);
+                    leg.position.set(tx, 0.5, 0.9);
+                    leg.castShadow = true;
+                    table.add(leg);
+
+                    const leg2 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.0, 0.15), woodMat);
+                    leg2.position.set(tx, 0.5, -0.9);
+                    leg2.castShadow = true;
+                    table.add(leg2);
+                });
+
+                const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.05, 12), lampMat);
+                lampBase.position.set(0, 1.08, 0);
+                table.add(lampBase);
+
+                const lampPole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.5, 8), lampMat);
+                lampPole.position.set(0, 1.35, 0);
+                table.add(lampPole);
+
+                const shade = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.3, 12, 1, true), shadeMat);
+                shade.position.set(0, 1.7, 0);
+                shade.rotation.x = Math.PI;
+                table.add(shade);
+
+                const lampLight = new THREE.PointLight(0xffd0a0, 0.5, 6);
+                lampLight.position.set(0, 1.55, 0);
+                table.add(lampLight);
+
+                table.position.set(pos.x, 0, pos.z);
+                S.add(table);
+
+                addBoxCollider(pos.x, pos.z, 4.5, 2.5);
+
+                addChair(S, pos.x - 2.8, pos.z, Math.PI / 2);
+                addChair(S, pos.x + 2.8, pos.z, -Math.PI / 2);
+                addChair(S, pos.x, pos.z - 2.2, 0);
+                addChair(S, pos.x, pos.z + 2.2, Math.PI);
+            });
+        }
+
+        function addChair(S, x, z, rot) {
+            const chairMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const cushionMat = new THREE.MeshLambertMaterial({ color: 0x6b1e1e });
+
+            const chair = new THREE.Group();
+
+            const seat = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.1, 0.7), chairMat);
+            seat.position.y = 0.5;
+            seat.castShadow = true;
+            chair.add(seat);
+
+            const cushion = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.08, 0.65), cushionMat);
+            cushion.position.y = 0.58;
+            chair.add(cushion);
+
+            const back = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.08), chairMat);
+            back.position.set(0, 0.95, -0.3);
+            back.castShadow = true;
+            chair.add(back);
+
+            [[-0.28, -0.28], [0.28, -0.28], [-0.28, 0.28], [0.28, 0.28]].forEach(p => {
+                const leg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.06), chairMat);
+                leg.position.set(p[0], 0.25, p[1]);
+                chair.add(leg);
+            });
+
+            chair.position.set(x, 0, z);
+            chair.rotation.y = rot;
+            S.add(chair);
+            Engine.addCollider(x, z, 0.7);
+        }
+
+        function buildLibrarianDesk(S) {
+            const deskMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const topMat = new THREE.MeshLambertMaterial({ color: 0x5a3820 });
+
+            const desk = new THREE.Mesh(new THREE.BoxGeometry(12, 1.2, 2.6), deskMat);
+            desk.position.set(0, 0.6, -24);
+            desk.castShadow = true;
+            desk.receiveShadow = true;
+            S.add(desk);
+            addBoxCollider(0, -24, 12, 2.6);
+
+            const top = new THREE.Mesh(new THREE.BoxGeometry(12.4, 0.16, 2.8), topMat);
+            top.position.set(0, 1.28, -24);
+            S.add(top);
+
+            const cardCatalogMat = new THREE.MeshLambertMaterial({ color: 0x4a2c14 });
+            const cardCatalog = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.4, 1.6), cardCatalogMat);
+            cardCatalog.position.set(0, 1.9, -24);
+            cardCatalog.castShadow = true;
+            S.add(cardCatalog);
+
+            const drawerMat = new THREE.MeshLambertMaterial({ color: 0x2e1a0c });
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const drawer = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.35, 0.05), drawerMat);
+                    drawer.position.set(-0.8 + j * 0.8, 1.45 + i * 0.4, -23.19);
+                    S.add(drawer);
+
+                    const handle = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.03, 0.03, 0.15, 6),
+                        new THREE.MeshBasicMaterial({ color: 0xd4a574 })
+                    );
+                    handle.rotation.z = Math.PI / 2;
+                    handle.position.set(-0.8 + j * 0.8, 1.45 + i * 0.4, -23.15);
+                    S.add(handle);
+                }
+            }
+
+            const signTex = Engine.createTextTexture('SUSIPEDIA LIBRARY', 0xd4a574, '#2a1a10');
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(8, 1.2),
+                new THREE.MeshBasicMaterial({ map: signTex })
+            );
+            sign.position.set(0, 4.0, -29.55);
+            S.add(sign);
+
+            const signFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(8.4, 1.5, 0.15),
+                new THREE.MeshLambertMaterial({ color: 0x3a2010 })
+            );
+            signFrame.position.set(0, 4.0, -29.6);
+            S.add(signFrame);
+        }
+
+        function buildExit(S) {
+            const exitFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(4.4, 4.4, 0.3),
+                new THREE.MeshLambertMaterial({ color: 0x2a1a0a })
+            );
+            exitFrame.position.set(0, 2.2, 29.7);
+            S.add(exitFrame);
+
+            const door = new THREE.Mesh(
+                new THREE.BoxGeometry(4, 4, 0.2),
+                new THREE.MeshLambertMaterial({ color: 0x5a3a1c })
+            );
+            door.position.set(0, 2, 29.5);
+            door.castShadow = true;
+            S.add(door);
+
+            const handle = new THREE.Mesh(
+                new THREE.SphereGeometry(0.12, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0xffd966 })
+            );
+            handle.position.set(1.5, 2, 29.4);
+            S.add(handle);
+
+            const exitSignTex = Engine.createTextTexture('EXIT', 0x00cc44, '#ffffff');
+            const exitSign = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 0.6),
+                new THREE.MeshBasicMaterial({ map: exitSignTex })
+            );
+            exitSign.position.set(0, 4.7, 29.4);
+            S.add(exitSign);
+
+            Engine.setExitTarget('../index.html', 'LIBRARY');
+            Engine.addInteractable(door, { isExit: true });
+        }
+
+        function collectLibraryBooks() {
+            const books = [];
+            Engine.scene.traverse(obj => {
+                if (obj.isMesh && obj.userData.isLibraryBook) books.push(obj);
+            });
+            return books;
+        }
+
+        (async function main() {
+            Engine.init({
+                bgColor: 0x1a0f08,
+                fog: true,
+                fogNear: 26,
+                fogFar: 75,
+                startX: 0,
+                startZ: 27,
+                bounds: { minX: -27, maxX: 27, minZ: -29, maxZ: 29 }
+            });
+
+            await loadArticles();
+
+            buildLibrary();
+
+            populateShelves();
+
+            const books = collectLibraryBooks();
+
+            const realInteractables = Engine.interactables.filter(o => !o.userData.isLibraryBook);
+            Engine.interactables = realInteractables;
+
+            Engine.raycastTargets = books;
+
+            const _origIntersect = Engine.raycaster.intersectObjects.bind(Engine.raycaster);
+
+            Engine.raycaster.intersectObjects = function(objs, recursive) {
+                const results = _origIntersect(objs, recursive);
+                if (!objs || objs.length === 0) return results;
+
+                const camPos = Engine.camera.position;
+                const dir = _tmpVec2;
+                Engine.camera.getWorldDirection(dir);
+
+                let bestBook = null;
+                let bestT = 3.2;
+                for (let i = 0; i < books.length; i++) {
+                    const b = books[i];
+                    b.getWorldPosition(_tmpVec);
+                    const dx = _tmpVec.x - camPos.x;
+                    const dy = _tmpVec.y - camPos.y;
+                    const dz = _tmpVec.z - camPos.z;
+                    const t = dx * dir.x + dy * dir.y + dz * dir.z;
+                    if (t < 0.2 || t > bestT) continue;
+                    const cx = camPos.x + dir.x * t;
+                    const cy = camPos.y + dir.y * t;
+                    const cz = camPos.z + dir.z * t;
+                    const ox = cx - _tmpVec.x;
+                    const oy = cy - _tmpVec.y;
+                    const oz = cz - _tmpVec.z;
+                    const off = Math.sqrt(ox * ox + oy * oy + oz * oz);
+                    if (off < 0.55 && t < bestT) {
+                        bestT = t;
+                        bestBook = b;
+                    }
+                }
+                if (bestBook) {
+                    results.push({ object: bestBook, distance: bestT });
+                    results.sort((a, b) => a.distance - b.distance);
+                }
+                return results;
+            };
+
+            Engine.loadNPCs(
+                ['howard.png', 'olivia.png', 'andrew.png', 'sylus.png', 'ringo.png', 'ellie.png', 'antonio.png', 'red.png'],
+                '../img/',
+                [
+                    [0, -22.5],
+                    [-7, 8],
+                    [7, 8],
+                    [-7, 16],
+                    [7, 16],
+                    [-18, -10],
+                    [18, 10],
+                    [14, 22]
+                ]
+            );
+
+            Engine.start();
+        })();
+    </script>
+</body>
+</html>

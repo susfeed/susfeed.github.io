@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookstore - Interior</title>
+    <link rel="icon" href="../../../img/amogus.webp">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #1a1208; color: white; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; z-index: 100; transition: all 0.15s ease; box-shadow: 0 0 4px rgba(0,0,0,0.5); }
+        #crosshair.active { background: rgba(255,230,0,0.95); transform: translate(-50%,-50%) scale(1.6); box-shadow: 0 0 10px rgba(255,215,0,0.9); }
+        #hud { position: absolute; top: 16px; left: 16px; z-index: 100; pointer-events: none; display: flex; flex-direction: column; gap: 8px; }
+        #location { font-size: 16px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-shadow: 1px 1px 3px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 6px 14px; border-radius: 4px; border-left: 3px solid #d4a574; align-self: flex-start; backdrop-filter: blur(4px); }
+        #controls-hint { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: rgba(255,255,255,0.65); text-shadow: 1px 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.5px; background: rgba(0,0,0,0.35); padding: 8px 12px; border-radius: 4px; backdrop-filter: blur(4px); align-self: flex-start; }
+        #controls-hint b { color: #d4a574; font-weight: 700; }
+        #prompt { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); color: #d4a574; text-shadow: 2px 2px 4px black; pointer-events: none; z-index: 100; font-size: 15px; font-weight: 600; letter-spacing: 1.5px; display: none; background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 4px; border: 1px solid rgba(212,165,116,0.4); backdrop-filter: blur(4px); animation: pulse 1.8s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); display: flex; justify-content: center; align-items: center; z-index: 200; color: white; cursor: pointer; flex-direction: column; gap: 10px; transition: opacity 0.3s; }
+        #overlay h1 { color: #d4a574; text-shadow: 0 0 20px rgba(212,165,116,0.6); font-size: 52px; letter-spacing: 6px; font-weight: 700; }
+        #overlay p { font-size: 16px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        #inventory { position: absolute; bottom: 16px; left: 16px; z-index: 100; background: rgba(0,0,0,0.7); padding: 10px 16px; border-radius: 6px; border: 1px solid #d4a574; font-size: 14px; display: none; }
+        #inventory b { color: #d4a574; }
+    </style>
+</head>
+<body>
+    <div id="crosshair"></div>
+    <div id="hud">
+        <div id="location">Bookstore — SusFeed Collection</div>
+        <div id="controls-hint"><span><b>WASD</b> Move</span><span><b>Shift</b> Sprint</span><span><b>Space</b> Jump</span><span><b>Click</b> Interact</span></div>
+    </div>
+    <div id="prompt">Press E or Click to Interact</div>
+    <div id="inventory">Holding: <b id="cart-name">Nothing</b></div>
+    <div id="overlay"><h1>BOOKSTORE</h1><p>Click to Enter</p></div>
+
+    <div id="viewer-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); z-index:500; justify-content:center; align-items:center; flex-direction:column;">
+        <button onclick="Engine.closeOverlay()" style="position:absolute; top:20px; right:20px; background:#ba1a1a; color:white; border:none; padding:12px 24px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:16px; z-index:501;">Close (Esc)</button>
+        <iframe id="viewer-frame" style="width:85vw; height:85vh; border:4px solid #d4a574; border-radius:8px; background:#fff;"></iframe>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <script src="../engine.js"></script>
+
+    <script>
+        const ROOT = '../../../';
+
+        const SHELF_BOARD_YS = [0.55, 1.5, 2.45, 3.4];
+        const SHELF_BOARD_THICK = 0.1;
+        const SHELF_DEPTH = 1.2;
+        const SHELF_WIDTH = 4.5;
+
+        const CARTRIDGE_H = 0.78;
+        const CARTRIDGE_W = 0.42;
+        const CARTRIDGE_D = 0.14;
+
+        let heldCartridge = null;
+        let tvScreenMat = null;
+        let tvScreenObj = null;
+
+        const CONTENT = { articles: [], quizzes: [], games: [] };
+
+        async function loadContent() {
+            const types = ['articles', 'quizzes', 'games'];
+            for (const t of types) {
+                try {
+                    const res = await fetch(`${ROOT}${t}/index.json`);
+                    const data = await res.json();
+                    data.sort((a, b) => parseInt(b.folder) - parseInt(a.folder));
+                    CONTENT[t] = data;
+                } catch (e) {
+                    console.warn(`Could not load ${t}/index.json`, e);
+                }
+            }
+        }
+
+        function titleFromFile(file) {
+            let t = file.replace(/_/g, ' ').replace(/\.html$/i, '');
+            if (t.includes('/')) t = t.substring(t.lastIndexOf('/') + 1);
+            return t;
+        }
+
+        function makeCoverTexture(type, folder) {
+            const loader = new THREE.TextureLoader();
+            const tex = loader.load(`${ROOT}${type}/${folder}/cover.webp`);
+            tex.encoding = THREE.sRGBEncoding;
+            tex.anisotropy = 8;
+            return tex;
+        }
+
+        function makeCartridgeLabelTexture(title, accentHex) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            const accent = '#' + accentHex.toString(16).padStart(6, '0');
+            ctx.fillStyle = '#1a1410';
+            ctx.fillRect(0, 0, 256, 512);
+
+            ctx.fillStyle = accent;
+            ctx.fillRect(0, 0, 256, 44);
+            ctx.fillRect(0, 468, 256, 44);
+
+            ctx.fillStyle = '#f7e7c8';
+            ctx.font = 'bold 26px Georgia, serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const words = title.split(' ');
+            const lines = [];
+            let current = '';
+            for (const w of words) {
+                const test = current ? current + ' ' + w : w;
+                if (ctx.measureText(test).width > 220 && current) {
+                    lines.push(current);
+                    current = w;
+                } else {
+                    current = test;
+                }
+            }
+            if (current) lines.push(current);
+            const shown = lines.slice(0, 5);
+
+            const lineH = 34;
+            const startY = 256 - ((shown.length - 1) * lineH) / 2;
+            shown.forEach((line, i) => {
+                ctx.fillText(line, 128, startY + i * lineH);
+            });
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 8;
+            return tex;
+        }
+
+        function makeTitleBannerTexture(title, accentHex) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+
+            const accent = '#' + accentHex.toString(16).padStart(6, '0');
+            ctx.fillStyle = 'rgba(10, 6, 4, 0.85)';
+            ctx.fillRect(0, 0, 512, 128);
+
+            ctx.fillStyle = accent;
+            ctx.fillRect(0, 0, 512, 6);
+            ctx.fillRect(0, 122, 512, 6);
+
+            ctx.fillStyle = '#f7e7c8';
+            ctx.font = 'bold 30px Georgia, serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const words = title.split(' ');
+            const lines = [];
+            let current = '';
+            for (const w of words) {
+                const test = current ? current + ' ' + w : w;
+                if (ctx.measureText(test).width > 470 && current) {
+                    lines.push(current);
+                    current = w;
+                } else {
+                    current = test;
+                }
+            }
+            if (current) lines.push(current);
+            const shown = lines.slice(0, 2);
+
+            const lineH = 42;
+            const startY = 64 - ((shown.length - 1) * lineH) / 2;
+            shown.forEach((line, i) => {
+                let text = line;
+                while (ctx.measureText(text).width > 480 && text.length > 3) {
+                    text = text.slice(0, -1);
+                }
+                if (text !== line) text = text.slice(0, -1) + '…';
+                ctx.fillText(text, 256, startY + i * lineH);
+            });
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 8;
+            return tex;
+        }
+
+        function flashPrompt(text) {
+            const prompt = document.getElementById('prompt');
+            if (!prompt) return;
+            const original = prompt.textContent;
+            prompt.textContent = text;
+            prompt.style.display = 'block';
+            setTimeout(() => {
+                prompt.textContent = original;
+            }, 1500);
+        }
+
+        function addBoxCollider(cx, cz, w, d) {
+            const r = 0.9;
+            const spanX = Math.max(w - r * 2, 0);
+            const count = Math.max(Math.ceil(spanX / (r * 1.4)), 1);
+            if (count === 1) {
+                Engine.addCollider(cx, cz, r);
+                return;
+            }
+            const step = spanX / (count - 1);
+            for (let i = 0; i < count; i++) {
+                const x = cx - spanX / 2 + i * step;
+                Engine.addCollider(x, cz, r);
+            }
+            const depthPad = d / 2;
+            if (depthPad > r) {
+                for (let i = 0; i < count; i++) {
+                    const x = cx - spanX / 2 + i * step;
+                    Engine.addCollider(x, cz + (depthPad - r) * 1.2, r * 0.9);
+                    Engine.addCollider(x, cz - (depthPad - r) * 1.2, r * 0.9);
+                }
+            }
+        }
+
+        function buildBookstore() {
+            const S = Engine.scene;
+
+            S.add(new THREE.HemisphereLight(0xffe8c8, 0x2a1810, 0.55));
+            S.add(new THREE.AmbientLight(0xffffff, 0.34));
+
+            const ceilingLights = [
+                [-12, 4.85, -14], [0, 4.85, -14], [12, 4.85, -14],
+                [-12, 4.85, -4], [0, 4.85, -4], [12, 4.85, -4],
+                [-12, 4.85, 6], [0, 4.85, 6], [12, 4.85, 6],
+                [-12, 4.85, 14], [0, 4.85, 14], [12, 4.85, 14]
+            ];
+            ceilingLights.forEach(pos => {
+                const light = new THREE.PointLight(0xffd9a0, 0.75, 20);
+                light.position.set(pos[0], pos[1], pos[2]);
+                S.add(light);
+                const fixture = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.45, 0.45, 0.12, 14),
+                    new THREE.MeshBasicMaterial({ color: 0xffd9a0 })
+                );
+                fixture.position.set(pos[0], pos[1] + 0.08, pos[2]);
+                S.add(fixture);
+            });
+
+            const floorMat = new THREE.MeshLambertMaterial({ color: 0x4a3020 });
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(44, 44), floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            S.add(floor);
+
+            const rugMat = new THREE.MeshLambertMaterial({ color: 0x6b2020 });
+            const rug = new THREE.Mesh(new THREE.PlaneGeometry(12, 8), rugMat);
+            rug.rotation.x = -Math.PI / 2;
+            rug.position.set(0, 0.01, 10);
+            rug.receiveShadow = true;
+            S.add(rug);
+
+            const ceilMat = new THREE.MeshLambertMaterial({ color: 0x2a1a0a });
+            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(44, 44), ceilMat);
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.y = 5;
+            S.add(ceiling);
+
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x6b3a1a });
+            const addWall = (x, y, z, w, h, d) => {
+                const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+                wall.position.set(x, y, z);
+                wall.receiveShadow = true;
+                S.add(wall);
+            };
+            addWall(0, 2.5, -22, 44, 5, 0.5);
+            addWall(-22, 2.5, 0, 0.5, 5, 44);
+            addWall(22, 2.5, 0, 0.5, 5, 44);
+            addWall(-11, 2.5, 22, 22, 5, 0.5);
+            addWall(11, 2.5, 22, 22, 5, 0.5);
+
+            const trimMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            [-22, 22].forEach(x => {
+                const trim = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.6, 44), trimMat);
+                trim.position.set(x + (x < 0 ? 0.35 : -0.35), 0.3, 0);
+                S.add(trim);
+            });
+
+            buildBookshelves(S);
+            buildConsole(S);
+            buildCounter(S);
+            buildExit(S);
+        }
+
+        function buildBookshelves(S) {
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x5a3820 });
+            const boardMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const backingMat = new THREE.MeshLambertMaterial({ color: 0x2e1a0c });
+
+            const shelfConfigs = [
+                { x: -16, z: -14, rot: Math.PI / 2, type: 'articles', index: 0 },
+                { x: -16, z: -6, rot: Math.PI / 2, type: 'articles', index: 1 },
+                { x: -16, z: 2, rot: Math.PI / 2, type: 'quizzes', index: 0 },
+                { x: -16, z: 10, rot: Math.PI / 2, type: 'quizzes', index: 1 },
+                { x: 16, z: -14, rot: -Math.PI / 2, type: 'games', index: 0 },
+                { x: 16, z: -6, rot: -Math.PI / 2, type: 'games', index: 1 },
+                { x: 16, z: 2, rot: -Math.PI / 2, type: 'articles', index: 2 },
+                { x: 16, z: 10, rot: -Math.PI / 2, type: 'quizzes', index: 2 }
+            ];
+
+            shelfConfigs.forEach((cfg) => {
+                const group = new THREE.Group();
+                group.position.set(cfg.x, 0, cfg.z);
+                group.rotation.y = cfg.rot;
+
+                const W = SHELF_WIDTH;
+                const H = 4.2;
+                const D = SHELF_DEPTH;
+
+                const backing = new THREE.Mesh(new THREE.BoxGeometry(W, H, 0.1), backingMat);
+                backing.position.set(0, H / 2, -D / 2 + 0.05);
+                backing.receiveShadow = true;
+                group.add(backing);
+
+                [-W / 2, W / 2].forEach(sx => {
+                    const side = new THREE.Mesh(new THREE.BoxGeometry(0.15, H, D), woodMat);
+                    side.position.set(sx, H / 2, 0);
+                    side.castShadow = true;
+                    side.receiveShadow = true;
+                    group.add(side);
+                });
+
+                const topCap = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, 0.25, D + 0.2), woodMat);
+                topCap.position.set(0, H + 0.1, 0);
+                topCap.castShadow = true;
+                group.add(topCap);
+
+                const base = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, 0.35, D + 0.2), woodMat);
+                base.position.set(0, 0.175, 0);
+                base.castShadow = true;
+                base.receiveShadow = true;
+                group.add(base);
+
+                SHELF_BOARD_YS.forEach((sy, rowIdx) => {
+                    const board = new THREE.Mesh(
+                        new THREE.BoxGeometry(W - 0.1, SHELF_BOARD_THICK, D - 0.15),
+                        boardMat
+                    );
+                    board.position.set(0, sy, 0);
+                    board.castShadow = true;
+                    board.receiveShadow = true;
+                    group.add(board);
+
+                    buildShelfRow(group, sy, cfg, rowIdx);
+                });
+
+                const signTex = Engine.createTextTexture(
+                    cfg.type === 'articles' ? 'SUSARTICLES' :
+                    cfg.type === 'quizzes' ? 'QUIZZES' : 'GAMES',
+                    0xd4a574, '#1a1208'
+                );
+                const sign = new THREE.Mesh(
+                    new THREE.PlaneGeometry(W - 0.6, 0.7),
+                    new THREE.MeshBasicMaterial({ map: signTex })
+                );
+                sign.position.set(0, H + 0.55, D / 2 - 0.1);
+                group.add(sign);
+
+                S.add(group);
+
+                const sideOffset = 0.35;
+                if (cfg.rot === Math.PI / 2) {
+                    addBoxCollider(cfg.x - sideOffset, cfg.z, D, W);
+                } else {
+                    addBoxCollider(cfg.x + sideOffset, cfg.z, D, W);
+                }
+            });
+        }
+
+        function buildShelfRow(group, boardY, cfg, rowIdx) {
+            const surfaceY = boardY + SHELF_BOARD_THICK / 2;
+            const usableW = SHELF_WIDTH - 0.5;
+            const bookCount = 8;
+
+            const bookW = 0.2;
+            const spineD = 0.5;
+            const bookStartX = -usableW / 2;
+
+            const TITLES = [
+                'Sus Feed', 'Among Us', 'Vent', 'Impostor', 'Task',
+                'Klax', 'Milli Vanilli', 'Hot Chocolate', 'Mark Pierce',
+                'SusiPedia', 'Cameron', 'Phillip', 'Howard', 'Chog',
+                'Karaage', 'Pikmin', 'Furret', 'Sylus', 'Antonio',
+                'Yogurt', 'Reeses Puffs', 'Mayo', 'Waluigi', 'Shrekzel'
+            ];
+
+            const bookColors = [0x8b2020, 0x20408b, 0x208b40, 0x8b8b20, 0x8b208b, 0x8b4a20, 0x20208b, 0x3a6b3a, 0x6b3a6b, 0x8b6b20];
+
+            for (let i = 0; i < bookCount; i++) {
+                const colorIdx = (rowIdx * 7 + i * 3 + cfg.index) % bookColors.length;
+                const color = bookColors[colorIdx];
+                const h = 0.7 + ((i * 5 + rowIdx * 9) % 4) * 0.03;
+                const w = bookW + ((i + rowIdx) % 2) * 0.015;
+                const d = spineD + ((i * 3 + rowIdx) % 3) * 0.03;
+
+                const titleIdx = (rowIdx * 7 + i + cfg.index * 3) % TITLES.length;
+                const title = TITLES[titleIdx];
+
+                const spineTex = makeCartridgeLabelTexture(title, color);
+                const sideMat = new THREE.MeshLambertMaterial({ color: color });
+                const spineMat = new THREE.MeshBasicMaterial({ map: spineTex });
+
+                const book = new THREE.Mesh(
+                    new THREE.BoxGeometry(w, h, d),
+                    [sideMat, sideMat, sideMat, sideMat, sideMat, spineMat]
+                );
+
+                const x = bookStartX + i * (bookW + 0.02) + w / 2;
+                const z = -SHELF_DEPTH / 2 + 0.1 + d / 2;
+                book.position.set(x, surfaceY + h / 2 + 0.005, z);
+                book.castShadow = true;
+                book.receiveShadow = true;
+                group.add(book);
+            }
+
+            const pool = CONTENT[cfg.type] || [];
+            const item = pickShelfItem(cfg, rowIdx, pool);
+            if (!item) return;
+
+            const featuredW = CARTRIDGE_W;
+            const featuredH = CARTRIDGE_H;
+            const featuredD = CARTRIDGE_D;
+            const featuredX = usableW / 2 - featuredW / 2 - 0.05;
+            const featuredZ = -SHELF_DEPTH / 2 + 0.1 + featuredD / 2 + 0.02;
+
+            const accentColors = [0xd4a574, 0xa574d4, 0x74d4a5, 0xd47474, 0x74a5d4];
+            const accent = accentColors[(rowIdx + cfg.index) % accentColors.length];
+
+            const holderMat = new THREE.MeshLambertMaterial({ color: 0x1a0a04 });
+            const holder = new THREE.Mesh(
+                new THREE.BoxGeometry(featuredW + 0.1, 0.06, featuredD + 0.08),
+                holderMat
+            );
+            holder.position.set(featuredX, surfaceY + 0.03, featuredZ);
+            group.add(holder);
+
+            const cardGroup = new THREE.Group();
+            cardGroup.position.set(featuredX, surfaceY + featuredH / 2 + 0.06, featuredZ);
+
+            const bodyMat = new THREE.MeshLambertMaterial({ color: 0x2a1a0c });
+            const body = new THREE.Mesh(
+                new THREE.BoxGeometry(featuredW, featuredH, featuredD),
+                bodyMat
+            );
+            body.castShadow = true;
+            body.receiveShadow = true;
+            cardGroup.add(body);
+
+            const bannerRatio = 0.32;
+            const coverTex = makeCoverTexture(cfg.type, item.folder);
+            const coverH = featuredH * (1 - bannerRatio);
+            const coverMat = new THREE.MeshBasicMaterial({ map: coverTex });
+            const coverFace = new THREE.Mesh(
+                new THREE.PlaneGeometry(featuredW - 0.02, coverH - 0.02),
+                coverMat
+            );
+            coverFace.position.set(0, (featuredH - coverH) / 2, featuredD / 2 + 0.001);
+            cardGroup.add(coverFace);
+
+            const bannerTex = makeTitleBannerTexture(titleFromFile(item.file), accent);
+            const bannerMat = new THREE.MeshBasicMaterial({ map: bannerTex });
+            const bannerFace = new THREE.Mesh(
+                new THREE.PlaneGeometry(featuredW - 0.02, featuredH * bannerRatio - 0.02),
+                bannerMat
+            );
+            bannerFace.position.set(0, -(featuredH - coverH) / 2 - 0.005, featuredD / 2 + 0.002);
+            cardGroup.add(bannerFace);
+
+            group.add(cardGroup);
+
+            const path = `${cfg.type}/${item.folder}/${item.file}`;
+            const title = titleFromFile(item.file);
+
+            Engine.addInteractable(coverFace, {
+                onInteract: function() {
+                    Engine.openOverlay(ROOT + path);
+                },
+                label: title
+            });
+
+            Engine.addInteractable(bannerFace, {
+                onInteract: function() {
+                    Engine.openOverlay(ROOT + path);
+                },
+                label: title
+            });
+        }
+
+        const SHELF_ITEM_INDEX = { articles: 0, quizzes: 0, games: 0 };
+
+        function pickShelfItem(cfg, rowIdx, pool) {
+            if (!pool || pool.length === 0) return null;
+            const key = cfg.type;
+            const idx = SHELF_ITEM_INDEX[key];
+            const item = pool[idx % pool.length];
+            SHELF_ITEM_INDEX[key] = (idx + 1) % pool.length;
+            return item;
+        }
+
+        function buildConsole(S) {
+            const cabinetMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const panelMat = new THREE.MeshLambertMaterial({ color: 0x1a2530 });
+
+            const DESK_Z = -18.5;
+            const DESK_DEPTH = 2.6;
+
+            const desk = new THREE.Mesh(new THREE.BoxGeometry(8, 1.1, DESK_DEPTH), cabinetMat);
+            desk.position.set(0, 0.55, DESK_Z);
+            desk.castShadow = true;
+            desk.receiveShadow = true;
+            S.add(desk);
+            addBoxCollider(0, DESK_Z, 8, DESK_DEPTH);
+
+            const top = new THREE.Mesh(new THREE.BoxGeometry(8.4, 0.12, DESK_DEPTH + 0.2), panelMat);
+            top.position.set(0, 1.16, DESK_Z);
+            top.receiveShadow = true;
+            S.add(top);
+
+            const tvFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(4.6, 3.2, 0.55),
+                new THREE.MeshLambertMaterial({ color: 0x0d0d0d })
+            );
+            tvFrame.position.set(0, 3.0, -19.6);
+            tvFrame.castShadow = true;
+            S.add(tvFrame);
+
+            const tvScreenGeo = new THREE.PlaneGeometry(4.1, 2.75);
+            tvScreenMat = new THREE.MeshBasicMaterial({ color: 0x061018 });
+            tvScreenObj = new THREE.Mesh(tvScreenGeo, tvScreenMat);
+            tvScreenObj.position.set(0, 3.0, -19.3);
+            S.add(tvScreenObj);
+
+            const tvBezel = new THREE.Mesh(
+                new THREE.BoxGeometry(4.8, 3.4, 0.15),
+                new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
+            );
+            tvBezel.position.set(0, 3.0, -19.75);
+            S.add(tvBezel);
+
+            const tvBase = new THREE.Mesh(
+                new THREE.BoxGeometry(2.4, 0.35, 1.2),
+                new THREE.MeshLambertMaterial({ color: 0x111111 })
+            );
+            tvBase.position.set(0, 1.3, -19.6);
+            tvBase.castShadow = true;
+            S.add(tvBase);
+
+            Engine.addInteractable(tvScreenObj, {
+                onInteract: function() {
+                    if (!heldCartridge) {
+                        flashPrompt('Insert a cartridge first!');
+                        return;
+                    }
+                    const gamePath = heldCartridge.userData.gamePath;
+                    if (gamePath) {
+                        Engine.openOverlay(ROOT + gamePath);
+                        tvScreenMat.color.setHex(0x0f3a1f);
+                        const inv = document.getElementById('inventory');
+                        if (inv) inv.style.display = 'none';
+                        const cart = heldCartridge.userData.cartGroup;
+                        if (cart) {
+                            cart.position.set(
+                                heldCartridge.userData.originalX,
+                                heldCartridge.userData.originalY,
+                                heldCartridge.userData.originalZ
+                            );
+                        }
+                        heldCartridge = null;
+                        const cn = document.getElementById('cart-name');
+                        if (cn) cn.textContent = 'Nothing';
+                    }
+                }
+            });
+
+            const CONSOLE_Z_BACK = DESK_Z - 0.25;
+            const CONSOLE_DEPTH = 0.7;
+
+            const consoleBody = new THREE.Mesh(
+                new THREE.BoxGeometry(3.2, 0.35, CONSOLE_DEPTH),
+                new THREE.MeshLambertMaterial({ color: 0x2a2a2a })
+            );
+            consoleBody.position.set(0, 1.4, CONSOLE_Z_BACK);
+            consoleBody.castShadow = true;
+            consoleBody.receiveShadow = true;
+            S.add(consoleBody);
+
+            const consoleTop = new THREE.Mesh(
+                new THREE.BoxGeometry(3.1, 0.08, CONSOLE_DEPTH - 0.05),
+                new THREE.MeshLambertMaterial({ color: 0x101010 })
+            );
+            consoleTop.position.set(0, 1.62, CONSOLE_Z_BACK);
+            S.add(consoleTop);
+
+            const accent = new THREE.Mesh(
+                new THREE.BoxGeometry(3.2, 0.05, 0.08),
+                new THREE.MeshBasicMaterial({ color: 0xd4a574 })
+            );
+            accent.position.set(0, 1.4, CONSOLE_Z_BACK + CONSOLE_DEPTH / 2);
+            S.add(accent);
+
+            const slotCount = 5;
+            const slotSpacing = 0.55;
+            const slotStart = -(slotCount - 1) * slotSpacing / 2;
+
+            for (let i = 0; i < slotCount; i++) {
+                const slot = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.4, 0.06, 0.55),
+                    new THREE.MeshBasicMaterial({ color: 0x000000 })
+                );
+                slot.position.set(slotStart + i * slotSpacing, 1.66, CONSOLE_Z_BACK);
+                S.add(slot);
+            }
+
+            const labelTex = Engine.createTextTexture('SUSFEED GAME STATION', 0xd4a574, '#0a0a0a');
+            const label = new THREE.Mesh(
+                new THREE.PlaneGeometry(3.4, 0.6),
+                new THREE.MeshBasicMaterial({ map: labelTex })
+            );
+            label.position.set(0, 4.35, -19.55);
+            S.add(label);
+
+            const CONSOLE_FRONT = CONSOLE_Z_BACK + CONSOLE_DEPTH / 2;
+            buildCartridgeDisplay(S, CONSOLE_FRONT);
+        }
+
+        function buildCartridgeDisplay(S, consoleFrontZ) {
+            const allGames = CONTENT.games || [];
+            const unique = [];
+            const seen = new Set();
+            allGames.forEach(g => {
+                const key = g.folder + '/' + g.file;
+                if (!seen.has(key)) { seen.add(key); unique.push(g); }
+            });
+
+            const picks = unique.slice(0, 5);
+            const count = picks.length;
+            if (count === 0) return;
+
+            const cartZ = consoleFrontZ + CARTRIDGE_D / 2 + 0.4;
+
+            const spacing = 1.3;
+            const startX = -(count - 1) * spacing / 2;
+            const cartridgeColors = [0xcc2222, 0x2222cc, 0x22cc22, 0xcccc22, 0xcc22cc];
+
+            picks.forEach((game, i) => {
+                const cart = new THREE.Group();
+
+                const body = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.55, 0.7, CARTRIDGE_D),
+                    new THREE.MeshLambertMaterial({ color: cartridgeColors[i % cartridgeColors.length] })
+                );
+                body.castShadow = true;
+                cart.add(body);
+
+                const labelPlane = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.42, 0.42),
+                    new THREE.MeshBasicMaterial({ map: makeCoverTexture('games', game.folder) })
+                );
+                labelPlane.position.set(0, 0.06, CARTRIDGE_D / 2 + 0.002);
+                cart.add(labelPlane);
+
+                const grip = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.55, 0.1, CARTRIDGE_D + 0.02),
+                    new THREE.MeshLambertMaterial({ color: 0x222222 })
+                );
+                grip.position.set(0, -0.35, 0);
+                cart.add(grip);
+
+                cart.position.set(startX + i * spacing, 1.62, cartZ);
+                S.add(cart);
+
+                const title = titleFromFile(game.file);
+                const gamePath = `games/${game.folder}/${game.file}`;
+
+                body.userData = {
+                    gamePath: gamePath,
+                    gameName: title,
+                    cartGroup: cart,
+                    originalX: cart.position.x,
+                    originalY: cart.position.y,
+                    originalZ: cart.position.z
+                };
+
+                Engine.addInteractable(body, {
+                    onInteract: function(obj) {
+                        if (heldCartridge && heldCartridge !== obj) {
+                            const prevGroup = heldCartridge.userData.cartGroup;
+                            if (prevGroup) {
+                                prevGroup.position.set(
+                                    heldCartridge.userData.originalX,
+                                    heldCartridge.userData.originalY,
+                                    heldCartridge.userData.originalZ
+                                );
+                            }
+                        }
+                        heldCartridge = obj;
+                        const grp = obj.userData.cartGroup;
+                        if (grp) grp.position.set(0, -100, 0);
+
+                        const inv = document.getElementById('inventory');
+                        if (inv) inv.style.display = 'block';
+                        const cn = document.getElementById('cart-name');
+                        if (cn) cn.textContent = obj.userData.gameName;
+                    }
+                });
+            });
+        }
+
+        function buildCounter(S) {
+            const counterMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const topMat = new THREE.MeshLambertMaterial({ color: 0x2a1a0c });
+
+            const counter = new THREE.Mesh(new THREE.BoxGeometry(10, 1.2, 2.6), counterMat);
+            counter.position.set(0, 0.6, 18);
+            counter.castShadow = true;
+            counter.receiveShadow = true;
+            S.add(counter);
+            addBoxCollider(0, 18, 10, 2.6);
+
+            const counterTop = new THREE.Mesh(new THREE.BoxGeometry(10.4, 0.16, 2.8), topMat);
+            counterTop.position.set(0, 1.28, 18);
+            S.add(counterTop);
+
+            const register = new THREE.Mesh(
+                new THREE.BoxGeometry(1.1, 0.7, 0.9),
+                new THREE.MeshLambertMaterial({ color: 0x222222 })
+            );
+            register.position.set(-3.5, 1.7, 18);
+            register.castShadow = true;
+            S.add(register);
+
+            const registerScreen = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.9, 0.55),
+                new THREE.MeshBasicMaterial({ color: 0x00ff88 })
+            );
+            registerScreen.position.set(-3.5, 1.7, 18.46);
+            S.add(registerScreen);
+
+            const bookstoreSignTex = Engine.createTextTexture('SUSFEED BOOKS', 0xd4a574, '#1a1208');
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(6, 1.2),
+                new THREE.MeshBasicMaterial({ map: bookstoreSignTex })
+            );
+            sign.position.set(0, 4.55, -21.7);
+            S.add(sign);
+
+            const signFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(6.4, 1.5, 0.15),
+                new THREE.MeshLambertMaterial({ color: 0x3a2010 })
+            );
+            signFrame.position.set(0, 4.55, -21.65);
+            S.add(signFrame);
+        }
+
+        function buildExit(S) {
+            const exitFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(4.4, 4.4, 0.3),
+                new THREE.MeshLambertMaterial({ color: 0x2a1a0a })
+            );
+            exitFrame.position.set(0, 2.2, 21.7);
+            S.add(exitFrame);
+
+            const door = new THREE.Mesh(
+                new THREE.BoxGeometry(4, 4, 0.2),
+                new THREE.MeshLambertMaterial({ color: 0x5a3a1c })
+            );
+            door.position.set(0, 2, 21.5);
+            door.castShadow = true;
+            S.add(door);
+
+            const handle = new THREE.Mesh(
+                new THREE.SphereGeometry(0.12, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0xffd966 })
+            );
+            handle.position.set(1.5, 2, 21.4);
+            S.add(handle);
+
+            const exitSignTex = Engine.createTextTexture('EXIT', 0x00cc44, '#ffffff');
+            const exitSign = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 0.6),
+                new THREE.MeshBasicMaterial({ map: exitSignTex })
+            );
+            exitSign.position.set(0, 4.7, 21.4);
+            S.add(exitSign);
+
+            Engine.setExitTarget('../index.html', 'BOOKSTORE');
+            Engine.addInteractable(door, { isExit: true });
+        }
+
+        (async function main() {
+            Engine.init({
+                bgColor: 0x1a1208,
+                fog: true,
+                fogNear: 22,
+                fogFar: 65,
+                startX: 0,
+                startZ: 20,
+                bounds: { minX: -21, maxX: 21, minZ: -21, maxZ: 21 }
+            });
+
+            await loadContent();
+
+            buildBookstore();
+
+            Engine.loadNPCs(
+                ['neil.png', 'cam.png', 'smeff.png', 'chip.png', 'sara.png', 'phil.png'],
+                '../img/',
+                [[-10, -18], [10, -18], [-12, 14], [12, 14], [-14, 4], [14, 4]]
+            );
+
+            Engine.start();
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SusFeed Shop · Neil's Emporium</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: black;
+            color: white;
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px 24px;
+            border-left: 6px solid #b8860b;
+            border-radius: 0 8px 8px 0;
+            pointer-events: none;
+            z-index: 10;
+            text-shadow: 2px 2px 4px #000;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(184, 134, 11, 0.3);
+        }
+        #info h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #ffd966;
+            font-weight: 400;
+        }
+        #info p {
+            margin: 4px 0 0;
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+        #hud {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 16px;
+            border: 1px solid #b8860b;
+            border-radius: 8px;
+            z-index: 10;
+            font-size: 0.9rem;
+            color: #ffd966;
+            letter-spacing: 1px;
+        }
+        #hud .suscoin {
+            color: #66ff66;
+        }
+        #free-badge {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background: rgba(0, 200, 0, 0.85);
+            padding: 8px 16px;
+            border: 2px solid #66ff66;
+            border-radius: 8px;
+            z-index: 10;
+            font-size: 0.9rem;
+            color: #fff;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px #000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            animation: pulse 1s infinite;
+        }
+        #free-badge.visible {
+            opacity: 1;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        #item-detail {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 10, 0.9);
+            border: 2px solid #b8860b;
+            border-radius: 16px;
+            padding: 16px 32px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 40px rgba(184, 134, 11, 0.5);
+            min-width: 320px;
+            max-width: 600px;
+            pointer-events: none;
+            z-index: 20;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            letter-spacing: 1px;
+        }
+        #item-detail.visible {
+            opacity: 1;
+        }
+        #item-detail h2 {
+            margin: 0 0 8px;
+            color: #ffd966;
+            font-size: 1.6rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px #b8860b;
+        }
+        #item-detail .price {
+            color: #66ff66;
+            font-size: 1rem;
+            margin: 4px 0 8px;
+        }
+        #item-detail .price.free {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            animation: pulse 1s infinite;
+        }
+        #item-detail p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #ddd;
+            font-style: italic;
+            max-width: 500px;
+        }
+        #action-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 25;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+        #action-bar.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #action-bar button {
+            background: rgba(20, 20, 20, 0.9);
+            color: #ffd966;
+            border: 2px solid #b8860b;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(184, 134, 11, 0.4);
+        }
+        #action-bar button:hover:not(:disabled) {
+            background: #b8860b;
+            color: #000;
+            box-shadow: 0 0 20px rgba(184, 134, 11, 0.9);
+        }
+        #action-bar button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .instruction {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: #aaa;
+            border: 1px solid #444;
+            z-index: 10;
+        }
+        #controls-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #aaa;
+            border: 1px solid #444;
+            z-index: 10;
+        }
+        #audio-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(180, 100, 20, 0.9);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #fff;
+            border: 1px solid #b8860b;
+            z-index: 30;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border: 2px solid rgba(255, 217, 102, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 15;
+            box-shadow: 0 0 6px rgba(255, 217, 102, 0.5);
+            transition: opacity 0.2s;
+        }
+        #crosshair.hidden {
+            opacity: 0;
+        }
+        #crosshair.hostile {
+            border-color: #ff3333;
+            box-shadow: 0 0 12px #ff3333;
+        }
+        #prompt {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffd966;
+            font-size: 1rem;
+            text-shadow: 0 0 8px #000, 0 0 4px #b8860b;
+            pointer-events: none;
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 0.2s;
+            letter-spacing: 2px;
+        }
+        #prompt.visible {
+            opacity: 1;
+        }
+        #toast {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #b8860b;
+            color: #ffd966;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            text-align: center;
+            max-width: 400px;
+        }
+        #toast.visible {
+            opacity: 1;
+        }
+        #dialogue {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid #b8860b;
+            border-radius: 12px;
+            padding: 16px 24px;
+            max-width: 500px;
+            min-width: 300px;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            box-shadow: 0 0 40px rgba(184, 134, 11, 0.6);
+        }
+        #dialogue.visible {
+            opacity: 1;
+        }
+        #dialogue .speaker {
+            color: #ffd966;
+            font-size: 0.9rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        #dialogue .line {
+            color: #fff;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        #start-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            cursor: pointer;
+            transition: opacity 0.5s ease;
+        }
+        #start-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #start-overlay h1 {
+            color: #ffd966;
+            font-size: 3rem;
+            margin: 0 0 20px;
+            text-shadow: 0 0 20px #b8860b;
+            letter-spacing: 4px;
+        }
+        #start-overlay p {
+            color: #ccc;
+            font-size: 1.1rem;
+            margin: 8px 0;
+            letter-spacing: 2px;
+        }
+        #start-overlay .big {
+            color: #b8860b;
+            font-size: 1.3rem;
+            margin-top: 30px;
+            animation: pulse 1.5s infinite;
+        }
+        #health-bar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+            z-index: 10;
+        }
+        .heart {
+            width: 20px;
+            height: 20px;
+            background: #ff3333;
+            clip-path: polygon(50% 100%, 0 35%, 15% 10%, 50% 30%, 85% 10%, 100% 35%);
+            filter: drop-shadow(0 0 4px #ff0000);
+        }
+        .heart.empty {
+            background: #444;
+            filter: none;
+        }
+        #hand-label {
+            position: absolute;
+            right: 30px;
+            bottom: 240px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #b8860b;
+            color: #ffd966;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            z-index: 12;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        #hand-label.visible {
+            opacity: 1;
+        }
+        #hand-label .key-hint {
+            color: #66ff66;
+        }
+        #inventory-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 12;
+            pointer-events: none;
+        }
+        .inv-slot {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #444;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            text-align: center;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .inv-slot.filled {
+            border-color: #b8860b;
+            background: rgba(184, 134, 11, 0.15);
+            box-shadow: 0 0 10px rgba(184, 134, 11, 0.4);
+        }
+        .inv-slot.active {
+            border-color: #66ff66;
+            background: rgba(102, 255, 102, 0.2);
+            box-shadow: 0 0 15px rgba(102, 255, 102, 0.6);
+            transform: scale(1.1);
+        }
+        #ammo-counter {
+            position: absolute;
+            bottom: 90px;
+            right: 30px;
+            background: rgba(0,0,0,0.75);
+            border: 2px solid #b8860b;
+            border-radius: 8px;
+            color: #ffd966;
+            padding: 8px 16px;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            z-index: 12;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        #ammo-counter.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="hud">
+        <span>🪙 <span class="suscoin" id="coin-count">100</span> suscoins</span>
+    </div>
+    <div id="free-badge">💸 EVERYTHING FREE · NEIL HELD UP</div>
+    <div id="health-bar"></div>
+    <div id="item-detail">
+        <h2 id="item-name">—</h2>
+        <div class="price" id="item-price">—</div>
+        <p id="item-desc">Select an item</p>
+    </div>
+    <div id="action-bar">
+        <button id="btn-buy">Buy</button>
+        <button id="btn-take">Take</button>
+        <button id="btn-close">Close</button>
+    </div>
+    <div id="dialogue">
+        <div class="speaker">Neil</div>
+        <div class="line" id="dialogue-line">...</div>
+    </div>
+    <div id="audio-warning">🔊 Click anywhere to enable audio</div>
+    <div id="crosshair"></div>
+    <div id="prompt">[E] INSPECT</div>
+    <div id="toast"></div>
+    <div id="hand-label">Holding: <span id="hand-name"></span> · <span class="key-hint">[F] Use · [G] Drop</span></div>
+    <div id="ammo-counter">AMMO: <span id="ammo-count">6</span> / 6</div>
+    <div id="inventory-bar"></div>
+    <div id="start-overlay">
+        <h1>NEIL'S SHOP</h1>
+        <p>Click to enter</p>
+        <p class="big">WASD to walk · Mouse to look · Shift to run</p>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        let audioCtx = null;
+        let masterGain = null;
+        let bgmPlaying = false;
+        let audioEnabled = false;
+
+        function initAudio() {
+            if (audioEnabled) return;
+            audioEnabled = true;
+            const warningEl = document.getElementById('audio-warning');
+            if (warningEl) warningEl.style.opacity = '0';
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0.35;
+                masterGain.connect(audioCtx.destination);
+                startBGM();
+            } catch (e) {}
+        }
+
+        window.addEventListener('click', initAudio);
+        window.addEventListener('touchstart', initAudio);
+        window.addEventListener('keydown', initAudio);
+
+        function startBGM() {
+            if (bgmPlaying || !audioCtx) return;
+            bgmPlaying = true;
+            const bgmGain = audioCtx.createGain();
+            bgmGain.gain.value = 0.1;
+            bgmGain.connect(masterGain);
+            const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 293.66, 349.23];
+            const noteDuration = 0.45;
+            let noteIndex = 0;
+            function playNextNote() {
+                if (!bgmPlaying || !audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const noteGain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = notes[noteIndex % notes.length];
+                noteGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                noteGain.gain.exponentialRampToValueAtTime(0.4, audioCtx.currentTime + 0.05);
+                noteGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + noteDuration * 0.9);
+                osc.connect(noteGain);
+                noteGain.connect(bgmGain);
+                osc.start();
+                osc.stop(audioCtx.currentTime + noteDuration);
+                noteIndex++;
+                setTimeout(playNextNote, noteDuration * 1000);
+            }
+            playNextNote();
+        }
+
+        function playTone(freq, type, dur, vol) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type || 'square';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol || 0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
+        }
+
+        function playSweep(f1, f2, type, dur, vol) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type || 'square';
+            osc.frequency.setValueAtTime(f1, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(f2, audioCtx.currentTime + dur);
+            gain.gain.setValueAtTime(vol || 0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
+        }
+
+        function playSelectSound() { playSweep(880, 1320, 'square', 0.15, 0.12); }
+        function playDeselectSound() { playSweep(440, 220, 'sine', 0.15, 0.1); }
+        function playHoverSound() { playTone(660, 'sine', 0.06, 0.035); }
+        function playBuySound() { playTone(523.25, 'square', 0.08, 0.12); setTimeout(() => playTone(659.25, 'square', 0.08, 0.12), 80); setTimeout(() => playTone(783.99, 'square', 0.15, 0.12), 160); }
+        function playDeniedSound() { playTone(200, 'sawtooth', 0.15, 0.1); setTimeout(() => playTone(150, 'sawtooth', 0.15, 0.1), 100); }
+        function playDialogueSound() { playTone(440 + Math.random() * 100, 'square', 0.04, 0.05); }
+        function playEmptyClick() { playTone(1200, 'square', 0.02, 0.08); }
+        function playReloadSound() {
+            if (!audioCtx) return;
+            playTone(500, 'square', 0.05, 0.1);
+            setTimeout(() => playTone(700, 'square', 0.08, 0.1), 150);
+            setTimeout(() => playTone(400, 'square', 0.05, 0.1), 300);
+        }
+        function playFreeSound() {
+            if (!audioCtx) return;
+            playTone(660, 'square', 0.08, 0.1);
+            setTimeout(() => playTone(880, 'square', 0.08, 0.1), 100);
+            setTimeout(() => playTone(1320, 'square', 0.15, 0.1), 200);
+        }
+
+        function playGunSound() {
+            if (!audioCtx) return;
+            const bufferSize = audioCtx.sampleRate * 0.15;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+            }
+            const noiseSource = audioCtx.createBufferSource();
+            noiseSource.buffer = buffer;
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.value = 1500;
+            noiseSource.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(masterGain);
+            noiseSource.start();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87ceeb);
+        scene.fog = new THREE.Fog(0x87ceeb, 15, 40);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 1000);
+        camera.position.set(0, 1.6, 4);
+        camera.lookAt(0, 1.6, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        document.body.appendChild(renderer.domElement);
+
+        const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambient);
+
+        const hemisphere = new THREE.HemisphereLight(0xffffff, 0xcccccc, 0.6);
+        scene.add(hemisphere);
+
+        const keyLight = new THREE.DirectionalLight(0xfff5e0, 1.0);
+        keyLight.position.set(8, 12, 6);
+        keyLight.castShadow = true;
+        keyLight.receiveShadow = true;
+        keyLight.shadow.mapSize.width = 2048;
+        keyLight.shadow.mapSize.height = 2048;
+        const d = 15;
+        keyLight.shadow.camera.left = -d;
+        keyLight.shadow.camera.right = d;
+        keyLight.shadow.camera.top = d;
+        keyLight.shadow.camera.bottom = -d;
+        keyLight.shadow.camera.near = 1;
+        keyLight.shadow.camera.far = 30;
+        keyLight.shadow.bias = -0.0005;
+        scene.add(keyLight);
+
+        const fillLight = new THREE.PointLight(0xfff0dd, 0.5, 20);
+        fillLight.position.set(-6, 4, 6);
+        scene.add(fillLight);
+
+        const ceilingLight1 = new THREE.PointLight(0xfff8e7, 0.7, 12);
+        ceilingLight1.position.set(3, 6, 2);
+        scene.add(ceilingLight1);
+
+        const ceilingLight2 = new THREE.PointLight(0xfff8e7, 0.7, 12);
+        ceilingLight2.position.set(-3, 6, 2);
+        scene.add(ceilingLight2);
+
+        const counterLight = new THREE.PointLight(0xfff0dd, 0.6, 8);
+        counterLight.position.set(0, 4, -1);
+        scene.add(counterLight);
+
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0xc9a76a, roughness: 0.85 });
+        const floor = new THREE.Mesh(new THREE.BoxGeometry(14, 0.2, 14), floorMat);
+        floor.position.set(0, -0.1, 0);
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        const plankMat = new THREE.MeshStandardMaterial({ color: 0xa88855, roughness: 0.9 });
+        for (let i = -6; i <= 6; i+=0.9) {
+            const plank = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.02, 14), plankMat);
+            plank.position.set(i, 0.005, 0);
+            plank.receiveShadow = true;
+            scene.add(plank);
+        }
+
+        const wallMat = new THREE.MeshStandardMaterial({ color: 0xe8d9b8, roughness: 0.95 });
+        const wallTrimMat = new THREE.MeshStandardMaterial({ color: 0x8b6b3a, roughness: 0.85 });
+        const wallThickness = 0.5;
+        const roomSize = 14;
+        const roomHeight = 6;
+
+        const backWall = new THREE.Mesh(new THREE.BoxGeometry(roomSize, roomHeight, wallThickness), wallMat);
+        backWall.position.set(0, roomHeight/2, -roomSize/2);
+        backWall.receiveShadow = true;
+        backWall.castShadow = true;
+        scene.add(backWall);
+
+        const frontWall = new THREE.Mesh(new THREE.BoxGeometry(roomSize, roomHeight, wallThickness), wallMat);
+        frontWall.position.set(0, roomHeight/2, roomSize/2);
+        frontWall.receiveShadow = true;
+        frontWall.castShadow = true;
+        scene.add(frontWall);
+
+        const leftWall = new THREE.Mesh(new THREE.BoxGeometry(wallThickness, roomHeight, roomSize), wallMat);
+        leftWall.position.set(-roomSize/2, roomHeight/2, 0);
+        leftWall.receiveShadow = true;
+        leftWall.castShadow = true;
+        scene.add(leftWall);
+
+        const rightWall = new THREE.Mesh(new THREE.BoxGeometry(wallThickness, roomHeight, roomSize), wallMat);
+        rightWall.position.set(roomSize/2, roomHeight/2, 0);
+        rightWall.receiveShadow = true;
+        rightWall.castShadow = true;
+        scene.add(rightWall);
+
+        const trimHeight = 0.3;
+        const trimBack = new THREE.Mesh(new THREE.BoxGeometry(roomSize, trimHeight, 0.1), wallTrimMat);
+        trimBack.position.set(0, 0.15, -roomSize/2 + wallThickness/2 + 0.06);
+        scene.add(trimBack);
+        const trimBackTop = new THREE.Mesh(new THREE.BoxGeometry(roomSize, trimHeight, 0.1), wallTrimMat);
+        trimBackTop.position.set(0, roomHeight - 0.15, -roomSize/2 + wallThickness/2 + 0.06);
+        scene.add(trimBackTop);
+
+        const trimFront = new THREE.Mesh(new THREE.BoxGeometry(roomSize, trimHeight, 0.1), wallTrimMat);
+        trimFront.position.set(0, 0.15, roomSize/2 - wallThickness/2 - 0.06);
+        scene.add(trimFront);
+        const trimFrontTop = new THREE.Mesh(new THREE.BoxGeometry(roomSize, trimHeight, 0.1), wallTrimMat);
+        trimFrontTop.position.set(0, roomHeight - 0.15, roomSize/2 - wallThickness/2 - 0.06);
+        scene.add(trimFrontTop);
+
+        const trimLeft = new THREE.Mesh(new THREE.BoxGeometry(0.1, trimHeight, roomSize), wallTrimMat);
+        trimLeft.position.set(-roomSize/2 + wallThickness/2 + 0.06, 0.15, 0);
+        scene.add(trimLeft);
+        const trimLeftTop = new THREE.Mesh(new THREE.BoxGeometry(0.1, trimHeight, roomSize), wallTrimMat);
+        trimLeftTop.position.set(-roomSize/2 + wallThickness/2 + 0.06, roomHeight - 0.15, 0);
+        scene.add(trimLeftTop);
+
+        const trimRight = new THREE.Mesh(new THREE.BoxGeometry(0.1, trimHeight, roomSize), wallTrimMat);
+        trimRight.position.set(roomSize/2 - wallThickness/2 - 0.06, 0.15, 0);
+        scene.add(trimRight);
+        const trimRightTop = new THREE.Mesh(new THREE.BoxGeometry(0.1, trimHeight, roomSize), wallTrimMat);
+        trimRightTop.position.set(roomSize/2 - wallThickness/2 - 0.06, roomHeight - 0.15, 0);
+        scene.add(trimRightTop);
+
+        const ceiling = new THREE.Mesh(new THREE.BoxGeometry(roomSize, 0.2, roomSize), new THREE.MeshStandardMaterial({ color: 0xf5ecd0, roughness: 0.9 }));
+        ceiling.position.set(0, roomHeight, 0);
+        scene.add(ceiling);
+
+        const beamMat = new THREE.MeshStandardMaterial({ color: 0x8b6b3a, roughness: 0.85 });
+        for (let i = -5; i <= 5; i+=2.5) {
+            const beam = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, roomSize), beamMat);
+            beam.position.set(i, roomHeight - 0.2, 0);
+            beam.castShadow = true;
+            scene.add(beam);
+        }
+
+        const shelfBoardMat = new THREE.MeshStandardMaterial({ color: 0xa88855, roughness: 0.8 });
+
+        function makeShelf(x, y, z, rotY, width) {
+            const shelfGroup = new THREE.Group();
+            const board = new THREE.Mesh(new THREE.BoxGeometry(width, 0.08, 0.9), shelfBoardMat);
+            board.castShadow = true;
+            board.receiveShadow = true;
+            shelfGroup.add(board);
+
+            const bracketMat = new THREE.MeshStandardMaterial({ color: 0x6b4f2a, roughness: 0.9 });
+            for (let bx = -width/2 + 0.3; bx <= width/2 - 0.3; bx += width - 0.6) {
+                const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.4, 0.7), bracketMat);
+                bracket.position.set(bx, -0.25, 0);
+                bracket.castShadow = true;
+                shelfGroup.add(bracket);
+            }
+            shelfGroup.position.set(x, y, z);
+            shelfGroup.rotation.y = rotY;
+            scene.add(shelfGroup);
+            return shelfGroup;
+        }
+
+        makeShelf(-6.5, 3.5, -3, Math.PI/2, 5);
+        makeShelf(-6.5, 2.0, -3, Math.PI/2, 5);
+        makeShelf(-6.5, 3.5, 3, Math.PI/2, 5);
+        makeShelf(-6.5, 2.0, 3, Math.PI/2, 5);
+
+        makeShelf(6.5, 3.5, -3, -Math.PI/2, 5);
+        makeShelf(6.5, 2.0, -3, -Math.PI/2, 5);
+        makeShelf(6.5, 3.5, 3, -Math.PI/2, 5);
+        makeShelf(6.5, 2.0, 3, -Math.PI/2, 5);
+
+        makeShelf(0, 4.5, -6.4, 0, 8);
+        makeShelf(0, 2.8, -6.4, 0, 8);
+
+        const counterMat = new THREE.MeshStandardMaterial({ color: 0x8b6b3a, roughness: 0.8 });
+        const counterBase = new THREE.Mesh(new THREE.BoxGeometry(8, 1.2, 1.5), counterMat);
+        counterBase.position.set(0, 0.6, -3.5);
+        counterBase.castShadow = true;
+        counterBase.receiveShadow = true;
+        scene.add(counterBase);
+
+        const counterTopMat = new THREE.MeshStandardMaterial({ color: 0xa88855, roughness: 0.6 });
+        const counterTop = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.2, 1.8), counterTopMat);
+        counterTop.position.set(0, 1.3, -3.5);
+        counterTop.castShadow = true;
+        counterTop.receiveShadow = true;
+        scene.add(counterTop);
+
+        let neilMesh = null;
+        let neilDead = false;
+        const neilGroup = new THREE.Group();
+        neilGroup.position.set(0, 0, -4.8);
+        scene.add(neilGroup);
+
+        function createFallbackNeilTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 512, 512);
+
+            ctx.fillStyle = '#4a6b3a';
+            ctx.fillRect(140, 340, 232, 172);
+            ctx.strokeStyle = '#2a4b1a';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(140, 340, 232, 172);
+
+            ctx.beginPath();
+            ctx.arc(256, 230, 140, 0, Math.PI * 2);
+            ctx.fillStyle = '#f5d0b0';
+            ctx.fill();
+            ctx.strokeStyle = '#a0522d';
+            ctx.lineWidth = 14;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(256, 180, 130, Math.PI, 0);
+            ctx.fillStyle = '#5a3a2a';
+            ctx.fill();
+
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(200, 220, 22, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(312, 220, 22, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#2c3e50';
+            ctx.beginPath();
+            ctx.arc(200, 220, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(312, 220, 11, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(256, 290, 50, 0.1, Math.PI - 0.1);
+            ctx.strokeStyle = '#8b4513';
+            ctx.lineWidth = 10;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(256, 230);
+            ctx.lineTo(256, 270);
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = '#b87c5a';
+            ctx.stroke();
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        const neilImg = new Image();
+        neilImg.crossOrigin = 'anonymous';
+        let neilLoaded = false;
+
+        function buildNeil(texture) {
+            const mat = new THREE.MeshStandardMaterial({
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide,
+                alphaTest: 0.05
+            });
+            const plane = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 3.2), mat);
+            plane.position.set(0, 1.6, 0);
+            plane.renderOrder = 1;
+            plane.userData.isNeil = true;
+            neilGroup.add(plane);
+            neilMesh = plane;
+        }
+
+        neilImg.onload = () => {
+            neilLoaded = true;
+            const tex = new THREE.Texture(neilImg);
+            tex.needsUpdate = true;
+            buildNeil(tex);
+        };
+        neilImg.onerror = () => {
+            buildNeil(createFallbackNeilTexture());
+        };
+        neilImg.src = '../neil.png';
+
+        setTimeout(() => {
+            if (!neilLoaded && !neilMesh) buildNeil(createFallbackNeilTexture());
+        }, 800);
+
+        const items = [];
+        const itemMeshes = [];
+        const glowRings = [];
+        const itemLights = [];
+
+        function createItem(name, description, price, position, mesh, scale, useType, emoji) {
+            mesh.position.copy(position);
+            mesh.scale.set(scale, scale, scale);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            mesh.userData = {
+                name, description, price, useType, emoji,
+                basePos: position.clone(),
+                baseScale: scale,
+                owned: false
+            };
+            scene.add(mesh);
+            itemMeshes.push(mesh);
+            items.push(mesh);
+
+            const glowMat = new THREE.MeshStandardMaterial({ color: 0xffd966, emissive: 0x664400, transparent: true, opacity: 0.3 });
+            const glowRing = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.03, 8, 20), glowMat);
+            glowRing.rotation.x = Math.PI / 2;
+            glowRing.position.copy(position);
+            glowRing.position.y -= 0.25;
+            glowRing.scale.set(scale, scale, scale);
+            scene.add(glowRing);
+            glowRings.push({ ring: glowRing, offset: position.clone(), item: mesh });
+
+            const itemLight = new THREE.PointLight(0xffd966, 0.3, 2.5);
+            itemLight.position.copy(position).add(new THREE.Vector3(0, 0.5, 0));
+            scene.add(itemLight);
+            itemLights.push({ light: itemLight, offset: position.clone(), item: mesh });
+        }
+
+        function createMilk() {
+            const group = new THREE.Group();
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, roughness: 0.1 });
+            const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.8, 16), glassMat);
+            glass.castShadow = true;
+            group.add(glass);
+            const milkMat = new THREE.MeshStandardMaterial({ color: 0xfff8e7, roughness: 0.9 });
+            const milk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.6, 16), milkMat);
+            milk.position.y = -0.08;
+            milk.castShadow = true;
+            group.add(milk);
+            const foam = new THREE.Mesh(new THREE.SphereGeometry(0.32, 8, 8), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1.0 }));
+            foam.scale.set(0.8, 0.2, 0.8);
+            foam.position.y = 0.28;
+            foam.castShadow = true;
+            group.add(foam);
+            return group;
+        }
+
+        function createCuckChair() {
+            const group = new THREE.Group();
+            const woodMat = new THREE.MeshStandardMaterial({ color: 0x6b4f2a, roughness: 0.8 });
+            const cushionMat = new THREE.MeshStandardMaterial({ color: 0x8b0000, roughness: 0.6 });
+            const seat = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.15, 0.9), cushionMat);
+            seat.position.y = 0.15;
+            seat.castShadow = true;
+            group.add(seat);
+            const back = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.15), cushionMat);
+            back.position.set(0, 0.65, -0.38);
+            back.castShadow = true;
+            group.add(back);
+            const legPositions = [[-0.35, -0.15, -0.35], [0.35, -0.15, -0.35], [-0.35, -0.15, 0.35], [0.35, -0.15, 0.35]];
+            legPositions.forEach(pos => {
+                const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.5, 0.12), woodMat);
+                leg.position.set(pos[0], pos[1], pos[2]);
+                leg.castShadow = true;
+                group.add(leg);
+            });
+            return group;
+        }
+
+        function createAmongUs() {
+            const group = new THREE.Group();
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xdd3333, roughness: 0.5 });
+            const visorMat = new THREE.MeshStandardMaterial({ color: 0x88ccff, roughness: 0.2 });
+            const bodyTop = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 12), bodyMat);
+            bodyTop.position.y = 0.35;
+            bodyTop.castShadow = true;
+            group.add(bodyTop);
+            const bodyMid = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.35, 16), bodyMat);
+            bodyMid.position.y = 0.05;
+            bodyMid.castShadow = true;
+            group.add(bodyMid);
+            const bodyBot = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 12), bodyMat);
+            bodyBot.position.y = -0.2;
+            bodyBot.scale.set(1, 0.6, 1);
+            bodyBot.castShadow = true;
+            group.add(bodyBot);
+            const visor = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 8), visorMat);
+            visor.scale.set(1.0, 0.6, 0.5);
+            visor.position.set(0, 0.48, 0.25);
+            visor.castShadow = true;
+            group.add(visor);
+            const pack = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 0.2), bodyMat);
+            pack.position.set(0, 0.28, -0.28);
+            pack.castShadow = true;
+            group.add(pack);
+            const legMat = new THREE.MeshStandardMaterial({ color: 0xaa2222 });
+            const leg1 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.3, 6), legMat);
+            leg1.position.set(-0.18, -0.48, 0.08);
+            leg1.castShadow = true;
+            group.add(leg1);
+            const leg2 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.3, 6), legMat);
+            leg2.position.set(0.18, -0.48, 0.08);
+            leg2.castShadow = true;
+            group.add(leg2);
+            return group;
+        }
+
+        function createGun() {
+            const group = new THREE.Group();
+            const metalMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4, metalness: 0.7 });
+            const gripMat = new THREE.MeshStandardMaterial({ color: 0x2a1a1a, roughness: 0.9 });
+            const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.9, 8), metalMat);
+            barrel.rotation.x = Math.PI / 2;
+            barrel.position.set(0, 0.05, -0.35);
+            barrel.castShadow = true;
+            group.add(barrel);
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.6), metalMat);
+            body.position.set(0, 0.05, 0.05);
+            body.castShadow = true;
+            group.add(body);
+            const grip = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.4, 0.15), gripMat);
+            grip.position.set(0, -0.18, 0.15);
+            grip.rotation.x = -0.2;
+            grip.castShadow = true;
+            group.add(grip);
+            const trigger = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.02, 6, 12, Math.PI), gripMat);
+            trigger.rotation.y = Math.PI / 2;
+            trigger.position.set(0, -0.05, 0.1);
+            trigger.castShadow = true;
+            group.add(trigger);
+            const sight = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.05, 0.03), metalMat);
+            sight.position.set(0, 0.18, -0.3);
+            sight.castShadow = true;
+            group.add(sight);
+            return group;
+        }
+
+        function createGin() {
+            const group = new THREE.Group();
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0xaaddff, transparent: true, opacity: 0.5, roughness: 0.1 });
+            const liquidMat = new THREE.MeshStandardMaterial({ color: 0xccddff, transparent: true, opacity: 0.7 });
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.8, 12), glassMat);
+            body.position.y = 0.1;
+            body.castShadow = true;
+            group.add(body);
+            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.3, 8), glassMat);
+            neck.position.y = 0.65;
+            neck.castShadow = true;
+            group.add(neck);
+            const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.08, 8), new THREE.MeshStandardMaterial({ color: 0xaa8866, roughness: 0.8 }));
+            cap.position.y = 0.84;
+            cap.castShadow = true;
+            group.add(cap);
+            const liquid = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.55, 12), liquidMat);
+            group.add(liquid);
+            return group;
+        }
+
+        function createHeroin() {
+            const group = new THREE.Group();
+            const bagMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.9 });
+            const powderMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1.0 });
+            const spoonMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.7, roughness: 0.3 });
+            const bag = new THREE.Mesh(new THREE.SphereGeometry(0.32, 8, 8), bagMat);
+            bag.scale.set(1.2, 0.8, 0.8);
+            bag.position.y = 0.1;
+            bag.castShadow = true;
+            group.add(bag);
+            const powder = new THREE.Mesh(new THREE.SphereGeometry(0.16, 6, 6), powderMat);
+            powder.position.set(0.25, -0.05, 0.15);
+            powder.castShadow = true;
+            group.add(powder);
+            const spoonHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6, 6), spoonMat);
+            spoonHandle.rotation.z = 0.5;
+            spoonHandle.position.set(-0.25, 0.0, -0.15);
+            spoonHandle.castShadow = true;
+            group.add(spoonHandle);
+            const spoonBowl = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), spoonMat);
+            spoonBowl.scale.set(1.0, 0.4, 0.8);
+            spoonBowl.position.set(-0.45, -0.12, -0.28);
+            spoonBowl.castShadow = true;
+            group.add(spoonBowl);
+            const syringeBody = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.5, 6), new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.4 }));
+            syringeBody.position.set(0.32, 0.08, -0.3);
+            syringeBody.rotation.z = 0.3;
+            syringeBody.castShadow = true;
+            group.add(syringeBody);
+            const needle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.25, 4), new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.9 }));
+            needle.position.set(0.45, 0.2, -0.38);
+            needle.rotation.z = 0.3;
+            needle.castShadow = true;
+            group.add(needle);
+            return group;
+        }
+
+        const milk = createMilk();
+        createItem('Glass of Milk', 'Fresh from the dairy. Restores 3 hearts.', 10,
+            new THREE.Vector3(-6.0, 3.65, -3), milk, 1.0, 'drink', '🥛');
+
+        const chair = createCuckChair();
+        createItem('Cuck Chair', 'A sturdy seat for observers.', 25,
+            new THREE.Vector3(-6.0, 2.15, -3), chair, 0.9, 'sit', '🪑');
+
+        const amongUs = createAmongUs();
+        createItem('Among Us', 'Suspicious. Very sus.', 15,
+            new THREE.Vector3(6.0, 3.65, -3), amongUs, 0.9, 'sus', '👽');
+
+        const gun = createGun();
+        createItem('Gun', 'A fine sidearm. 6-round magazine.', 50,
+            new THREE.Vector3(6.0, 2.15, -3), gun, 1.0, 'shoot', '🔫');
+
+        const gin = createGin();
+        createItem('Bottle of Gin', 'Juniper berries and regret. 40% ABV.', 20,
+            new THREE.Vector3(-6.0, 3.65, 3), gin, 1.0, 'drink', '🍸');
+
+        const heroin = createHeroin();
+        createItem('Heroin', 'Definitely illegal. Do not consume.', 100,
+            new THREE.Vector3(6.0, 3.65, 3), heroin, 0.9, 'drug', '💉');
+
+        const particleGeo = new THREE.BufferGeometry();
+        const particleCount = 200;
+        const posArray = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            posArray[i] = (Math.random() - 0.5) * 20;
+            posArray[i+1] = Math.random() * 8;
+            posArray[i+2] = (Math.random() - 0.5) * 15 - 2;
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particleMat = new THREE.PointsMaterial({ color: 0xffeeaa, size: 0.04, transparent: true, opacity: 0.4 });
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
+
+        const handRig = new THREE.Group();
+        camera.add(handRig);
+        scene.add(camera);
+
+        const handBasePos = new THREE.Vector3(0.45, -0.5, -0.75);
+        const handBaseRot = new THREE.Euler(0, 0, 0);
+        handRig.position.copy(handBasePos);
+
+        let heldItemData = null;
+        let heldItemMesh = null;
+        const inventory = [];
+        const HOTBAR_SIZE = 6;
+        let selectedHotbarIndex = -1;
+
+        let currentAnimation = null;
+        let handOffset = new THREE.Vector3(0,0,0);
+        let handRotOffset = new THREE.Euler(0,0,0);
+
+        let suscoins = 100;
+        let health = 6;
+        let maxHealth = 6;
+        let selectedItem = null;
+        let hoveredItem = null;
+        let sittingOnChair = false;
+        let placedChairData = null;
+        let gunPointedAtNeil = false;
+
+        let ammo = 6;
+        const maxAmmo = 6;
+        let isReloading = false;
+
+        const bulletHoles = [];
+
+        const coinCountEl = document.getElementById('coin-count');
+        const healthBarEl = document.getElementById('health-bar');
+        const itemNameEl = document.getElementById('item-name');
+        const itemPriceEl = document.getElementById('item-price');
+        const itemDescEl = document.getElementById('item-desc');
+        const itemDetailEl = document.getElementById('item-detail');
+        const actionBarEl = document.getElementById('action-bar');
+        const btnBuyEl = document.getElementById('btn-buy');
+        const btnTakeEl = document.getElementById('btn-take');
+        const btnCloseEl = document.getElementById('btn-close');
+        const promptEl = document.getElementById('prompt');
+        const toastEl = document.getElementById('toast');
+        const crosshairEl = document.getElementById('crosshair');
+        const inventoryBarEl = document.getElementById('inventory-bar');
+        const dialogueEl = document.getElementById('dialogue');
+        const dialogueLineEl = document.getElementById('dialogue-line');
+        const handLabelEl = document.getElementById('hand-label');
+        const handNameEl = document.getElementById('hand-name');
+        const ammoCounterEl = document.getElementById('ammo-counter');
+        const ammoCountEl = document.getElementById('ammo-count');
+        const freeBadgeEl = document.getElementById('free-badge');
+
+        function renderHealth() {
+            healthBarEl.innerHTML = '';
+            for (let i = 0; i < maxHealth; i++) {
+                const h = document.createElement('div');
+                h.className = 'heart' + (i < health ? '' : ' empty');
+                healthBarEl.appendChild(h);
+            }
+        }
+
+        function updateHUD() {
+            coinCountEl.textContent = suscoins;
+            renderHealth();
+        }
+
+        function updateAmmoDisplay() {
+            ammoCountEl.textContent = ammo;
+        }
+
+        function updateFreeBadge() {
+            if (gunPointedAtNeil || neilDead) {
+                freeBadgeEl.classList.add('visible');
+            } else {
+                freeBadgeEl.classList.remove('visible');
+            }
+        }
+
+        let toastTimeout = null;
+        function showToast(msg, dur) {
+            toastEl.textContent = msg;
+            toastEl.classList.add('visible');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toastEl.classList.remove('visible');
+            }, dur || 2500);
+        }
+
+        const neilLines = {
+            greeting: [
+                "Welcome to my shop, traveler. What'll it be?",
+                "Ah, a customer! Don't touch anything without paying.",
+                "Everything here is 100% legal. Probably.",
+                "Buy something or get out. I'm running a business here.",
+                "Hey. You. Yeah you. Buy my stuff."
+            ],
+            buying: [
+                "Pleasure doing business with ya.",
+                "No refunds. No exceptions.",
+                "That's the good stuff, right there.",
+                "Take it before I change my mind.",
+                "Excellent choice."
+            ],
+            denied: [
+                "You're short on suscoins. Come back when you're richer.",
+                "Nice try, but I don't do charity.",
+                "Get outta here with that broke energy.",
+                "No suscoins, no goods. Simple as that."
+            ],
+            gunshot: [
+                "HEY! What's wrong with you?!",
+                "You shot me! In MY shop!",
+                "I'm calling the police!",
+                "That's it, you're banned!",
+                "Ouch! You absolute menace!"
+            ],
+            gunpointed: [
+                "Whoa whoa whoa! Easy there!",
+                "Okay okay! Everything's free! Just don't shoot!",
+                "Take anything you want! Just put the gun down!",
+                "Please don't! I have a family!",
+                "Free! It's all free! Please!"
+            ],
+            milk: [
+                "Mmm, fresh dairy. Good for the bones.",
+                "That came from a very happy cow. Trust me."
+            ],
+            gin: [
+                "Ah, a person of culture.",
+                "That'll put hair on your chest.",
+                "Don't drink it all at once. Or do. I'm not your mom."
+            ],
+            heroin: [
+                "I didn't sell you that. You found it.",
+                "Hey! Get that out of my shop!",
+                "What are you doing?! Put that away!"
+            ],
+            amongus: [
+                "Very sus. Would not recommend trusting.",
+                "Emergency meeting! Oh wait, I'm alone."
+            ],
+            chair: [
+                "A fine piece of furniture. Very sturdy.",
+                "Sit in it. Or don't. Whatever floats your boat."
+            ],
+            dead: ["..."]
+        };
+
+        let dialogueTimeout = null;
+        function neilSpeak(category) {
+            if (neilDead && category !== 'dead') return;
+            const lines = neilLines[category] || neilLines.greeting;
+            const line = lines[Math.floor(Math.random() * lines.length)];
+            dialogueLineEl.textContent = line;
+            dialogueEl.classList.add('visible');
+            playDialogueSound();
+            if (dialogueTimeout) clearTimeout(dialogueTimeout);
+            dialogueTimeout = setTimeout(() => {
+                dialogueEl.classList.remove('visible');
+            }, 3500);
+        }
+
+        function buildHandItemMesh(itemData) {
+            let mesh = null;
+            switch (itemData.name) {
+                case 'Glass of Milk': mesh = createMilk(); break;
+                case 'Cuck Chair': mesh = createCuckChair(); break;
+                case 'Among Us': mesh = createAmongUs(); break;
+                case 'Gun': mesh = createGun(); break;
+                case 'Bottle of Gin': mesh = createGin(); break;
+                case 'Heroin': mesh = createHeroin(); break;
+            }
+            if (!mesh) return null;
+            mesh.traverse(c => {
+                if (c.isMesh) { c.castShadow = false; c.receiveShadow = false; }
+            });
+            if (itemData.name === 'Gun') {
+                mesh.scale.set(0.55, 0.55, 0.55);
+            } else if (itemData.name === 'Cuck Chair') {
+                mesh.scale.set(0.25, 0.25, 0.25);
+            } else {
+                mesh.scale.set(0.4, 0.4, 0.4);
+            }
+            return mesh;
+        }
+
+        function setHeldItem(itemData) {
+            if (heldItemMesh) {
+                handRig.remove(heldItemMesh);
+                heldItemMesh = null;
+            }
+            heldItemData = itemData;
+            if (itemData) {
+                const mesh = buildHandItemMesh(itemData);
+                if (mesh) {
+                    handRig.add(mesh);
+                    heldItemMesh = mesh;
+                }
+                handNameEl.textContent = itemData.name;
+                handLabelEl.classList.add('visible');
+                if (itemData.useType === 'shoot') {
+                    ammoCounterEl.classList.add('visible');
+                    updateAmmoDisplay();
+                } else {
+                    ammoCounterEl.classList.remove('visible');
+                }
+            } else {
+                handLabelEl.classList.remove('visible');
+                ammoCounterEl.classList.remove('visible');
+            }
+        }
+
+        function updateHeldItemDisplay() {
+            setHeldItem(heldItemData);
+        }
+
+        function renderHotbar() {
+            inventoryBarEl.innerHTML = '';
+            for (let i = 0; i < HOTBAR_SIZE; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inv-slot';
+                slot.dataset.index = i;
+                if (i < inventory.length) {
+                    slot.classList.add('filled');
+                    slot.textContent = inventory[i].emoji;
+                    slot.title = inventory[i].name;
+                }
+                if (i === selectedHotbarIndex) slot.classList.add('active');
+                slot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectHotbar(i);
+                });
+                inventoryBarEl.appendChild(slot);
+            }
+        }
+
+        function selectHotbar(index) {
+            if (index < 0 || index >= HOTBAR_SIZE) return;
+            if (index >= inventory.length) {
+                if (heldItemData) {
+                    heldItemData = null;
+                    selectedHotbarIndex = -1;
+                    updateHeldItemDisplay();
+                    renderHotbar();
+                }
+                return;
+            }
+            if (selectedHotbarIndex === index) {
+                heldItemData = null;
+                selectedHotbarIndex = -1;
+                updateHeldItemDisplay();
+                renderHotbar();
+                return;
+            }
+            selectedHotbarIndex = index;
+            heldItemData = inventory[index];
+            updateHeldItemDisplay();
+            renderHotbar();
+            playSelectSound();
+        }
+
+        const keys = {};
+        let yaw = 0;
+        let pitch = 0;
+        const eyeHeight = 1.6;
+        const moveSpeed = 3.5;
+        const runMultiplier = 1.9;
+        const bounds = { minX: -6.5, maxX: 6.5, minZ: -6.5, maxZ: 6.5 };
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            if (e.code.startsWith('Digit')) {
+                const n = parseInt(e.code.replace('Digit', ''));
+                if (n >= 1 && n <= HOTBAR_SIZE) selectHotbar(n - 1);
+            }
+            if (e.code === 'KeyF' && !currentAnimation) {
+                if (sittingOnChair) {
+                    sittingOnChair = false;
+                    showToast('You stand up.');
+                } else if (heldItemData && heldItemData.useType !== 'shoot') {
+                    useHeldItem();
+                } else if (placedChairData && camera.position.distanceTo(placedChairData.mesh.position) < 1.8) {
+                    sittingOnChair = true;
+                    showToast('You sit down.');
+                    neilSpeak('chair');
+                }
+            }
+            if (e.code === 'KeyR' && heldItemData && heldItemData.useType === 'shoot') {
+                reloadGun();
+            }
+            if (e.code === 'KeyG' && heldItemData) dropHeldItem();
+            if (e.code === 'KeyG' && !heldItemData && placedChairData && !sittingOnChair) {
+                if (camera.position.distanceTo(placedChairData.mesh.position) < 1.8) {
+                    const chairItem = items.find(i => i.userData.name === 'Cuck Chair');
+                    if (chairItem) {
+                        chairItem.visible = false;
+                        placedChairData = null;
+                        if (inventory.length < HOTBAR_SIZE) {
+                            inventory.push(chairItem.userData);
+                            renderHotbar();
+                            showToast('Chair picked up');
+                        }
+                    }
+                }
+            }
+        });
+        document.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+        const overlay = document.getElementById('start-overlay');
+        let pointerLocked = false;
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            renderer.domElement.requestPointerLock();
+        });
+
+        renderer.domElement.addEventListener('click', () => {
+            if (!pointerLocked) renderer.domElement.requestPointerLock();
+        });
+
+        document.addEventListener('pointerlockchange', () => {
+            pointerLocked = document.pointerLockElement === renderer.domElement;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!pointerLocked) return;
+            const sensitivity = 0.0022;
+            yaw -= e.movementX * sensitivity;
+            pitch -= e.movementY * sensitivity;
+            const maxPitch = Math.PI / 2 - 0.1;
+            pitch = Math.max(-maxPitch, Math.min(maxPitch, pitch));
+        });
+
+        const raycaster = new THREE.Raycaster();
+        const centerScreen = new THREE.Vector2(0, 0);
+
+        items.forEach(item => {
+            item.userData.originalPos = item.position.clone();
+            item.userData.originalScale = item.scale.clone();
+        });
+
+        function findRootItem(obj) {
+            let cur = obj;
+            while (cur && !cur.userData.name && !cur.userData.isNeil) cur = cur.parent;
+            return cur;
+        }
+
+        function deselectItem() {
+            if (!selectedItem) return;
+            selectedItem.position.copy(selectedItem.userData.originalPos);
+            selectedItem.scale.copy(selectedItem.userData.originalScale);
+            selectedItem.traverse(child => {
+                if (child.isMesh && child.userData.originalEmissive) {
+                    child.material.emissive.copy(child.userData.originalEmissive);
+                }
+            });
+            selectedItem = null;
+            itemDetailEl.classList.remove('visible');
+            actionBarEl.classList.remove('visible');
+        }
+
+        function isEverythingFree() {
+            return gunPointedAtNeil || neilDead;
+        }
+
+        function selectItem(item) {
+            if (selectedItem === item) { deselectItem(); playDeselectSound(); return; }
+            deselectItem();
+            selectedItem = item;
+            const { name, description, price } = item.userData;
+            itemNameEl.textContent = name;
+            const free = isEverythingFree() || item.userData.owned;
+            if (item.userData.owned) {
+                itemPriceEl.textContent = '🪙 OWNED';
+                itemPriceEl.classList.remove('free');
+            } else if (free) {
+                itemPriceEl.textContent = '💸 FREE (Neil held up)';
+                itemPriceEl.classList.add('free');
+            } else {
+                itemPriceEl.textContent = '🪙 ' + price + ' suscoins';
+                itemPriceEl.classList.remove('free');
+            }
+            itemDescEl.textContent = description;
+            itemDetailEl.classList.add('visible');
+            actionBarEl.classList.add('visible');
+            if (item.userData.owned) {
+                btnBuyEl.textContent = 'Owned';
+                btnBuyEl.disabled = true;
+            } else if (free) {
+                btnBuyEl.textContent = 'Take (Free)';
+                btnBuyEl.disabled = false;
+            } else {
+                btnBuyEl.textContent = 'Buy (' + price + ')';
+                btnBuyEl.disabled = false;
+            }
+            btnTakeEl.textContent = item.userData.owned || free ? 'Take' : 'Buy to Take';
+            btnTakeEl.disabled = !item.userData.owned && !free;
+            playSelectSound();
+        }
+
+        function buySelected() {
+            if (!selectedItem || selectedItem.userData.owned) return;
+
+            if (isEverythingFree()) {
+                selectedItem.userData.owned = true;
+                updateHUD();
+                playFreeSound();
+                showToast('💸 ' + selectedItem.userData.name + ' taken for free!');
+                btnBuyEl.textContent = 'Owned';
+                btnBuyEl.disabled = true;
+                btnTakeEl.textContent = 'Take';
+                btnTakeEl.disabled = false;
+                itemPriceEl.textContent = '🪙 OWNED';
+                itemPriceEl.classList.remove('free');
+                return;
+            }
+
+            const price = selectedItem.userData.price;
+            if (suscoins < price) {
+                playDeniedSound();
+                showToast('Not enough suscoins!');
+                neilSpeak('denied');
+                return;
+            }
+            suscoins -= price;
+            selectedItem.userData.owned = true;
+            updateHUD();
+            playBuySound();
+            showToast('Purchased: ' + selectedItem.userData.name);
+            neilSpeak('buying');
+            btnBuyEl.textContent = 'Owned';
+            btnBuyEl.disabled = true;
+            btnTakeEl.textContent = 'Take';
+            btnTakeEl.disabled = false;
+        }
+
+        function takeSelected() {
+            if (!selectedItem) return;
+            if (!selectedItem.userData.owned && !isEverythingFree()) {
+                playDeniedSound();
+                showToast('Buy it first!');
+                return;
+            }
+            if (inventory.length >= HOTBAR_SIZE) {
+                showToast('Hotbar full! Drop something first.');
+                return;
+            }
+            const itemData = selectedItem.userData;
+            if (isEverythingFree() && !itemData.owned) {
+                itemData.owned = true;
+                playFreeSound();
+            }
+            inventory.push(itemData);
+            selectedItem.visible = false;
+            deselectItem();
+            selectHotbar(inventory.length - 1);
+            showToast('Took: ' + itemData.name);
+            playTone(700, 'square', 0.1, 0.1);
+        }
+
+        function dropHeldItem() {
+            if (!heldItemData) return;
+            const idx = inventory.indexOf(heldItemData);
+            if (idx !== -1) inventory.splice(idx, 1);
+            heldItemData = null;
+            selectedHotbarIndex = -1;
+            updateHeldItemDisplay();
+            renderHotbar();
+            showToast('Item dropped.');
+            playDeselectSound();
+        }
+
+        function startAnimation(type, duration, extra) {
+            currentAnimation = {
+                type,
+                startTime: performance.now() / 1000,
+                duration,
+                extra: extra || {}
+            };
+        }
+
+        function updateAnimation(now) {
+            handOffset.set(0, 0, 0);
+            handRotOffset.set(0, 0, 0);
+
+            if (!currentAnimation) {
+                const t = now;
+                handOffset.x = Math.sin(t * 1.5) * 0.008;
+                handOffset.y = Math.sin(t * 2.0) * 0.012;
+                return;
+            }
+
+            const elapsed = now - currentAnimation.startTime;
+            const progress = Math.min(1, elapsed / currentAnimation.duration);
+            const anim = currentAnimation;
+
+            if (anim.type === 'drink') {
+                let p1 = Math.min(1, progress / 0.4);
+                let p2 = Math.min(1, Math.max(0, (progress - 0.4) / 0.35));
+                let p3 = Math.min(1, Math.max(0, (progress - 0.75) / 0.25));
+                let raiseAmount = p1 - p3;
+                let tiltAmount = Math.sin(p2 * Math.PI);
+                handOffset.x = -0.35 * raiseAmount;
+                handOffset.y = 0.55 * raiseAmount;
+                handOffset.z = 0.15 * raiseAmount;
+                handRotOffset.x = -1.2 * raiseAmount - 0.6 * tiltAmount;
+                handRotOffset.z = 0.4 * tiltAmount;
+            } else if (anim.type === 'inject') {
+                let p1 = Math.min(1, progress / 0.35);
+                let p2 = Math.min(1, Math.max(0, (progress - 0.35) / 0.3));
+                let p3 = Math.min(1, Math.max(0, (progress - 0.65) / 0.35));
+                let toArm = p1 - p3;
+                let push = Math.sin(p2 * Math.PI);
+                handOffset.x = -0.5 * toArm - 0.1 * push;
+                handOffset.y = 0.2 * toArm;
+                handOffset.z = 0.1 * toArm;
+                handRotOffset.y = 0.8 * toArm;
+                handRotOffset.z = 0.6 * toArm;
+                handRotOffset.x = -0.4 * toArm;
+            } else if (anim.type === 'shoot') {
+                handOffset.z = 0.25 * Math.exp(-progress * 4);
+                handOffset.y = 0.05 * Math.exp(-progress * 4);
+                handRotOffset.x = -0.5 * Math.exp(-progress * 4);
+            } else if (anim.type === 'place') {
+                let p1 = Math.min(1, progress / 0.6);
+                let p2 = Math.min(1, Math.max(0, (progress - 0.6) / 0.4));
+                let forward = p1 - p2;
+                handOffset.x = -0.2 * forward;
+                handOffset.y = -0.5 * forward;
+                handOffset.z = -0.5 * forward;
+                handRotOffset.x = 0.6 * forward;
+            } else if (anim.type === 'reload') {
+                handOffset.y = -0.4 * Math.sin(progress * Math.PI);
+                handRotOffset.x = -0.8 * Math.sin(progress * Math.PI);
+                handRotOffset.z = 0.5 * Math.sin(progress * Math.PI);
+            }
+
+            if (progress >= 1) {
+                const cb = currentAnimation.onComplete;
+                currentAnimation = null;
+                if (cb) cb();
+            }
+        }
+
+        function useHeldItem() {
+            if (!heldItemData || currentAnimation) return;
+            const type = heldItemData.useType;
+
+            if (type === 'drink') {
+                startAnimation('drink', 1.4);
+                const dataRef = heldItemData;
+                setTimeout(() => {
+                    health = Math.min(maxHealth, health + 3);
+                    updateHUD();
+                    showToast('Glug glug... +3 hearts!');
+                    playTone(400, 'sine', 0.1, 0.1);
+                    setTimeout(() => playTone(500, 'sine', 0.1, 0.1), 100);
+                    setTimeout(() => playTone(600, 'sine', 0.15, 0.1), 200);
+                    if (dataRef.name === 'Glass of Milk') neilSpeak('milk');
+                    else if (dataRef.name === 'Bottle of Gin') neilSpeak('gin');
+                    const idx = inventory.indexOf(dataRef);
+                    if (idx !== -1) inventory.splice(idx, 1);
+                    heldItemData = null;
+                    selectedHotbarIndex = -1;
+                    updateHeldItemDisplay();
+                    renderHotbar();
+                }, 1400);
+            } else if (type === 'sit') {
+                placeChairWithHeld();
+            } else if (type === 'sus') {
+                showToast('🚨 EMERGENCY MEETING! Neil was not the impostor.');
+                neilSpeak('amongus');
+                playTone(800, 'square', 0.15, 0.15);
+                setTimeout(() => playTone(600, 'square', 0.15, 0.15), 200);
+                setTimeout(() => playTone(400, 'square', 0.3, 0.15), 400);
+            } else if (type === 'drug') {
+                startAnimation('inject', 1.6);
+                const dataRef = heldItemData;
+                setTimeout(() => {
+                    health = Math.max(1, health - 3);
+                    updateHUD();
+                    showToast('Oh no... -3 hearts.');
+                    neilSpeak('heroin');
+                    playSweep(400, 80, 'sawtooth', 0.5, 0.2);
+                    const idx = inventory.indexOf(dataRef);
+                    if (idx !== -1) inventory.splice(idx, 1);
+                    heldItemData = null;
+                    selectedHotbarIndex = -1;
+                    updateHeldItemDisplay();
+                    renderHotbar();
+                }, 1600);
+            }
+        }
+
+        function reloadGun() {
+            if (isReloading || ammo === maxAmmo) return;
+            isReloading = true;
+            startAnimation('reload', 1.2);
+            playReloadSound();
+            setTimeout(() => {
+                ammo = maxAmmo;
+                updateAmmoDisplay();
+                isReloading = false;
+                showToast('Reloaded');
+            }, 1200);
+        }
+
+        function placeChairWithHeld() {
+            if (!heldItemData || heldItemData.useType !== 'sit' || currentAnimation) return;
+            const raycaster2 = new THREE.Raycaster();
+            raycaster2.setFromCamera(centerScreen, camera);
+            const groundIntersects = raycaster2.intersectObject(floor);
+
+            if (groundIntersects.length > 0) {
+                const pt = groundIntersects[0].point;
+                pt.x = Math.max(bounds.minX, Math.min(bounds.maxX, pt.x));
+                pt.z = Math.max(bounds.minZ, Math.min(bounds.maxZ, pt.z));
+
+                if (pt.distanceTo(neilGroup.position) < 2.5) {
+                    showToast('Too close to Neil!');
+                    return;
+                }
+
+                const dataRef = heldItemData;
+                startAnimation('place', 0.8);
+                setTimeout(() => {
+                    if (placedChairData) placedChairData.mesh.visible = false;
+                    const chairItem = items.find(i => i.userData.name === 'Cuck Chair');
+                    if (chairItem) {
+                        chairItem.visible = true;
+                        chairItem.position.set(pt.x, pt.y + 0.5, pt.z);
+                        chairItem.scale.copy(chairItem.userData.originalScale);
+                        placedChairData = { mesh: chairItem };
+                        const idx = inventory.indexOf(dataRef);
+                        if (idx !== -1) inventory.splice(idx, 1);
+                        heldItemData = null;
+                        selectedHotbarIndex = -1;
+                        updateHeldItemDisplay();
+                        renderHotbar();
+                        showToast('Chair placed! Press [F] near it to sit.');
+                        neilSpeak('chair');
+                        playTone(600, 'square', 0.1, 0.1);
+                    }
+                }, 800);
+            } else {
+                showToast('Aim at the floor to place the chair');
+            }
+        }
+
+        function fireGun() {
+            if (!heldItemData || heldItemData.useType !== 'shoot') return;
+            if (isReloading) { showToast('Reloading...'); return; }
+            if (currentAnimation && currentAnimation.type === 'shoot') return;
+
+            if (ammo <= 0) {
+                playEmptyClick();
+                showToast('Out of ammo! Press R to reload.');
+                return;
+            }
+
+            ammo--;
+            updateAmmoDisplay();
+
+            startAnimation('shoot', 0.4);
+            playGunSound();
+
+            if (heldItemMesh) {
+                const flash = new THREE.PointLight(0xffcc00, 5, 4);
+                flash.position.set(0, 0.1, -0.6);
+                handRig.add(flash);
+                setTimeout(() => handRig.remove(flash), 80);
+            }
+
+            raycaster.setFromCamera(centerScreen, camera);
+            const shootables = [...itemMeshes, ...(neilMesh ? [neilMesh] : [])];
+            const hits = raycaster.intersectObjects(shootables, true);
+
+            if (hits.length > 0) {
+                const hit = hits[0];
+                const hitRoot = findRootItem(hit.object);
+
+                if (hit.object.userData.isNeil || (hitRoot && hitRoot.userData.isNeil)) {
+                    if (!neilDead) {
+                        setTimeout(() => {
+                            neilDead = true;
+                            neilGroup.rotation.z = -Math.PI / 2;
+                            neilGroup.position.y = -0.5;
+                            if (neilMesh && neilMesh.material) {
+                                neilMesh.material.emissive = new THREE.Color(0xff0000);
+                                neilMesh.material.emissiveIntensity = 1.0;
+                            }
+                            showToast('💥 You killed Neil! Everything is free!');
+                            dialogueLineEl.textContent = "...";
+                            dialogueEl.classList.add('visible');
+                            if (dialogueTimeout) clearTimeout(dialogueTimeout);
+                            dialogueTimeout = setTimeout(() => dialogueEl.classList.remove('visible'), 2000);
+                            playSweep(300, 60, 'sawtooth', 1.0, 0.3);
+                            updateFreeBadge();
+                            markAllFree();
+                        }, 150);
+                    }
+                } else {
+                    createBulletHole(hit.point, hit.face ? hit.face.normal : null, hit.object);
+
+                    if (hitRoot && hitRoot.userData.name) {
+                        const itemName = hitRoot.userData.name;
+                        showToast('Hit: ' + itemName);
+                        if (itemName === 'Glass of Milk' || itemName === 'Bottle of Gin') {
+                            hitRoot.visible = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        function markAllFree() {
+            items.forEach(item => {
+                if (!item.userData.owned) {
+                    item.userData.owned = true;
+                }
+            });
+            if (selectedItem) {
+                btnBuyEl.textContent = 'Owned';
+                btnBuyEl.disabled = true;
+                btnTakeEl.textContent = 'Take';
+                btnTakeEl.disabled = false;
+                itemPriceEl.textContent = '🪙 OWNED';
+                itemPriceEl.classList.remove('free');
+            }
+        }
+
+        function createBulletHole(point, normal, parentMesh) {
+            const holeGeo = new THREE.CircleGeometry(0.06, 8);
+            const holeMat = new THREE.MeshBasicMaterial({ color: 0x111111, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+            const hole = new THREE.Mesh(holeGeo, holeMat);
+
+            if (normal) {
+                const worldNormal = normal.clone().transformDirection(parentMesh.matrixWorld).normalize();
+                hole.position.copy(point).add(worldNormal.clone().multiplyScalar(0.01));
+                hole.lookAt(point.clone().add(worldNormal));
+            } else {
+                hole.position.copy(point);
+                hole.lookAt(camera.position);
+            }
+
+            scene.add(hole);
+            bulletHoles.push({ mesh: hole, time: performance.now() / 1000 });
+
+            if (bulletHoles.length > 50) {
+                const old = bulletHoles.shift();
+                scene.remove(old.mesh);
+            }
+        }
+
+        function checkGunPointing() {
+            if (!heldItemData || heldItemData.useType !== 'shoot') {
+                if (gunPointedAtNeil) {
+                    gunPointedAtNeil = false;
+                    updateFreeBadge();
+                }
+                return;
+            }
+            if (neilDead) {
+                gunPointedAtNeil = false;
+                updateFreeBadge();
+                return;
+            }
+            if (!neilMesh) {
+                gunPointedAtNeil = false;
+                return;
+            }
+
+            raycaster.setFromCamera(centerScreen, camera);
+            const neilHits = raycaster.intersectObject(neilMesh);
+            const prevGunPoint = gunPointedAtNeil;
+            gunPointedAtNeil = neilHits.length > 0 && neilHits[0].distance < 10;
+
+            if (gunPointedAtNeil !== prevGunPoint) {
+                updateFreeBadge();
+            }
+
+            if (gunPointedAtNeil && !prevGunPoint) {
+                neilSpeak('gunpointed');
+                showToast('💸 Neil: "Everything is free! Just don\'t shoot!"', 3000);
+                playFreeSound();
+                markAllFree();
+                if (selectedItem) {
+                    btnBuyEl.textContent = 'Take (Free)';
+                    btnBuyEl.disabled = false;
+                    btnTakeEl.textContent = 'Take';
+                    btnTakeEl.disabled = false;
+                    itemPriceEl.textContent = '💸 FREE (Neil held up)';
+                    itemPriceEl.classList.add('free');
+                }
+            }
+        }
+
+        function setCursorVisible(visible) {
+            crosshairEl.classList.toggle('hidden', !visible);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyE') {
+                if (!audioEnabled) initAudio();
+                if (hoveredItem) selectItem(hoveredItem);
+                else if (selectedItem) deselectItem();
+            }
+        });
+
+        document.addEventListener('mousedown', (e) => {
+            if (!audioEnabled) initAudio();
+            if (!pointerLocked) return;
+            if (e.button === 0) {
+                if (heldItemData && heldItemData.useType === 'shoot') {
+                    fireGun();
+                    return;
+                }
+                if (hoveredItem) selectItem(hoveredItem);
+                else if (selectedItem) deselectItem();
+            } else if (e.button === 2) {
+                if (heldItemData && heldItemData.useType === 'shoot') {
+                    reloadGun();
+                }
+            }
+        });
+
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        btnBuyEl.addEventListener('click', (e) => { e.stopPropagation(); buySelected(); });
+        btnTakeEl.addEventListener('click', (e) => { e.stopPropagation(); takeSelected(); });
+        btnCloseEl.addEventListener('click', (e) => { e.stopPropagation(); deselectItem(); });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        updateHUD();
+        renderHotbar();
+        updateAmmoDisplay();
+
+        let clock = new THREE.Clock();
+        let neilGreeted = false;
+
+        function animate() {
+            const delta = Math.min(clock.getDelta(), 0.05);
+            const now = performance.now() / 1000;
+            const elapsedTime = now;
+
+            if (!neilGreeted && camera.position.distanceTo(neilGroup.position) < 6) {
+                neilGreeted = true;
+                setTimeout(() => neilSpeak('greeting'), 800);
+            }
+
+            if (pointerLocked && !sittingOnChair) {
+                const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+                const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+                const velocity = new THREE.Vector3();
+
+                if (keys['KeyW'] || keys['ArrowUp']) velocity.add(forward);
+                if (keys['KeyS'] || keys['ArrowDown']) velocity.sub(forward);
+                if (keys['KeyD'] || keys['ArrowRight']) velocity.add(right);
+                if (keys['KeyA'] || keys['ArrowLeft']) velocity.sub(right);
+
+                if (velocity.lengthSq() > 0) {
+                    velocity.normalize();
+                    let speed = moveSpeed;
+                    if (keys['ShiftLeft'] || keys['ShiftRight']) speed *= runMultiplier;
+                    camera.position.addScaledVector(velocity, speed * delta);
+                }
+
+                camera.position.x = Math.max(bounds.minX, Math.min(bounds.maxX, camera.position.x));
+                camera.position.z = Math.max(bounds.minZ, Math.min(bounds.maxZ, camera.position.z));
+                camera.position.y = eyeHeight;
+            }
+
+            if (sittingOnChair && placedChairData) {
+                const chairPos = placedChairData.mesh.position;
+                const targetPos = new THREE.Vector3(chairPos.x, 1.15, chairPos.z);
+                camera.position.lerp(targetPos, 0.2);
+            }
+
+            const lookDir = new THREE.Vector3(
+                -Math.sin(yaw) * Math.cos(pitch),
+                Math.sin(pitch),
+                -Math.cos(yaw) * Math.cos(pitch)
+            );
+            camera.lookAt(camera.position.clone().add(lookDir));
+
+            if (neilMesh && !neilDead) {
+                neilGroup.lookAt(camera.position.x, neilGroup.position.y, camera.position.z);
+            }
+
+            updateAnimation(now);
+
+            let rigPos = handBasePos.clone().add(handOffset);
+            let rigRotX = handBaseRot.x + handRotOffset.x;
+            let rigRotY = handBaseRot.y + handRotOffset.y;
+            let rigRotZ = handBaseRot.z + handRotOffset.z;
+
+            if (heldItemData && heldItemData.useType === 'shoot' && (!currentAnimation || currentAnimation.type !== 'shoot')) {
+                const gunAimPos = new THREE.Vector3(0.0, -0.15, -0.45);
+                rigPos.lerp(gunAimPos, 0.25);
+                rigRotX = rigRotX * 0.7;
+                rigRotY = rigRotY * 0.7;
+                rigRotZ = rigRotZ * 0.7;
+            }
+
+            handRig.position.copy(rigPos);
+            handRig.rotation.set(rigRotX, rigRotY, rigRotZ);
+
+            if (heldItemData && !currentAnimation) {
+                const moving = keys['KeyW'] || keys['KeyA'] || keys['KeyS'] || keys['KeyD'];
+                if (moving) {
+                    handRig.position.y += Math.sin(now * 10) * 0.01;
+                    handRig.position.x += Math.cos(now * 10) * 0.008;
+                }
+            }
+
+            raycaster.setFromCamera(centerScreen, camera);
+            const intersects = raycaster.intersectObjects(itemMeshes, true);
+            let currentHover = null;
+            if (intersects.length > 0 && intersects[0].distance < 4.5) {
+                const root = findRootItem(intersects[0].object);
+                if (root && root.userData.name && root.visible) currentHover = root;
+            }
+
+            let hoverNeil = false;
+            if (!currentHover && neilMesh && !neilDead) {
+                const neilIntersects = raycaster.intersectObject(neilMesh);
+                if (neilIntersects.length > 0 && neilIntersects[0].distance < 6) hoverNeil = true;
+            }
+
+            let nearChairToSit = false;
+            if (placedChairData && !sittingOnChair) {
+                if (camera.position.distanceTo(placedChairData.mesh.position) < 1.8) nearChairToSit = true;
+            }
+
+            checkGunPointing();
+
+            if (currentHover !== hoveredItem) {
+                hoveredItem = currentHover;
+                if (hoveredItem) {
+                    playHoverSound();
+                    promptEl.textContent = '[E] INSPECT';
+                    promptEl.classList.add('visible');
+                    setCursorVisible(true);
+                } else if (hoverNeil) {
+                    promptEl.textContent = '[E] TALK TO NEIL';
+                    promptEl.classList.add('visible');
+                    setCursorVisible(true);
+                } else if (nearChairToSit && !sittingOnChair) {
+                    promptEl.textContent = '[F] SIT · [G] PICK UP';
+                    promptEl.classList.add('visible');
+                    setCursorVisible(true);
+                } else if (sittingOnChair) {
+                    promptEl.textContent = '[F] STAND UP';
+                    promptEl.classList.add('visible');
+                    setCursorVisible(true);
+                } else {
+                    promptEl.classList.remove('visible');
+                    setCursorVisible(false);
+                }
+            } else if (hoverNeil && !hoveredItem) {
+                promptEl.textContent = '[E] TALK TO NEIL';
+                promptEl.classList.add('visible');
+                setCursorVisible(true);
+            } else if (nearChairToSit && !hoveredItem && !hoverNeil && !sittingOnChair) {
+                promptEl.textContent = '[F] SIT · [G] PICK UP';
+                promptEl.classList.add('visible');
+                setCursorVisible(true);
+            } else if (sittingOnChair && !hoveredItem && !hoverNeil) {
+                promptEl.textContent = '[F] STAND UP';
+                promptEl.classList.add('visible');
+                setCursorVisible(true);
+            } else if (!hoveredItem && !hoverNeil && !nearChairToSit && !sittingOnChair) {
+                promptEl.classList.remove('visible');
+                setCursorVisible(false);
+            }
+
+            if (heldItemData && heldItemData.useType === 'shoot' && gunPointedAtNeil) {
+                crosshairEl.classList.add('hostile');
+            } else {
+                crosshairEl.classList.remove('hostile');
+            }
+
+            if (hoverNeil && keys['KeyE']) {
+                keys['KeyE'] = false;
+                neilSpeak('greeting');
+            }
+
+            items.forEach((item, index) => {
+                if (item !== selectedItem && item.visible && item !== placedChairData?.mesh) {
+                    const floatY = Math.sin(elapsedTime * 1.5 + index) * 0.05;
+                    item.position.x = item.userData.originalPos.x;
+                    item.position.z = item.userData.originalPos.z;
+                    item.position.y = item.userData.originalPos.y + floatY;
+                    item.rotation.y += 0.003;
+                }
+            });
+
+            glowRings.forEach((entry) => {
+                if (entry.ring) {
+                    if (!entry.item.visible || entry.item === placedChairData?.mesh) {
+                        entry.ring.visible = false;
+                        return;
+                    }
+                    entry.ring.visible = true;
+                    const floatY = Math.sin(elapsedTime * 1.5) * 0.05;
+                    entry.ring.position.x = entry.offset.x;
+                    entry.ring.position.z = entry.offset.z;
+                    entry.ring.position.y = entry.offset.y - 0.25 + floatY;
+                }
+            });
+
+            itemLights.forEach((entry) => {
+                if (entry.light) {
+                    if (!entry.item.visible || entry.item === placedChairData?.mesh) {
+                        entry.light.visible = false;
+                        return;
+                    }
+                    entry.light.visible = true;
+                    const floatY = Math.sin(elapsedTime * 1.5) * 0.05;
+                    entry.light.position.x = entry.offset.x;
+                    entry.light.position.z = entry.offset.z;
+                    entry.light.position.y = entry.offset.y + 0.6 + floatY;
+                }
+            });
+
+            particles.rotation.y += 0.0002;
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+        const chairItem = items.find(i => i.userData.name === 'Cuck Chair');
+        if (chairItem) chairItem.visible = true;
+
+        animate();
+    </script>
+</body>
+</html>

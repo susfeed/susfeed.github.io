@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema - Interior</title>
+    <link rel="icon" href="../../../img/amogus.webp">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #0d0505; color: white; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; z-index: 100; transition: all 0.15s ease; box-shadow: 0 0 4px rgba(0,0,0,0.5); }
+        #crosshair.active { background: rgba(255,230,0,0.95); transform: translate(-50%,-50%) scale(1.6); box-shadow: 0 0 10px rgba(255,215,0,0.9); }
+        #hud { position: absolute; top: 16px; left: 16px; z-index: 100; pointer-events: none; display: flex; flex-direction: column; gap: 8px; }
+        #location { font-size: 16px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-shadow: 1px 1px 3px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 6px 14px; border-radius: 4px; border-left: 3px solid #d4a574; align-self: flex-start; backdrop-filter: blur(4px); }
+        #controls-hint { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: rgba(255,255,255,0.65); text-shadow: 1px 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.5px; background: rgba(0,0,0,0.35); padding: 8px 12px; border-radius: 4px; backdrop-filter: blur(4px); align-self: flex-start; }
+        #controls-hint b { color: #d4a574; font-weight: 700; }
+        #prompt { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); color: #d4a574; text-shadow: 2px 2px 4px black; pointer-events: none; z-index: 100; font-size: 15px; font-weight: 600; letter-spacing: 1.5px; display: none; background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 4px; border: 1px solid rgba(212,165,116,0.4); backdrop-filter: blur(4px); animation: pulse 1.8s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); display: flex; justify-content: center; align-items: center; z-index: 200; color: white; cursor: pointer; flex-direction: column; gap: 10px; transition: opacity 0.3s; }
+        #overlay h1 { color: #d4a574; text-shadow: 0 0 20px rgba(212,165,116,0.6); font-size: 52px; letter-spacing: 6px; font-weight: 700; }
+        #overlay p { font-size: 16px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        #inventory { position: absolute; bottom: 16px; left: 16px; z-index: 100; background: rgba(0,0,0,0.7); padding: 10px 16px; border-radius: 6px; border: 1px solid #d4a574; font-size: 14px; display: none; }
+        #inventory b { color: #d4a574; }
+        #screen-status { position: absolute; top: 16px; right: 16px; z-index: 100; background: rgba(0,0,0,0.7); padding: 8px 14px; border-radius: 4px; border-left: 3px solid #d4a574; font-size: 13px; display: none; max-width: 260px; }
+        #screen-status b { color: #d4a574; display: block; margin-bottom: 2px; letter-spacing: 1px; font-size: 11px; }
+        #sit-hint { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); color: #d4a574; background: rgba(0,0,0,0.75); padding: 8px 18px; border-radius: 4px; font-size: 14px; font-weight: 600; letter-spacing: 1px; display: none; pointer-events: none; z-index: 101; border: 1px solid rgba(212,165,116,0.5); }
+    </style>
+</head>
+<body>
+    <div id="crosshair"></div>
+    <div id="hud">
+        <div id="location">Cinema — SusFeed Multiplex</div>
+        <div id="controls-hint"><span><b>WASD</b> Move</span><span><b>Shift</b> Sprint</span><span><b>Space</b> Jump</span><span><b>Click</b> Interact</span></div>
+    </div>
+    <div id="prompt">Press E or Click to Interact</div>
+    <div id="inventory">Holding: <b id="item-name">Nothing</b></div>
+    <div id="screen-status"><b>NOW SHOWING</b><span id="screen-title">—</span></div>
+    <div id="sit-hint">Press <b>E</b> to stand up</div>
+    <div id="overlay"><h1>CINEMA</h1><p>Click to Enter</p></div>
+
+    <div id="viewer-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); z-index:500; justify-content:center; align-items:center; flex-direction:column;">
+        <button onclick="Engine.closeOverlay()" style="position:absolute; top:20px; right:20px; background:#ba1a1a; color:white; border:none; padding:12px 24px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:16px; z-index:501;">Close (Esc)</button>
+        <iframe id="viewer-frame" style="width:85vw; height:85vh; border:4px solid #d4a574; border-radius:8px; background:#fff;"></iframe>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <script src="../engine.js"></script>
+
+    <script>
+        const TV_ROOT = '../../../TV/';
+        const VIDEOS_JSON = TV_ROOT + 'videos/index.json';
+        const COMMERCIALS_JSON = TV_ROOT + 'commercials/index.json';
+        const VIDEO_SRC = TV_ROOT + 'videos/';
+        const AD_SRC = TV_ROOT + 'commercials/';
+
+        const ROOM_HALF_W = 22;
+
+        const THEATER_Z_MIN = -30;
+        const THEATER_Z_MAX = -0.5;
+        const LOBBY_Z_MIN = -0.5;
+        const LOBBY_Z_MAX = 34;
+        const DIVIDER_Z = 0;
+
+        const THEATER_CEIL_H = 14;
+        const LOBBY_CEIL_H = 5;
+
+        const SCREEN_Z = -29.5;
+        const SCREEN_CY = 7.5;
+        const SCREEN_W = 28.44;
+        const SCREEN_H = 16.0;
+
+        const ROW_COUNT = 8;
+        const ROW_TIER = 0.4;
+        const FRONT_ROW_Z = -20.0;
+        const ROW_SPACING = 2.0;
+
+        const SEATING_HALF_W = 10.5;
+
+        const COL_COUNT = 12;
+        const COL_SPACING = 1.5;
+        const AISLE_XS = [-3.75, 0, 3.75];
+        const AISLE_HALF = 0.7;
+
+        const LOBBY_SPOTS = [
+            [-16, 14], [-10, 24], [16, 14], [10, 24],
+            [-18, 22], [18, 22], [-14, 30], [14, 30]
+        ];
+
+        let videoData = { videos: [], channels: {} };
+        let adList = [];
+        let heldItem = null;
+
+        let theaterActive = false;
+        let queue = [];
+        let queueIdx = 0;
+        let activeVideoEl = null;
+        let activeCanvasTex = null;
+        let drawLoopRunning = false;
+        let featureStartTime = 0;
+
+        let sitting = false;
+        let sitSeat = null;
+        let sitReturnPos = null;
+
+        const CINEMA_SPRITES = [
+            'neil.png', 'cam.png', 'smeff.png', 'chip.png', 'sara.png', 'phil.png',
+            'red.png', 'olivia.png', 'lukas.png', 'andrew.png', 'ellie.png',
+            'johnsusfeed.png', 'antonio.png', 'takochan.png', 'ringo.png',
+            'delicious.png', 'furret.png', 'kaeru.png', 'pikmin.png',
+            'sister.png', 'howard.png', 'sylus.png'
+        ];
+
+        const SEAT_GRID = buildSeatGrid();
+        const NPC_SEAT_SLOTS = SEAT_GRID.filter(s => s.interior);
+
+        function flashPrompt(text) {
+            const p = document.getElementById('prompt');
+            if (!p) return;
+            const orig = p.textContent;
+            p.textContent = text;
+            p.style.display = 'block';
+            setTimeout(() => { p.textContent = orig; }, 1600);
+        }
+
+        function setScreenStatus(title) {
+            const box = document.getElementById('screen-status');
+            const t = document.getElementById('screen-title');
+            if (box && t) { box.style.display = 'block'; t.textContent = title; }
+        }
+
+        function hideScreenStatus() {
+            const box = document.getElementById('screen-status');
+            if (box) box.style.display = 'none';
+        }
+
+        function addBoxCollider(cx, cz, w, d) {
+            const r = 0.9;
+            const spanX = Math.max(w - r * 2, 0);
+            const count = Math.max(Math.ceil(spanX / (r * 1.4)), 1);
+            if (count === 1) {
+                Engine.addCollider(cx, cz, r);
+                return;
+            }
+            const step = spanX / (count - 1);
+            for (let i = 0; i < count; i++) {
+                Engine.addCollider(cx - spanX / 2 + i * step, cz, r);
+            }
+            const depthPad = d / 2;
+            if (depthPad > r) {
+                for (let i = 0; i < count; i++) {
+                    const x = cx - spanX / 2 + i * step;
+                    Engine.addCollider(x, cz + (depthPad - r) * 1.2, r * 0.9);
+                    Engine.addCollider(x, cz - (depthPad - r) * 1.2, r * 0.9);
+                }
+            }
+        }
+
+        function inAisle(x) {
+            for (const ax of AISLE_XS) {
+                if (Math.abs(x - ax) < AISLE_HALF) return true;
+            }
+            return false;
+        }
+
+        function fisherYates(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+            }
+        }
+
+        function buildSeatGrid() {
+            const totalWidth = COL_COUNT * COL_SPACING;
+            const startX = -totalWidth / 2 + COL_SPACING / 2;
+            const grid = [];
+            for (let r = 0; r < ROW_COUNT; r++) {
+                const rowZ = FRONT_ROW_Z + r * ROW_SPACING;
+                const rowY = r * ROW_TIER;
+                for (let c = 0; c < COL_COUNT; c++) {
+                    const cx = startX + c * COL_SPACING;
+                    if (inAisle(cx)) continue;
+                    const seatLeft = startX + (c - 1) * COL_SPACING;
+                    const seatRight = startX + (c + 1) * COL_SPACING;
+                    const hasLeftNeighbor = !inAisle(seatLeft) && c - 1 >= 0;
+                    const hasRightNeighbor = !inAisle(seatRight) && c + 1 < COL_COUNT;
+                    const hasRowAbove = r - 1 >= 0;
+                    const hasRowBelow = r + 1 < ROW_COUNT;
+                    const interior = hasLeftNeighbor && hasRightNeighbor && hasRowAbove && hasRowBelow;
+                    grid.push({
+                        x: cx,
+                        z: rowZ,
+                        y: rowY + 0.6,
+                        eyeY: rowY + 0.52 + 1.15,
+                        row: r,
+                        col: c,
+                        interior
+                    });
+                }
+            }
+            return grid;
+        }
+
+        async function loadData() {
+            try {
+                const res = await fetch(VIDEOS_JSON);
+                videoData = await res.json();
+            } catch (e) { console.warn('videos load failed', e); }
+            try {
+                const res = await fetch(COMMERCIALS_JSON);
+                adList = await res.json();
+            } catch (e) { console.warn('commercials load failed', e); }
+        }
+
+        function buildCinema(S) {
+            S.add(new THREE.HemisphereLight(0xffe8c8, 0x2a1010, 0.4));
+            S.add(new THREE.AmbientLight(0xffffff, 0.25));
+
+            buildLobby(S);
+            buildDivider(S);
+            buildTheater(S);
+            buildExit(S);
+        }
+
+        function buildLobby(S) {
+            const depth = LOBBY_Z_MAX - LOBBY_Z_MIN;
+            const cz = (LOBBY_Z_MIN + LOBBY_Z_MAX) / 2;
+
+            const carpetMat = new THREE.MeshLambertMaterial({ color: 0x4a2018 });
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_HALF_W * 2, depth), carpetMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.set(0, 0, cz);
+            floor.receiveShadow = true;
+            S.add(floor);
+
+            const redRunner = new THREE.Mesh(
+                new THREE.PlaneGeometry(6, depth - 2),
+                new THREE.MeshLambertMaterial({ color: 0x8b1a1a })
+            );
+            redRunner.rotation.x = -Math.PI / 2;
+            redRunner.position.set(0, 0.005, cz);
+            S.add(redRunner);
+
+            const goldRunner = new THREE.Mesh(
+                new THREE.PlaneGeometry(6.4, depth - 1.6),
+                new THREE.MeshLambertMaterial({ color: 0xd4a574 })
+            );
+            goldRunner.rotation.x = -Math.PI / 2;
+            goldRunner.position.set(0, 0.002, cz);
+            S.add(goldRunner);
+
+            const ceilMat = new THREE.MeshLambertMaterial({ color: 0x1a0808 });
+            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_HALF_W * 2, depth), ceilMat);
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.set(0, LOBBY_CEIL_H, cz);
+            S.add(ceiling);
+
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x4a1010 });
+            const addWall = (x, y, z, w, h, d) => {
+                const w2 = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+                w2.position.set(x, y, z);
+                w2.receiveShadow = true;
+                S.add(w2);
+            };
+            addWall(0, 2.5, LOBBY_Z_MAX, ROOM_HALF_W * 2 + 1, LOBBY_CEIL_H, 0.5);
+            addWall(-ROOM_HALF_W, 2.5, cz, 0.5, LOBBY_CEIL_H, depth);
+            addWall(ROOM_HALF_W, 2.5, cz, 0.5, LOBBY_CEIL_H, depth);
+
+            buildLobbyLights(S, cz);
+            buildConcessions(S);
+            buildTicketBooth(S);
+            buildCandyStand(S);
+            buildLobbyPosters(S);
+        }
+
+        function buildLobbyLights(S, cz) {
+            const fixtureMat = new THREE.MeshBasicMaterial({ color: 0xffe4a0 });
+            const rows = [LOBBY_Z_MIN + 3, cz, LOBBY_Z_MAX - 3];
+            const cols = [-10, 10];
+
+            for (const z of rows) {
+                for (const x of cols) {
+                    const fixture = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.6, 0.5, 0.2, 14),
+                        fixtureMat
+                    );
+                    fixture.position.set(x, LOBBY_CEIL_H - 0.15, z);
+                    S.add(fixture);
+
+                    const light = new THREE.PointLight(0xffd8a0, 0.8, 24);
+                    light.position.set(x, LOBBY_CEIL_H - 0.5, z);
+                    S.add(light);
+                }
+            }
+        }
+
+        function buildConcessions(S) {
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x4a2c14 });
+            const topMat = new THREE.MeshLambertMaterial({ color: 0x2e1a0c });
+
+            const CX = -12;
+            const CZ = 30;
+
+            const counter = new THREE.Mesh(new THREE.BoxGeometry(14, 1.2, 2.5), woodMat);
+            counter.position.set(CX, 0.6, CZ);
+            counter.castShadow = true;
+            counter.receiveShadow = true;
+            S.add(counter);
+            addBoxCollider(CX, CZ, 14, 2.5);
+
+            const counterTop = new THREE.Mesh(new THREE.BoxGeometry(14.4, 0.16, 2.7), topMat);
+            counterTop.position.set(CX, 1.28, CZ);
+            S.add(counterTop);
+
+            const signTex = Engine.createTextTexture('CONCESSIONS', 0xd4a574, '#2a1010');
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(6, 1),
+                new THREE.MeshBasicMaterial({ map: signTex })
+            );
+            sign.position.set(CX, 3.9, CZ + 1.3);
+            sign.rotation.y = Math.PI;
+            S.add(sign);
+
+            const popGroup = new THREE.Group();
+            popGroup.position.set(CX - 2, 1.36, CZ);
+
+            const popBody = new THREE.Mesh(
+                new THREE.BoxGeometry(1.6, 1.4, 1.2),
+                new THREE.MeshLambertMaterial({ color: 0xcc2222 })
+            );
+            popBody.position.y = 0.7;
+            popGroup.add(popBody);
+
+            const popGlass = new THREE.Mesh(
+                new THREE.BoxGeometry(1.3, 0.7, 1.0),
+                new THREE.MeshBasicMaterial({ color: 0xfff4c8, transparent: true, opacity: 0.7 })
+            );
+            popGlass.position.y = 1.05;
+            popGroup.add(popGlass);
+
+            const popFill = new THREE.Mesh(
+                new THREE.SphereGeometry(0.5, 10, 8),
+                new THREE.MeshLambertMaterial({ color: 0xfff0c0 })
+            );
+            popFill.position.y = 0.95;
+            popFill.scale.set(1.2, 0.6, 1);
+            popGroup.add(popFill);
+
+            const popLight = new THREE.PointLight(0xffe4a0, 0.6, 6);
+            popLight.position.set(0, 1.6, 0);
+            popGroup.add(popLight);
+
+            S.add(popGroup);
+
+            const sodaGroup = new THREE.Group();
+            sodaGroup.position.set(CX + 3, 1.36, CZ);
+
+            const sodaBody = new THREE.Mesh(
+                new THREE.BoxGeometry(1.8, 1.4, 1.2),
+                new THREE.MeshLambertMaterial({ color: 0x2244aa })
+            );
+            sodaBody.position.y = 0.7;
+            sodaGroup.add(sodaBody);
+
+            const sodaPanel = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.5, 1.1),
+                new THREE.MeshBasicMaterial({ color: 0x66ccff })
+            );
+            sodaPanel.position.set(0, 0.7, 0.61);
+            sodaGroup.add(sodaPanel);
+
+            S.add(sodaGroup);
+
+            const popPickup = new THREE.Mesh(
+                new THREE.BoxGeometry(2, 2, 1.6),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            popPickup.position.set(CX - 2, 1.8, CZ - 1.9);
+            S.add(popPickup);
+            Engine.addInteractable(popPickup, { onInteract: () => pickUpItem('Popcorn') });
+
+            const sodaPickup = new THREE.Mesh(
+                new THREE.BoxGeometry(2, 2, 1.6),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            sodaPickup.position.set(CX + 3, 1.8, CZ - 1.9);
+            S.add(sodaPickup);
+            Engine.addInteractable(sodaPickup, { onInteract: () => pickUpItem('Soda') });
+        }
+
+        function buildTicketBooth(S) {
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x4a2c14 });
+            const topMat = new THREE.MeshLambertMaterial({ color: 0x2e1a0c });
+
+            const CX = 12;
+            const CZ = 30;
+
+            const booth = new THREE.Mesh(new THREE.BoxGeometry(5, 1.2, 2.5), woodMat);
+            booth.position.set(CX, 0.6, CZ);
+            booth.castShadow = true;
+            booth.receiveShadow = true;
+            S.add(booth);
+            addBoxCollider(CX, CZ, 5, 2.5);
+
+            const boothTop = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.16, 2.7), topMat);
+            boothTop.position.set(CX, 1.28, CZ);
+            S.add(boothTop);
+
+            const reg = new THREE.Mesh(
+                new THREE.BoxGeometry(1.4, 0.9, 1.0),
+                new THREE.MeshLambertMaterial({ color: 0x222222 })
+            );
+            reg.position.set(CX, 1.85, CZ);
+            S.add(reg);
+
+            const regScreen = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.1, 0.7),
+                new THREE.MeshBasicMaterial({ color: 0x00ff88 })
+            );
+            regScreen.position.set(CX, 1.85, CZ - 0.51);
+            regScreen.rotation.y = Math.PI;
+            S.add(regScreen);
+
+            const signTex = Engine.createTextTexture('TICKETS', 0xd4a574, '#2a1010');
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(3, 0.7),
+                new THREE.MeshBasicMaterial({ map: signTex })
+            );
+            sign.position.set(CX, 3.8, CZ + 1.3);
+            sign.rotation.y = Math.PI;
+            S.add(sign);
+        }
+
+        function buildCandyStand(S) {
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const goldMat = new THREE.MeshLambertMaterial({ color: 0xd4a574 });
+
+            const stand = new THREE.Group();
+            stand.position.set(0, 0, 18);
+
+            const base = new THREE.Mesh(new THREE.BoxGeometry(5, 1.0, 2.0), woodMat);
+            base.position.y = 0.5;
+            base.castShadow = true;
+            stand.add(base);
+            addBoxCollider(0, 18, 5, 2.0);
+
+            const top = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.15, 2.2), goldMat);
+            top.position.y = 1.05;
+            stand.add(top);
+
+            const glassMat = new THREE.MeshBasicMaterial({ color: 0xaaddff, transparent: true, opacity: 0.25 });
+            const glassCase = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.9, 1.8), glassMat);
+            glassCase.position.y = 1.6;
+            stand.add(glassCase);
+
+            const candyColors = [0xff2266, 0xffcc00, 0x22cc44, 0xcc44cc, 0x2266ff, 0xff8833];
+            for (let i = 0; i < 6; i++) {
+                const candyBox = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.4, 0.6, 0.5),
+                    new THREE.MeshLambertMaterial({ color: candyColors[i] })
+                );
+                candyBox.position.set(-2.0 + i * 0.8, 1.5, 0);
+                stand.add(candyBox);
+            }
+
+            const shelf1 = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.1, 1.6), woodMat);
+            shelf1.position.y = 2.3;
+            stand.add(shelf1);
+
+            const shelf2 = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.1, 1.6), woodMat);
+            shelf2.position.y = 3.0;
+            stand.add(shelf2);
+
+            const gummyColors = [0x22cc44, 0xff2266, 0xffcc00, 0xcc44cc];
+            for (let i = 0; i < 4; i++) {
+                const bag = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.5, 0.3),
+                    new THREE.MeshLambertMaterial({ color: gummyColors[i] })
+                );
+                bag.position.set(-1.5 + i * 1.0, 2.55, 0);
+                stand.add(bag);
+
+                const bag2 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.5, 0.3),
+                    new THREE.MeshLambertMaterial({ color: gummyColors[(i + 2) % 4] })
+                );
+                bag2.position.set(-1.5 + i * 1.0, 3.25, 0);
+                stand.add(bag2);
+            }
+
+            const signTex = Engine.createTextTexture('CANDY', 0xd4a574, '#2a1010');
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(2.4, 0.6),
+                new THREE.MeshBasicMaterial({ map: signTex })
+            );
+            sign.position.set(0, 3.9, 0);
+            stand.add(sign);
+
+            S.add(stand);
+
+            const pickBox = new THREE.Mesh(
+                new THREE.BoxGeometry(4.6, 3.2, 1.8),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            pickBox.position.set(0, 2.0, 18);
+            S.add(pickBox);
+            Engine.addInteractable(pickBox, { onInteract: () => pickUpItem('Candy') });
+        }
+
+        function pickUpItem(name) {
+            heldItem = name;
+            const inv = document.getElementById('inventory');
+            const label = document.getElementById('item-name');
+            if (inv) inv.style.display = 'block';
+            if (label) label.textContent = name;
+            flashPrompt('Picked up ' + name);
+        }
+
+        function buildLobbyPosters(S) {
+            const colors = [0x2244aa, 0xaa2244, 0xaa8822, 0x22aa88];
+            const zs = [6, 14, 22];
+
+            zs.forEach((z, i) => {
+                const posterL = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.1, 3.4, 2.6),
+                    new THREE.MeshLambertMaterial({ color: colors[i % 4] })
+                );
+                posterL.position.set(-ROOM_HALF_W + 0.3, 2.6, z);
+                S.add(posterL);
+
+                const frameL = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.05, 3.7, 2.9),
+                    new THREE.MeshLambertMaterial({ color: 0xd4a574 })
+                );
+                frameL.position.set(-ROOM_HALF_W + 0.26, 2.6, z);
+                S.add(frameL);
+
+                const posterR = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.1, 3.4, 2.6),
+                    new THREE.MeshLambertMaterial({ color: colors[(i + 2) % 4] })
+                );
+                posterR.position.set(ROOM_HALF_W - 0.3, 2.6, z);
+                S.add(posterR);
+
+                const frameR = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.05, 3.7, 2.9),
+                    new THREE.MeshLambertMaterial({ color: 0xd4a574 })
+                );
+                frameR.position.set(ROOM_HALF_W - 0.26, 2.6, z);
+                S.add(frameR);
+            });
+        }
+
+        function buildDivider(S) {
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x2a0808 });
+            const frameMat = new THREE.MeshLambertMaterial({ color: 0x3a1010 });
+            const curtainMat = new THREE.MeshLambertMaterial({ color: 0x6b0a0a });
+            const goldMat = new THREE.MeshLambertMaterial({ color: 0xd4a574 });
+
+            const H = THEATER_CEIL_H;
+            const DOOR_HALF = 3.2;
+            const DOOR_TOP = 5.0;
+
+            const leftW = ROOM_HALF_W - DOOR_HALF;
+            const leftCx = -DOOR_HALF - leftW / 2;
+            const left = new THREE.Mesh(new THREE.BoxGeometry(leftW, H, 0.6), wallMat);
+            left.position.set(leftCx, H / 2, DIVIDER_Z);
+            S.add(left);
+            addBoxCollider(leftCx, DIVIDER_Z, leftW, 0.6);
+
+            const rightW = ROOM_HALF_W - DOOR_HALF;
+            const rightCx = DOOR_HALF + rightW / 2;
+            const right = new THREE.Mesh(new THREE.BoxGeometry(rightW, H, 0.6), wallMat);
+            right.position.set(rightCx, H / 2, DIVIDER_Z);
+            S.add(right);
+            addBoxCollider(rightCx, DIVIDER_Z, rightW, 0.6);
+
+            const aboveDoorW = DOOR_HALF * 2;
+            const aboveDoorH = H - DOOR_TOP;
+            const aboveDoor = new THREE.Mesh(
+                new THREE.BoxGeometry(aboveDoorW, aboveDoorH, 0.6),
+                wallMat
+            );
+            aboveDoor.position.set(0, DOOR_TOP + aboveDoorH / 2, DIVIDER_Z);
+            S.add(aboveDoor);
+
+            const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.4, DOOR_TOP, 0.8), frameMat);
+            frameLeft.position.set(-DOOR_HALF + 0.2, DOOR_TOP / 2, DIVIDER_Z);
+            S.add(frameLeft);
+
+            const frameRight = new THREE.Mesh(new THREE.BoxGeometry(0.4, DOOR_TOP, 0.8), frameMat);
+            frameRight.position.set(DOOR_HALF - 0.2, DOOR_TOP / 2, DIVIDER_Z);
+            S.add(frameRight);
+
+            const frameTop = new THREE.Mesh(new THREE.BoxGeometry(DOOR_HALF * 2 + 0.4, 0.5, 0.8), frameMat);
+            frameTop.position.set(0, DOOR_TOP - 0.25, DIVIDER_Z);
+            S.add(frameTop);
+
+            [-2.6, 2.6].forEach(x => {
+                const curtain = new THREE.Mesh(new THREE.BoxGeometry(1.0, DOOR_TOP - 0.7, 0.85), curtainMat);
+                curtain.position.set(x, (DOOR_TOP - 0.7) / 2, DIVIDER_Z);
+                S.add(curtain);
+            });
+
+            const topCurtain = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.4, 0.9), curtainMat);
+            topCurtain.position.set(0, DOOR_TOP - 0.7, DIVIDER_Z);
+            S.add(topCurtain);
+
+            const trim = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.1, 0.95), goldMat);
+            trim.position.set(0, DOOR_TOP - 0.9, DIVIDER_Z);
+            S.add(trim);
+
+            const signTex = Engine.createTextTexture('THEATER', 0xd4a574, '#2a1010');
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(4.4, 1.0),
+                new THREE.MeshBasicMaterial({ map: signTex })
+            );
+            sign.position.set(0, 6.2, DIVIDER_Z + 0.35);
+            S.add(sign);
+        }
+
+        function buildTheater(S) {
+            const theaterFloorMin = THEATER_Z_MIN - 2;
+            const theaterFloorMax = THEATER_Z_MAX;
+            const theaterFloorDepth = theaterFloorMax - theaterFloorMin;
+            const theaterFloorCz = (theaterFloorMin + theaterFloorMax) / 2;
+
+            const floorMat = new THREE.MeshLambertMaterial({ color: 0x1a0808 });
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_HALF_W * 2, theaterFloorDepth), floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.set(0, 0.001, theaterFloorCz);
+            floor.receiveShadow = true;
+            S.add(floor);
+
+            const depth = THEATER_Z_MAX - THEATER_Z_MIN;
+            const cz = (THEATER_Z_MIN + THEATER_Z_MAX) / 2;
+
+            const ceilMat = new THREE.MeshLambertMaterial({ color: 0x0a0404 });
+            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_HALF_W * 2, depth), ceilMat);
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.set(0, THEATER_CEIL_H, cz);
+            S.add(ceiling);
+
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x2a0808 });
+            const addWall = (x, y, z, w, h, d) => {
+                const w2 = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+                w2.position.set(x, y, z);
+                w2.receiveShadow = true;
+                S.add(w2);
+            };
+            addWall(-ROOM_HALF_W, THEATER_CEIL_H / 2, cz, 0.5, THEATER_CEIL_H, depth);
+            addWall(ROOM_HALF_W, THEATER_CEIL_H / 2, cz, 0.5, THEATER_CEIL_H, depth);
+            addWall(0, THEATER_CEIL_H / 2, THEATER_Z_MIN - 0.25, ROOM_HALF_W * 2 + 1, THEATER_CEIL_H, 0.5);
+
+            buildScreen(S);
+            buildTheaterCurtains(S);
+            buildSeating(S);
+            buildAisleLights(S);
+            buildTheaterCeilingLights(S);
+        }
+
+        function buildScreen(S) {
+            const frameMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
+            const frame = new THREE.Mesh(
+                new THREE.BoxGeometry(SCREEN_W + 1.5, SCREEN_H + 1.5, 0.4),
+                frameMat
+            );
+            frame.position.set(0, SCREEN_CY, SCREEN_Z - 0.3);
+            S.add(frame);
+
+            const screenMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a });
+            const screen = new THREE.Mesh(new THREE.PlaneGeometry(SCREEN_W, SCREEN_H), screenMat);
+            screen.position.set(0, SCREEN_CY, SCREEN_Z);
+            S.add(screen);
+
+            Engine.cinemaScreenMat = screenMat;
+
+            const glow = new THREE.PointLight(0x8899ff, 0.6, 45);
+            glow.position.set(0, SCREEN_CY, SCREEN_Z + 4);
+            S.add(glow);
+
+            const trigger = new THREE.Mesh(
+                new THREE.BoxGeometry(SCREEN_W, SCREEN_H, 0.6),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            trigger.position.set(0, SCREEN_CY, SCREEN_Z + 0.6);
+            S.add(trigger);
+            Engine.addInteractable(trigger, {
+                onInteract: () => {
+                    if (!theaterActive) startFeature();
+                    else flashPrompt('Feature already showing.');
+                }
+            });
+        }
+
+        function buildTheaterCurtains(S) {
+            const curtainMat = new THREE.MeshLambertMaterial({ color: 0x6b0a0a });
+            const goldMat = new THREE.MeshLambertMaterial({ color: 0xd4a574 });
+
+            const valanceY = SCREEN_CY + SCREEN_H / 2 + 0.8;
+            const valance = new THREE.Mesh(
+                new THREE.BoxGeometry(ROOM_HALF_W * 2 - 2, 1.5, 0.6),
+                curtainMat
+            );
+            valance.position.set(0, valanceY, SCREEN_Z + 0.5);
+            S.add(valance);
+
+            const valTrim = new THREE.Mesh(
+                new THREE.BoxGeometry(ROOM_HALF_W * 2 - 2, 0.15, 0.65),
+                goldMat
+            );
+            valTrim.position.set(0, valanceY - 0.75, SCREEN_Z + 0.55);
+            S.add(valTrim);
+
+            [-1, 1].forEach(side => {
+                const cx = side * (SCREEN_W / 2 + 3.0);
+                const curtain = new THREE.Mesh(new THREE.BoxGeometry(3.5, THEATER_CEIL_H, 0.6), curtainMat);
+                curtain.position.set(cx, THEATER_CEIL_H / 2, SCREEN_Z + 0.5);
+                S.add(curtain);
+
+                for (let i = 0; i < 4; i++) {
+                    const fold = new THREE.Mesh(new THREE.BoxGeometry(0.15, THEATER_CEIL_H, 0.65), goldMat);
+                    fold.position.set(cx - 1.3 + i * 0.85, THEATER_CEIL_H / 2, SCREEN_Z + 0.55);
+                    S.add(fold);
+                }
+            });
+        }
+
+        function buildSeating(S) {
+            const seatMat = new THREE.MeshLambertMaterial({ color: 0x3a0a0a });
+            const cushionMat = new THREE.MeshLambertMaterial({ color: 0x5a1010 });
+            const riserMat = new THREE.MeshLambertMaterial({ color: 0x1a0505 });
+
+            for (let r = 0; r < ROW_COUNT; r++) {
+                const rowZ = FRONT_ROW_Z + r * ROW_SPACING;
+                const rowY = r * ROW_TIER;
+
+                const riserFront = rowZ - ROW_SPACING / 2;
+                const riserDepth = ROW_SPACING;
+                const riserHeight = rowY + 0.35;
+
+                const riser = new THREE.Mesh(
+                    new THREE.BoxGeometry(SEATING_HALF_W * 2, riserHeight, riserDepth),
+                    riserMat
+                );
+                riser.position.set(0, riserHeight / 2, riserFront + riserDepth / 2);
+                riser.receiveShadow = true;
+                S.add(riser);
+
+                addBoxCollider(0, riserFront + 0.15, SEATING_HALF_W * 2, 0.3);
+            }
+
+            SEAT_GRID.forEach(seat => {
+                const rowY = seat.row * ROW_TIER;
+
+                const base = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.15, 0.15, 1.2),
+                    seatMat
+                );
+                base.position.set(seat.x, rowY + 0.42, seat.z);
+                base.castShadow = true;
+                S.add(base);
+
+                const cushion = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.05, 0.15, 1.1),
+                    cushionMat
+                );
+                cushion.position.set(seat.x, rowY + 0.52, seat.z);
+                S.add(cushion);
+
+                const back = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.15, 1.0, 0.15),
+                    seatMat
+                );
+                back.position.set(seat.x, rowY + 1.0, seat.z + 0.55);
+                back.castShadow = true;
+                S.add(back);
+
+                addBoxCollider(seat.x, seat.z, 1.15, 1.2);
+
+                const pickup = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.1, 1.0, 1.1),
+                    new THREE.MeshBasicMaterial({ visible: false })
+                );
+                pickup.position.set(seat.x, rowY + 0.9, seat.z);
+                S.add(pickup);
+
+                Engine.addInteractable(pickup, {
+                    onInteract: () => sitOnSeat({
+                        x: seat.x,
+                        y: seat.eyeY,
+                        z: seat.z
+                    })
+                });
+            });
+
+            buildSeatingSideWalls(S);
+        }
+
+        function buildSeatingSideWalls(S) {
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x1a0505 });
+
+            [-1, 1].forEach(side => {
+                const wx = side * SEATING_HALF_W;
+
+                for (let r = 0; r < ROW_COUNT; r++) {
+                    const rowZ = FRONT_ROW_Z + r * ROW_SPACING;
+                    const rowY = r * ROW_TIER;
+                    const h = rowY + 0.35;
+
+                    const step = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.4, h, ROW_SPACING),
+                        wallMat
+                    );
+                    step.position.set(wx + side * 0.2, h / 2, rowZ);
+                    S.add(step);
+
+                    addBoxCollider(wx + side * 0.2, rowZ, 0.5, ROW_SPACING);
+                }
+            });
+        }
+
+        function buildAisleLights(S) {
+            const lightMat = new THREE.MeshBasicMaterial({ color: 0xffaa44 });
+
+            for (const ax of AISLE_XS) {
+                for (let r = 0; r < ROW_COUNT; r++) {
+                    const z = FRONT_ROW_Z + r * ROW_SPACING + 0.9;
+                    const y = r * ROW_TIER + 0.42;
+                    const light = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.09, 6, 6),
+                        lightMat
+                    );
+                    light.position.set(ax, y, z);
+                    S.add(light);
+                }
+            }
+        }
+
+        function buildTheaterCeilingLights(S) {
+            const fixtureMat = new THREE.MeshBasicMaterial({ color: 0x1a0a0a });
+            const spotPositions = [
+                [-12, -18], [12, -18],
+                [-12, -10], [12, -10],
+                [-12, -2], [12, -2]
+            ];
+            spotPositions.forEach(p => {
+                const fixture = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.5, 0.4, 0.3, 12),
+                    fixtureMat
+                );
+                fixture.position.set(p[0], THEATER_CEIL_H - 0.2, p[1]);
+                S.add(fixture);
+
+                const spot = new THREE.PointLight(0xffaa66, 0.35, 18);
+                spot.position.set(p[0], THEATER_CEIL_H - 0.5, p[1]);
+                S.add(spot);
+            });
+        }
+
+        function buildExit(S) {
+            const exitFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(4.4, 4.4, 0.3),
+                new THREE.MeshLambertMaterial({ color: 0x2a1a0a })
+            );
+            exitFrame.position.set(0, 2.2, LOBBY_Z_MAX - 0.4);
+            S.add(exitFrame);
+
+            const door = new THREE.Mesh(
+                new THREE.BoxGeometry(4, 4, 0.2),
+                new THREE.MeshLambertMaterial({ color: 0x5a3a1c })
+            );
+            door.position.set(0, 2, LOBBY_Z_MAX - 0.6);
+            door.castShadow = true;
+            S.add(door);
+
+            const handle = new THREE.Mesh(
+                new THREE.SphereGeometry(0.12, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0xffd966 })
+            );
+            handle.position.set(1.5, 2, LOBBY_Z_MAX - 0.7);
+            S.add(handle);
+
+            const exitSignTex = Engine.createTextTexture('EXIT', 0x00cc44, '#ffffff');
+            const exitSign = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 0.6),
+                new THREE.MeshBasicMaterial({ map: exitSignTex })
+            );
+            exitSign.position.set(0, 4.7, LOBBY_Z_MAX - 0.7);
+            exitSign.rotation.y = Math.PI;
+            S.add(exitSign);
+
+            Engine.setExitTarget('../index.html', 'CINEMA');
+            Engine.addInteractable(door, { isExit: true });
+        }
+
+        function sitOnSeat(info) {
+            if (sitting) { flashPrompt('Already sitting.'); return; }
+            sitting = true;
+            sitSeat = info;
+
+            const p = Engine.controls.getObject();
+            sitReturnPos = { x: p.position.x, y: p.position.y, z: p.position.z };
+            p.position.set(info.x, info.y, info.z);
+
+            const hint = document.getElementById('sit-hint');
+            if (hint) hint.style.display = 'block';
+
+            if (!theaterActive) startFeature();
+        }
+
+        function standUp() {
+            if (!sitting) return;
+            sitting = false;
+            const hint = document.getElementById('sit-hint');
+            if (hint) hint.style.display = 'none';
+
+            const p = Engine.controls.getObject();
+            if (sitReturnPos) p.position.set(sitReturnPos.x, 1.7, sitReturnPos.z);
+            sitReturnPos = null;
+            sitSeat = null;
+        }
+
+        function pickFeatureVideo(vids) {
+            const feature = vids.find(v => /feature\s*sus/i.test(v.src));
+            if (feature) return feature;
+            return vids[0];
+        }
+
+        function startFeature() {
+            if (theaterActive) return;
+            theaterActive = true;
+
+            const vids = videoData.videos || [];
+            if (vids.length === 0) {
+                flashPrompt('No videos available.');
+                theaterActive = false;
+                return;
+            }
+
+            const feature = pickFeatureVideo(vids);
+            const extras = [...vids].filter(v => v.src !== feature.src);
+            fisherYates(extras);
+
+            const adsToPlay = 1 + Math.floor(Math.random() * 3);
+            queue = [];
+            for (let i = 0; i < adsToPlay && adList.length; i++) {
+                const ad = adList[Math.floor(Math.random() * adList.length)];
+                queue.push({ src: AD_SRC + ad, title: 'Advertisement', kind: 'ad' });
+            }
+            queue.push({
+                src: VIDEO_SRC + feature.src,
+                title: feature.src.replace(/\.mp4$/i, ''),
+                kind: 'feature'
+            });
+
+            extras.forEach(v => {
+                queue.push({
+                    src: VIDEO_SRC + v.src,
+                    title: v.src.replace(/\.mp4$/i, ''),
+                    kind: 'extra'
+                });
+            });
+
+            queueIdx = 0;
+            featureStartTime = 0;
+            playNext();
+        }
+
+        function playNext() {
+            if (queueIdx >= queue.length) {
+                endFeature();
+                return;
+            }
+
+            const item = queue[queueIdx];
+
+            if (item.kind === 'feature' && featureStartTime === 0) {
+                featureStartTime = performance.now();
+            }
+
+            if (item.kind === 'extra' && featureStartTime > 0) {
+                const elapsed = (performance.now() - featureStartTime) / 1000;
+                if (elapsed >= 600) {
+                    endFeature();
+                    return;
+                }
+            }
+
+            setScreenStatus(item.title);
+
+            if (!activeVideoEl) {
+                activeVideoEl = document.createElement('video');
+                activeVideoEl.crossOrigin = 'anonymous';
+                activeVideoEl.playsInline = true;
+                activeVideoEl.volume = 0.6;
+                activeVideoEl.style.display = 'none';
+                document.body.appendChild(activeVideoEl);
+            }
+            activeVideoEl.pause();
+            activeVideoEl.removeAttribute('src');
+            activeVideoEl.load();
+            activeVideoEl.src = item.src;
+
+            const thisSrc = item.src;
+
+            activeVideoEl.onended = () => {
+                if (activeVideoEl.src.endsWith(thisSrc) || activeVideoEl.src === thisSrc) {
+                    queueIdx++;
+                    playNext();
+                }
+            };
+            activeVideoEl.onerror = () => {
+                queueIdx++;
+                playNext();
+            };
+
+            activeVideoEl.play().catch(() => {
+                activeVideoEl.muted = true;
+                activeVideoEl.play().catch(() => { queueIdx++; playNext(); });
+            });
+
+            if (!activeCanvasTex) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1280;
+                canvas.height = 720;
+                activeCanvasTex = new THREE.CanvasTexture(canvas);
+                Engine.cinemaScreenMat.map = activeCanvasTex;
+                Engine.cinemaScreenMat.needsUpdate = true;
+                Engine.cinemaScreenMat.color.setHex(0xffffff);
+                activeCanvasTex.userData = {
+                    canvas: canvas,
+                    ctx: canvas.getContext('2d')
+                };
+            }
+
+            if (!drawLoopRunning) {
+                drawLoopRunning = true;
+                requestAnimationFrame(drawFrame);
+            }
+        }
+
+        function drawFrame() {
+            if (!theaterActive || !activeCanvasTex) {
+                drawLoopRunning = false;
+                return;
+            }
+            const ctx = activeCanvasTex.userData.ctx;
+            const canvas = activeCanvasTex.userData.canvas;
+
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (activeVideoEl && activeVideoEl.readyState >= 2) {
+                const vw = activeVideoEl.videoWidth || 1280;
+                const vh = activeVideoEl.videoHeight || 720;
+                const aspect = vw / vh;
+                const canvasAspect = canvas.width / canvas.height;
+
+                let dw, dh, dx, dy;
+                if (aspect > canvasAspect) {
+                    dw = canvas.width;
+                    dh = canvas.width / aspect;
+                    dx = 0;
+                    dy = (canvas.height - dh) / 2;
+                } else {
+                    dh = canvas.height;
+                    dw = canvas.height * aspect;
+                    dx = (canvas.width - dw) / 2;
+                    dy = 0;
+                }
+                try { ctx.drawImage(activeVideoEl, dx, dy, dw, dh); } catch (e) {}
+            }
+
+            activeCanvasTex.needsUpdate = true;
+            requestAnimationFrame(drawFrame);
+        }
+
+        function endFeature() {
+            theaterActive = false;
+            hideScreenStatus();
+            if (activeVideoEl) {
+                activeVideoEl.pause();
+                activeVideoEl.removeAttribute('src');
+            }
+            if (Engine.cinemaScreenMat) {
+                Engine.cinemaScreenMat.map = null;
+                Engine.cinemaScreenMat.color.setHex(0x0a0a0a);
+                Engine.cinemaScreenMat.needsUpdate = true;
+            }
+            if (activeCanvasTex) {
+                activeCanvasTex.dispose();
+                activeCanvasTex = null;
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (sitting && (e.code === 'KeyE' || e.code === 'Escape' || e.code === 'KeyX')) {
+                standUp();
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+
+        function spawnNPCs() {
+            const count = 8 + Math.floor(Math.random() * (CINEMA_SPRITES.length - 8 + 1));
+            const picks = [...CINEMA_SPRITES].sort(() => Math.random() - 0.5).slice(0, count);
+
+            const lobbySlots = LOBBY_SPOTS.map(s => ({ kind: 'lobby', x: s[0], z: s[1] }));
+            const seatSlots = NPC_SEAT_SLOTS.map(s => ({ kind: 'seat', x: s.x, z: s.z, y: s.y, eyeY: s.eyeY }));
+            fisherYates(lobbySlots);
+            fisherYates(seatSlots);
+
+            const lobbyCount = Math.min(2, lobbySlots.length);
+            const slotList = [
+                ...lobbySlots.slice(0, lobbyCount),
+                ...seatSlots.slice(0, picks.length - lobbyCount)
+            ];
+
+            const positions = slotList.map(s => [s.x, s.z]);
+
+            Engine.loadNPCs(picks.slice(0, slotList.length), '../img/', positions);
+
+            setTimeout(() => {
+                Engine.pinnedNPCs = [];
+                Engine.npcs.forEach((npc, idx) => {
+                    const slot = slotList[idx];
+                    if (!slot) return;
+                    npc.userData.stationary = true;
+                    npc.userData.speedX = 0;
+                    npc.userData.speedZ = 0;
+                    npc.userData.changeTimer = 999999;
+
+                    if (slot.kind === 'seat') {
+                        npc.userData.pinnedSeat = {
+                            kind: 'seat',
+                            x: slot.x,
+                            z: slot.z,
+                            y: slot.eyeY
+                        };
+                    } else {
+                        npc.userData.pinnedSeat = {
+                            kind: 'lobby',
+                            x: slot.x,
+                            z: slot.z,
+                            y: 0
+                        };
+                    }
+                    Engine.pinnedNPCs.push(npc);
+                });
+            }, 500);
+        }
+
+        (async function main() {
+            Engine.init({
+                bgColor: 0x0d0505,
+                fog: true,
+                fogNear: 60,
+                fogFar: 120,
+                startX: 0,
+                startZ: 24,
+                bounds: {
+                    minX: -ROOM_HALF_W + 1,
+                    maxX: ROOM_HALF_W - 1,
+                    minZ: THEATER_Z_MIN + 1,
+                    maxZ: LOBBY_Z_MAX - 1
+                }
+            });
+
+            const origUpdate = Engine.updatePlayer.bind(Engine);
+            Engine.updatePlayer = function(delta) {
+                if (sitting && sitSeat) {
+                    const p = this.controls.getObject();
+                    p.position.x = sitSeat.x;
+                    p.position.y = sitSeat.y;
+                    p.position.z = sitSeat.z;
+                    return;
+                }
+                origUpdate(delta);
+
+                if (Engine.pinnedNPCs) {
+                    for (const npc of Engine.pinnedNPCs) {
+                        const pin = npc.userData.pinnedSeat;
+                        if (!pin) continue;
+                        npc.position.x = pin.x;
+                        npc.position.z = pin.z + (pin.kind === 'seat' ? 0.1 : 0);
+                        npc.position.y = pin.kind === 'seat' ? pin.y : 1.6;
+                    }
+                }
+            };
+
+            Engine.pinnedNPCs = [];
+
+            await loadData();
+            buildCinema(Engine.scene);
+            spawnNPCs();
+            Engine.start();
+        })();
+    </script>
+</body>
+</html>

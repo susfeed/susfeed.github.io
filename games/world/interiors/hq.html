@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SusFeed HQ - Interior</title>
+    <link rel="icon" href="../../../img/amogus.webp">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #0a0e14; color: white; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; z-index: 100; transition: all 0.15s ease; box-shadow: 0 0 4px rgba(0,0,0,0.5); }
+        #crosshair.active { background: rgba(255,230,0,0.95); transform: translate(-50%,-50%) scale(1.6); box-shadow: 0 0 10px rgba(255,215,0,0.9); }
+        #hud { position: absolute; top: 16px; left: 16px; z-index: 100; pointer-events: none; display: flex; flex-direction: column; gap: 8px; }
+        #location { font-size: 16px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-shadow: 1px 1px 3px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 6px 14px; border-radius: 4px; border-left: 3px solid #00ccff; align-self: flex-start; backdrop-filter: blur(4px); }
+        #controls-hint { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: rgba(255,255,255,0.65); text-shadow: 1px 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.5px; background: rgba(0,0,0,0.35); padding: 8px 12px; border-radius: 4px; backdrop-filter: blur(4px); align-self: flex-start; }
+        #controls-hint b { color: #00ccff; font-weight: 700; }
+        #prompt { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); color: #00ccff; text-shadow: 2px 2px 4px black; pointer-events: none; z-index: 100; font-size: 15px; font-weight: 600; letter-spacing: 1.5px; display: none; background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 4px; border: 1px solid rgba(0,204,255,0.4); backdrop-filter: blur(4px); animation: pulse 1.8s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); display: flex; justify-content: center; align-items: center; z-index: 200; color: white; cursor: pointer; flex-direction: column; gap: 10px; transition: opacity 0.3s; }
+        #overlay h1 { color: #00ccff; text-shadow: 0 0 20px rgba(0,204,255,0.6); font-size: 52px; letter-spacing: 6px; font-weight: 700; }
+        #overlay p { font-size: 16px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div id="crosshair"></div>
+    <div id="hud">
+        <div id="location">SusFeed HQ — Executive Floor</div>
+        <div id="controls-hint"><span><b>WASD</b> Move</span><span><b>Shift</b> Sprint</span><span><b>Space</b> Jump</span><span><b>Click</b> Interact</span></div>
+    </div>
+    <div id="prompt">Press E or Click to Exit to World</div>
+    <div id="overlay"><h1>SUSFEED HQ</h1><p>Click to Enter</p></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <script src="../engine.js"></script>
+
+    <script>
+        function buildHQ() {
+            const S = Engine.scene;
+
+            const floorMat = new THREE.MeshLambertMaterial({ color: 0x1a1f28 });
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            S.add(floor);
+
+            const carpetMat = new THREE.MeshLambertMaterial({ color: 0x22303a });
+            const carpet = new THREE.Mesh(new THREE.PlaneGeometry(40, 50), carpetMat);
+            carpet.rotation.x = -Math.PI / 2;
+            carpet.position.set(0, 0.01, 0);
+            carpet.receiveShadow = true;
+            S.add(carpet);
+
+            const stripeMat = new THREE.MeshBasicMaterial({ color: 0x00ccff });
+            [-8, 8].forEach(x => {
+                const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 50), stripeMat);
+                stripe.rotation.x = -Math.PI / 2;
+                stripe.position.set(x, 0.02, 0);
+                S.add(stripe);
+            });
+
+            const ceilMat = new THREE.MeshLambertMaterial({ color: 0x0d1218 });
+            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), ceilMat);
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.y = 6;
+            S.add(ceiling);
+
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x1e2a35 });
+            const addWall = (x, y, z, w, h, d) => {
+                const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+                wall.position.set(x, y, z);
+                wall.receiveShadow = true;
+                S.add(wall);
+            };
+            addWall(0, 3, -25, 60, 6, 0.5);
+            addWall(-20, 3, 0, 0.5, 6, 50);
+            addWall(20, 3, 0, 0.5, 6, 50);
+            addWall(-11, 3, 25, 18, 6, 0.5);
+            addWall(11, 3, 25, 18, 6, 0.5);
+
+            const glassMat = new THREE.MeshBasicMaterial({ color: 0x66ccff, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
+            const backGlass = new THREE.Mesh(new THREE.PlaneGeometry(36, 4.5), glassMat);
+            backGlass.position.set(0, 3.2, -24.8);
+            S.add(backGlass);
+
+            const frameMat = new THREE.MeshLambertMaterial({ color: 0x2a3a48 });
+            for (let i = -5; i <= 5; i++) {
+                const frame = new THREE.Mesh(new THREE.BoxGeometry(0.15, 4.5, 0.15), frameMat);
+                frame.position.set(i * 3.3, 3.2, -24.75);
+                S.add(frame);
+            }
+
+            const skylineMat = new THREE.MeshBasicMaterial({ color: 0x1a2a3a });
+            for (let i = 0; i < 20; i++) {
+                const h = 2 + Math.random() * 6;
+                const w = 1 + Math.random() * 1.5;
+                const building = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.3), skylineMat);
+                building.position.set(-18 + i * 2, h / 2, -30);
+                S.add(building);
+            }
+
+            const deskMat = new THREE.MeshLambertMaterial({ color: 0x2a3a48 });
+            const desk = new THREE.Mesh(new THREE.BoxGeometry(8, 1.1, 2.5), deskMat);
+            desk.position.set(0, 0.55, 15);
+            desk.castShadow = true;
+            desk.receiveShadow = true;
+            S.add(desk);
+            Engine.addCollider(0, 15, 4.5);
+
+            const topMat = new THREE.MeshLambertMaterial({ color: 0x1a2530 });
+            const top = new THREE.Mesh(new THREE.BoxGeometry(8.4, 0.1, 2.7), topMat);
+            top.position.set(0, 1.1, 15);
+            S.add(top);
+
+            const logoTex = Engine.createTextTexture('SUSFEED', 0x00ccff, '#0a1018');
+            const logo = new THREE.Mesh(new THREE.PlaneGeometry(4, 0.8), new THREE.MeshBasicMaterial({ map: logoTex }));
+            logo.position.set(0, 1.8, 16.3);
+            S.add(logo);
+
+            const monitorMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
+            const screenMat = new THREE.MeshBasicMaterial({ color: 0x00ccff });
+            [-2, 2].forEach(x => {
+                const monitor = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.1), monitorMat);
+                monitor.position.set(x, 1.6, 15);
+                S.add(monitor);
+                const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.05, 0.65), screenMat);
+                screen.position.set(x, 1.6, 15.06);
+                S.add(screen);
+            });
+
+            const loungeMat = new THREE.MeshLambertMaterial({ color: 0x1a2832 });
+            const cushionMat = new THREE.MeshLambertMaterial({ color: 0x2a4050 });
+            [-14, 14].forEach(x => {
+                const couch = new THREE.Mesh(new THREE.BoxGeometry(6, 0.7, 2.5), loungeMat);
+                couch.position.set(x, 0.35, -8);
+                couch.castShadow = true;
+                S.add(couch);
+                Engine.addCollider(x, -8, 3.5);
+
+                const cushion = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.2, 2.3), cushionMat);
+                cushion.position.set(x, 0.75, -8);
+                S.add(cushion);
+
+                const backrest = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 0.3), loungeMat);
+                backrest.position.set(x, 1.3, -9.1);
+                S.add(backrest);
+            });
+
+            const tableMat = new THREE.MeshLambertMaterial({ color: 0x0d1218 });
+            const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.1, 16), tableMat);
+            tableTop.position.set(0, 0.8, -8);
+            S.add(tableTop);
+            Engine.addCollider(0, -8, 1.8);
+
+            const tableLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8, 8), tableMat);
+            tableLeg.position.set(0, 0.4, -8);
+            S.add(tableLeg);
+
+            const plantMat = new THREE.MeshLambertMaterial({ color: 0x2e5e32 });
+            const potMat = new THREE.MeshLambertMaterial({ color: 0x444444 });
+            [-17, 17].forEach(x => {
+                const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 0.8, 12), potMat);
+                pot.position.set(x, 0.4, -20);
+                S.add(pot);
+                const plant = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 6), plantMat);
+                plant.position.set(x, 1.4, -20);
+                plant.castShadow = true;
+                S.add(plant);
+            });
+
+            const officeWallMat = new THREE.MeshLambertMaterial({ color: 0x0d1218 });
+            const officeGlassMat = new THREE.MeshBasicMaterial({ color: 0x66ccff, transparent: true, opacity: 0.12, side: THREE.DoubleSide });
+
+            [-13, 13].forEach((officeX, idx) => {
+                const backWall = new THREE.Mesh(new THREE.BoxGeometry(0.3, 6, 8), officeWallMat);
+                backWall.position.set(officeX + (idx === 0 ? -3.5 : 3.5), 3, -20);
+                S.add(backWall);
+
+                const sideWall1 = new THREE.Mesh(new THREE.BoxGeometry(7, 6, 0.3), officeWallMat);
+                sideWall1.position.set(officeX, 3, -24);
+                S.add(sideWall1);
+
+                const sideWall2 = new THREE.Mesh(new THREE.BoxGeometry(7, 6, 0.3), officeWallMat);
+                sideWall2.position.set(officeX, 3, -16);
+                S.add(sideWall2);
+
+                const glassFront = new THREE.Mesh(new THREE.PlaneGeometry(7, 5), officeGlassMat);
+                glassFront.position.set(officeX, 3, -15.85);
+                S.add(glassFront);
+
+                const oDeskMat = new THREE.MeshLambertMaterial({ color: 0x1a2530 });
+                const oDesk = new THREE.Mesh(new THREE.BoxGeometry(4, 0.1, 2), oDeskMat);
+                oDesk.position.set(officeX, 0.95, -19);
+                S.add(oDesk);
+                Engine.addCollider(officeX, -19, 2.5);
+
+                const deskBase = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.9, 1.8), oDeskMat);
+                deskBase.position.set(officeX, 0.45, -19);
+                S.add(deskBase);
+
+                const chairMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
+                const chair = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.7), chairMat);
+                chair.position.set(officeX, 0.6, -20);
+                S.add(chair);
+
+                const nameTex = Engine.createTextTexture(idx === 0 ? 'CAMERON' : 'PHILLIP', 0x00ccff, '#0a1018');
+                const namePlate = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 0.5), new THREE.MeshBasicMaterial({ map: nameTex }));
+                namePlate.position.set(officeX, 3.5, -15.7);
+                S.add(namePlate);
+            });
+
+            const doorMat = new THREE.MeshLambertMaterial({ color: 0x3a4a58 });
+            const eFrameMat = new THREE.MeshLambertMaterial({ color: 0x1a2530 });
+            const eFrame = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 0.3), eFrameMat);
+            eFrame.position.set(0, 2, 24.7);
+            S.add(eFrame);
+
+            [-0.9, 0.9].forEach(x => {
+                const door = new THREE.Mesh(new THREE.BoxGeometry(1.7, 3.6, 0.15), doorMat);
+                door.position.set(x, 1.8, 24.55);
+                S.add(door);
+            });
+
+            const panelMat = new THREE.MeshBasicMaterial({ color: 0x00ccff });
+            const panel = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.3, 0.05), panelMat);
+            panel.position.set(2.2, 1.5, 24.5);
+            S.add(panel);
+
+            const signTex = Engine.createTextTexture('EXIT', 0x00ccff, '#0a1018');
+            const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.4), new THREE.MeshBasicMaterial({ map: signTex }));
+            sign.position.set(0, 4.2, 24.5);
+            S.add(sign);
+
+            const exitDoor = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 0.3), new THREE.MeshBasicMaterial({ visible: false }));
+            exitDoor.position.set(0, 2, 24.5);
+            S.add(exitDoor);
+            Engine.setExitTarget('../index.html', 'SUSFEED HQ');
+            Engine.addInteractable(exitDoor, { isExit: true });
+        }
+
+        Engine.init({
+            bgColor: 0x0a0e14,
+            fog: true,
+            fogNear: 25,
+            fogFar: 80,
+            startX: 0,
+            startZ: 22,
+            bounds: { minX: -19.5, maxX: 19.5, minZ: -24.5, maxZ: 24.5 }
+        });
+
+        buildHQ();
+
+        Engine.loadNPCs(
+            ['cam.png', 'phil.png', 'neil.png', 'smeff.png', 'olivia.png', 'andrew.png', 'johnsusfeed.png'],
+            '../img/',
+            [[-13, -19], [13, -19], [-5, 5], [5, -2], [-8, 10], [8, 8], [0, 0]]
+        );
+
+        Engine.start();
+    </script>
+</body>
+</html>
