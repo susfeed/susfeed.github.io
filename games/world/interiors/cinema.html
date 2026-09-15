@@ -98,6 +98,7 @@
         let activeCanvasTex = null;
         let drawLoopRunning = false;
         let featureStartTime = 0;
+        let playToken = 0;
 
         let sitting = false;
         let sitSeat = null;
@@ -997,27 +998,37 @@
                 activeVideoEl.style.display = 'none';
                 document.body.appendChild(activeVideoEl);
             }
+
+            playToken++;
+            const myToken = playToken;
+
+            activeVideoEl.onended = null;
+            activeVideoEl.onerror = null;
             activeVideoEl.pause();
             activeVideoEl.removeAttribute('src');
             activeVideoEl.load();
-            activeVideoEl.src = item.src;
-
-            const thisSrc = item.src;
 
             activeVideoEl.onended = () => {
-                if (activeVideoEl.src.endsWith(thisSrc) || activeVideoEl.src === thisSrc) {
-                    queueIdx++;
-                    playNext();
-                }
-            };
-            activeVideoEl.onerror = () => {
+                if (myToken !== playToken) return;
                 queueIdx++;
                 playNext();
             };
 
+            activeVideoEl.onerror = () => {
+                if (myToken !== playToken) return;
+                queueIdx++;
+                playNext();
+            };
+
+            activeVideoEl.src = item.src;
+
             activeVideoEl.play().catch(() => {
                 activeVideoEl.muted = true;
-                activeVideoEl.play().catch(() => { queueIdx++; playNext(); });
+                activeVideoEl.play().catch(() => {
+                    if (myToken !== playToken) return;
+                    queueIdx++;
+                    playNext();
+                });
             });
 
             if (!activeCanvasTex) {
@@ -1078,8 +1089,11 @@
 
         function endFeature() {
             theaterActive = false;
+            playToken++;
             hideScreenStatus();
             if (activeVideoEl) {
+                activeVideoEl.onended = null;
+                activeVideoEl.onerror = null;
                 activeVideoEl.pause();
                 activeVideoEl.removeAttribute('src');
             }
@@ -1092,6 +1106,7 @@
                 activeCanvasTex.dispose();
                 activeCanvasTex = null;
             }
+            drawLoopRunning = false;
         }
 
         document.addEventListener('keydown', function(e) {
@@ -1123,6 +1138,7 @@
 
             setTimeout(() => {
                 Engine.pinnedNPCs = [];
+                const toRemove = [];
                 Engine.npcs.forEach((npc, idx) => {
                     const slot = slotList[idx];
                     if (!slot) return;
@@ -1147,6 +1163,11 @@
                         };
                     }
                     Engine.pinnedNPCs.push(npc);
+                    toRemove.push(npc);
+                });
+                toRemove.forEach(npc => {
+                    const i = Engine.npcs.indexOf(npc);
+                    if (i >= 0) Engine.npcs.splice(i, 1);
                 });
             }, 500);
         }
@@ -1174,9 +1195,9 @@
                     p.position.x = sitSeat.x;
                     p.position.y = sitSeat.y;
                     p.position.z = sitSeat.z;
-                    return;
+                } else {
+                    origUpdate(delta);
                 }
-                origUpdate(delta);
 
                 if (Engine.pinnedNPCs) {
                     for (const npc of Engine.pinnedNPCs) {
