@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS 2</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: manipulation;
+      overflow: hidden;
+      border: 3px solid #1a1a2e;
+      border-radius: 12px;
+      box-shadow:
+        0 0 60px rgba(80, 120, 255, 0.2),
+        0 0 120px rgba(255, 60, 120, 0.08),
+        inset 0 0 80px rgba(0, 0, 0, 0.9);
+      background: #050508;
+    }
+
+    .game-container::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1) 0px,
+        rgba(0, 0, 0, 0.1) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      z-index: 100;
+      mix-blend-mode: overlay;
+    }
+
+    .game-container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.7) 100%);
+      z-index: 99;
+    }
+
+    .vignette-pulse {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 98;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(80, 120, 255, 0.06) 100%);
+      animation: vignettePulse 4s ease-in-out infinite;
+    }
+
+    @keyframes vignettePulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.9; }
+    }
+
+    #startScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(160deg, #050508 0%, #0a0a18 30%, #10102a 60%, #0a0a18 100%);
+      color: #fff;
+      z-index: 50;
+      padding: 10px 16px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    #startScreen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 25%, rgba(100, 140, 255, 0.1) 0%, transparent 45%),
+        radial-gradient(circle at 85% 75%, rgba(255, 60, 120, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.03) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .particle-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(120, 160, 255, 0.4);
+      border-radius: 50%;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(100%) scale(0); opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { transform: translateY(-100%) scale(1.5); opacity: 0; }
+    }
+
+    #startScreen h1 {
+      font-family: 'Segoe UI', 'Arial Black', sans-serif;
+      font-size: clamp(1.4rem, 5vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin: 0 0 0.2rem 0;
+      background: linear-gradient(180deg, #ffffff 0%, #a0b4ff 45%, #5060cc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 50px rgba(100, 140, 255, 0.5);
+      position: relative;
+      z-index: 2;
+      line-height: 1.1;
+    }
+
+    .subtitle-badge {
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.5rem, 1.2vw, 0.75rem);
+      color: #8a9bff;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+      position: relative;
+      z-index: 2;
+      opacity: 0.9;
+    }
+
+    .edition-tag {
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.45rem, 1vw, 0.65rem);
+      color: #ffd700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 0.6rem;
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 215, 0, 0.06);
+      animation: goldGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes goldGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.15); }
+      50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.35); }
+    }
+
+    .wallet-display {
+      position: relative;
+      z-index: 2;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.55rem, 1.1vw, 0.75rem);
+      color: #a0ffa0;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 1px solid rgba(100, 255, 100, 0.3);
+      padding: 4px 14px;
+      border-radius: 6px;
+      margin-bottom: 0.6rem;
+      background: rgba(100, 255, 100, 0.05);
+    }
+
+    .dialogue-box {
+      position: relative;
+      z-index: 2;
+      max-width: 480px;
+      margin-bottom: 0.8rem;
+      padding: 8px 16px;
+      background: rgba(8, 12, 25, 0.85);
+      border: 1px solid rgba(100, 140, 255, 0.3);
+      border-radius: 8px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.6rem, 1.2vw, 0.8rem);
+      color: #c0ccff;
+      font-style: italic;
+      line-height: 1.5;
+      box-shadow: inset 0 0 30px rgba(80, 120, 255, 0.05);
+    }
+
+    .dialogue-box .speaker {
+      color: #6a8aff;
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    .start-buttons {
+      display: flex;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #startBtn {
+      padding: 12px 36px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.8rem, 1.6vw, 1rem);
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(180deg, #3a5aff 0%, #2030bb 100%);
+      box-shadow: 0 0 30px rgba(58, 90, 255, 0.4), 0 4px 15px rgba(0, 0, 0, 0.5);
+      transition: transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #startBtn::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    #startBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 60px rgba(58, 90, 255, 0.6), 0 6px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    #startBtn:active {
+      transform: scale(0.98);
+    }
+
+    .preorder-note {
+      position: relative;
+      z-index: 2;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.4rem, 0.8vw, 0.55rem);
+      color: #4a5a7a;
+      margin-top: 0.6rem;
+      letter-spacing: 1px;
+      max-width: 460px;
+      line-height: 1.4;
+    }
+
+    #doorMask {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #doorImg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+      filter: saturate(0.7) contrast(1.3) brightness(0.8);
+    }
+
+    #manImg {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      width: 19%;
+      transform: translateX(-250%);
+      opacity: 0;
+      transition: transform 3s ease, opacity 0.6s ease;
+      z-index: 5;
+      display: none;
+      filter: drop-shadow(0 0 25px rgba(100, 140, 255, 0.6));
+    }
+
+    #flash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 20;
+    }
+
+    .shop-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      font-family: 'Segoe UI', sans-serif;
+      padding: 12px;
+    }
+
+    .shop-overlay.active {
+      display: flex;
+    }
+
+    .shop-panel {
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(160deg, #0e1225 0%, #161a35 50%, #0e1225 100%);
+      border: 2px solid rgba(100, 140, 255, 0.4);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 0 60px rgba(80, 120, 255, 0.3), 0 20px 50px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shop-panel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #3a5aff, #ffd700, #ff3a5a, #3a5aff);
+      background-size: 300% 100%;
+      animation: gradientShift 3s linear infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 300% 0%; }
+    }
+
+    .shop-header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .shop-header h2 {
+      margin: 0 0 4px 0;
+      font-size: clamp(0.9rem, 2.2vw, 1.3rem);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #ffffff, #a0b4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .shop-header .shop-sub {
+      font-size: clamp(0.5rem, 0.9vw, 0.65rem);
+      color: #6a7aaa;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .shop-balance {
+      text-align: center;
+      font-size: clamp(0.65rem, 1.2vw, 0.85rem);
+      color: #a0ffa0;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding: 6px;
+      background: rgba(100, 255, 100, 0.05);
+      border: 1px solid rgba(100, 255, 100, 0.2);
+      border-radius: 6px;
+      word-break: break-all;
+    }
+
+    .shop-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .shop-items::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .shop-items::-webkit-scrollbar-thumb {
+      background: rgba(100, 140, 255, 0.4);
+      border-radius: 4px;
+    }
+
+    .shop-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(100, 140, 255, 0.15);
+      border-radius: 8px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .shop-item:hover {
+      border-color: rgba(100, 140, 255, 0.4);
+      background: rgba(100, 140, 255, 0.06);
+    }
+
+    .shop-item.purchased {
+      opacity: 0.45;
+      border-color: rgba(100, 255, 100, 0.3);
+    }
+
+    .shop-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .shop-item-name {
+      font-size: clamp(0.55rem, 1.1vw, 0.75rem);
+      font-weight: 700;
+      color: #d0d8ff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .shop-item-desc {
+      font-size: clamp(0.45rem, 0.8vw, 0.55rem);
+      color: #7a8aaa;
+      line-height: 1.3;
+    }
+
+    .shop-item-price {
+      font-size: clamp(0.6rem, 1.1vw, 0.8rem);
+      font-weight: 700;
+      color: #ffd700;
+      white-space: nowrap;
+      letter-spacing: 1px;
+    }
+
+    .shop-item-btn {
+      padding: 5px 10px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.5rem, 0.9vw, 0.6rem);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(180deg, #3a5aff, #2030bb);
+      box-shadow: 0 0 15px rgba(58, 90, 255, 0.3);
+      transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .shop-item-btn:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(58, 90, 255, 0.5);
+    }
+
+    .shop-item-btn:disabled {
+      background: #2a2a3a;
+      color: #5a5a7a;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .shop-item-btn.owned {
+      background: linear-gradient(180deg, #2a8a4a, #1a6a3a);
+      color: #a0ffa0;
+      cursor: default;
+    }
+
+    .shop-footer {
+      text-align: center;
+      margin-top: 10px;
+      font-size: clamp(0.4rem, 0.8vw, 0.55rem);
+      color: #4a5a7a;
+      letter-spacing: 1px;
+      line-height: 1.4;
+    }
+
+    .continue-btn {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.65rem, 1.2vw, 0.85rem);
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(180deg, #ff3a5a, #bb2030);
+      box-shadow: 0 0 30px rgba(255, 58, 90, 0.35);
+      transition: transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .continue-btn::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
+      animation: shimmer 2.5s infinite;
+    }
+
+    .continue-btn:hover:not(:disabled) {
+      transform: scale(1.02);
+      box-shadow: 0 0 50px rgba(255, 58, 90, 0.55);
+    }
+
+    .continue-btn:disabled {
+      background: #2a2a3a;
+      color: #5a5a7a;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .continue-btn:disabled::after {
+      animation: none;
+    }
+
+    .mtx-toast {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      z-index: 160;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: rgba(18, 22, 40, 0.95);
+      border: 1px solid rgba(100, 140, 255, 0.4);
+      border-radius: 10px;
+      color: #d0d8ff;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.55rem, 1vw, 0.75rem);
+      box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6), 0 0 40px rgba(80, 120, 255, 0.15);
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.4s, transform 0.4s;
+      pointer-events: none;
+      max-width: 300px;
+    }
+
+    .mtx-toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mtx-toast .gem-icon {
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+      flex-shrink: 0;
+      animation: gemSpin 2s linear infinite;
+    }
+
+    @keyframes gemSpin {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
+    }
+
+    .mtx-toast .btn-buy {
+      background: linear-gradient(180deg, #ffd700, #cc9900);
+      color: #1a1a1a;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: clamp(0.5rem, 0.9vw, 0.65rem);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+      pointer-events: auto;
+      transition: transform 0.15s;
+    }
+
+    .mtx-toast .btn-buy:hover {
+      transform: scale(1.05);
+    }
+
+    .hud-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 30;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.6rem, 1vw, 0.75rem);
+      color: rgba(180, 200, 255, 0.7);
+      pointer-events: none;
+    }
+
+    .hud-overlay .bar {
+      width: 120px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .hud-overlay .bar-fill {
+      height: 100%;
+      width: 78%;
+      background: linear-gradient(90deg, #3a5aff, #6a8aff);
+      border-radius: 3px;
+    }
+
+    .hud-overlay .bar-fill.hp {
+      width: 100%;
+      background: linear-gradient(90deg, #ff3a5a, #ff6a8a);
+    }
+
+    .hud-overlay .label {
+      font-size: 0.55rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    .hud-wallet {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 30;
+      display: none;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.55rem, 1vw, 0.7rem);
+      color: #a0ffa0;
+      letter-spacing: 1px;
+      background: rgba(10, 20, 15, 0.8);
+      border: 1px solid rgba(100, 255, 100, 0.25);
+      padding: 6px 12px;
+      border-radius: 6px;
+      pointer-events: none;
+      max-width: 260px;
+      word-break: break-all;
+      text-align: right;
+    }
+
+    .hud-wallet .gem-small {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    #credits {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(160deg, #050508 0%, #0e1225 50%, #050508 100%);
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      overflow: hidden;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: clamp(0.7rem, 1.2vw, 1.1rem);
+      z-index: 50;
+    }
+
+    #credits h1,
+    #credits h2 {
+      margin: 0.3rem 0;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #ffffff 0%, #a0b4ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #credits p {
+      margin: 0.2rem 0;
+      color: #a0b0dd;
+    }
+
+    #credits .season-pass {
+      margin-top: 1.2rem;
+      padding: 10px 24px;
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      border-radius: 6px;
+      background: rgba(255, 215, 0, 0.05);
+      color: #ffd700;
+      font-size: clamp(0.6rem, 1vw, 0.8rem);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: goldGlow 2s ease-in-out infinite;
+    }
+
+    .film-grain {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 97;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Second Person Shooter 2</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/09/16 6:17 PM CET</i></p>
+
+      <div class="game-container" style="height:500px; background:#000;" id="gameArea">
+
+        <div class="film-grain"></div>
+        <div class="vignette-pulse"></div>
+
+        <div class="hud-overlay" id="hud">
+          <div class="label">Armor</div>
+          <div class="bar"><div class="bar-fill"></div></div>
+          <div class="label">Health</div>
+          <div class="bar"><div class="bar-fill hp"></div></div>
+        </div>
+
+        <div class="hud-wallet" id="hudWallet">
+          <span class="gem-small"></span>Card: <span id="hudMoney">0000 0000 0000 0000</span>
+        </div>
+
+        <div id="startScreen">
+          <div class="particle-layer" id="particleLayer"></div>
+          <h1>Second Person Shooter 2</h1>
+          <div class="subtitle-badge">Reawakened Edition</div>
+          <div class="edition-tag">Ultimate Deluxe Nintendo PlayStation 720 Pre-Order Bonus</div>
+          <div class="wallet-display">Linked Card: <span id="startMoney">0000 0000 0000 0000</span></div>
+          <div class="dialogue-box">
+            <span class="speaker">Commander Vex:</span> "So... you're the legendary second-person operative. I've heard whispers. They say you cracked some skulls in the Mancala Heist. That's... deeply unsettling, soldier. But we need you. SusFeed tower is being infiltrated by a mysterious indiviudal. We need you to get in, find the perp, and extract. Be careful J, we don't know what's inside."
+          </div>
+          <div class="start-buttons">
+            <button id="startBtn">Start Experience</button>
+          </div>
+          <div class="preorder-note">By clicking Start, you agree to our Terms of Service, EULA, and mandatory arbitration clause. Requires persistent internet connection. Season Pass sold separately. All purchases are final and non-refundable.</div>
+        </div>
+
+        <div id="doorMask">
+          <img id="doorImg" src="img/door.jpg" />
+          <img id="manImg" src="img/man.png" />
+        </div>
+
+        <div id="flash"></div>
+
+        <div class="shop-overlay" id="shopOverlay">
+          <div class="shop-panel">
+            <div class="shop-header">
+              <h2>In-Game Store</h2>
+              <div class="shop-sub">Mandatory Content Unlocks</div>
+            </div>
+            <div class="shop-balance">Linked Card: <span id="shopMoney">0000 0000 0000 0000</span></div>
+            <div class="shop-items" id="shopItems"></div>
+            <button class="continue-btn" id="continueBtn" disabled>Continue</button>
+            <div class="shop-footer">
+              All purchases are final. Prices also final.<br>
+              A 2.9% + $0.30 processing fee applies to each transaction.
+            </div>
+          </div>
+        </div>
+
+        <div class="mtx-toast" id="mtxToast">
+          <div class="gem-icon"></div>
+          <span>Unlock the <strong>Legendary Door Skin</strong> for only $4.99!</span>
+          <button class="btn-buy" id="buyBtn">Buy</button>
+        </div>
+
+        <div id="credits">
+          <h1>Credits</h1>
+          <p>Director: Cameron Impostor</p>
+          <p>Developer: Cameron Impostor</p>
+          <p>Artist: Cameron Impostor</p>
+          <p>Sound Design: Cameron Impostor</p>
+          <p>Special Thanks: Cameron Impostor</p>
+          <h2>Thank You For Playing</h2>
+          <div class="season-pass">Season Pass 2 Available Now - $19.99</div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <div class="site-footer"></div>
+  </div>
+
+  <script>
+    const startScreen = document.getElementById("startScreen");
+    const startBtn = document.getElementById("startBtn");
+    const doorImg = document.getElementById("doorImg");
+    const manImg = document.getElementById("manImg");
+    const flash = document.getElementById("flash");
+    const credits = document.getElementById("credits");
+    const mtxToast = document.getElementById("mtxToast");
+    const buyBtn = document.getElementById("buyBtn");
+    const hud = document.getElementById("hud");
+    const hudWallet = document.getElementById("hudWallet");
+    const hudMoney = document.getElementById("hudMoney");
+    const startMoney = document.getElementById("startMoney");
+    const shopMoney = document.getElementById("shopMoney");
+    const shopOverlay = document.getElementById("shopOverlay");
+    const shopItemsEl = document.getElementById("shopItems");
+    const continueBtn = document.getElementById("continueBtn");
+    const particleLayer = document.getElementById("particleLayer");
+
+    const creditCardNumber = "4539 1488 0343 6467";
+    let currentShopIndex = 0;
+    let gameStarted = false;
+
+    const shopItems = [
+      {
+        id: "door_skin",
+        name: "Legendary Door Skin",
+        desc: "Makes the door look more door.",
+        price: 4.99,
+        purchased: false
+      },
+      {
+        id: "walk_anim",
+        name: "Walk Animation Pack",
+        desc: "Allows for walking to be animated in gorgeous like, 5 FPS.",
+        price: 9.99,
+        purchased: false
+      },
+      {
+        id: "lighting",
+        name: "Dynamic Lighting DLC",
+        desc: "Lets you see the game.",
+        price: 7.99,
+        purchased: false
+      },
+      {
+        id: "audio",
+        name: "Audio Experience Pack",
+        desc: "Gives you access to the finest 0 sounds.",
+        price: 5.99,
+        purchased: false
+      },
+      {
+        id: "credits_unlock",
+        name: "Credits Roll Unlock",
+        desc: "Unlocks credits.",
+        price: 2.99,
+        purchased: false
+      },
+      {
+        id: "ending",
+        name: "True Ending DLC",
+        desc: "Unlocks the real ending.",
+        price: 14.99,
+        purchased: false
+      }
+    ];
+
+    function updateMoney() {
+      startMoney.textContent = creditCardNumber;
+      shopMoney.textContent = creditCardNumber;
+      hudMoney.textContent = creditCardNumber;
+    }
+
+    function createParticles() {
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement("div");
+        p.className = "particle";
+        p.style.left = Math.random() * 100 + "%";
+        p.style.animationDuration = (4 + Math.random() * 6) + "s";
+        p.style.animationDelay = (Math.random() * 8) + "s";
+        p.style.width = (1 + Math.random() * 3) + "px";
+        p.style.height = p.style.width;
+        p.style.opacity = 0.2 + Math.random() * 0.5;
+        particleLayer.appendChild(p);
+      }
+    }
+
+    function renderShop() {
+      shopItemsEl.innerHTML = "";
+      shopItems.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "shop-item" + (item.purchased ? " purchased" : "");
+
+        const info = document.createElement("div");
+        info.className = "shop-item-info";
+
+        const name = document.createElement("div");
+        name.className = "shop-item-name";
+        name.textContent = item.name;
+
+        const desc = document.createElement("div");
+        desc.className = "shop-item-desc";
+        desc.textContent = item.desc;
+
+        info.appendChild(name);
+        info.appendChild(desc);
+
+        const price = document.createElement("div");
+        price.className = "shop-item-price";
+        price.textContent = "$" + item.price.toFixed(2);
+
+        const btn = document.createElement("button");
+        btn.className = "shop-item-btn";
+
+        if (item.purchased) {
+          btn.textContent = "Owned";
+          btn.classList.add("owned");
+          btn.disabled = true;
+        } else {
+          btn.textContent = "Buy";
+          btn.addEventListener("click", () => purchaseItem(index));
+        }
+
+        div.appendChild(info);
+        div.appendChild(price);
+        div.appendChild(btn);
+        shopItemsEl.appendChild(div);
+      });
+
+      const allPurchased = shopItems.every(i => i.purchased);
+      continueBtn.disabled = !allPurchased;
+
+      if (allPurchased) {
+        continueBtn.textContent = "Continue";
+      } else {
+        continueBtn.textContent = "Purchase All Items to Continue";
+      }
+    }
+
+    function purchaseItem(index) {
+      const item = shopItems[index];
+      if (item.purchased) return;
+
+      const processingFee = item.price * 0.029 + 0.30;
+      const total = item.price + processingFee;
+
+      item.purchased = true;
+      renderShop();
+
+      showToast("Purchased: " + item.name + " — $" + total.toFixed(2) + " charged to card ending " + creditCardNumber.slice(-4));
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("mtxToast");
+      toast.querySelector("span").innerHTML = message;
+      toast.querySelector(".btn-buy").style.display = "none";
+      toast.classList.add("visible");
+
+      setTimeout(() => {
+        toast.classList.remove("visible");
+        setTimeout(() => {
+          toast.querySelector(".btn-buy").style.display = "";
+        }, 400);
+      }, 2500);
+    }
+
+    function openShop() {
+      renderShop();
+      shopOverlay.classList.add("active");
+    }
+
+    function closeShop() {
+      shopOverlay.classList.remove("active");
+    }
+
+    function startGame() {
+      if (gameStarted) return;
+      gameStarted = true;
+
+      startScreen.style.display = "none";
+      doorImg.style.display = "block";
+      hud.style.display = "flex";
+      hudWallet.style.display = "block";
+
+      manImg.style.display = "block";
+      manImg.style.transform = "translateX(-250%)";
+      manImg.style.opacity = "0";
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          manImg.style.opacity = "1";
+          manImg.style.transform = "translateX(-50%)";
+        });
+      });
+
+      setTimeout(() => {
+        mtxToast.classList.add("visible");
+        mtxToast.querySelector("span").innerHTML = "Limited time offer! <strong>Legendary Door Skin</strong> only $4.99!";
+        mtxToast.querySelector(".btn-buy").style.display = "";
+      }, 1200);
+
+      setTimeout(() => {
+        mtxToast.classList.remove("visible");
+      }, 3200);
+
+      setTimeout(() => {
+        flash.style.opacity = 1;
+        setTimeout(() => flash.style.opacity = 0, 200);
+      }, 3000);
+
+      setTimeout(() => {
+        credits.style.display = "flex";
+      }, 3800);
+    }
+
+    startBtn.addEventListener("click", () => {
+      startScreen.style.display = "none";
+      openShop();
+    });
+
+    buyBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      mtxToast.classList.remove("visible");
+    });
+
+    continueBtn.addEventListener("click", () => {
+      closeShop();
+      startGame();
+    });
+
+    createParticles();
+    updateMoney();
+  </script>
+
+  <script src="../../contentheader.js"></script>
+</body>
+</html>
