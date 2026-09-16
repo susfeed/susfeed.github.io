@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reese's</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+</head>
+<body>
+
+  <div class="wrapper">
+
+<div class="site-header"></div>
+
+<main class="container article-content">
+  <h1 class="article-main-title"><u>Top 10 Reese's Products</u></h1>
+  <p class="article-date"><i>Article Published by Cameron at 2026/09/16 4:58 PM CET</i></p>
+
+  <p class="intro">We tried every Reese's product we could get our hands on, and these are the ones that stood out most.</p>
+
+  <h2 class="title">10. Reese's Pieces</h2>
+  <img src="img/0.jpg" alt="Reese's Pieces" class="image" />
+  <p>Small, crunchy, colorful, and delicious. Perfect for baking or crunching on during a movie.</p>
+
+  <h2 class="title">9. Reese's Bark</h2>
+  <img src="img/1.jpg" alt="Reese's Bark" class="image" />
+  <p>They added peanuts and chocolate to Reese's Pieces, of course we loved it.</p>
+
+  <h2 class="title">8. Reese's Lava Cups</h2>
+  <img src="img/2.jpg" alt="Reese's Lava Cups" class="image" />
+  <p>Everyone loves chocolate lava cake, and these fit the bill. The only thing that could make these better is buying more!</p>
+
+  <h2 class="title">7. Reese's Marshmallow Cups</h2>
+  <img src="img/3.jpg" alt="Reese's Marshmallow Cups" class="image" />
+  <p>Perfect for a smore.</p>
+
+  <h2 class="title">6. Reese's Dipped Pretzels</h2>
+  <img src="img/4.jpg" alt="Reese's Dipped Pretzels" class="image" />
+  <p>Creamy peanut butter, milk chocolate, and salty pretzels. What's not to love?</p>
+
+  <h2 class="title">5. Reese's Dipped Animal Crackers</h2>
+  <img src="img/5.jpg" alt="Reese's Dipped Animal Crackers" class="image" />
+  <p>Shockingly good. None of us expected it to be here, but they take a classic and make it better.</p>
+
+  <h2 class="title">4. Reese's Pumpkins</h2>
+  <img src="img/6.jpg" alt="Reese's Pumpkins" class="image" />
+  <p>An amazing take on the original chocolate and peanut butter combo.</p>
+
+  <h2 class="title">3. Reese's Sticks</h2>
+  <img src="img/7.png" alt="Reese's Sticks" class="image" />
+  <p>Crunchy, light, and sweet. The perfect wafer candy.</p>
+
+  <h2 class="title">2. Reese's Take 5</h2>
+  <img src="img/8.jpg" alt="Reese's Take 5" class="image" />
+  <p>Hard to beat. Like a Snicker's but better in every way and with a pretzel stuffed somewhere in there.</p>
+
+  <h2 class="title">1. Reese's Unwrapped Minis</h2>
+  <img src="img/9.jpg" alt="Reese's Unwrapped Minis" class="image" />
+  <p>The best candy ever made, just go try them.</p>
+
+</main>
+
+<div class="site-footer"></div>
+
+  </div>
+
+  <div id="bug-container"></div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    const bugContainer = document.getElementById("bug-container");
+    const bugs = [];
+    const MAX_BUGS = 5;
+
+    const random = (min, max) => Math.random() * (max - min) + min;
+
+    function createBug(x = random(0, window.innerWidth), y = random(0, window.innerHeight)) {
+      if (bugs.length >= MAX_BUGS) return;
+
+      const bug = document.createElement("img");
+      bug.src = "img/bug.png";
+      bug.alt = "";
+      bug.setAttribute("aria-hidden", "true");
+
+      Object.assign(bug.style, {
+        position: "fixed",
+        width: `${random(170, 240)}px`,
+        height: "auto",
+        left: `${x}px`,
+        top: `${y}px`,
+        zIndex: "99999",
+        pointerEvents: "none",
+        userSelect: "none",
+        transformOrigin: "center center",
+        transition: "transform 0.15s linear",
+        filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.5))"
+      });
+
+      bugContainer.appendChild(bug);
+
+      const data = {
+        element: bug,
+        x,
+        y,
+        vx: random(-2, 2),
+        vy: random(-2, 2),
+        targetX: random(0, window.innerWidth),
+        targetY: random(0, window.innerHeight),
+        angle: 0,
+        nextTarget: performance.now() + random(500, 2500),
+        nextDash: performance.now() + random(2500, 6000),
+        nextPause: performance.now() + random(3000, 7000),
+        nextScroll: performance.now() + random(5000, 10000),
+        nextFriend: performance.now() + random(12000, 20000),
+        pauseUntil: 0,
+        dashUntil: 0
+      };
+
+      bugs.push(data);
+    }
+
+    createBug(
+      random(100, window.innerWidth - 100),
+      random(100, window.innerHeight - 100)
+    );
+
+    function chooseTarget(bug) {
+      bug.targetX = random(60, window.innerWidth - 60);
+      bug.targetY = random(60, window.innerHeight - 60);
+      bug.nextTarget = performance.now() + random(1200, 3500);
+    }
+
+    function dash(bug) {
+      const angle = random(0, Math.PI * 2);
+      const speed = random(9, 15);
+
+      bug.vx = Math.cos(angle) * speed;
+      bug.vy = Math.sin(angle) * speed;
+      bug.dashUntil = performance.now() + random(350, 900);
+      bug.nextDash = performance.now() + random(3500, 8000);
+    }
+
+    function summonFriend(bug) {
+      if (bugs.length >= MAX_BUGS) return;
+
+      const side = Math.floor(random(0, 4));
+      let x;
+      let y;
+
+      if (side === 0) {
+        x = random(0, window.innerWidth);
+        y = -150;
+      } else if (side === 1) {
+        x = window.innerWidth + 150;
+        y = random(0, window.innerHeight);
+      } else if (side === 2) {
+        x = random(0, window.innerWidth);
+        y = window.innerHeight + 150;
+      } else {
+        x = -150;
+        y = random(0, window.innerHeight);
+      }
+
+      createBug(x, y);
+    }
+
+    function animate() {
+      const now = performance.now();
+
+      bugs.forEach(bug => {
+        if (now > bug.nextFriend && Math.random() < 0.025) {
+          summonFriend(bug);
+          bug.nextFriend = now + random(12000, 22000);
+        }
+
+        if (now > bug.nextScroll && Math.random() < 0.012) {
+          window.scrollBy({
+            top: random(-900, 900),
+            behavior: "auto"
+          });
+
+          bug.nextScroll = now + random(6000, 13000);
+        }
+
+        if (now > bug.nextDash && Math.random() < 0.025) {
+          dash(bug);
+        }
+
+        if (now > bug.nextPause && Math.random() < 0.015) {
+          bug.pauseUntil = now + random(700, 1800);
+          bug.nextPause = now + random(4000, 8000);
+        }
+
+        if (now < bug.pauseUntil) {
+          bug.element.style.left = `${bug.x}px`;
+          bug.element.style.top = `${bug.y}px`;
+          return;
+        }
+
+        if (now < bug.dashUntil) {
+          bug.x += bug.vx;
+          bug.y += bug.vy;
+        } else {
+          if (now > bug.nextTarget) {
+            chooseTarget(bug);
+          }
+
+          const dx = bug.targetX - bug.x;
+          const dy = bug.targetY - bug.y;
+          const distance = Math.hypot(dx, dy);
+
+          if (distance > 20) {
+            bug.vx += (dx / distance) * 0.1;
+            bug.vy += (dy / distance) * 0.1;
+          }
+
+          bug.vx *= 0.985;
+          bug.vy *= 0.985;
+
+          const speed = Math.hypot(bug.vx, bug.vy);
+          const maxSpeed = 5.5;
+
+          if (speed > maxSpeed) {
+            bug.vx = bug.vx / speed * maxSpeed;
+            bug.vy = bug.vy / speed * maxSpeed;
+          }
+
+          bug.x += bug.vx;
+          bug.y += bug.vy;
+        }
+
+        if (bug.x < -180) bug.x = window.innerWidth + 180;
+        if (bug.x > window.innerWidth + 180) bug.x = -180;
+        if (bug.y < -180) bug.y = window.innerHeight + 180;
+        if (bug.y > window.innerHeight + 180) bug.y = -180;
+
+        if (Math.hypot(bug.vx, bug.vy) > 0.4) {
+          bug.angle = Math.atan2(bug.vy, bug.vx) * 180 / Math.PI + 90;
+        }
+
+        bug.element.style.left = `${bug.x}px`;
+        bug.element.style.top = `${bug.y}px`;
+        bug.element.style.transform = `translate(-50%, -50%) rotate(${bug.angle}deg)`;
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    setInterval(() => {
+      if (bugs.length < MAX_BUGS && Math.random() < 0.3) {
+        const source = bugs[Math.floor(Math.random() * bugs.length)];
+        summonFriend(source);
+      }
+    }, 7000);
+
+    animate();
+  </script>
+
+</body>
+</html>
