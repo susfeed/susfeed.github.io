@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BA 341</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: manipulation;
+      overflow: hidden;
+      border: 3px solid #1a1a2e;
+      border-radius: 12px;
+      background: #f2f4f7;
+      height: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    .canvas-panel {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      background: #f2f4f7;
+      overflow-y: auto;
+      color: #2d3b45;
+      font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    .canvas-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .canvas-panel::-webkit-scrollbar-thumb {
+      background: #c7cdd1;
+      border-radius: 4px;
+    }
+
+    .canvas-header {
+      background: #ffffff;
+      border-bottom: 1px solid #c7cdd1;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .canvas-breadcrumb {
+      font-size: 0.78rem;
+      color: #6b7780;
+    }
+
+    .canvas-breadcrumb a {
+      color: #0770a3;
+      text-decoration: none;
+    }
+
+    .canvas-breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .canvas-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0770a3;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .canvas-body {
+      padding: 18px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .assignment-header {
+      margin-bottom: 14px;
+      flex-shrink: 0;
+    }
+
+    .assignment-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #2d3b45;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .assignment-meta {
+      font-size: 0.78rem;
+      color: #6b7780;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+    }
+
+    .assignment-meta strong {
+      color: #2d3b45;
+      font-weight: 600;
+    }
+
+    .assignment-meta .due-highlight {
+      color: #cc2233;
+      font-weight: 700;
+    }
+
+    .section-card {
+      background: #ffffff;
+      border: 1px solid #c7cdd1;
+      border-radius: 4px;
+      margin-bottom: 14px;
+      flex-shrink: 0;
+    }
+
+    .section-card-header {
+      background: #f2f4f7;
+      border-bottom: 1px solid #c7cdd1;
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #2d3b45;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .section-card-body {
+      padding: 14px 16px;
+    }
+
+    .rubric-preview-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid #e8eaed;
+      font-size: 0.82rem;
+      gap: 12px;
+    }
+
+    .rubric-preview-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .rubric-preview-row:first-child {
+      padding-top: 0;
+    }
+
+    .rubric-preview-criterion {
+      flex: 1;
+      color: #2d3b45;
+      font-weight: 500;
+    }
+
+    .rubric-preview-criterion .desc {
+      display: block;
+      font-size: 0.72rem;
+      color: #6b7780;
+      font-weight: 400;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .rubric-preview-points {
+      font-weight: 700;
+      color: #2d3b45;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 0.82rem;
+    }
+
+    .upload-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #c7cdd1;
+      border-radius: 4px;
+      padding: 24px 16px;
+      background: #fafbfc;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .upload-area:hover {
+      border-color: #0770a3;
+      background: #f0f6fa;
+    }
+
+    .upload-area.dragover {
+      border-color: #0770a3;
+      background: #e8f2f8;
+    }
+
+    .upload-icon {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+      color: #6b7780;
+      line-height: 1;
+      font-weight: 300;
+    }
+
+    .upload-text {
+      font-size: 0.88rem;
+      color: #2d3b45;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .upload-hint {
+      font-size: 0.72rem;
+      color: #6b7780;
+      text-align: center;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .selected-file {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: #e8f2f8;
+      border: 1px solid #b0d0e0;
+      border-radius: 4px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      color: #2d3b45;
+      word-break: break-all;
+    }
+
+    .selected-file.visible {
+      display: flex;
+    }
+
+    .file-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      color: #0770a3;
+      font-weight: 300;
+    }
+
+    .file-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .file-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .file-size {
+      color: #6b7780;
+      font-size: 0.72rem;
+    }
+
+    .remove-file {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #6b7780;
+      padding: 0 4px;
+      line-height: 1;
+      font-weight: 400;
+      flex-shrink: 0;
+    }
+
+    .remove-file:hover {
+      color: #cc2233;
+    }
+
+    .submit-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .submit-btn {
+      padding: 10px 28px;
+      font-family: 'Lato', Helvetica, Arial, sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #ffffff;
+      background: #0770a3;
+      transition: background 0.15s;
+      letter-spacing: 0.3px;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: #055e8a;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .grade-section {
+      display: none;
+      flex-shrink: 0;
+    }
+
+    .grade-section.visible {
+      display: block;
+    }
+
+    .grade-banner {
+      background: #ffffff;
+      border: 1px solid #c7cdd1;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .grade-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #6b7780;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .grade-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #cc2233;
+      line-height: 1;
+    }
+
+    .grade-out-of {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #6b7780;
+    }
+
+    .prof-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #2d3b45;
+    }
+
+    .prof-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #2d3b45;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.72rem;
+      flex-shrink: 0;
+    }
+
+    .prof-name {
+      font-weight: 600;
+    }
+
+    .prof-role {
+      font-size: 0.7rem;
+      color: #6b7780;
+    }
+
+    .comment-box {
+      background: #ffffff;
+      border: 1px solid #c7cdd1;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .comment-box-header {
+      background: #f2f4f7;
+      border-bottom: 1px solid #c7cdd1;
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #2d3b45;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .comment-box-body {
+      padding: 14px 16px;
+      font-size: 0.88rem;
+      color: #2d3b45;
+      line-height: 1.6;
+      background: #fefafa;
+      border-left: 4px solid #cc2233;
+      font-weight: 500;
+    }
+
+    .comment-box-body .comment-quote {
+      font-style: italic;
+      color: #8a1a1a;
+    }
+
+    .rubric-result {
+      background: #ffffff;
+      border: 1px solid #c7cdd1;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .rubric-result-header {
+      background: #f2f4f7;
+      border-bottom: 1px solid #c7cdd1;
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #2d3b45;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .rubric-result-body {
+      padding: 0;
+    }
+
+    .rubric-result-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid #e8eaed;
+      font-size: 0.82rem;
+      gap: 12px;
+    }
+
+    .rubric-result-row:last-child {
+      border-bottom: none;
+    }
+
+    .rubric-result-left {
+      flex: 1;
+    }
+
+    .rubric-result-criterion {
+      font-weight: 600;
+      color: #2d3b45;
+      margin-bottom: 2px;
+    }
+
+    .rubric-result-comment {
+      font-size: 0.75rem;
+      color: #cc2233;
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    .rubric-result-points {
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #cc2233;
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+
+    .rubric-result-points .max {
+      font-weight: 400;
+      color: #6b7780;
+      font-size: 0.75rem;
+    }
+
+    .no-resubmit {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #6b7780;
+      padding: 8px 0 4px;
+      font-style: italic;
+      flex-shrink: 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .points-possible-badge {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2d3b45;
+      white-space: nowrap;
+    }
+
+    .attempt-info {
+      font-size: 0.75rem;
+      color: #6b7780;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Business Major Simulator</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/09/17 9:02 PM CET</i></p>
+
+      <div class="game-container" id="gameArea">
+        <div class="canvas-panel" id="canvasPanel">
+
+          <div class="canvas-header">
+            <div class="canvas-breadcrumb">
+              <a href="#">BA 341</a> / <a href="#">Assignments</a> / Case Analysis
+            </div>
+            <div class="canvas-avatar">RK</div>
+          </div>
+
+          <div class="canvas-body">
+
+            <div class="assignment-header">
+              <div class="assignment-title">Case Analysis: Market Entry Strategy</div>
+              <div class="assignment-meta">
+                <span>Due <strong class="due-highlight" id="dueDate"></strong></span>
+                <span><strong>100 Points Possible</strong></span>
+                <span>Submitting a file upload</span>
+              </div>
+              <div class="attempt-info" id="attemptInfo"></div>
+            </div>
+
+            <div class="section-card" id="rubricPreviewCard">
+              <div class="section-card-header">Rubric</div>
+              <div class="section-card-body" id="rubricPreviewBody"></div>
+            </div>
+
+            <div class="section-card" id="submissionPanel">
+              <div class="section-card-header">Submit Assignment</div>
+              <div class="section-card-body">
+
+                <div class="upload-area" id="uploadArea">
+                  <div class="upload-icon">&#128196;</div>
+                  <div class="upload-text">Click to upload your case analysis</div>
+                  <div class="upload-hint">Accepted: .pdf, .docx, .pptx, .xlsx &middot; Max 25 MB</div>
+                  <input type="file" class="file-input" id="fileInput" accept=".pdf,.docx,.pptx,.xlsx,.doc,.ppt" />
+                </div>
+
+                <div class="selected-file" id="selectedFile">
+                  <span class="file-icon">&#128206;</span>
+                  <div class="file-info">
+                    <span class="file-name" id="fileName"></span>
+                    <span class="file-size" id="fileSize"></span>
+                  </div>
+                  <button class="remove-file" id="removeFile" title="Remove file">&#10005;</button>
+                </div>
+
+                <div class="submit-row">
+                  <button class="submit-btn" id="submitBtn" disabled>Submit Assignment</button>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="grade-section" id="gradeSection">
+
+              <div class="grade-banner">
+                <div>
+                  <div class="grade-label">Grade</div>
+                  <div class="grade-value">0<span class="grade-out-of"> / 100</span></div>
+                </div>
+                <div class="prof-info">
+                  <div class="prof-avatar">RK</div>
+                  <div>
+                    <div class="prof-name">Prof. R. Kessler</div>
+                    <div class="prof-role">Instructor &middot; Graded just now</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="comment-box">
+                <div class="comment-box-header">Instructor Feedback</div>
+                <div class="comment-box-body" id="commentBody"></div>
+              </div>
+
+              <div class="rubric-result">
+                <div class="rubric-result-header">Rubric Assessment</div>
+                <div class="rubric-result-body" id="rubricBody"></div>
+              </div>
+
+              <div class="no-resubmit">
+                This assignment has been graded. Resubmission is not permitted.
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+  </div>
+
+  <script>
+    (function() {
+      const dueDateEl = document.getElementById("dueDate");
+      const attemptInfoEl = document.getElementById("attemptInfo");
+      const rubricPreviewBody = document.getElementById("rubricPreviewBody");
+      const rubricPreviewCard = document.getElementById("rubricPreviewCard");
+      const uploadArea = document.getElementById("uploadArea");
+      const fileInput = document.getElementById("fileInput");
+      const selectedFile = document.getElementById("selectedFile");
+      const fileName = document.getElementById("fileName");
+      const fileSize = document.getElementById("fileSize");
+      const removeFile = document.getElementById("removeFile");
+      const submitBtn = document.getElementById("submitBtn");
+      const submissionPanel = document.getElementById("submissionPanel");
+      const gradeSection = document.getElementById("gradeSection");
+      const commentBody = document.getElementById("commentBody");
+      const rubricBody = document.getElementById("rubricBody");
+
+      let currentFile = null;
+      let submitted = false;
+
+      const rubricItems = [
+        {
+          criterion: "Problem Identification & Framing",
+          max: 20,
+          desc: "Clearly defines the core strategic problem and frames it within the case context.",
+          comment: "You didn't identify a single relevant problem. The case is about international expansion, not your personal feelings about the Thin Mint Frosty."
+        },
+        {
+          criterion: "Quantitative Analysis (ROI, NPV, Break-even)",
+          max: 30,
+          desc: "Accurate calculations with clear assumptions and correct interpretation of results.",
+          comment: "Your NPV calculation uses a discount rate of 0% and you went on a really long rant about the Thin Mint Frosty. There is no analysis here. None."
+        },
+        {
+          criterion: "Strategic Recommendations & Justification",
+          max: 25,
+          desc: "Actionable recommendations supported by evidence and logical reasoning.",
+          comment: "Recommending 'just bring back the Thin Mint Frosty' is not a strategy. This reads like a twitter post, not any real analysis."
+        },
+        {
+          criterion: "Executive Summary & Professionalism",
+          max: 15,
+          desc: "Concise summary with professional tone, formatting, and clear writing.",
+          comment: "Your executive summary is one sentence: 'Wendy's must bring back the Thin Mint Frosty'. It is also grammatically incorrect, you added no punctuation. The font changes three times? Did you even proofread this?"
+        },
+        {
+          criterion: "Citations & Data Sources",
+          max: 10,
+          desc: "Credible sources cited properly using APA or Chicago style.",
+          comment: "You cited 'Wendy's Blog' and a Reddit thread from 2025 on the chocolate Thin Mint Frosty. I am genuinely speechless. This is below preschool level."
+        }
+      ];
+
+      const meanComments = [
+        "I asked you for a case analysis on the international business practices of Palantir. You somehow wrote 12 pages on the Wendy's Thin Mint Frosty? I don't know how, but you somehow made the ide athat they should bring it back less convincing. You shouldn't be allowed back in academia.",
+        "I don't know how you even got that many ciattions on the Wendy's Thin Mint Frosty. All of them were opinion-based and completely off topic though. I will admit, your formatting was actually pretty good, but next time do not write about cookie-based desserts unless asked.",
+        "Look, I also miss the Wendy's Thin Mint Frosty, but for the love of god you were suppsoed to write about human rights violations by Nestle. Read the rubric next time. Or at least use a few of your braincells to understand why this was a bad idea.",
+        "This is highly inappropriate to write about when prompted to analyze business practices of child cancer charities. I am utterly disgusted that you wrote about the Wendy's Thin Mint Frosty, just completely ignoring the sick kids. You are a disgusting person."
+      ];
+
+      function getDueDateString() {
+        const now = new Date();
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = months[now.getMonth()];
+        const day = now.getDate();
+        const year = now.getFullYear();
+        let hours = now.getHours();
+        const minutes = now.getMinutes();
+        const ampm = hours >= 12 ? "pm" : "am";
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const minStr = minutes < 10 ? "0" + minutes : minutes;
+        return month + " " + day + ", " + year + " " + hours + ":" + minStr + ampm;
+      }
+
+      function updateDateTime() {
+        const now = new Date();
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = months[now.getMonth()];
+        const day = now.getDate();
+        const year = now.getFullYear();
+        let hours = now.getHours();
+        const minutes = now.getMinutes();
+        const ampm = hours >= 12 ? "pm" : "am";
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const minStr = minutes < 10 ? "0" + minutes : minutes;
+        dueDateEl.textContent = month + " " + day + ", " + year + " " + hours + ":" + minStr + ampm;
+        attemptInfoEl.textContent = "Attempt 1 \u00b7 Submitted on " + month + " " + day + ", " + year + " " + hours + ":" + minStr + ampm;
+      }
+
+      function formatSize(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / 1048576).toFixed(1) + " MB";
+      }
+
+      function buildRubricPreview() {
+        let html = "";
+        rubricItems.forEach(function(item) {
+          html += '<div class="rubric-preview-row">' +
+            '<div class="rubric-preview-criterion">' + item.criterion +
+            '<span class="desc">' + item.desc + '</span></div>' +
+            '<div class="rubric-preview-points">' + item.max + ' pts</div>' +
+            '</div>';
+        });
+        rubricPreviewBody.innerHTML = html;
+      }
+
+      function buildRubricResult() {
+        let html = "";
+        rubricItems.forEach(function(item) {
+          html += '<div class="rubric-result-row">' +
+            '<div class="rubric-result-left">' +
+            '<div class="rubric-result-criterion">' + item.criterion + '</div>' +
+            '<div class="rubric-result-comment">"' + item.comment + '"</div>' +
+            '</div>' +
+            '<div class="rubric-result-points">0 <span class="max">/ ' + item.max + '</span></div>' +
+            '</div>';
+        });
+        rubricBody.innerHTML = html;
+      }
+
+      function openFilePicker() {
+        if (submitted) return;
+        fileInput.click();
+      }
+
+      uploadArea.addEventListener("click", openFilePicker);
+
+      uploadArea.addEventListener("dragover", function(e) {
+        e.preventDefault();
+        if (submitted) return;
+        uploadArea.classList.add("dragover");
+      });
+
+      uploadArea.addEventListener("dragleave", function() {
+        uploadArea.classList.remove("dragover");
+      });
+
+      uploadArea.addEventListener("drop", function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove("dragover");
+        if (submitted) return;
+        if (e.dataTransfer.files.length > 0) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput.addEventListener("change", function() {
+        if (fileInput.files.length > 0) {
+          handleFile(fileInput.files[0]);
+        }
+      });
+
+      function handleFile(file) {
+        currentFile = file;
+        fileName.textContent = file.name;
+        fileSize.textContent = formatSize(file.size);
+        selectedFile.classList.add("visible");
+        uploadArea.classList.add("hidden");
+        submitBtn.disabled = false;
+      }
+
+      removeFile.addEventListener("click", function(e) {
+        e.stopPropagation();
+        if (submitted) return;
+        currentFile = null;
+        fileInput.value = "";
+        selectedFile.classList.remove("visible");
+        uploadArea.classList.remove("hidden");
+        submitBtn.disabled = true;
+      });
+
+      submitBtn.addEventListener("click", function() {
+        if (!currentFile || submitted) return;
+
+        submitted = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+
+        setTimeout(function() {
+          const randomComment = meanComments[Math.floor(Math.random() * meanComments.length)];
+          commentBody.innerHTML = '<span class="comment-quote">"' + randomComment + '"</span>';
+          buildRubricResult();
+
+          rubricPreviewCard.classList.add("hidden");
+          submissionPanel.classList.add("hidden");
+          gradeSection.classList.add("visible");
+        }, 800);
+      });
+
+      updateDateTime();
+      setInterval(updateDateTime, 60000);
+      buildRubricPreview();
+
+    })();
+  </script>
+
+  <script src="../../contentheader.js"></script>
+</body>
+</html>

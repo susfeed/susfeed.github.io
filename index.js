@@ -158,7 +158,8 @@ async function loadAndDisplayContent(jsonPath, containerId, baseDir) {
     "AAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHH!!!!!!!!!!!!!",
     "OH FUCK, A BUG!",
     "Buy a better response for $19.99.",
-    "Go to Albania"
+    "Go to Albania",
+    "Have a Thin Mint, that will make you feel better."
   ];
 
   susBotButton.addEventListener("click", () => {
