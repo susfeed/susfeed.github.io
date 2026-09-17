@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Would You Rather</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: manipulation;
+      overflow: hidden;
+      border: 3px solid #1a1a2e;
+      border-radius: 12px;
+      background: #0b0d1a;
+      height: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wyr-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 24px 28px;
+      font-family: 'Segoe UI', 'Arial Black', sans-serif;
+      text-align: center;
+      background: #0b0d1a;
+      overflow-y: auto;
+    }
+
+    .wyr-panel h2 {
+      margin: 0 0 6px 0;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .wyr-sub {
+      font-size: clamp(0.55rem, 1vw, 0.75rem);
+      color: #7a8aaa;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .wyr-options {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+      width: 100%;
+      max-width: 780px;
+      margin-bottom: 20px;
+    }
+
+    .wyr-btn {
+      flex: 1 1 240px;
+      min-width: 200px;
+      border: none;
+      border-radius: 14px;
+      padding: 16px 16px 20px;
+      cursor: pointer;
+      font-family: 'Segoe UI', 'Arial Black', sans-serif;
+      font-size: clamp(0.75rem, 1.4vw, 1rem);
+      font-weight: 700;
+      line-height: 1.4;
+      color: #ffffff;
+      text-align: center;
+      transition: transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease;
+      outline: none;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wyr-btn.left {
+      background: #cc2233;
+      box-shadow: 0 6px 0 #7a1420, 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .wyr-btn.right {
+      background: #2255cc;
+      box-shadow: 0 6px 0 #14337a, 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .wyr-btn .option-img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      margin-bottom: 8px;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+    }
+
+    .wyr-btn .option-text {
+      display: block;
+      margin-bottom: 10px;
+      pointer-events: none;
+      min-height: 2.6em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wyr-btn .pct {
+      display: inline-block;
+      font-size: clamp(0.6rem, 1vw, 0.8rem);
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 3px 12px;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      color: rgba(255, 255, 255, 0.85);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      min-height: 1.6em;
+    }
+
+    .wyr-btn .pct.revealed {
+      opacity: 1;
+    }
+
+    .wyr-btn:hover {
+      filter: brightness(1.12);
+    }
+
+    .wyr-btn:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #000000, 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .wyr-btn:disabled {
+      cursor: not-allowed;
+      filter: brightness(0.6);
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #000000 !important;
+    }
+
+    .wyr-btn.chosen {
+      outline: 3px solid #ffd700;
+      outline-offset: 3px;
+    }
+
+    .wyr-result {
+      font-size: clamp(0.7rem, 1.3vw, 0.95rem);
+      color: #ffd700;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      min-height: 1.6em;
+      font-weight: 700;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .wyr-result.show {
+      opacity: 1;
+    }
+
+    .next-wrap {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .next-btn {
+      padding: 14px 52px;
+      font-family: 'Segoe UI', 'Arial Black', sans-serif;
+      font-size: clamp(0.8rem, 1.4vw, 1rem);
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #ffffff;
+      background: #1a1f3a;
+      border: 2px solid #3a4a7a;
+      box-shadow: 0 5px 0 #0d1020;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s;
+    }
+
+    .next-btn:hover:not(:disabled) {
+      background: #252c4a;
+      border-color: #5a6a9a;
+    }
+
+    .next-btn:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #0d1020;
+    }
+
+    .next-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #0d1020;
+    }
+
+    .wyr-panel::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .wyr-panel::-webkit-scrollbar-thumb {
+      background: rgba(100, 140, 255, 0.4);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Second Person Shooter 2</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/09/16 6:17 PM CET</i></p>
+
+      <div class="game-container" id="gameArea">
+        <div class="wyr-panel" id="wyrPanel">
+          <h2>Would You Rather</h2>
+          <div class="wyr-sub">Ridiculous Edition</div>
+
+          <div class="wyr-options" id="wyrOptions">
+            <button class="wyr-btn left" data-index="0">
+              <img class="option-img" src="../../img/amogus.webp" alt="" />
+              <span class="option-text">1 billion dollars</span>
+              <span class="pct">--% agreed</span>
+            </button>
+            <button class="wyr-btn right" data-index="1">
+              <img class="option-img" src="../../img/amogus.webp" alt="" />
+              <span class="option-text">A hot dog lunch with Joe Hendry</span>
+              <span class="pct">--% agreed</span>
+            </button>
+          </div>
+
+          <div class="wyr-result" id="wyrResult"></div>
+
+          <div class="next-wrap">
+            <button class="next-btn" id="nextBtn" disabled>NEXT</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+  </div>
+
+  <script>
+    (function() {
+      const questions = [
+        { a: { img: "img/money.jpg", text: "1 billion dollars" }, b: { img: "img/hendry.jpg", text: "A hot dog lunch with Joe Hendry" } },
+        { a: { img: "img/heart.jpg", text: "Perfect health forever" }, b: { img: "img/tic.png", text: "A single mint Tic Tac" } },
+        { a: { img: "img/brain.webp", text: "Know every language fluently" }, b: { img: "img/albania.webp", text: "Live in Albania" } },
+        { a: { img: "img/plane.jpg", text: "Free air travel for life" }, b: { img: "img/albania.webp", text: "Mansion in Albania" } },
+        { a: { img: "img/nogames.webp", text: "Unlimited bacon no games" }, b: { img: "img/nobacon.webp", text: "Unlimited games no bacon" } },
+        { a: { img: "img/nobacon.webp", text: "Every game you want" }, b: { img: "img/albania.webp", text: "Be president of Albania" } },
+        { a: { img: "img/pizza.jpg", text: "An infinite pizza that never gets cold" }, b: { img: "img/albania.webp", text: "Free food forever in Albania" } },
+        { a: { img: "img/music.jpg", text: "Your own theme song plays when you walk in" }, b: { img: "img/albania.webp", text: "You can only speak Albanian" } },
+        { a: { img: "img/tooth.jpg", text: "Never have to brush your teeth again" }, b: { img: "img/albania.webp", text: "Albanian citizenship" } },
+        { a: { img: "img/dog.jpg", text: "Every dog loves you instantly" }, b: { img: "img/albania.webp", text: "House in ALbania" } },
+        { a: { img: "img/icecream.webp", text: "Free ice cream for life" }, b: { img: "img/albania.webp", text: "Albanian grandma makes you gelato daily" } },
+        { a: { img: "img/bed.jpg", text: "Perfect sleep every night" }, b: { img: "img/albania.webp", text: "Own farmland in Albania" } },
+        { a: { img: "img/globe.webp", text: "Teleport anywhere once a day" }, b: { img: "img/albania.webp", text: "Always be able to teleport to Albania" } },
+        { a: { img: "img/movie.avif", text: "Star in your own movie" }, b: { img: "img/albania.webp", text: "Albanian medal of honor" } },
+        { a: { img: "img/leg.webp", text: "Never have cramps again" }, b: { img: "img/albania.webp", text: "Albania 2" } },
+        { a: { img: "img/burger.webp", text: "Endless burgers that never expire" }, b: { img: "albania.webp", text: "Unlimited debit card only in Albania" } },
+        { a: { img: "img/outfit.webp", text: "Always wake up in the perfect outfit" }, b: { img: "img/albania.webp", text: "Free beer from Albanian friend" } },
+        { a: { img: "img/mic.webp", text: "Perfect singing voice" }, b: { img: "img/albania.webp", text: "All ALbanians and Kosovars love you" } },
+        { a: { img: "img/phone.jpg", text: "Phone battery never dies" }, b: { img: "img/albania.webp", text: "Albania creates world peace" } },
+        { a: { img: "img/weather.jpg", text: "Perfect weather every weekend" }, b: { img: "img/albania.webp", text: "Dual Albanian-Kosovar citizenship" } },
+        { a: { img: "img/bone.gif", text: "Bones never break" }, b: { img: "img/albania.webp", text: "Free university in Albania" } },
+        { a: { img: "img/dice.jpg", text: "Always win games of chance" }, b: { img: "img/albania.webp", text: "Penthouse in Tirana" } }
+      ];
+
+      const wyrOptions = document.getElementById("wyrOptions");
+      const wyrResult = document.getElementById("wyrResult");
+      const nextBtn = document.getElementById("nextBtn");
+
+      let selected = false;
+
+      function randomPct() {
+        return Math.floor(Math.random() * 60) + 20;
+      }
+
+      function pickRandomQuestion() {
+        const q = questions[Math.floor(Math.random() * questions.length)];
+        return q;
+      }
+
+      function renderQuestion() {
+        const q = pickRandomQuestion();
+
+        const leftBtn = wyrOptions.querySelector(".wyr-btn.left");
+        const rightBtn = wyrOptions.querySelector(".wyr-btn.right");
+
+        leftBtn.querySelector(".option-img").src = q.a.img;
+        leftBtn.querySelector(".option-text").textContent = q.a.text;
+        leftBtn.querySelector(".pct").textContent = "--% agreed";
+        leftBtn.querySelector(".pct").classList.remove("revealed");
+
+        rightBtn.querySelector(".option-img").src = q.b.img;
+        rightBtn.querySelector(".option-text").textContent = q.b.text;
+        rightBtn.querySelector(".pct").textContent = "--% agreed";
+        rightBtn.querySelector(".pct").classList.remove("revealed");
+
+        leftBtn.disabled = false;
+        rightBtn.disabled = false;
+        leftBtn.classList.remove("chosen");
+        rightBtn.classList.remove("chosen");
+
+        wyrResult.classList.remove("show");
+        wyrResult.textContent = "";
+        nextBtn.disabled = true;
+        selected = false;
+      }
+
+      function chooseOption(side) {
+        if (selected) return;
+        selected = true;
+
+        const leftBtn = wyrOptions.querySelector(".wyr-btn.left");
+        const rightBtn = wyrOptions.querySelector(".wyr-btn.right");
+
+        leftBtn.disabled = true;
+        rightBtn.disabled = true;
+
+        const pctA = randomPct();
+        const pctB = 100 - pctA;
+
+        leftBtn.querySelector(".pct").textContent = pctA + "% agreed";
+        leftBtn.querySelector(".pct").classList.add("revealed");
+        rightBtn.querySelector(".pct").textContent = pctB + "% agreed";
+        rightBtn.querySelector(".pct").classList.add("revealed");
+
+        if (side === "left") {
+          leftBtn.classList.add("chosen");
+          wyrResult.textContent = "You chose: " + leftBtn.querySelector(".option-text").textContent;
+        } else {
+          rightBtn.classList.add("chosen");
+          wyrResult.textContent = "You chose: " + rightBtn.querySelector(".option-text").textContent;
+        }
+
+        wyrResult.classList.add("show");
+        nextBtn.disabled = false;
+      }
+
+      wyrOptions.querySelector(".wyr-btn.left").addEventListener("click", () => chooseOption("left"));
+      wyrOptions.querySelector(".wyr-btn.right").addEventListener("click", () => chooseOption("right"));
+
+      nextBtn.addEventListener("click", () => {
+        renderQuestion();
+      });
+
+      renderQuestion();
+    })();
+  </script>
+
+  <script src="../../contentheader.js"></script>
+</body>
+</html>
