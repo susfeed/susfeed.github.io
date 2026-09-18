@@ -113,5 +113,15 @@
     "id": 22,
     "title": "Milk",
     "file": "Milk.html"
+  },
+  {
+    "id": 23,
+    "title": "SusFeed Video",
+    "file": "SusFeed Video.html"
+  },
+  {
+    "id": 24,
+    "title": "Coke on Coke",
+    "file": "Coke on Coke.html"
   }
 ]
