@@ -23,6 +23,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     lightboxImg.src = "";
   });
 
+  const pageEl = document.querySelector(".page");
+
+  if (pageEl) {
+    pageEl.querySelectorAll(".thumb").forEach(thumb => {
+      let ref = thumb.nextElementSibling;
+      while (ref && !["P", "UL", "OL"].includes(ref.tagName)) {
+        ref = ref.nextElementSibling;
+      }
+      if (ref) {
+        ref.parentNode.insertBefore(thumb, ref);
+      }
+    });
+
+    pageEl.querySelectorAll(".thumb").forEach((thumb, i) => {
+      thumb.classList.add(i % 2 === 0 ? "thumb-left" : "thumb-right");
+    });
+  }
+
   const toc = document.querySelector(".toc");
   if (toc) {
     const headings = document.querySelectorAll("h2[id], h3[id]");
