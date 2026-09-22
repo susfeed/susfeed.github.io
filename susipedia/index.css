@@ -242,9 +242,6 @@ h3 + p {
   float: right;
   clear: right;
   margin: 0 0 20px 24px;
-}
-
-.infobox {
   width: 270px;
   font-size: 13px;
   line-height: 1.4;
@@ -268,6 +265,150 @@ h3 + p {
   background: #ba1a1a;
   color: #ffffff;
   font-weight: bold;
+}
+
+.infobox-war {
+  border-collapse: collapse;
+}
+
+.infobox-war th {
+  background: #eaecf0;
+  text-align: center;
+  padding: 6px;
+  font-weight: bold;
+}
+
+.infobox-war td {
+  padding: 6px;
+  border-top: 1px solid #a2a9b1;
+  vertical-align: top;
+}
+
+.infobox-war .infobox-header {
+  background: #ba1a1a;
+  color: #ffffff;
+  font-weight: bold;
+  text-align: center;
+  padding: 6px;
+}
+
+.infobox-war .infobox-image {
+  text-align: center;
+  padding: 8px;
+  background: #ffffff;
+}
+
+.infobox-war .infobox-image img {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.infobox-war .infobox-caption {
+  padding: 6px;
+  font-size: 12px;
+  color: #54595d;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.infobox-sides {
+  display: flex;
+  width: 100%;
+  border-top: 1px solid #a2a9b1;
+}
+
+.infobox-side {
+  flex: 1;
+  padding: 6px;
+  text-align: center;
+  border-right: 1px solid #a2a9b1;
+  min-width: 0;
+}
+
+.infobox-side:last-child {
+  border-right: none;
+}
+
+.infobox-side .infobox-flag {
+  width: 100%;
+  max-width: 90px;
+  margin: 0 auto 4px;
+  border: 1px solid #a2a9b1;
+}
+
+.infobox-side .infobox-side-name {
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+
+.infobox-side .infobox-side-label {
+  font-size: 11px;
+  color: #54595d;
+  margin-top: 2px;
+}
+
+.infobox-commanders {
+  display: flex;
+  width: 100%;
+  border-top: 1px solid #a2a9b1;
+}
+
+.infobox-commander {
+  flex: 1;
+  padding: 6px;
+  text-align: left;
+  border-right: 1px solid #a2a9b1;
+  min-width: 0;
+}
+
+.infobox-commander:last-child {
+  border-right: none;
+}
+
+.infobox-commander-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.infobox-commander-entry:last-child {
+  margin-bottom: 0;
+}
+
+.infobox-commander-flag {
+  width: 22px;
+  height: 15px;
+  object-fit: cover;
+  border: 1px solid #a2a9b1;
+  flex-shrink: 0;
+}
+
+.infobox-commander-info {
+  min-width: 0;
+}
+
+.infobox-commander .infobox-commander-name {
+  font-weight: bold;
+  font-size: 12px;
+  word-wrap: break-word;
+}
+
+.infobox-commander .infobox-commander-label {
+  font-size: 11px;
+  color: #54595d;
+  margin-top: 1px;
+}
+
+.infobox-strength-item,
+.infobox-loss-item {
+  font-size: 11px;
+  color: #202122;
+  padding: 2px 0;
+  text-align: center;
 }
 
 .toc {
@@ -617,6 +758,19 @@ footer,
     font-size: 12px;
   }
 
+  .infobox-side .infobox-flag {
+    max-width: 100px;
+  }
+
+  .infobox-commander-entry {
+    gap: 4px;
+  }
+
+  .infobox-commander-flag {
+    width: 18px;
+    height: 12px;
+  }
+
   .search-results-box {
     width: 96%;
     max-height: 90%;
@@ -755,6 +909,27 @@ footer,
   .infobox td {
     padding: 4px;
     font-size: 11px;
+  }
+
+  .infobox-side .infobox-flag {
+    max-width: 80px;
+  }
+
+  .infobox-side .infobox-side-name {
+    font-size: 11px;
+  }
+
+  .infobox-commander-flag {
+    width: 16px;
+    height: 11px;
+  }
+
+  .infobox-commander .infobox-commander-name {
+    font-size: 11px;
+  }
+
+  .infobox-commander .infobox-commander-label {
+    font-size: 10px;
   }
 
   .search-bar input,
