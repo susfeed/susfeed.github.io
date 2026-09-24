@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const ad = a.title.toLowerCase().includes("disambiguation");
       const bd = b.title.toLowerCase().includes("disambiguation");
       if (ad !== bd) return ad ? 1 : -1;
-      return b.title.length - a.title.length;
+      return a.title.length - b.title.length;
     });
 
   function prefixRegex(title) {
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let pattern = `\\b${words[0]}\\s+${words[1]}`;
     for (let i = 2; i < words.length; i++) {
-      pattern += `(?:\\s+${words[i]})?`;
+      pattern += `\\s+${words[i]}`;
     }
 
     return new RegExp(pattern + "\\b", "gi");

@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your House - Interior</title>
+    <link rel="icon" href="../../../img/amogus.webp">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #1a1208; color: white; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; z-index: 100; transition: all 0.15s ease; box-shadow: 0 0 4px rgba(0,0,0,0.5); }
+        #crosshair.active { background: rgba(186,26,26,0.95); transform: translate(-50%,-50%) scale(1.6); box-shadow: 0 0 10px rgba(186,26,26,0.9); }
+        #hud { position: absolute; top: 16px; left: 16px; z-index: 100; pointer-events: none; display: flex; flex-direction: column; gap: 8px; }
+        #location { font-size: 16px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-shadow: 1px 1px 3px rgba(0,0,0,0.8); background: rgba(0,0,0,0.55); padding: 6px 14px; border-radius: 4px; border-left: 3px solid #ba1a1a; align-self: flex-start; backdrop-filter: blur(4px); }
+        #controls-hint { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: rgba(255,255,255,0.65); text-shadow: 1px 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.5px; background: rgba(0,0,0,0.35); padding: 8px 12px; border-radius: 4px; backdrop-filter: blur(4px); align-self: flex-start; }
+        #controls-hint b { color: #ba1a1a; font-weight: 700; }
+        #prompt { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); color: #ba1a1a; text-shadow: 2px 2px 4px black; pointer-events: none; z-index: 100; font-size: 15px; font-weight: 600; letter-spacing: 1.5px; display: none; background: rgba(0,0,0,0.65); padding: 8px 20px; border-radius: 4px; border: 1px solid rgba(186,26,26,0.5); backdrop-filter: blur(4px); animation: pulse 1.8s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 200; color: white; cursor: pointer; flex-direction: column; gap: 10px; transition: opacity 0.3s; }
+        #overlay h1 { color: #ba1a1a; text-shadow: 0 0 24px rgba(186,26,26,0.7); font-size: 52px; letter-spacing: 6px; font-weight: 700; }
+        #overlay p { font-size: 16px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        #sit-hint { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); color: #ba1a1a; background: rgba(0,0,0,0.75); padding: 8px 18px; border-radius: 4px; font-size: 14px; font-weight: 600; letter-spacing: 1px; display: none; pointer-events: none; z-index: 101; border: 1px solid rgba(186,26,26,0.5); }
+        #channel-hud { position: absolute; top: 16px; right: 16px; z-index: 100; background: rgba(0,0,0,0.75); padding: 10px 16px; border-radius: 4px; border-left: 3px solid #ba1a1a; font-size: 13px; display: none; min-width: 200px; }
+        #channel-hud .ch-num { color: #ba1a1a; font-weight: 700; font-size: 22px; letter-spacing: 2px; }
+        #channel-hud .ch-name { color: #fff; font-weight: 600; font-size: 14px; margin-top: 2px; letter-spacing: 1px; }
+        #channel-hud .ch-label { color: #888; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        #viewer-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); z-index: 500; justify-content: center; align-items: center; flex-direction: column; }
+    </style>
+</head>
+<body>
+    <div id="crosshair"></div>
+    <div id="hud">
+        <div id="location">Your House — SusFeed Residence</div>
+        <div id="controls-hint">
+            <span><b>WASD</b> Move</span>
+            <span><b>Shift</b> Sprint</span>
+            <span><b>Space</b> Jump</span>
+            <span><b>Click</b> Interact</span>
+            <span><b>Q/R</b> Channel</span>
+            <span><b>E</b> Stand up</span>
+        </div>
+    </div>
+    <div id="prompt">Press E or Click to Interact</div>
+    <div id="sit-hint">Press <b>E</b> to stand up</div>
+    <div id="channel-hud">
+        <div class="ch-label">Now Watching</div>
+        <div class="ch-num" id="ch-num">—</div>
+        <div class="ch-name" id="ch-name">—</div>
+    </div>
+    <div id="overlay"><h1>YOUR HOUSE</h1><p>Click to Enter</p></div>
+
+    <div id="viewer-modal">
+        <button onclick="Engine.closeOverlay()" style="position:absolute; top:20px; right:20px; background:#ba1a1a; color:white; border:none; padding:12px 24px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:16px; z-index:501;">Close (Esc)</button>
+        <iframe id="viewer-frame" style="width:85vw; height:85vh; border:4px solid #ba1a1a; border-radius:8px; background:#fff;"></iframe>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <script src="../engine.js"></script>
+
+    <script>
+        const ROOT = '../../../';
+        const TV_ROOT = ROOT + 'TV/';
+        const VIDEOS_JSON = TV_ROOT + 'videos/index.json';
+        const VIDEO_SRC = TV_ROOT + 'videos/';
+        const COMMERCIALS_JSON = TV_ROOT + 'commercials/index.json';
+        const AD_SRC = TV_ROOT + 'commercials/';
+        const SUSIPEDIA_ROOT = ROOT + 'susipedia/';
+        const ARTICLES_JSON = SUSIPEDIA_ROOT + 'articles/articles.json';
+        const ARTICLES_CONTENT = SUSIPEDIA_ROOT + 'articles/content/';
+
+        const HOUSE = {
+            minX: -20, maxX: 20,
+            minZ: -20, maxZ: 20,
+            wallH: 3.2,
+            wallT: 0.3
+        };
+
+        const ROOMS = {
+            living:    { minX: -10, maxX: 10, minZ: 2,   maxZ: 20  },
+            hallway:   { minX: -4,  maxX: 4,  minZ: -12, maxZ: 2   },
+            bedroom:   { minX: -20, maxX: -4, minZ: -20, maxZ: -2  },
+            kitchen:   { minX: 4,   maxX: 20, minZ: -12, maxZ: -2  },
+            library:   { minX: -20, maxX: -4, minZ: -2,  maxZ: 12  },
+            gameRoom:  { minX: 4,   maxX: 20, minZ: -20, maxZ: -12 },
+            bathroom:  { minX: 4,   maxX: 14, minZ: 12,  maxZ: 20  }
+        };
+
+        const WALL_T = 0.3;
+        const WALL_H = 3.2;
+
+        let videoData = { channels: {}, videos: [] };
+        let adList = [];
+
+        let tvActive = false;
+        let tvChannelKey = null;
+        let tvQueue = [];
+        let tvQueueIdx = 0;
+        let activeVideoEl = null;
+        let activeCanvasTex = null;
+        let drawLoopRunning = false;
+        let playToken = 0;
+        let tvScreenMat = null;
+
+        let libraryArticles = [];
+        const libraryBooks = [];
+
+        let sitting = false;
+        let sitSeat = null;
+        let sitReturnPos = null;
+
+        const _tmpVec = new THREE.Vector3();
+        const _tmpVec2 = new THREE.Vector3();
+
+        function makeTextTexture(text, bgHex, textColor, w, h, fontPx) {
+            w = w || 512;
+            h = h || 128;
+            fontPx = fontPx || 60;
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#' + bgHex.toString(16).padStart(6, '0');
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = textColor;
+            ctx.font = `bold ${fontPx}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, w / 2, h / 2);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 8;
+            return tex;
+        }
+
+        function makeBookSpineTexture(title, colorHex) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            const color = '#' + colorHex.toString(16).padStart(6, '0');
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, 128, 512);
+
+            const darker = shade(color, -0.25);
+            ctx.fillStyle = darker;
+            ctx.fillRect(0, 0, 128, 16);
+            ctx.fillRect(0, 496, 128, 16);
+            ctx.fillRect(0, 0, 10, 512);
+            ctx.fillRect(118, 0, 10, 512);
+
+            ctx.save();
+            ctx.translate(64, 256);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = '#f7e7c8';
+            ctx.font = 'bold 34px Georgia, serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            let text = title;
+            const maxWidth = 440;
+            while (ctx.measureText(text).width > maxWidth && text.length > 3) {
+                text = text.slice(0, -1);
+            }
+            if (text !== title) text = text.slice(0, -1) + '…';
+            ctx.fillText(text, 0, 0);
+            ctx.restore();
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 8;
+            tex.minFilter = THREE.LinearFilter;
+            tex.generateMipmaps = false;
+            return tex;
+        }
+
+        function shade(hex, pct) {
+            const n = parseInt(hex.slice(1), 16);
+            let r = (n >> 16) & 0xff;
+            let g = (n >> 8) & 0xff;
+            let b = n & 0xff;
+            r = Math.max(0, Math.min(255, Math.round(r + 255 * pct)));
+            g = Math.max(0, Math.min(255, Math.round(g + 255 * pct)));
+            b = Math.max(0, Math.min(255, Math.round(b + 255 * pct)));
+            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+        }
+
+        function addBoxCollider(cx, cz, w, d, r) {
+            r = r || 0.9;
+            const spanX = Math.max(w - r * 2, 0);
+            const count = Math.max(Math.ceil(spanX / (r * 1.4)), 1);
+            if (count === 1) {
+                Engine.addCollider(cx, cz, r);
+                return;
+            }
+            const step = spanX / (count - 1);
+            for (let i = 0; i < count; i++) {
+                Engine.addCollider(cx - spanX / 2 + i * step, cz, r);
+            }
+            const depthPad = d / 2;
+            if (depthPad > r) {
+                for (let i = 0; i < count; i++) {
+                    const x = cx - spanX / 2 + i * step;
+                    Engine.addCollider(x, cz + (depthPad - r) * 1.2, r * 0.9);
+                    Engine.addCollider(x, cz - (depthPad - r) * 1.2, r * 0.9);
+                }
+            }
+        }
+
+        function flashPrompt(text) {
+            const p = document.getElementById('prompt');
+            if (!p) return;
+            const orig = p.textContent;
+            p.textContent = text;
+            p.style.display = 'block';
+            setTimeout(() => { p.textContent = orig; }, 1600);
+        }
+
+        function setChannelHud(num, name) {
+            const hud = document.getElementById('channel-hud');
+            const n = document.getElementById('ch-num');
+            const nm = document.getElementById('ch-name');
+            if (!hud || !n || !nm) return;
+            hud.style.display = 'block';
+            n.textContent = String(num).padStart(2, '0');
+            nm.textContent = name;
+        }
+
+        function fisherYates(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+            }
+        }
+
+        async function loadArticles() {
+            try {
+                const res = await fetch(ARTICLES_JSON);
+                const data = await res.json();
+                data.sort((a, b) => b.id - a.id);
+                libraryArticles = data;
+            } catch (e) {
+                console.warn('Could not load articles:', e);
+                libraryArticles = [];
+            }
+        }
+
+        async function loadTVData() {
+            try {
+                const res = await fetch(VIDEOS_JSON);
+                videoData = await res.json();
+            } catch (e) {
+                console.warn('videos load failed', e);
+            }
+            try {
+                const res = await fetch(COMMERCIALS_JSON);
+                adList = await res.json();
+            } catch (e) {
+                console.warn('commercials load failed', e);
+            }
+        }
+
+        function buildHouse() {
+            const S = Engine.scene;
+
+            S.add(new THREE.HemisphereLight(0xffe8c8, 0x2a1810, 0.5));
+            S.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+            buildFloor(S);
+            buildCeiling(S);
+            buildWalls(S);
+            buildCeilingLights(S);
+            buildLivingRoom(S);
+            buildBedroom(S);
+            buildKitchen(S);
+            buildLibrary(S);
+            buildGameRoom(S);
+            buildBathroom(S);
+            buildHallwayDecor(S);
+            buildExit(S);
+        }
+
+        function buildFloor(S) {
+            const floorMat = new THREE.MeshLambertMaterial({ color: 0x4a2c14 });
+            const floor = new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    HOUSE.maxX - HOUSE.minX + WALL_T * 2,
+                    0.2,
+                    HOUSE.maxZ - HOUSE.minZ + WALL_T * 2
+                ),
+                floorMat
+            );
+            floor.position.set(
+                (HOUSE.minX + HOUSE.maxX) / 2,
+                -0.1,
+                (HOUSE.minZ + HOUSE.maxZ) / 2
+            );
+            floor.receiveShadow = true;
+            S.add(floor);
+
+            const rugs = [
+                { mat: 0x6b2020, x: 0, z: 12, w: 14, d: 10 },
+                { mat: 0x6b2020, x: -12, z: -12, w: 10, d: 8 },
+                { mat: 0x2a2a3a, x: 12, z: -16, w: 10, d: 6 },
+                { mat: 0x3a3028, x: 12, z: -6, w: 10, d: 6 },
+                { mat: 0x3a3028, x: 9, z: 16, w: 6, d: 5 },
+                { mat: 0x4a2c14, x: -12, z: 6, w: 10, d: 8 }
+            ];
+            rugs.forEach(r => {
+                const rug = new THREE.Mesh(
+                    new THREE.PlaneGeometry(r.w, r.d),
+                    new THREE.MeshLambertMaterial({ color: r.mat })
+                );
+                rug.rotation.x = -Math.PI / 2;
+                rug.position.set(r.x, 0.005, r.z);
+                rug.receiveShadow = true;
+                S.add(rug);
+            });
+        }
+
+        function buildCeiling(S) {
+            const ceilMat = new THREE.MeshLambertMaterial({ color: 0x3a2818 });
+            const ceiling = new THREE.Mesh(
+                new THREE.PlaneGeometry(
+                    HOUSE.maxX - HOUSE.minX + WALL_T * 2,
+                    HOUSE.maxZ - HOUSE.minZ + WALL_T * 2
+                ),
+                ceilMat
+            );
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.set(
+                (HOUSE.minX + HOUSE.maxX) / 2,
+                WALL_H,
+                (HOUSE.minZ + HOUSE.maxZ) / 2
+            );
+            S.add(ceiling);
+        }
+
+        function buildWalls(S) {
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x8a6a4a });
+            const innerWallMat = new THREE.MeshLambertMaterial({ color: 0x9a7a5a });
+            const trimMat = new THREE.MeshLambertMaterial({ color: 0xba1a1a });
+
+            const mk = (cx, cz, w, d, mat) => {
+                mat = mat || wallMat;
+                const wall = new THREE.Mesh(
+                    new THREE.BoxGeometry(w, WALL_H, d),
+                    mat
+                );
+                wall.position.set(cx, WALL_H / 2, cz);
+                wall.castShadow = true;
+                wall.receiveShadow = true;
+                S.add(wall);
+                addBoxCollider(cx, cz, w, d, 0.4);
+            };
+
+            const HX = HOUSE.maxX + WALL_T / 2;
+            const HZ = HOUSE.maxZ + WALL_T / 2;
+            const LX = HOUSE.minX - WALL_T / 2;
+            const LZ = HOUSE.minZ - WALL_T / 2;
+
+            mk(0, LZ, HOUSE.maxX - HOUSE.minX + WALL_T * 2, WALL_T);
+            mk(0, HZ, HOUSE.maxX - HOUSE.minX + WALL_T * 2, WALL_T);
+            mk(LX, 0, WALL_T, HOUSE.maxZ - HOUSE.minZ);
+            mk(HX, 0, WALL_T, HOUSE.maxZ - HOUSE.minZ);
+
+            mk(-7, 2, 6, WALL_T, innerWallMat);
+            mk(7, 2, 6, WALL_T, innerWallMat);
+
+            mk(-4, -7, WALL_T, 10, innerWallMat);
+
+            mk(4, -7, WALL_T, 10, innerWallMat);
+
+            mk(-12, -2, 16, WALL_T, innerWallMat);
+            mk(-12, -12, 16, WALL_T, innerWallMat);
+
+            mk(12, -12, 16, WALL_T, innerWallMat);
+
+            mk(14, 16, WALL_T, 8, innerWallMat);
+            mk(4, 12, 10, WALL_T, innerWallMat);
+
+            mk(0, 2, 4, WALL_T, innerWallMat);
+
+            mk(-4, 10, WALL_T, 4, innerWallMat);
+
+            mk(0, 3.35, 24, 0.1, trimMat);
+            mk(0, 0.7, 24, 0.06, trimMat);
+
+            const backTrim = new THREE.Mesh(
+                new THREE.BoxGeometry(40, 0.1, 0.1),
+                trimMat
+            );
+            backTrim.position.set(0, 3.35, HOUSE.minZ + 0.2);
+            S.add(backTrim);
+        }
+
+        function buildCeilingLights(S) {
+            const bulbMat = new THREE.MeshBasicMaterial({ color: 0xffe4a0 });
+            const fixtureMat = new THREE.MeshLambertMaterial({ color: 0x3a2818 });
+
+            const positions = [
+                [0, 12],
+                [0, 18],
+                [-12, -14],
+                [-12, -6],
+                [10, -6],
+                [16, -6],
+                [-12, 4],
+                [-12, 8],
+                [12, -16],
+                [16, -16],
+                [9, 16]
+            ];
+
+            positions.forEach(p => {
+                const fixture = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.4, 0.4, 0.12, 12),
+                    fixtureMat
+                );
+                fixture.position.set(p[0], WALL_H - 0.06, p[1]);
+                S.add(fixture);
+
+                const bulb = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.34, 0.34, 0.08, 12),
+                    bulbMat
+                );
+                bulb.position.set(p[0], WALL_H - 0.14, p[1]);
+                S.add(bulb);
+
+                const light = new THREE.PointLight(0xffe4a0, 0.6, 12);
+                light.position.set(p[0], WALL_H - 0.4, p[1]);
+                S.add(light);
+            });
+        }
+
+        function buildLivingRoom(S) {
+            const couchMat = new THREE.MeshLambertMaterial({ color: 0x2a3a48 });
+            const cushionMat = new THREE.MeshLambertMaterial({ color: 0xba1a1a });
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x4a2c14 });
+            const tableTopMat = new THREE.MeshLambertMaterial({ color: 0x2a1a0c });
+
+            const CX = 0;
+            const CZ = 14;
+
+            const couch = new THREE.Mesh(new THREE.BoxGeometry(7, 0.7, 2.4), couchMat);
+            couch.position.set(CX, 0.35, CZ);
+            couch.castShadow = true;
+            couch.receiveShadow = true;
+            S.add(couch);
+            addBoxCollider(CX, CZ, 7, 2.4, 1.1);
+
+            const cushion = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.2, 2.2), cushionMat);
+            cushion.position.set(CX, 0.75, CZ);
+            S.add(cushion);
+
+            const backrest = new THREE.Mesh(new THREE.BoxGeometry(7, 1.3, 0.35), couchMat);
+            backrest.position.set(CX, 1.35, CZ + 1.05);
+            S.add(backrest);
+
+            [-1, 1].forEach(side => {
+                const arm = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.3, 2.4), couchMat);
+                arm.position.set(CX + side * 3.25, 0.9, CZ);
+                S.add(arm);
+            });
+
+            const accentStrip = new THREE.Mesh(
+                new THREE.BoxGeometry(6.8, 0.06, 0.1),
+                new THREE.MeshBasicMaterial({ color: 0xba1a1a })
+            );
+            accentStrip.position.set(CX, 0.83, CZ - 1.1);
+            S.add(accentStrip);
+
+            const seatPickup = new THREE.Mesh(
+                new THREE.BoxGeometry(6.6, 1.2, 2.2),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            seatPickup.position.set(CX, 1.0, CZ);
+            S.add(seatPickup);
+            Engine.addInteractable(seatPickup, {
+                onInteract: () => sitOnSeat({
+                    x: CX, y: 1.3, z: CZ,
+                    lookX: CX, lookZ: 8
+                })
+            });
+
+            const coffeeTable = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.15, 1.8), tableTopMat);
+            coffeeTable.position.set(CX, 0.45, 11);
+            coffeeTable.castShadow = true;
+            S.add(coffeeTable);
+            addBoxCollider(CX, 11, 3.5, 1.8, 0.75);
+
+            const ctLegMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+            [[-1.5, -0.7], [1.5, -0.7], [-1.5, 0.7], [1.5, 0.7]].forEach(p => {
+                const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.45, 0.1), ctLegMat);
+                leg.position.set(CX + p[0], 0.225, 11 + p[1]);
+                S.add(leg);
+            });
+
+            const bowl = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.3, 0.22, 0.18, 14),
+                new THREE.MeshLambertMaterial({ color: 0xba1a1a })
+            );
+            bowl.position.set(CX - 0.6, 0.58, 11);
+            S.add(bowl);
+
+            const book1 = new THREE.Mesh(
+                new THREE.BoxGeometry(0.7, 0.06, 1.0),
+                new THREE.MeshLambertMaterial({ color: 0x2a3840 })
+            );
+            book1.position.set(CX + 0.6, 0.54, 11);
+            book1.rotation.y = 0.2;
+            S.add(book1);
+
+            const armchairMat = new THREE.MeshLambertMaterial({ color: 0x3a4a58 });
+            [-4.5, 4.5].forEach(x => {
+                const chair = new THREE.Group();
+                chair.position.set(x, 0, 12);
+
+                const seat = new THREE.Mesh(new THREE.BoxGeometry(2, 0.6, 2), armchairMat);
+                seat.position.y = 0.3;
+                seat.castShadow = true;
+                chair.add(seat);
+
+                const back = new THREE.Mesh(new THREE.BoxGeometry(2, 1.2, 0.3), armchairMat);
+                back.position.set(0, 1.0, 0.85);
+                chair.add(back);
+
+                [-1, 1].forEach(side => {
+                    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.0, 2), armchairMat);
+                    arm.position.set(side * 0.85, 0.7, 0);
+                    chair.add(arm);
+                });
+
+                const cushionTop = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.15, 1.7), cushionMat);
+                cushionTop.position.y = 0.65;
+                chair.add(cushionTop);
+
+                S.add(chair);
+
+                const pick = new THREE.Mesh(
+                    new THREE.BoxGeometry(2, 1.2, 2),
+                    new THREE.MeshBasicMaterial({ visible: false })
+                );
+                pick.position.set(x, 0.7, 12);
+                S.add(pick);
+                Engine.addInteractable(pick, {
+                    onInteract: () => sitOnSeat({
+                        x: x, y: 1.3, z: 12,
+                        lookX: CX, lookZ: 8
+                    })
+                });
+            });
+
+            const shelf = new THREE.Mesh(new THREE.BoxGeometry(11, 0.15, 0.4), woodMat);
+            shelf.position.set(CX, 2.7, 2.4);
+            S.add(shelf);
+
+            const accentPanel = new THREE.Mesh(
+                new THREE.BoxGeometry(11, 2.9, 0.05),
+                new THREE.MeshLambertMaterial({ color: 0x2a1a0c })
+            );
+            accentPanel.position.set(CX, 1.5, 2.35);
+            S.add(accentPanel);
+
+            buildLivingRoomTV(S);
+        }
+
+        function buildLivingRoomTV(S) {
+            const TV_X = 0;
+            const TV_Y = 1.6;
+            const TV_Z = 2.6;
+
+            const standMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+            const stand = new THREE.Mesh(new THREE.BoxGeometry(5.5, 1.0, 1.0), standMat);
+            stand.position.set(TV_X, 0.5, TV_Z);
+            stand.castShadow = true;
+            stand.receiveShadow = true;
+            S.add(stand);
+            addBoxCollider(TV_X, TV_Z, 5.5, 1.0, 0.85);
+
+            const standTop = new THREE.Mesh(new THREE.BoxGeometry(5.7, 0.1, 1.1), standMat);
+            standTop.position.set(TV_X, 1.05, TV_Z);
+            S.add(standTop);
+
+            const tvFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(4.4, 2.7, 0.25),
+                new THREE.MeshLambertMaterial({ color: 0x0d0d0d })
+            );
+            tvFrame.position.set(TV_X, TV_Y + 0.6, TV_Z);
+            tvFrame.castShadow = true;
+            S.add(tvFrame);
+
+            tvScreenMat = new THREE.MeshBasicMaterial({ color: 0x061018 });
+            const tvScreenObj = new THREE.Mesh(new THREE.PlaneGeometry(4, 2.3), tvScreenMat);
+            tvScreenObj.position.set(TV_X, TV_Y + 0.6, TV_Z - 0.14);
+            tvScreenObj.rotation.y = Math.PI;
+            S.add(tvScreenObj);
+
+            const bezel = new THREE.Mesh(
+                new THREE.BoxGeometry(4.6, 2.9, 0.12),
+                new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
+            );
+            bezel.position.set(TV_X, TV_Y + 0.6, TV_Z + 0.1);
+            S.add(bezel);
+
+            const brandBar = new THREE.Mesh(
+                new THREE.BoxGeometry(4.6, 0.1, 0.13),
+                new THREE.MeshBasicMaterial({ color: 0xba1a1a })
+            );
+            brandBar.position.set(TV_X, TV_Y - 0.8, TV_Z + 0.08);
+            S.add(brandBar);
+
+            const labelBg = makeTextTexture('SUSFEED TV', 0x0d0d0d, '#ba1a1a', 512, 64, 32);
+            const label = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 0.25),
+                new THREE.MeshBasicMaterial({ map: labelBg })
+            );
+            label.position.set(TV_X, TV_Y - 0.8, TV_Z - 0.14);
+            label.rotation.y = Math.PI;
+            S.add(label);
+
+            const screenGlow = new THREE.PointLight(0x6688ff, 0.5, 10);
+            screenGlow.position.set(TV_X, TV_Y + 0.6, TV_Z - 1.5);
+            S.add(screenGlow);
+
+            Engine.addInteractable(tvScreenObj, {
+                onInteract: () => nextChannel(1)
+            });
+
+            const tvRemoteBox = new THREE.Mesh(
+                new THREE.BoxGeometry(4.2, 2.5, 0.6),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            tvRemoteBox.position.set(TV_X, TV_Y + 0.6, TV_Z - 0.5);
+            S.add(tvRemoteBox);
+            Engine.addInteractable(tvRemoteBox, {
+                onInteract: () => nextChannel(1)
+            });
+
+            const remote = new THREE.Mesh(
+                new THREE.BoxGeometry(0.18, 0.05, 0.4),
+                new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
+            );
+            remote.position.set(TV_X + 2.2, 1.12, TV_Z - 0.35);
+            remote.rotation.y = 0.3;
+            S.add(remote);
+
+            const remoteBtn = new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, 0.02, 0.08),
+                new THREE.MeshBasicMaterial({ color: 0xba1a1a })
+            );
+            remoteBtn.position.set(TV_X + 2.2, 1.15, TV_Z - 0.35);
+            S.add(remoteBtn);
+        }
+
+        function nextChannel(dir) {
+            const keys = Object.keys(videoData.channels || {});
+            if (keys.length === 0) {
+                flashPrompt('No channels available');
+                return;
+            }
+            keys.sort((a, b) => videoData.channels[a].number - videoData.channels[b].number);
+
+            let idx = keys.indexOf(tvChannelKey);
+            if (idx < 0) {
+                idx = dir > 0 ? -1 : 0;
+            }
+            idx = (idx + dir + keys.length) % keys.length;
+            tvChannelKey = keys[idx];
+
+            const ch = videoData.channels[tvChannelKey];
+            setChannelHud(ch.number, ch.name);
+
+            startChannel(tvChannelKey);
+        }
+
+        function startChannel(chKey) {
+            const ch = videoData.channels[chKey];
+            if (!ch) return;
+
+            const vids = (videoData.videos || []).filter(v => (v.channels || []).includes(chKey));
+            if (vids.length === 0) {
+                flashPrompt('No videos on this channel');
+                return;
+            }
+
+            fisherYates(vids);
+
+            tvQueue = [];
+            const adsToPlay = Math.floor(Math.random() * 2);
+            for (let i = 0; i < adsToPlay && adList.length; i++) {
+                const ad = adList[Math.floor(Math.random() * adList.length)];
+                tvQueue.push({ src: AD_SRC + ad, kind: 'ad', title: 'Advertisement' });
+            }
+            vids.forEach(v => {
+                tvQueue.push({
+                    src: VIDEO_SRC + v.src,
+                    kind: 'video',
+                    title: v.src.replace(/\.mp4$/i, ''),
+                    channels: v.channels
+                });
+            });
+
+            tvQueueIdx = 0;
+            tvActive = true;
+            playNextTV();
+        }
+
+        function playNextTV() {
+            if (tvQueueIdx >= tvQueue.length) {
+                tvQueueIdx = 0;
+                fisherYates(tvQueue);
+            }
+
+            const item = tvQueue[tvQueueIdx];
+
+            if (!activeVideoEl) {
+                activeVideoEl = document.createElement('video');
+                activeVideoEl.crossOrigin = 'anonymous';
+                activeVideoEl.playsInline = true;
+                activeVideoEl.volume = 0.5;
+                activeVideoEl.style.display = 'none';
+                document.body.appendChild(activeVideoEl);
+            }
+
+            playToken++;
+            const myToken = playToken;
+
+            activeVideoEl.onended = null;
+            activeVideoEl.onerror = null;
+            activeVideoEl.pause();
+            activeVideoEl.removeAttribute('src');
+            activeVideoEl.load();
+
+            activeVideoEl.onended = () => {
+                if (myToken !== playToken) return;
+                tvQueueIdx++;
+                playNextTV();
+            };
+
+            activeVideoEl.onerror = () => {
+                if (myToken !== playToken) return;
+                tvQueueIdx++;
+                playNextTV();
+            };
+
+            activeVideoEl.src = item.src;
+
+            activeVideoEl.play().catch(() => {
+                activeVideoEl.muted = true;
+                activeVideoEl.play().catch(() => {
+                    if (myToken !== playToken) return;
+                    tvQueueIdx++;
+                    playNextTV();
+                });
+            });
+
+            if (!activeCanvasTex) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1280;
+                canvas.height = 720;
+                activeCanvasTex = new THREE.CanvasTexture(canvas);
+                tvScreenMat.map = activeCanvasTex;
+                tvScreenMat.needsUpdate = true;
+                tvScreenMat.color.setHex(0xffffff);
+                activeCanvasTex.userData = {
+                    canvas: canvas,
+                    ctx: canvas.getContext('2d')
+                };
+            }
+
+            if (!drawLoopRunning) {
+                drawLoopRunning = true;
+                requestAnimationFrame(drawTVFrame);
+            }
+        }
+
+        function drawTVFrame() {
+            if (!tvActive || !activeCanvasTex) {
+                drawLoopRunning = false;
+                return;
+            }
+            const ctx = activeCanvasTex.userData.ctx;
+            const canvas = activeCanvasTex.userData.canvas;
+
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (activeVideoEl && activeVideoEl.readyState >= 2) {
+                const vw = activeVideoEl.videoWidth || 1280;
+                const vh = activeVideoEl.videoHeight || 720;
+                const aspect = vw / vh;
+                const canvasAspect = canvas.width / canvas.height;
+
+                let dw, dh, dx, dy;
+                if (aspect > canvasAspect) {
+                    dw = canvas.width;
+                    dh = canvas.width / aspect;
+                    dx = 0;
+                    dy = (canvas.height - dh) / 2;
+                } else {
+                    dh = canvas.height;
+                    dw = canvas.height * aspect;
+                    dx = (canvas.width - dw) / 2;
+                    dy = 0;
+                }
+                try { ctx.drawImage(activeVideoEl, dx, dy, dw, dh); } catch (e) {}
+            }
+
+            activeCanvasTex.needsUpdate = true;
+            requestAnimationFrame(drawTVFrame);
+        }
+
+        function buildBedroom(S) {
+            const bedX = -12;
+            const bedZ = -12;
+
+            const bedFrameMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const mattressMat = new THREE.MeshLambertMaterial({ color: 0xf0e8d8 });
+            const sheetMat = new THREE.MeshLambertMaterial({ color: 0xba1a1a });
+            const pillowMat = new THREE.MeshLambertMaterial({ color: 0xfff8e8 });
+
+            const frame = new THREE.Mesh(new THREE.BoxGeometry(4, 0.5, 6.5), bedFrameMat);
+            frame.position.set(bedX, 0.25, bedZ);
+            frame.castShadow = true;
+            S.add(frame);
+            addBoxCollider(bedX, bedZ, 4, 6.5, 1.1);
+
+            const mattress = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.5, 6.3), mattressMat);
+            mattress.position.set(bedX, 0.75, bedZ);
+            mattress.castShadow = true;
+            S.add(mattress);
+
+            const sheet = new THREE.Mesh(new THREE.BoxGeometry(3.82, 0.15, 3.5), sheetMat);
+            sheet.position.set(bedX, 1.05, bedZ + 1.4);
+            S.add(sheet);
+
+            [-0.95, 0.95].forEach(ox => {
+                const pillow = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.35, 1.1), pillowMat);
+                pillow.position.set(bedX + ox, 1.2, bedZ - 2.4);
+                S.add(pillow);
+            });
+
+            const headboard = new THREE.Mesh(new THREE.BoxGeometry(4.2, 2.2, 0.3), bedFrameMat);
+            headboard.position.set(bedX, 1.1, bedZ - 3.4);
+            S.add(headboard);
+            addBoxCollider(bedX, bedZ - 3.4, 4.2, 0.3, 0.75);
+
+            const nightstandMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            [-1, 1].forEach(side => {
+                const nsX = bedX + side * 2.9;
+                const ns = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 1.2), nightstandMat);
+                ns.position.set(nsX, 0.7, bedZ - 2.4);
+                ns.castShadow = true;
+                S.add(ns);
+                addBoxCollider(nsX, bedZ - 2.4, 1.2, 1.2, 0.65);
+
+                const lampBase = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.1, 0.13, 0.1, 12),
+                    new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
+                );
+                lampBase.position.set(nsX, 1.45, bedZ - 2.4);
+                S.add(lampBase);
+
+                const lampPole = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.03, 0.03, 0.35, 8),
+                    new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
+                );
+                lampPole.position.set(nsX, 1.67, bedZ - 2.4);
+                S.add(lampPole);
+
+                const shadeMesh = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.25, 0.28, 12, 1, true),
+                    new THREE.MeshLambertMaterial({ color: 0xba1a1a, emissive: 0x3a0a0a })
+                );
+                shadeMesh.position.set(nsX, 1.88, bedZ - 2.4);
+                shadeMesh.rotation.x = Math.PI;
+                S.add(shadeMesh);
+
+                const lampLight = new THREE.PointLight(0xffd0a0, 0.35, 4);
+                lampLight.position.set(nsX, 1.78, bedZ - 2.4);
+                S.add(lampLight);
+            });
+
+            const dresser = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.8, 1.3), nightstandMat);
+            dresser.position.set(-16, 0.9, -17);
+            dresser.castShadow = true;
+            S.add(dresser);
+            addBoxCollider(-16, -17, 3.5, 1.3, 0.9);
+
+            for (let i = 0; i < 3; i++) {
+                const drawer = new THREE.Mesh(
+                    new THREE.BoxGeometry(3.3, 0.5, 0.05),
+                    new THREE.MeshLambertMaterial({ color: 0x2a1808 })
+                );
+                drawer.position.set(-16, 0.35 + i * 0.55, -17.66);
+                S.add(drawer);
+
+                [-0.8, 0.8].forEach(ox => {
+                    const knob = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.05, 8, 8),
+                        new THREE.MeshBasicMaterial({ color: 0xd4a574 })
+                    );
+                    knob.position.set(-16 + ox, 0.35 + i * 0.55, -17.62);
+                    S.add(knob);
+                });
+            }
+
+            const smallTV = new THREE.Mesh(
+                new THREE.BoxGeometry(2.2, 1.5, 0.15),
+                new THREE.MeshLambertMaterial({ color: 0x0d0d0d })
+            );
+            smallTV.position.set(-16, 2.2, -19.6);
+            S.add(smallTV);
+
+            const smallScreen = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 1.3),
+                new THREE.MeshBasicMaterial({ color: 0x061018 })
+            );
+            smallScreen.position.set(-16, 2.2, -19.5);
+            S.add(smallScreen);
+        }
+
+        function buildKitchen(S) {
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const counterMat = new THREE.MeshLambertMaterial({ color: 0x2a1a0c });
+            const applianceMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+            const fridgeMat = new THREE.MeshLambertMaterial({ color: 0x3a3a3a });
+
+            const CX = 12;
+            const CZ = -7;
+
+            const counter1 = new THREE.Mesh(new THREE.BoxGeometry(10, 1.0, 1.8), woodMat);
+            counter1.position.set(CX, 0.5, -11.1);
+            counter1.castShadow = true;
+            S.add(counter1);
+            addBoxCollider(CX, -11.1, 10, 1.8, 0.9);
+
+            const counter1Top = new THREE.Mesh(new THREE.BoxGeometry(10.2, 0.1, 2.0), counterMat);
+            counter1Top.position.set(CX, 1.05, -11.1);
+            S.add(counter1Top);
+
+            const backsplash = new THREE.Mesh(
+                new THREE.BoxGeometry(10.2, 1.3, 0.08),
+                new THREE.MeshLambertMaterial({ color: 0xba1a1a })
+            );
+            backsplash.position.set(CX, 1.7, -11.96);
+            S.add(backsplash);
+
+            const fridge = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.6, 1.8), fridgeMat);
+            fridge.position.set(CX + 4, 1.3, -11.1);
+            fridge.castShadow = true;
+            S.add(fridge);
+            addBoxCollider(CX + 4, -11.1, 2.2, 1.8, 1.0);
+
+            const fridgeHandle = new THREE.Mesh(
+                new THREE.BoxGeometry(0.05, 1.3, 0.06),
+                new THREE.MeshLambertMaterial({ color: 0x8a8a8a })
+            );
+            fridgeHandle.position.set(CX + 3.5, 1.5, -10.16);
+            S.add(fridgeHandle);
+
+            const stove = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.0, 1.8), applianceMat);
+            stove.position.set(CX - 3, 0.5, -11.1);
+            S.add(stove);
+
+            const stoveTop = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.06, 1.9), applianceMat);
+            stoveTop.position.set(CX - 3, 1.03, -11.1);
+            S.add(stoveTop);
+
+            [[-0.55, -0.35], [0.55, -0.35], [-0.55, 0.35], [0.55, 0.35]].forEach(p => {
+                const burner = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.24, 0.24, 0.03, 16),
+                    new THREE.MeshBasicMaterial({ color: 0x2a2a2a })
+                );
+                burner.position.set(CX - 3 + p[0], 1.07, -11.1 + p[1]);
+                S.add(burner);
+            });
+
+            const sink = new THREE.Mesh(
+                new THREE.BoxGeometry(1.4, 0.15, 1.0),
+                new THREE.MeshLambertMaterial({ color: 0x6a6a6a })
+            );
+            sink.position.set(CX, 1.05, -11.1);
+            S.add(sink);
+
+            const faucet = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.04, 0.04, 0.55, 8),
+                new THREE.MeshLambertMaterial({ color: 0xaaaaaa })
+            );
+            faucet.position.set(CX, 1.32, -11.6);
+            S.add(faucet);
+
+            const island = new THREE.Mesh(new THREE.BoxGeometry(6, 1.0, 2.0), woodMat);
+            island.position.set(CX, 0.5, -6);
+            island.castShadow = true;
+            S.add(island);
+            addBoxCollider(CX, -6, 6, 2.0, 1.0);
+
+            const islandTop = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.1, 2.2), counterMat);
+            islandTop.position.set(CX, 1.05, -6);
+            S.add(islandTop);
+
+            const cabinetMat = new THREE.MeshLambertMaterial({ color: 0x2a1a0c });
+            for (let i = 0; i < 3; i++) {
+                const cab = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.1, 0.5), cabinetMat);
+                cab.position.set(CX - 2.6 + i * 2.6, 2.4, -11.9);
+                S.add(cab);
+
+                const handle = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.35, 0.05, 0.05),
+                    new THREE.MeshBasicMaterial({ color: 0xd4a574 })
+                );
+                handle.position.set(CX - 2.6 + i * 2.6, 2.2, -11.6);
+                S.add(handle);
+            }
+
+            const pendantLight = new THREE.PointLight(0xffe4a0, 0.6, 8);
+            pendantLight.position.set(CX, 2.6, -6);
+            S.add(pendantLight);
+
+            const barStoolsMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+            const seatMat = new THREE.MeshLambertMaterial({ color: 0xba1a1a });
+            [-1.8, 0, 1.8].forEach(ox => {
+                const seat = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.12, 16), seatMat);
+                seat.position.set(CX + ox, 0.85, -4);
+                S.add(seat);
+
+                const pole = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.05, 0.05, 0.75, 8),
+                    barStoolsMat
+                );
+                pole.position.set(CX + ox, 0.42, -4);
+                S.add(pole);
+
+                const base = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.28, 0.28, 0.06, 16),
+                    barStoolsMat
+                );
+                base.position.set(CX + ox, 0.03, -4);
+                S.add(base);
+                addBoxCollider(CX + ox, -4, 0.7, 0.7, 0.5);
+            });
+        }
+
+        function buildLibrary(S) {
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x4a2c14 });
+            const boardMat = new THREE.MeshLambertMaterial({ color: 0x2e1a0c });
+            const backingMat = new THREE.MeshLambertMaterial({ color: 0x241208 });
+
+            const SW = 4.2;
+            const SH = 3.6;
+            const SD = 1.0;
+            const boardYs = [0.5, 1.35, 2.2, 3.05];
+            const boardT = 0.08;
+
+            const shelfSpots = [
+                { x: -18, z: 0,   rot: 0 },
+                { x: -18, z: 4.4, rot: 0 },
+                { x: -18, z: 8.8, rot: 0 },
+                { x: -14, z: 11,  rot: Math.PI / 2 }
+            ];
+
+            shelfSpots.forEach(spot => {
+                const group = new THREE.Group();
+                group.position.set(spot.x, 0, spot.z);
+                group.rotation.y = spot.rot;
+
+                const backing = new THREE.Mesh(new THREE.BoxGeometry(SW, SH, 0.1), backingMat);
+                backing.position.set(0, SH / 2, -SD / 2 + 0.05);
+                group.add(backing);
+
+                [-SW / 2, SW / 2].forEach(sx => {
+                    const side = new THREE.Mesh(new THREE.BoxGeometry(0.14, SH, SD), woodMat);
+                    side.position.set(sx, SH / 2, 0);
+                    side.castShadow = true;
+                    side.receiveShadow = true;
+                    group.add(side);
+                });
+
+                const topCap = new THREE.Mesh(new THREE.BoxGeometry(SW + 0.25, 0.18, SD + 0.15), woodMat);
+                topCap.position.set(0, SH + 0.09, 0);
+                topCap.castShadow = true;
+                group.add(topCap);
+
+                const base = new THREE.Mesh(new THREE.BoxGeometry(SW + 0.25, 0.3, SD + 0.15), woodMat);
+                base.position.set(0, 0.15, 0);
+                base.castShadow = true;
+                group.add(base);
+
+                boardYs.forEach(by => {
+                    const board = new THREE.Mesh(
+                        new THREE.BoxGeometry(SW - 0.08, boardT, SD - 0.12),
+                        boardMat
+                    );
+                    board.position.set(0, by, 0);
+                    board.castShadow = true;
+                    board.receiveShadow = true;
+                    group.add(board);
+                });
+
+                S.add(group);
+
+                if (spot.rot === 0) {
+                    addBoxCollider(spot.x, spot.z - SD / 2 + 0.3, SW, 0.4, 0.55);
+                } else if (spot.rot === Math.PI / 2) {
+                    addBoxCollider(spot.x - SD / 2 + 0.3, spot.z, 0.4, SW, 0.55);
+                }
+
+                populateBookshelf(group, boardYs, boardT, SW, SD, libraryArticles);
+            });
+
+            const deskX = -9;
+            const deskZ = 6;
+
+            const desk = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.0, 1.8), woodMat);
+            desk.position.set(deskX, 0.5, deskZ);
+            desk.castShadow = true;
+            S.add(desk);
+            addBoxCollider(deskX, deskZ, 3.5, 1.8, 0.9);
+
+            const deskTop = new THREE.Mesh(new THREE.BoxGeometry(3.7, 0.1, 2.0), boardMat);
+            deskTop.position.set(deskX, 1.05, deskZ);
+            S.add(deskTop);
+
+            const deskLampBase = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.1, 0.12, 0.08, 12),
+                new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
+            );
+            deskLampBase.position.set(deskX - 1.3, 1.14, deskZ);
+            S.add(deskLampBase);
+
+            const lampPole = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.03, 0.03, 0.35, 8),
+                new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
+            );
+            lampPole.position.set(deskX - 1.3, 1.35, deskZ);
+            S.add(lampPole);
+
+            const shadeMesh = new THREE.Mesh(
+                new THREE.ConeGeometry(0.2, 0.25, 12, 1, true),
+                new THREE.MeshLambertMaterial({ color: 0x2e6b3c, emissive: 0x1a3a22 })
+            );
+            shadeMesh.position.set(deskX - 1.3, 1.55, deskZ);
+            shadeMesh.rotation.x = Math.PI;
+            S.add(shadeMesh);
+
+            const lampLight = new THREE.PointLight(0xffd0a0, 0.4, 5);
+            lampLight.position.set(deskX - 1.3, 1.45, deskZ);
+            S.add(lampLight);
+
+            const chair = new THREE.Mesh(
+                new THREE.BoxGeometry(0.75, 1.1, 0.75),
+                new THREE.MeshLambertMaterial({ color: 0x3a2010 })
+            );
+            chair.position.set(deskX, 0.55, deskZ + 1.4);
+            S.add(chair);
+            addBoxCollider(deskX, deskZ + 1.4, 0.75, 0.75, 0.5);
+
+            const signTex = makeTextTexture('LIBRARY', 0x0a0604, '#ba1a1a', 512, 128, 70);
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(2.6, 0.65),
+                new THREE.MeshBasicMaterial({ map: signTex })
+            );
+            sign.position.set(-12, 2.5, -2.2);
+            S.add(sign);
+        }
+
+        function populateBookshelf(group, boardYs, boardT, SW, SD, articles) {
+            if (!articles || articles.length === 0) return;
+
+            const bookColors = [
+                0x8b2020, 0x20408b, 0x208b40, 0x8b8b20, 0x8b208b,
+                0x8b4a20, 0x20208b, 0x3a6b3a, 0x6b3a6b, 0x8b6b20
+            ];
+
+            const colorMats = bookColors.map(c => new THREE.MeshLambertMaterial({ color: c }));
+
+            let idx = Math.floor(Math.random() * articles.length);
+
+            boardYs.forEach((by, rowIdx) => {
+                const surfaceY = by + boardT / 2;
+                const usableW = SW - 0.5;
+                const bookCount = 6;
+                const bookW = 0.28;
+                const gap = (usableW - bookCount * bookW) / (bookCount + 1);
+
+                for (let i = 0; i < bookCount; i++) {
+                    const article = articles[idx % articles.length];
+                    idx++;
+
+                    const colorIdx = (rowIdx * 3 + i * 2) % bookColors.length;
+                    const color = bookColors[colorIdx];
+                    const colorMat = colorMats[colorIdx];
+
+                    const h = 0.7 + ((i + rowIdx) % 3) * 0.03;
+                    const w = bookW + ((i + rowIdx) % 2) * 0.02;
+                    const d = 0.4 + ((i * 2 + rowIdx) % 3) * 0.03;
+
+                    const title = article ? article.title : 'Untitled';
+                    const spineTex = makeBookSpineTexture(title, color);
+                    const spineMat = new THREE.MeshBasicMaterial({ map: spineTex });
+
+                    const book = new THREE.Mesh(
+                        new THREE.BoxGeometry(w, h, d),
+                        [colorMat, colorMat, colorMat, colorMat, spineMat, colorMat]
+                    );
+
+                    const localX = -usableW / 2 + gap + i * (bookW + gap) + w / 2;
+                    const localZ = -SD / 2 + 0.1 + d / 2;
+                    book.position.set(localX, surfaceY + h / 2 + 0.005, localZ);
+                    book.castShadow = true;
+                    book.receiveShadow = true;
+
+                    if (article && article.file) {
+                        const filePath = ARTICLES_CONTENT + article.file;
+                        book.userData = {
+                            isLibraryBook: true,
+                            onInteract: function() {
+                                Engine.openOverlay(filePath);
+                            },
+                            label: title
+                        };
+                    } else {
+                        book.userData = { isLibraryBook: true, label: title };
+                    }
+
+                    libraryBooks.push(book);
+                    group.add(book);
+                }
+            });
+        }
+
+        function buildGameRoom(S) {
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const panelMat = new THREE.MeshLambertMaterial({ color: 0x1a2530 });
+            const accentMat = new THREE.MeshBasicMaterial({ color: 0xba1a1a });
+
+            const CX = 12;
+            const CZ = -16;
+
+            const couch = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.7, 2.0), panelMat);
+            couch.position.set(CX, 0.35, CZ + 2);
+            couch.castShadow = true;
+            S.add(couch);
+            addBoxCollider(CX, CZ + 2, 4.5, 2.0, 1.0);
+
+            const couchCushion = new THREE.Mesh(
+                new THREE.BoxGeometry(4.3, 0.2, 1.8),
+                new THREE.MeshLambertMaterial({ color: 0xba1a1a })
+            );
+            couchCushion.position.set(CX, 0.75, CZ + 2);
+            S.add(couchCushion);
+
+            const couchBack = new THREE.Mesh(new THREE.BoxGeometry(4.5, 1.2, 0.3), panelMat);
+            couchBack.position.set(CX, 1.3, CZ + 2.95);
+            S.add(couchBack);
+
+            const couchPickup = new THREE.Mesh(
+                new THREE.BoxGeometry(4.5, 1.2, 2.0),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            couchPickup.position.set(CX, 1.0, CZ + 2);
+            S.add(couchPickup);
+            Engine.addInteractable(couchPickup, {
+                onInteract: () => sitOnSeat({
+                    x: CX, y: 1.3, z: CZ + 2,
+                    lookX: CX, lookZ: CZ - 2
+                })
+            });
+
+            const TVx = CX;
+            const TVz = -18.5;
+
+            const gtvStand = new THREE.Mesh(new THREE.BoxGeometry(4.5, 1.0, 0.9), panelMat);
+            gtvStand.position.set(TVx, 0.5, TVz);
+            gtvStand.castShadow = true;
+            S.add(gtvStand);
+            addBoxCollider(TVx, TVz, 4.5, 0.9, 0.85);
+
+            const gtvFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(3.8, 2.4, 0.2),
+                new THREE.MeshLambertMaterial({ color: 0x0d0d0d })
+            );
+            gtvFrame.position.set(TVx, 2.2, TVz);
+            S.add(gtvFrame);
+
+            const gtvScreen = new THREE.Mesh(
+                new THREE.PlaneGeometry(3.5, 2.1),
+                new THREE.MeshBasicMaterial({ color: 0x0a1020 })
+            );
+            gtvScreen.position.set(TVx, 2.2, TVz + 0.12);
+            S.add(gtvScreen);
+
+            const stripe = new THREE.Mesh(
+                new THREE.BoxGeometry(3.8, 0.08, 0.21),
+                accentMat
+            );
+            stripe.position.set(TVx, 0.95, TVz);
+            S.add(stripe);
+
+            const gl = new THREE.PointLight(0x6688ff, 0.4, 8);
+            gl.position.set(TVx, 2.2, TVz + 1.5);
+            S.add(gl);
+
+            const consoleBody = new THREE.Mesh(
+                new THREE.BoxGeometry(3.2, 0.35, 0.6),
+                new THREE.MeshLambertMaterial({ color: 0x2a2a2a })
+            );
+            consoleBody.position.set(TVx, 1.4, TVz + 0.7);
+            S.add(consoleBody);
+
+            for (let i = 0; i < 5; i++) {
+                const slot = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.4, 0.06, 0.5),
+                    new THREE.MeshBasicMaterial({ color: 0x000000 })
+                );
+                slot.position.set(TVx - 1.1 + i * 0.55, 1.6, TVz + 0.7);
+                S.add(slot);
+            }
+
+            const beanbagMat = new THREE.MeshLambertMaterial({ color: 0xba1a1a });
+            [-2.5, 2.5].forEach(ox => {
+                const beanbag = new THREE.Mesh(new THREE.SphereGeometry(0.85, 12, 10), beanbagMat);
+                beanbag.scale.set(1.2, 0.55, 1.2);
+                beanbag.position.set(CX + ox, 0.42, CZ - 1.5);
+                beanbag.castShadow = true;
+                S.add(beanbag);
+                addBoxCollider(CX + ox, CZ - 1.5, 1.6, 1.6, 0.65);
+            });
+        }
+
+        function buildBathroom(S) {
+            const CX = 9;
+            const CZ = 16;
+
+            const tileMat = new THREE.MeshLambertMaterial({ color: 0x3a3028 });
+            const whiteMat = new THREE.MeshLambertMaterial({ color: 0xeeeeee });
+            const porcelainMat = new THREE.MeshLambertMaterial({ color: 0xf8f8f8 });
+
+            const counter = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.9, 1.2), tileMat);
+            counter.position.set(CX + 1.5, 0.45, CZ + 2.5);
+            S.add(counter);
+            addBoxCollider(CX + 1.5, CZ + 2.5, 2.5, 1.2, 0.7);
+
+            const counterTop = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.08, 1.3), whiteMat);
+            counterTop.position.set(CX + 1.5, 0.94, CZ + 2.5);
+            S.add(counterTop);
+
+            const sink = new THREE.Mesh(
+                new THREE.BoxGeometry(1.2, 0.15, 0.9),
+                porcelainMat
+            );
+            sink.position.set(CX + 1.5, 0.98, CZ + 2.5);
+            S.add(sink);
+
+            const faucet = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.04, 0.04, 0.3, 8),
+                new THREE.MeshLambertMaterial({ color: 0xaaaaaa })
+            );
+            faucet.position.set(CX + 1.5, 1.1, CZ + 2.85);
+            S.add(faucet);
+
+            const mirror = new THREE.Mesh(
+                new THREE.PlaneGeometry(2.2, 1.5),
+                new THREE.MeshBasicMaterial({ color: 0x88aacc })
+            );
+            mirror.position.set(CX + 1.5, 1.9, CZ + 3.05);
+            mirror.rotation.y = Math.PI;
+            S.add(mirror);
+
+            const mirrorFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(2.3, 1.6, 0.05),
+                new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
+            );
+            mirrorFrame.position.set(CX + 1.5, 1.9, CZ + 3.07);
+            S.add(mirrorFrame);
+
+            const toilet = new THREE.Group();
+            toilet.position.set(CX - 1, 0, CZ + 2.5);
+
+            const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 0.45, 12), porcelainMat);
+            bowl.position.y = 0.22;
+            toilet.add(bowl);
+
+            const seatMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.37, 0.37, 0.08, 12), whiteMat);
+            seatMesh.position.y = 0.5;
+            toilet.add(seatMesh);
+
+            const tank = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.65, 0.32), porcelainMat);
+            tank.position.set(0, 0.8, -0.38);
+            toilet.add(tank);
+
+            S.add(toilet);
+            addBoxCollider(CX - 1, CZ + 2.5, 1.1, 1.1, 0.6);
+
+            const bathtub = new THREE.Mesh(
+                new THREE.BoxGeometry(3.2, 1.4, 1.6),
+                porcelainMat
+            );
+            bathtub.position.set(CX - 1, 0.7, CZ - 2);
+            bathtub.castShadow = true;
+            S.add(bathtub);
+            addBoxCollider(CX - 1, CZ - 2, 3.2, 1.6, 1.0);
+
+            const tubInner = new THREE.Mesh(
+                new THREE.BoxGeometry(2.9, 0.05, 1.3),
+                new THREE.MeshLambertMaterial({ color: 0xaaccee })
+            );
+            tubInner.position.set(CX - 1, 1.35, CZ - 2);
+            S.add(tubInner);
+        }
+
+        function buildHallwayDecor(S) {
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x3a2010 });
+            const consoleMat = new THREE.MeshLambertMaterial({ color: 0x2a1808 });
+
+            const console = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.9, 0.55), woodMat);
+            console.position.set(0, 0.45, -10.5);
+            console.castShadow = true;
+            S.add(console);
+            addBoxCollider(0, -10.5, 2.5, 0.55, 0.65);
+
+            const consoleTop = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.08, 0.65), consoleMat);
+            consoleTop.position.set(0, 0.94, -10.5);
+            S.add(consoleTop);
+
+            const bowl = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.22, 0.16, 0.18, 14),
+                new THREE.MeshLambertMaterial({ color: 0xba1a1a })
+            );
+            bowl.position.set(-0.7, 1.07, -10.5);
+            S.add(bowl);
+
+            const pot = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.28, 0.22, 0.35, 12),
+                new THREE.MeshLambertMaterial({ color: 0x3a2010 })
+            );
+            pot.position.set(0.7, 1.15, -10.5);
+            S.add(pot);
+
+            const plant = new THREE.Mesh(
+                new THREE.SphereGeometry(0.4, 10, 8),
+                new THREE.MeshLambertMaterial({ color: 0x2e5e32 })
+            );
+            plant.position.set(0.7, 1.4, -10.5);
+            S.add(plant);
+        }
+
+        function buildExit(S) {
+            const exitFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(4.4, 4.4, 0.3),
+                new THREE.MeshLambertMaterial({ color: 0x2a1a0a })
+            );
+            exitFrame.position.set(0, 2.2, 19.7);
+            S.add(exitFrame);
+
+            const door = new THREE.Mesh(
+                new THREE.BoxGeometry(4, 4, 0.2),
+                new THREE.MeshLambertMaterial({ color: 0x5a3a1c })
+            );
+            door.position.set(0, 2, 19.5);
+            door.castShadow = true;
+            S.add(door);
+
+            const handle = new THREE.Mesh(
+                new THREE.SphereGeometry(0.12, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0xffd966 })
+            );
+            handle.position.set(1.5, 2, 19.4);
+            S.add(handle);
+
+            const exitSignTex = makeTextTexture('EXIT', 0x0a0604, '#ba1a1a', 512, 128, 70);
+            const exitSign = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 0.6),
+                new THREE.MeshBasicMaterial({ map: exitSignTex })
+            );
+            exitSign.position.set(0, 4.7, 19.4);
+            exitSign.rotation.y = Math.PI;
+            S.add(exitSign);
+
+            Engine.setExitTarget('../index.html', 'YOUR HOUSE');
+            Engine.addInteractable(door, { isExit: true });
+        }
+
+        function sitOnSeat(info) {
+            if (sitting) { flashPrompt('Already sitting.'); return; }
+            sitting = true;
+            sitSeat = info;
+
+            const p = Engine.controls.getObject();
+            sitReturnPos = { x: p.position.x, y: p.position.y, z: p.position.z };
+            p.position.set(info.x, info.y, info.z);
+
+            if (info.lookX !== undefined && info.lookZ !== undefined) {
+                const dx = info.lookX - info.x;
+                const dz = info.lookZ - info.z;
+                const targetYaw = Math.atan2(-dx, -dz);
+                p.rotation.y = targetYaw;
+            }
+
+            const hint = document.getElementById('sit-hint');
+            if (hint) hint.style.display = 'block';
+        }
+
+        function standUp() {
+            if (!sitting) return;
+            sitting = false;
+            const hint = document.getElementById('sit-hint');
+            if (hint) hint.style.display = 'none';
+
+            const p = Engine.controls.getObject();
+            if (sitReturnPos) p.position.set(sitReturnPos.x, 1.7, sitReturnPos.z);
+            sitReturnPos = null;
+            sitSeat = null;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (sitting && (e.code === 'KeyE' || e.code === 'Escape' || e.code === 'KeyX')) {
+                standUp();
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if ((e.code === 'KeyQ' || e.code === 'ArrowLeft') && tvActive) {
+                e.preventDefault();
+                nextChannel(-1);
+            }
+            if ((e.code === 'KeyR' || e.code === 'ArrowRight') && tvActive) {
+                e.preventDefault();
+                nextChannel(1);
+            }
+        }, true);
+
+        (async function main() {
+            Engine.init({
+                bgColor: 0x1a1208,
+                fog: true,
+                fogNear: 35,
+                fogFar: 90,
+                startX: 0,
+                startZ: 17,
+                bounds: { minX: -19, maxX: 19, minZ: -19, maxZ: 19 }
+            });
+
+            const origUpdate = Engine.updatePlayer.bind(Engine);
+            Engine.updatePlayer = function(delta) {
+                if (sitting && sitSeat) {
+                    const p = this.controls.getObject();
+                    p.position.x = sitSeat.x;
+                    p.position.y = sitSeat.y;
+                    p.position.z = sitSeat.z;
+                } else {
+                    origUpdate(delta);
+                }
+            };
+
+            await loadArticles();
+            await loadTVData();
+
+            buildHouse();
+
+            const realInteractables = Engine.interactables.filter(o => !o.userData.isLibraryBook);
+            Engine.interactables = realInteractables;
+
+            const _origIntersect = Engine.raycaster.intersectObjects.bind(Engine.raycaster);
+
+            Engine.raycaster.intersectObjects = function(objs, recursive) {
+                const results = _origIntersect(objs, recursive);
+                if (!objs || objs.length === 0) return results;
+
+                const camPos = Engine.camera.position;
+                const dir = _tmpVec2;
+                Engine.camera.getWorldDirection(dir);
+
+                let bestBook = null;
+                let bestT = 3.2;
+                for (let i = 0; i < libraryBooks.length; i++) {
+                    const b = libraryBooks[i];
+                    b.getWorldPosition(_tmpVec);
+                    const dx = _tmpVec.x - camPos.x;
+                    const dy = _tmpVec.y - camPos.y;
+                    const dz = _tmpVec.z - camPos.z;
+                    const t = dx * dir.x + dy * dir.y + dz * dir.z;
+                    if (t < 0.2 || t > bestT) continue;
+                    const cx = camPos.x + dir.x * t;
+                    const cy = camPos.y + dir.y * t;
+                    const cz = camPos.z + dir.z * t;
+                    const ox = cx - _tmpVec.x;
+                    const oy = cy - _tmpVec.y;
+                    const oz = cz - _tmpVec.z;
+                    const off = Math.sqrt(ox * ox + oy * oy + oz * oz);
+                    if (off < 0.55 && t < bestT) {
+                        bestT = t;
+                        bestBook = b;
+                    }
+                }
+                if (bestBook) {
+                    results.push({ object: bestBook, distance: bestT });
+                    results.sort((a, b) => a.distance - b.distance);
+                }
+                return results;
+            };
+
+            Engine.start();
+        })();
+    </script>
+</body>
+</html>

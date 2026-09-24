@@ -9,15 +9,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #0a0e14; color: white; }
         #crosshair { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; z-index: 100; transition: all 0.15s ease; box-shadow: 0 0 4px rgba(0,0,0,0.5); }
-        #crosshair.active { background: rgba(255,230,0,0.95); transform: translate(-50%,-50%) scale(1.6); box-shadow: 0 0 10px rgba(255,215,0,0.9); }
+        #crosshair.active { background: rgba(186,26,26,0.95); transform: translate(-50%,-50%) scale(1.6); box-shadow: 0 0 10px rgba(186,26,26,0.9); }
         #hud { position: absolute; top: 16px; left: 16px; z-index: 100; pointer-events: none; display: flex; flex-direction: column; gap: 8px; }
-        #location { font-size: 16px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-shadow: 1px 1px 3px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 6px 14px; border-radius: 4px; border-left: 3px solid #00ccff; align-self: flex-start; backdrop-filter: blur(4px); }
+        #location { font-size: 16px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-shadow: 1px 1px 3px rgba(0,0,0,0.8); background: rgba(0,0,0,0.55); padding: 6px 14px; border-radius: 4px; border-left: 3px solid #ba1a1a; align-self: flex-start; backdrop-filter: blur(4px); }
         #controls-hint { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: rgba(255,255,255,0.65); text-shadow: 1px 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.5px; background: rgba(0,0,0,0.35); padding: 8px 12px; border-radius: 4px; backdrop-filter: blur(4px); align-self: flex-start; }
-        #controls-hint b { color: #00ccff; font-weight: 700; }
-        #prompt { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); color: #00ccff; text-shadow: 2px 2px 4px black; pointer-events: none; z-index: 100; font-size: 15px; font-weight: 600; letter-spacing: 1.5px; display: none; background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 4px; border: 1px solid rgba(0,204,255,0.4); backdrop-filter: blur(4px); animation: pulse 1.8s infinite; }
+        #controls-hint b { color: #ba1a1a; font-weight: 700; }
+        #prompt { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); color: #ba1a1a; text-shadow: 2px 2px 4px black; pointer-events: none; z-index: 100; font-size: 15px; font-weight: 600; letter-spacing: 1.5px; display: none; background: rgba(0,0,0,0.65); padding: 8px 20px; border-radius: 4px; border: 1px solid rgba(186,26,26,0.5); backdrop-filter: blur(4px); animation: pulse 1.8s infinite; }
         @keyframes pulse { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
-        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); display: flex; justify-content: center; align-items: center; z-index: 200; color: white; cursor: pointer; flex-direction: column; gap: 10px; transition: opacity 0.3s; }
-        #overlay h1 { color: #00ccff; text-shadow: 0 0 20px rgba(0,204,255,0.6); font-size: 52px; letter-spacing: 6px; font-weight: 700; }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 200; color: white; cursor: pointer; flex-direction: column; gap: 10px; transition: opacity 0.3s; }
+        #overlay h1 { color: #ba1a1a; text-shadow: 0 0 24px rgba(186,26,26,0.7); font-size: 52px; letter-spacing: 6px; font-weight: 700; }
         #overlay p { font-size: 16px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
     </style>
 </head>
@@ -35,37 +35,113 @@
     <script src="../engine.js"></script>
 
     <script>
+        const SUSFEED_RED = 0xba1a1a;
+        const SUSFEED_RED_DARK = 0x7a0e0e;
+        const SUSFEED_RED_GLOW = 0xff3030;
+        const FLOOR_DARK = 0x0e1418;
+        const WALL_DARK = 0x1a2228;
+        const PANEL_DARK = 0x141c22;
+        const GLASS_TINT = 0x4a6677;
+
+        function addBoxCollider(cx, cz, w, d, r) {
+            r = r || 0.9;
+            const spanX = Math.max(w - r * 2, 0);
+            const count = Math.max(Math.ceil(spanX / (r * 1.4)), 1);
+            if (count === 1) {
+                Engine.addCollider(cx, cz, r);
+                return;
+            }
+            const step = spanX / (count - 1);
+            for (let i = 0; i < count; i++) {
+                Engine.addCollider(cx - spanX / 2 + i * step, cz, r);
+            }
+            const depthPad = d / 2;
+            if (depthPad > r) {
+                for (let i = 0; i < count; i++) {
+                    const x = cx - spanX / 2 + i * step;
+                    Engine.addCollider(x, cz + (depthPad - r) * 1.2, r * 0.9);
+                    Engine.addCollider(x, cz - (depthPad - r) * 1.2, r * 0.9);
+                }
+            }
+        }
+
+        function makeTextTex(text, bgHex, textColor, w, h, fontPx) {
+            w = w || 512;
+            h = h || 128;
+            fontPx = fontPx || 60;
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#' + bgHex.toString(16).padStart(6, '0');
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = textColor;
+            ctx.font = `bold ${fontPx}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, w / 2, h / 2);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 8;
+            return tex;
+        }
+
         function buildHQ() {
             const S = Engine.scene;
 
-            const floorMat = new THREE.MeshLambertMaterial({ color: 0x1a1f28 });
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), floorMat);
+            S.add(new THREE.HemisphereLight(0x8899aa, 0x1a1010, 0.5));
+            S.add(new THREE.AmbientLight(0xffffff, 0.35));
+
+            buildFloor(S);
+            buildWalls(S);
+            buildCeiling(S);
+            buildBackWindows(S);
+            buildReception(S);
+            buildElevatorBank(S);
+            buildExecutiveOffice(S, -13, 'CAMERON');
+            buildExecutiveOffice(S, 13, 'PHILLIP');
+            buildBullpen(S);
+            buildConferenceRoom(S);
+            buildServerWall(S);
+            buildLounge(S);
+            buildCoffeeStation(S);
+            buildPlanters(S);
+            buildExit(S);
+        }
+
+        function buildFloor(S) {
+            const baseMat = new THREE.MeshLambertMaterial({ color: FLOOR_DARK });
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), baseMat);
             floor.rotation.x = -Math.PI / 2;
             floor.receiveShadow = true;
             S.add(floor);
 
-            const carpetMat = new THREE.MeshLambertMaterial({ color: 0x22303a });
-            const carpet = new THREE.Mesh(new THREE.PlaneGeometry(40, 50), carpetMat);
-            carpet.rotation.x = -Math.PI / 2;
-            carpet.position.set(0, 0.01, 0);
-            carpet.receiveShadow = true;
-            S.add(carpet);
+            const runnerMat = new THREE.MeshLambertMaterial({ color: SUSFEED_RED_DARK });
+            const runner = new THREE.Mesh(new THREE.PlaneGeometry(3, 48), runnerMat);
+            runner.rotation.x = -Math.PI / 2;
+            runner.position.set(0, 0.005, 0);
+            runner.receiveShadow = true;
+            S.add(runner);
 
-            const stripeMat = new THREE.MeshBasicMaterial({ color: 0x00ccff });
-            [-8, 8].forEach(x => {
-                const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 50), stripeMat);
-                stripe.rotation.x = -Math.PI / 2;
-                stripe.position.set(x, 0.02, 0);
-                S.add(stripe);
+            const runnerGlowMat = new THREE.MeshBasicMaterial({ color: SUSFEED_RED });
+            [-1, 1].forEach(side => {
+                const strip = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 48), runnerGlowMat);
+                strip.rotation.x = -Math.PI / 2;
+                strip.position.set(side * 1.55, 0.01, 0);
+                S.add(strip);
             });
 
-            const ceilMat = new THREE.MeshLambertMaterial({ color: 0x0d1218 });
-            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), ceilMat);
-            ceiling.rotation.x = Math.PI / 2;
-            ceiling.position.y = 6;
-            S.add(ceiling);
+            const gridMat = new THREE.MeshBasicMaterial({ color: 0x1a2228, transparent: true, opacity: 0.5 });
+            for (let i = -8; i <= 8; i++) {
+                if (i >= -1 && i <= 1) continue;
+                const line = new THREE.Mesh(new THREE.PlaneGeometry(0.05, 48), gridMat);
+                line.rotation.x = -Math.PI / 2;
+                line.position.set(i * 2.5, 0.003, 0);
+                S.add(line);
+            }
+        }
 
-            const wallMat = new THREE.MeshLambertMaterial({ color: 0x1e2a35 });
+        function buildWalls(S) {
+            const wallMat = new THREE.MeshLambertMaterial({ color: WALL_DARK });
             const addWall = (x, y, z, w, h, d) => {
                 const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
                 wall.position.set(x, y, z);
@@ -78,7 +154,60 @@
             addWall(-11, 3, 25, 18, 6, 0.5);
             addWall(11, 3, 25, 18, 6, 0.5);
 
-            const glassMat = new THREE.MeshBasicMaterial({ color: 0x66ccff, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
+            const trimMat = new THREE.MeshLambertMaterial({ color: SUSFEED_RED });
+            [-20, 20].forEach(x => {
+                const trim = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 50), trimMat);
+                trim.position.set(x + (x < 0 ? 0.32 : -0.32), 1.0, 0);
+                S.add(trim);
+                const trim2 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 50), trimMat);
+                trim2.position.set(x + (x < 0 ? 0.32 : -0.32), 4.5, 0);
+                S.add(trim2);
+            });
+            const trimBack = new THREE.Mesh(new THREE.BoxGeometry(60, 0.1, 0.15), trimMat);
+            trimBack.position.set(0, 4.5, -24.7);
+            S.add(trimBack);
+        }
+
+        function buildCeiling(S) {
+            const ceilMat = new THREE.MeshLambertMaterial({ color: 0x080c10 });
+            const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), ceilMat);
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.y = 6;
+            S.add(ceiling);
+
+            const stripMat = new THREE.MeshBasicMaterial({ color: SUSFEED_RED });
+            [-14, 14].forEach(x => {
+                const strip = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.05, 48), stripMat);
+                strip.position.set(x, 5.95, 0);
+                S.add(strip);
+            });
+
+            const lightMat = new THREE.MeshBasicMaterial({ color: 0xfff0dd });
+            const lightPositions = [
+                [-14, -18], [14, -18],
+                [-14, -6], [14, -6],
+                [-14, 6], [14, 6],
+                [-14, 18], [14, 18],
+                [0, -18], [0, 18]
+            ];
+            lightPositions.forEach(p => {
+                const fixture = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.4, 0.1, 0.6),
+                    lightMat
+                );
+                fixture.position.set(p[0], 5.93, p[1]);
+                S.add(fixture);
+
+                const light = new THREE.PointLight(0xffeecc, 0.55, 16);
+                light.position.set(p[0], 5.5, p[1]);
+                S.add(light);
+            });
+        }
+
+        function buildBackWindows(S) {
+            const glassMat = new THREE.MeshBasicMaterial({
+                color: GLASS_TINT, transparent: true, opacity: 0.18, side: THREE.DoubleSide
+            });
             const backGlass = new THREE.Mesh(new THREE.PlaneGeometry(36, 4.5), glassMat);
             backGlass.position.set(0, 3.2, -24.8);
             S.add(backGlass);
@@ -89,128 +218,795 @@
                 frame.position.set(i * 3.3, 3.2, -24.75);
                 S.add(frame);
             }
+            const topFrame = new THREE.Mesh(new THREE.BoxGeometry(36, 0.2, 0.15), frameMat);
+            topFrame.position.set(0, 5.45, -24.75);
+            S.add(topFrame);
+            const bottomFrame = new THREE.Mesh(new THREE.BoxGeometry(36, 0.2, 0.15), frameMat);
+            bottomFrame.position.set(0, 0.95, -24.75);
+            S.add(bottomFrame);
 
-            const skylineMat = new THREE.MeshBasicMaterial({ color: 0x1a2a3a });
-            for (let i = 0; i < 20; i++) {
-                const h = 2 + Math.random() * 6;
-                const w = 1 + Math.random() * 1.5;
-                const building = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.3), skylineMat);
-                building.position.set(-18 + i * 2, h / 2, -30);
-                S.add(building);
+            const skyMat = new THREE.MeshBasicMaterial({ color: 0x0a1420 });
+            const sky = new THREE.Mesh(new THREE.PlaneGeometry(60, 20), skyMat);
+            sky.position.set(0, 8, -32);
+            S.add(sky);
+
+            for (let i = 0; i < 24; i++) {
+                const w = 1 + Math.random() * 1.8;
+                const h = 3 + Math.random() * 8;
+                const bx = -22 + i * 1.9;
+                const bldg = new THREE.Mesh(
+                    new THREE.BoxGeometry(w, h, 0.3),
+                    new THREE.MeshBasicMaterial({ color: 0x0e1a26 })
+                );
+                bldg.position.set(bx, h / 2 + 1, -30);
+                S.add(bldg);
+
+                const winMat = new THREE.MeshBasicMaterial({ color: Math.random() > 0.6 ? SUSFEED_RED_GLOW : 0xffe4a0 });
+                const rows = Math.floor(h / 0.8);
+                const cols = Math.floor(w / 0.4);
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        if (Math.random() > 0.55) {
+                            const win = new THREE.Mesh(
+                                new THREE.PlaneGeometry(0.15, 0.3),
+                                winMat
+                            );
+                            win.position.set(
+                                bx - w / 2 + 0.25 + c * 0.4,
+                                1.4 + r * 0.8,
+                                -29.83
+                            );
+                            S.add(win);
+                        }
+                    }
+                }
             }
+        }
 
-            const deskMat = new THREE.MeshLambertMaterial({ color: 0x2a3a48 });
-            const desk = new THREE.Mesh(new THREE.BoxGeometry(8, 1.1, 2.5), deskMat);
-            desk.position.set(0, 0.55, 15);
+        function buildReception(S) {
+            const deskMat = new THREE.MeshLambertMaterial({ color: PANEL_DARK });
+            const topMat = new THREE.MeshLambertMaterial({ color: 0x050a0e });
+
+            const CX = 0;
+            const CZ = 18;
+
+            const desk = new THREE.Mesh(new THREE.BoxGeometry(10, 1.1, 2.4), deskMat);
+            desk.position.set(CX, 0.55, CZ);
             desk.castShadow = true;
             desk.receiveShadow = true;
             S.add(desk);
-            Engine.addCollider(0, 15, 4.5);
+            addBoxCollider(CX, CZ, 10, 2.4, 1.0);
 
-            const topMat = new THREE.MeshLambertMaterial({ color: 0x1a2530 });
-            const top = new THREE.Mesh(new THREE.BoxGeometry(8.4, 0.1, 2.7), topMat);
-            top.position.set(0, 1.1, 15);
-            S.add(top);
+            const deskTop = new THREE.Mesh(new THREE.BoxGeometry(10.4, 0.12, 2.6), topMat);
+            deskTop.position.set(CX, 1.16, CZ);
+            S.add(deskTop);
 
-            const logoTex = Engine.createTextTexture('SUSFEED', 0x00ccff, '#0a1018');
-            const logo = new THREE.Mesh(new THREE.PlaneGeometry(4, 0.8), new THREE.MeshBasicMaterial({ map: logoTex }));
-            logo.position.set(0, 1.8, 16.3);
-            S.add(logo);
+            const accent = new THREE.Mesh(
+                new THREE.BoxGeometry(10.4, 0.06, 0.12),
+                new THREE.MeshBasicMaterial({ color: SUSFEED_RED })
+            );
+            accent.position.set(CX, 1.10, CZ - 1.26);
+            S.add(accent);
 
-            const monitorMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
-            const screenMat = new THREE.MeshBasicMaterial({ color: 0x00ccff });
-            [-2, 2].forEach(x => {
-                const monitor = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.1), monitorMat);
-                monitor.position.set(x, 1.6, 15);
+            const logoBackTex = makeTextTex('SUSFEED', 0x0a0e14, '#ba1a1a', 1024, 256, 140);
+            const logoBack = new THREE.Mesh(
+                new THREE.PlaneGeometry(11, 2.75),
+                new THREE.MeshBasicMaterial({ map: logoBackTex })
+            );
+            logoBack.position.set(CX, 4.0, -24.6);
+            S.add(logoBack);
+
+            const logoStrip = new THREE.Mesh(
+                new THREE.BoxGeometry(11, 0.08, 0.1),
+                new THREE.MeshBasicMaterial({ color: SUSFEED_RED })
+            );
+            logoStrip.position.set(CX, 2.7, -24.55);
+            S.add(logoStrip);
+
+            const logoGlow = new THREE.PointLight(SUSFEED_RED_GLOW, 0.9, 8);
+            logoGlow.position.set(CX, 4.0, -23.5);
+            S.add(logoGlow);
+
+            const screenMat = new THREE.MeshBasicMaterial({ color: SUSFEED_RED });
+            [-3.5, -1.5, 1.5, 3.5].forEach(x => {
+                const monitor = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.3, 0.8, 0.08),
+                    new THREE.MeshLambertMaterial({ color: 0x111111 })
+                );
+                monitor.position.set(CX + x, 1.55, CZ - 0.4);
                 S.add(monitor);
-                const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.05, 0.65), screenMat);
-                screen.position.set(x, 1.6, 15.06);
+
+                const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.65), screenMat);
+                screen.position.set(CX + x, 1.55, CZ - 0.35);
                 S.add(screen);
             });
 
-            const loungeMat = new THREE.MeshLambertMaterial({ color: 0x1a2832 });
-            const cushionMat = new THREE.MeshLambertMaterial({ color: 0x2a4050 });
-            [-14, 14].forEach(x => {
-                const couch = new THREE.Mesh(new THREE.BoxGeometry(6, 0.7, 2.5), loungeMat);
-                couch.position.set(x, 0.35, -8);
-                couch.castShadow = true;
-                S.add(couch);
-                Engine.addCollider(x, -8, 3.5);
+            const nameplateTex = makeTextTex('RECEPTION', 0x050a0e, '#ba1a1a', 512, 128, 60);
+            const nameplate = new THREE.Mesh(
+                new THREE.PlaneGeometry(2.4, 0.6),
+                new THREE.MeshBasicMaterial({ map: nameplateTex })
+            );
+            nameplate.position.set(CX, 1.55, CZ + 1.21);
+            nameplate.rotation.y = Math.PI;
+            S.add(nameplate);
 
-                const cushion = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.2, 2.3), cushionMat);
-                cushion.position.set(x, 0.75, -8);
+            const pendantMat = new THREE.MeshLambertMaterial({ color: 0x0a0e14 });
+            [-3, 3].forEach(x => {
+                const cord = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.02, 0.02, 1.6, 6),
+                    pendantMat
+                );
+                cord.position.set(CX + x, 5.2, CZ);
+                S.add(cord);
+
+                const shade = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.55, 0.7, 14, 1, true),
+                    pendantMat
+                );
+                shade.position.set(CX + x, 4.4, CZ);
+                shade.rotation.x = Math.PI;
+                S.add(shade);
+
+                const bulb = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.12, 10, 10),
+                    new THREE.MeshBasicMaterial({ color: 0xffe4a0 })
+                );
+                bulb.position.set(CX + x, 4.2, CZ);
+                S.add(bulb);
+
+                const light = new THREE.PointLight(0xffe4a0, 0.5, 6);
+                light.position.set(CX + x, 4.1, CZ);
+                S.add(light);
+            });
+
+            const chairMat = new THREE.MeshLambertMaterial({ color: 0x222a30 });
+            const seatMat = new THREE.MeshLambertMaterial({ color: SUSFEED_RED_DARK });
+
+            for (let i = 0; i < 6; i++) {
+                const sx = -8 + i * 3.2;
+                const seat = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.15, 0.9), seatMat);
+                seat.position.set(sx, 0.55, 22);
+                seat.castShadow = true;
+                S.add(seat);
+
+                const back = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.7, 0.12), chairMat);
+                back.position.set(sx, 0.95, 22.4);
+                S.add(back);
+
+                for (let j = -1; j <= 1; j += 2) {
+                    for (let k = -1; k <= 1; k += 2) {
+                        const leg = new THREE.Mesh(
+                            new THREE.BoxGeometry(0.06, 0.5, 0.06),
+                            chairMat
+                        );
+                        leg.position.set(sx + j * 0.35, 0.25, 22 + k * 0.35);
+                        S.add(leg);
+                    }
+                }
+                addBoxCollider(sx, 22, 0.9, 0.9, 0.55);
+            }
+        }
+
+        function buildElevatorBank(S) {
+            const frameMat = new THREE.MeshLambertMaterial({ color: 0x0a0e14 });
+            const doorMat = new THREE.MeshLambertMaterial({ color: 0x2a3840 });
+            const doorAccentMat = new THREE.MeshBasicMaterial({ color: SUSFEED_RED });
+
+            const baseZ = -24.7;
+            [-10, 0, 10].forEach((x, idx) => {
+                const frame = new THREE.Mesh(new THREE.BoxGeometry(4.4, 5, 0.4), frameMat);
+                frame.position.set(x, 2.5, baseZ);
+                S.add(frame);
+
+                [-1.05, 1.05].forEach(ox => {
+                    const door = new THREE.Mesh(new THREE.BoxGeometry(2, 4.4, 0.15), doorMat);
+                    door.position.set(x + ox, 2.2, baseZ + 0.25);
+                    S.add(door);
+
+                    const seam = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.04, 4.4, 0.16),
+                        doorAccentMat
+                    );
+                    seam.position.set(x + ox * 0.02, 2.2, baseZ + 0.26);
+                    S.add(seam);
+                });
+
+                const dispBox = new THREE.Mesh(
+                    new THREE.BoxGeometry(2, 0.5, 0.15),
+                    new THREE.MeshLambertMaterial({ color: 0x000000 })
+                );
+                dispBox.position.set(x, 4.9, baseZ + 0.28);
+                S.add(dispBox);
+
+                const dispTex = makeTextTex('1', 0x000000, '#ba1a1a', 256, 64, 44);
+                const disp = new THREE.Mesh(
+                    new THREE.PlaneGeometry(1.6, 0.4),
+                    new THREE.MeshBasicMaterial({ map: dispTex })
+                );
+                disp.position.set(x, 4.9, baseZ + 0.36);
+                S.add(disp);
+
+                const floorLight = new THREE.Mesh(
+                    new THREE.CircleGeometry(0.15, 12),
+                    doorAccentMat
+                );
+                floorLight.rotation.x = -Math.PI / 2;
+                floorLight.position.set(x, 0.02, baseZ + 1.2);
+                S.add(floorLight);
+
+                const glow = new THREE.PointLight(SUSFEED_RED_GLOW, 0.3, 3);
+                glow.position.set(x, 0.5, baseZ + 1.2);
+                S.add(glow);
+            });
+
+            const callPanel = new THREE.Mesh(
+                new THREE.BoxGeometry(0.4, 1.2, 0.15),
+                new THREE.MeshLambertMaterial({ color: 0x0a0e14 })
+            );
+            callPanel.position.set(-16.5, 1.5, baseZ + 0.3);
+            S.add(callPanel);
+
+            const callBtn = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.08, 0.08, 0.06, 12),
+                doorAccentMat
+            );
+            callBtn.rotation.x = Math.PI / 2;
+            callBtn.position.set(-16.5, 1.7, baseZ + 0.4);
+            S.add(callBtn);
+        }
+
+        function buildExecutiveOffice(S, officeX, name) {
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x0a0e14 });
+            const glassMat = new THREE.MeshBasicMaterial({
+                color: GLASS_TINT, transparent: true, opacity: 0.15, side: THREE.DoubleSide
+            });
+            const deskMat = new THREE.MeshLambertMaterial({ color: PANEL_DARK });
+            const topMat = new THREE.MeshLambertMaterial({ color: 0x050a0e });
+
+            const sideSign = officeX < 0 ? -1 : 1;
+            const roomCenterX = officeX;
+            const roomHalfW = 3.5;
+            const roomZ = -19;
+            const roomDepth = 8;
+
+            const backWall = new THREE.Mesh(
+                new THREE.BoxGeometry(0.3, 6, roomDepth),
+                wallMat
+            );
+            backWall.position.set(roomCenterX + sideSign * roomHalfW, 3, roomZ);
+            S.add(backWall);
+
+            const sideWallA = new THREE.Mesh(
+                new THREE.BoxGeometry(7, 6, 0.3),
+                wallMat
+            );
+            sideWallA.position.set(roomCenterX, 3, roomZ - roomDepth / 2);
+            S.add(sideWallA);
+
+            const sideWallB = new THREE.Mesh(
+                new THREE.BoxGeometry(7, 6, 0.3),
+                wallMat
+            );
+            sideWallB.position.set(roomCenterX, 3, roomZ + roomDepth / 2);
+            S.add(sideWallB);
+
+            const glassFront = new THREE.Mesh(
+                new THREE.PlaneGeometry(7, 5),
+                glassMat
+            );
+            glassFront.position.set(roomCenterX, 3, roomZ - roomDepth / 2 + 0.15);
+            S.add(glassFront);
+
+            const mullionTop = new THREE.Mesh(
+                new THREE.BoxGeometry(7.1, 0.15, 0.1),
+                wallMat
+            );
+            mullionTop.position.set(roomCenterX, 5.5, roomZ - roomDepth / 2 + 0.15);
+            S.add(mullionTop);
+            const mullionMid = new THREE.Mesh(
+                new THREE.BoxGeometry(7.1, 0.1, 0.1),
+                wallMat
+            );
+            mullionMid.position.set(roomCenterX, 3, roomZ - roomDepth / 2 + 0.15);
+            S.add(mullionMid);
+
+            const doorFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(1.6, 4.5, 0.15),
+                wallMat
+            );
+            doorFrame.position.set(roomCenterX + sideSign * 2.6, 2.25, roomZ - roomDepth / 2 + 0.15);
+            S.add(doorFrame);
+            const doorGlass = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.3, 4),
+                glassMat
+            );
+            doorGlass.position.set(roomCenterX + sideSign * 2.6, 2.2, roomZ - roomDepth / 2 + 0.2);
+            S.add(doorGlass);
+
+            const nameTex = makeTextTex(name, 0x050a0e, '#ba1a1a', 512, 128, 64);
+            const namePlate = new THREE.Mesh(
+                new THREE.PlaneGeometry(3, 0.75),
+                new THREE.MeshBasicMaterial({ map: nameTex })
+            );
+            namePlate.position.set(roomCenterX, 4.9, roomZ - roomDepth / 2 + 0.18);
+            S.add(namePlate);
+
+            const nameGlow = new THREE.PointLight(SUSFEED_RED_GLOW, 0.4, 4);
+            nameGlow.position.set(roomCenterX, 4.9, roomZ - roomDepth / 2 + 1);
+            S.add(nameGlow);
+
+            const desk = new THREE.Mesh(new THREE.BoxGeometry(4, 0.1, 2), topMat);
+            desk.position.set(roomCenterX, 0.95, roomZ + 1);
+            S.add(desk);
+            addBoxCollider(roomCenterX, roomZ + 1, 4, 2, 0.8);
+
+            const deskBase = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.9, 1.8), deskMat);
+            deskBase.position.set(roomCenterX, 0.45, roomZ + 1);
+            S.add(deskBase);
+
+            const monitor = new THREE.Mesh(
+                new THREE.BoxGeometry(1.2, 0.8, 0.08),
+                new THREE.MeshLambertMaterial({ color: 0x111111 })
+            );
+            monitor.position.set(roomCenterX, 1.5, roomZ + 1);
+            S.add(monitor);
+            const screen = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.05, 0.65),
+                new THREE.MeshBasicMaterial({ color: SUSFEED_RED })
+            );
+            screen.position.set(roomCenterX, 1.5, roomZ + 1.06);
+            S.add(screen);
+
+            const chair = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 1.2, 0.8),
+                new THREE.MeshLambertMaterial({ color: 0x111820 })
+            );
+            chair.position.set(roomCenterX, 0.6, roomZ + 2.2);
+            chair.castShadow = true;
+            S.add(chair);
+            addBoxCollider(roomCenterX, roomZ + 2.2, 0.8, 0.8, 0.6);
+
+            const bookshelf = new THREE.Mesh(
+                new THREE.BoxGeometry(3, 2.5, 0.4),
+                deskMat
+            );
+            bookshelf.position.set(roomCenterX, 1.25, roomZ - 3.5);
+            S.add(bookshelf);
+            addBoxCollider(roomCenterX, roomZ - 3.5, 3, 0.4, 0.7);
+
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 6; j++) {
+                    const book = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.15, 0.45, 0.3),
+                        new THREE.MeshLambertMaterial({
+                            color: [SUSFEED_RED, 0x2a3840, 0x1a2228][(i + j) % 3]
+                        })
+                    );
+                    book.position.set(
+                        roomCenterX - 1.2 + j * 0.42,
+                        0.55 + i * 0.7,
+                        roomZ - 3.25
+                    );
+                    S.add(book);
+                }
+            }
+        }
+
+        function buildBullpen(S) {
+            const deskMat = new THREE.MeshLambertMaterial({ color: PANEL_DARK });
+            const topMat = new THREE.MeshLambertMaterial({ color: 0x050a0e });
+            const legMat = new THREE.MeshLambertMaterial({ color: 0x2a3840 });
+
+            const positions = [
+                { x: -8, z: 0 },
+                { x: -8, z: 6 },
+                { x: -8, z: 12 },
+                { x: 8, z: 0 },
+                { x: 8, z: 6 },
+                { x: 8, z: 12 }
+            ];
+
+            positions.forEach(p => {
+                const desk = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.0, 1.6), deskMat);
+                desk.position.set(p.x, 0.5, p.z);
+                desk.castShadow = true;
+                desk.receiveShadow = true;
+                S.add(desk);
+                addBoxCollider(p.x, p.z, 3.5, 1.6, 0.7);
+
+                const top = new THREE.Mesh(new THREE.BoxGeometry(3.7, 0.08, 1.75), topMat);
+                top.position.set(p.x, 1.04, p.z);
+                S.add(top);
+
+                const accent = new THREE.Mesh(
+                    new THREE.BoxGeometry(3.7, 0.04, 0.08),
+                    new THREE.MeshBasicMaterial({ color: SUSFEED_RED })
+                );
+                accent.position.set(p.x, 1.0, p.z - 0.85);
+                S.add(accent);
+
+                const monitor = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.1, 0.7, 0.08),
+                    new THREE.MeshLambertMaterial({ color: 0x111111 })
+                );
+                monitor.position.set(p.x, 1.5, p.z - 0.2);
+                S.add(monitor);
+                const screen = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.95, 0.55),
+                    new THREE.MeshBasicMaterial({ color: SUSFEED_RED })
+                );
+                screen.position.set(p.x, 1.5, p.z - 0.15);
+                S.add(screen);
+
+                const kb = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.7, 0.04, 0.25),
+                    new THREE.MeshLambertMaterial({ color: 0x0a0a0a })
+                );
+                kb.position.set(p.x, 1.09, p.z + 0.4);
+                S.add(kb);
+
+                const chair = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.7, 1.1, 0.7),
+                    new THREE.MeshLambertMaterial({ color: 0x111820 })
+                );
+                chair.position.set(p.x, 0.55, p.z + 1.3);
+                S.add(chair);
+                addBoxCollider(p.x, p.z + 1.3, 0.7, 0.7, 0.55);
+
+                const divider = new THREE.Mesh(
+                    new THREE.BoxGeometry(3.4, 0.5, 0.08),
+                    new THREE.MeshLambertMaterial({ color: 0x0a1218 })
+                );
+                divider.position.set(p.x, 1.5, p.z - 0.85);
+                S.add(divider);
+            });
+        }
+
+        function buildConferenceRoom(S) {
+            const wallMat = new THREE.MeshLambertMaterial({ color: 0x0a0e14 });
+            const glassMat = new THREE.MeshBasicMaterial({
+                color: GLASS_TINT, transparent: true, opacity: 0.15, side: THREE.DoubleSide
+            });
+            const tableMat = new THREE.MeshLambertMaterial({ color: 0x1a2530 });
+            const tableTopMat = new THREE.MeshLambertMaterial({ color: 0x050a0e });
+
+            const CX = 0;
+            const CZ = -18;
+
+            const backWall = new THREE.Mesh(
+                new THREE.BoxGeometry(0.3, 6, 9),
+                wallMat
+            );
+            backWall.position.set(-5, 3, CZ);
+            S.add(backWall);
+            const backWallR = new THREE.Mesh(
+                new THREE.BoxGeometry(0.3, 6, 9),
+                wallMat
+            );
+            backWallR.position.set(5, 3, CZ);
+            S.add(backWallR);
+
+            const backFace = new THREE.Mesh(
+                new THREE.BoxGeometry(10, 6, 0.3),
+                wallMat
+            );
+            backFace.position.set(0, 3, CZ - 4.5);
+            S.add(backFace);
+
+            const glassFront = new THREE.Mesh(
+                new THREE.PlaneGeometry(10, 5),
+                glassMat
+            );
+            glassFront.position.set(0, 3, CZ + 4.35);
+            glassFront.rotation.y = Math.PI;
+            S.add(glassFront);
+
+            const doorFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(1.6, 4.5, 0.15),
+                wallMat
+            );
+            doorFrame.position.set(0, 2.25, CZ + 4.4);
+            S.add(doorFrame);
+            const doorGlass = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.3, 4),
+                glassMat
+            );
+            doorGlass.position.set(0, 2.2, CZ + 4.45);
+            doorGlass.rotation.y = Math.PI;
+            S.add(doorGlass);
+
+            const signTex = makeTextTex('CONFERENCE', 0x050a0e, '#ba1a1a', 1024, 128, 60);
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(4, 0.5),
+                new THREE.MeshBasicMaterial({ map: signTex })
+            );
+            sign.position.set(0, 4.9, CZ + 4.42);
+            sign.rotation.y = Math.PI;
+            S.add(sign);
+
+            const table = new THREE.Mesh(
+                new THREE.BoxGeometry(7, 0.15, 2.6),
+                tableTopMat
+            );
+            table.position.set(0, 0.9, CZ);
+            table.castShadow = true;
+            S.add(table);
+            addBoxCollider(0, CZ, 7, 2.6, 0.9);
+
+            const tableBase = new THREE.Mesh(
+                new THREE.BoxGeometry(6.8, 0.75, 2.4),
+                tableMat
+            );
+            tableBase.position.set(0, 0.4, CZ);
+            S.add(tableBase);
+
+            const accent = new THREE.Mesh(
+                new THREE.BoxGeometry(7.1, 0.06, 0.12),
+                new THREE.MeshBasicMaterial({ color: SUSFEED_RED })
+            );
+            accent.position.set(0, 0.83, CZ + 1.28);
+            S.add(accent);
+
+            const chairMat = new THREE.MeshLambertMaterial({ color: 0x111820 });
+            const seatMat = new THREE.MeshLambertMaterial({ color: SUSFEED_RED_DARK });
+
+            for (let i = 0; i < 4; i++) {
+                const x = -2.4 + i * 1.6;
+                [-1.9, 1.9].forEach(oz => {
+                    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.15, 0.75), seatMat);
+                    seat.position.set(x, 0.55, CZ + oz);
+                    S.add(seat);
+
+                    const back = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.7, 0.1), chairMat);
+                    back.position.set(x, 0.95, CZ + oz + (oz > 0 ? 0.32 : -0.32));
+                    S.add(back);
+
+                    addBoxCollider(x, CZ + oz, 0.75, 0.75, 0.5);
+                });
+            }
+
+            const display = new THREE.Mesh(
+                new THREE.BoxGeometry(6, 3, 0.15),
+                new THREE.MeshLambertMaterial({ color: 0x111111 })
+            );
+            display.position.set(0, 3.5, CZ - 4.25);
+            S.add(display);
+
+            const displayScreen = new THREE.Mesh(
+                new THREE.PlaneGeometry(5.6, 2.7),
+                new THREE.MeshBasicMaterial({ color: SUSFEED_RED })
+            );
+            displayScreen.position.set(0, 3.5, CZ - 4.15);
+            S.add(displayScreen);
+
+            const displayGlow = new THREE.PointLight(SUSFEED_RED_GLOW, 0.5, 6);
+            displayGlow.position.set(0, 3.5, CZ - 3);
+            S.add(displayGlow);
+        }
+
+        function buildServerWall(S) {
+            const rackMat = new THREE.MeshLambertMaterial({ color: 0x050a0e });
+            const ledMatA = new THREE.MeshBasicMaterial({ color: SUSFEED_RED_GLOW });
+            const ledMatB = new THREE.MeshBasicMaterial({ color: 0x33cc66 });
+            const ledMatC = new THREE.MeshBasicMaterial({ color: 0xffaa33 });
+
+            const RACK_W = 1.6;
+            const RACK_H = 4;
+            const RACK_D = 1.2;
+
+            const positions = [];
+            for (let i = 0; i < 4; i++) {
+                positions.push({ x: -17 + i * 2, z: -12 });
+            }
+
+            positions.forEach(p => {
+                const rack = new THREE.Mesh(new THREE.BoxGeometry(RACK_W, RACK_H, RACK_D), rackMat);
+                rack.position.set(p.x, RACK_H / 2, p.z);
+                rack.castShadow = true;
+                rack.receiveShadow = true;
+                S.add(rack);
+                addBoxCollider(p.x, p.z, RACK_W, RACK_D, 0.85);
+
+                const unitCount = 16;
+                for (let u = 0; u < unitCount; u++) {
+                    const y = 0.35 + u * (RACK_H - 0.5) / unitCount;
+
+                    const unit = new THREE.Mesh(
+                        new THREE.BoxGeometry(RACK_W - 0.1, 0.16, 0.05),
+                        new THREE.MeshLambertMaterial({ color: 0x0e1418 })
+                    );
+                    unit.position.set(p.x, y, p.z + RACK_D / 2 + 0.01);
+                    S.add(unit);
+
+                    for (let l = 0; l < 5; l++) {
+                        if (Math.random() > 0.6) continue;
+                        const ledGeo = new THREE.BoxGeometry(0.05, 0.05, 0.02);
+                        const choice = Math.random();
+                        const mat = choice > 0.7 ? ledMatA : (choice > 0.4 ? ledMatB : ledMatC);
+                        const led = new THREE.Mesh(ledGeo, mat);
+                        led.position.set(
+                            p.x - RACK_W / 2 + 0.2 + l * 0.28,
+                            y,
+                            p.z + RACK_D / 2 + 0.04
+                        );
+                        S.add(led);
+                    }
+                }
+
+                const labelTex = makeTextTex('SUSFEED', 0x050a0e, '#ba1a1a', 256, 64, 34);
+                const label = new THREE.Mesh(
+                    new THREE.PlaneGeometry(1.4, 0.35),
+                    new THREE.MeshBasicMaterial({ map: labelTex })
+                );
+                label.position.set(p.x, RACK_H + 0.25, p.z + RACK_D / 2 + 0.01);
+                S.add(label);
+            });
+
+            const rackGlow = new THREE.PointLight(SUSFEED_RED_GLOW, 0.4, 8);
+            rackGlow.position.set(-15.5, 2, -11);
+            S.add(rackGlow);
+        }
+
+        function buildLounge(S) {
+            const couchMat = new THREE.MeshLambertMaterial({ color: 0x1a2228 });
+            const cushionMat = new THREE.MeshLambertMaterial({ color: SUSFEED_RED_DARK });
+            const tableMat = new THREE.MeshLambertMaterial({ color: 0x050a0e });
+
+            [-1, 1].forEach(side => {
+                const CX = side * 15;
+                const CZ = -6;
+
+                const couch = new THREE.Mesh(new THREE.BoxGeometry(5, 0.7, 2.2), couchMat);
+                couch.position.set(CX, 0.35, CZ);
+                couch.castShadow = true;
+                couch.receiveShadow = true;
+                S.add(couch);
+                addBoxCollider(CX, CZ, 5, 2.2, 1.0);
+
+                const cushion = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.2, 2.0), cushionMat);
+                cushion.position.set(CX, 0.75, CZ);
                 S.add(cushion);
 
-                const backrest = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 0.3), loungeMat);
-                backrest.position.set(x, 1.3, -9.1);
+                const backrest = new THREE.Mesh(new THREE.BoxGeometry(5, 1.3, 0.3), couchMat);
+                backrest.position.set(CX, 1.3, CZ - 1.05);
                 S.add(backrest);
+
+                const armL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.3, 2.2), couchMat);
+                armL.position.set(CX - 2.4, 0.9, CZ);
+                S.add(armL);
+
+                const armR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.3, 2.2), couchMat);
+                armR.position.set(CX + 2.4, 0.9, CZ);
+                S.add(armR);
+
+                const accent = new THREE.Mesh(
+                    new THREE.BoxGeometry(4.8, 0.06, 0.1),
+                    new THREE.MeshBasicMaterial({ color: SUSFEED_RED })
+                );
+                accent.position.set(CX, 0.82, CZ + 0.98);
+                S.add(accent);
+
+                const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.3, 0.1, 20), tableMat);
+                tableTop.position.set(CX, 0.75, CZ + 2.8);
+                tableTop.castShadow = true;
+                S.add(tableTop);
+                addBoxCollider(CX, CZ + 2.8, 2.6, 2.6, 0.9);
+
+                const tableLeg = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.15, 0.2, 0.75, 12),
+                    new THREE.MeshLambertMaterial({ color: 0x2a3840 })
+                );
+                tableLeg.position.set(CX, 0.375, CZ + 2.8);
+                S.add(tableLeg);
+
+                const magazine = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.03, 0.8),
+                    new THREE.MeshLambertMaterial({ color: SUSFEED_RED })
+                );
+                magazine.position.set(CX - 0.3, 0.81, CZ + 2.8);
+                S.add(magazine);
+                const magazine2 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.5, 0.03, 0.7),
+                    new THREE.MeshLambertMaterial({ color: 0x2a3840 })
+                );
+                magazine2.position.set(CX + 0.35, 0.81, CZ + 2.8);
+                magazine2.rotation.y = 0.3;
+                S.add(magazine2);
             });
+        }
 
-            const tableMat = new THREE.MeshLambertMaterial({ color: 0x0d1218 });
-            const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.1, 16), tableMat);
-            tableTop.position.set(0, 0.8, -8);
-            S.add(tableTop);
-            Engine.addCollider(0, -8, 1.8);
+        function buildCoffeeStation(S) {
+            const cabinetMat = new THREE.MeshLambertMaterial({ color: PANEL_DARK });
+            const topMat = new THREE.MeshLambertMaterial({ color: 0x050a0e });
 
-            const tableLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8, 8), tableMat);
-            tableLeg.position.set(0, 0.4, -8);
-            S.add(tableLeg);
+            const CX = 17;
+            const CZ = 12;
 
+            const cabinet = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.0, 1.4), cabinetMat);
+            cabinet.position.set(CX, 0.5, CZ);
+            cabinet.castShadow = true;
+            S.add(cabinet);
+            addBoxCollider(CX, CZ, 2.2, 1.4, 0.75);
+
+            const top = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.08, 1.5), topMat);
+            top.position.set(CX, 1.04, CZ);
+            S.add(top);
+
+            const machine = new THREE.Mesh(
+                new THREE.BoxGeometry(0.9, 0.9, 0.7),
+                new THREE.MeshLambertMaterial({ color: 0x0a0a0a })
+            );
+            machine.position.set(CX - 0.4, 1.5, CZ);
+            machine.castShadow = true;
+            S.add(machine);
+
+            const display = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.6, 0.2),
+                new THREE.MeshBasicMaterial({ color: SUSFEED_RED })
+            );
+            display.position.set(CX - 0.4, 1.75, CZ + 0.36);
+            S.add(display);
+
+            const spout = new THREE.Mesh(
+                new THREE.BoxGeometry(0.15, 0.3, 0.15),
+                new THREE.MeshLambertMaterial({ color: 0x2a2a2a })
+            );
+            spout.position.set(CX - 0.4, 1.15, CZ + 0.35);
+            S.add(spout);
+
+            const cupsMat = new THREE.MeshLambertMaterial({ color: 0xfff4e0 });
+            const stack = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.08, 0.08, 0.35, 12),
+                cupsMat
+            );
+            stack.position.set(CX + 0.7, 1.25, CZ - 0.1);
+            S.add(stack);
+
+            const signTex = makeTextTex('COFFEE', 0x050a0e, '#ba1a1a', 512, 128, 60);
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 0.5),
+                new THREE.MeshBasicMaterial({ map: signTex })
+            );
+            sign.position.set(CX, 2.6, CZ + 0.76);
+            S.add(sign);
+        }
+
+        function buildPlanters(S) {
+            const potMat = new THREE.MeshLambertMaterial({ color: 0x2a2a2a });
             const plantMat = new THREE.MeshLambertMaterial({ color: 0x2e5e32 });
-            const potMat = new THREE.MeshLambertMaterial({ color: 0x444444 });
-            [-17, 17].forEach(x => {
-                const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 0.8, 12), potMat);
-                pot.position.set(x, 0.4, -20);
+            const plantMat2 = new THREE.MeshLambertMaterial({ color: 0x1e4e28 });
+
+            const positions = [
+                [-18, -20], [18, -20],
+                [-18, 4], [18, 4],
+                [-18, 22], [18, 22]
+            ];
+
+            positions.forEach(p => {
+                const pot = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.2, 0.9, 1.2),
+                    potMat
+                );
+                pot.position.set(p[0], 0.45, p[1]);
+                pot.castShadow = true;
                 S.add(pot);
-                const plant = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 6), plantMat);
-                plant.position.set(x, 1.4, -20);
-                plant.castShadow = true;
-                S.add(plant);
+                addBoxCollider(p[0], p[1], 1.2, 1.2, 0.6);
+
+                for (let i = 0; i < 3; i++) {
+                    const leaf = new THREE.Mesh(
+                        new THREE.ConeGeometry(0.6 - i * 0.1, 1.4 + i * 0.3, 6),
+                        i % 2 === 0 ? plantMat : plantMat2
+                    );
+                    leaf.position.set(p[0], 1.4 + i * 0.4, p[1]);
+                    leaf.castShadow = true;
+                    S.add(leaf);
+                }
             });
+        }
 
-            const officeWallMat = new THREE.MeshLambertMaterial({ color: 0x0d1218 });
-            const officeGlassMat = new THREE.MeshBasicMaterial({ color: 0x66ccff, transparent: true, opacity: 0.12, side: THREE.DoubleSide });
-
-            [-13, 13].forEach((officeX, idx) => {
-                const backWall = new THREE.Mesh(new THREE.BoxGeometry(0.3, 6, 8), officeWallMat);
-                backWall.position.set(officeX + (idx === 0 ? -3.5 : 3.5), 3, -20);
-                S.add(backWall);
-
-                const sideWall1 = new THREE.Mesh(new THREE.BoxGeometry(7, 6, 0.3), officeWallMat);
-                sideWall1.position.set(officeX, 3, -24);
-                S.add(sideWall1);
-
-                const sideWall2 = new THREE.Mesh(new THREE.BoxGeometry(7, 6, 0.3), officeWallMat);
-                sideWall2.position.set(officeX, 3, -16);
-                S.add(sideWall2);
-
-                const glassFront = new THREE.Mesh(new THREE.PlaneGeometry(7, 5), officeGlassMat);
-                glassFront.position.set(officeX, 3, -15.85);
-                S.add(glassFront);
-
-                const oDeskMat = new THREE.MeshLambertMaterial({ color: 0x1a2530 });
-                const oDesk = new THREE.Mesh(new THREE.BoxGeometry(4, 0.1, 2), oDeskMat);
-                oDesk.position.set(officeX, 0.95, -19);
-                S.add(oDesk);
-                Engine.addCollider(officeX, -19, 2.5);
-
-                const deskBase = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.9, 1.8), oDeskMat);
-                deskBase.position.set(officeX, 0.45, -19);
-                S.add(deskBase);
-
-                const chairMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
-                const chair = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.7), chairMat);
-                chair.position.set(officeX, 0.6, -20);
-                S.add(chair);
-
-                const nameTex = Engine.createTextTexture(idx === 0 ? 'CAMERON' : 'PHILLIP', 0x00ccff, '#0a1018');
-                const namePlate = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 0.5), new THREE.MeshBasicMaterial({ map: nameTex }));
-                namePlate.position.set(officeX, 3.5, -15.7);
-                S.add(namePlate);
-            });
-
+        function buildExit(S) {
             const doorMat = new THREE.MeshLambertMaterial({ color: 0x3a4a58 });
-            const eFrameMat = new THREE.MeshLambertMaterial({ color: 0x1a2530 });
+            const eFrameMat = new THREE.MeshLambertMaterial({ color: 0x0a0e14 });
             const eFrame = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 0.3), eFrameMat);
             eFrame.position.set(0, 2, 24.7);
             S.add(eFrame);
@@ -221,17 +1017,35 @@
                 S.add(door);
             });
 
-            const panelMat = new THREE.MeshBasicMaterial({ color: 0x00ccff });
+            const pushBar = new THREE.Mesh(
+                new THREE.BoxGeometry(3.4, 0.12, 0.12),
+                new THREE.MeshLambertMaterial({ color: SUSFEED_RED })
+            );
+            pushBar.position.set(0, 1.2, 24.42);
+            S.add(pushBar);
+
+            const exitGlow = new THREE.PointLight(SUSFEED_RED_GLOW, 0.3, 4);
+            exitGlow.position.set(0, 1.2, 23.5);
+            S.add(exitGlow);
+
+            const panelMat = new THREE.MeshBasicMaterial({ color: SUSFEED_RED });
             const panel = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.3, 0.05), panelMat);
             panel.position.set(2.2, 1.5, 24.5);
             S.add(panel);
 
-            const signTex = Engine.createTextTexture('EXIT', 0x00ccff, '#0a1018');
-            const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.4), new THREE.MeshBasicMaterial({ map: signTex }));
-            sign.position.set(0, 4.2, 24.5);
+            const signTex = makeTextTex('EXIT', 0x050a0e, '#ba1a1a', 512, 128, 70);
+            const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.5, 0.4),
+                new THREE.MeshBasicMaterial({ map: signTex })
+            );
+            sign.position.set(0, 4.2, 24.4);
+            sign.rotation.y = Math.PI;
             S.add(sign);
 
-            const exitDoor = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 0.3), new THREE.MeshBasicMaterial({ visible: false }));
+            const exitDoor = new THREE.Mesh(
+                new THREE.BoxGeometry(4, 4, 0.3),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
             exitDoor.position.set(0, 2, 24.5);
             S.add(exitDoor);
             Engine.setExitTarget('../index.html', 'SUSFEED HQ');
@@ -241,8 +1055,8 @@
         Engine.init({
             bgColor: 0x0a0e14,
             fog: true,
-            fogNear: 25,
-            fogFar: 80,
+            fogNear: 30,
+            fogFar: 85,
             startX: 0,
             startZ: 22,
             bounds: { minX: -19.5, maxX: 19.5, minZ: -24.5, maxZ: 24.5 }
@@ -253,7 +1067,15 @@
         Engine.loadNPCs(
             ['cam.png', 'phil.png', 'neil.png', 'smeff.png', 'olivia.png', 'andrew.png', 'johnsusfeed.png'],
             '../img/',
-            [[-13, -19], [13, -19], [-5, 5], [5, -2], [-8, 10], [8, 8], [0, 0]]
+            [
+                [-13, -17],
+                [13, -17],
+                [-8, 0],
+                [8, 6],
+                [-8, 12],
+                [8, 12],
+                [0, 16]
+            ]
         );
 
         Engine.start();

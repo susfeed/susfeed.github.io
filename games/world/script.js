@@ -44,10 +44,6 @@ let npcs = [];
 let allNpcData = [];
 let colliders = [];
 let crosshair;
-let car;
-let carPrompt;
-let inCarRange = false;
-let carMesh;
 
 function init() {
     scene = new THREE.Scene();
@@ -81,12 +77,10 @@ function init() {
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2(0, 0);
     crosshair = document.getElementById('crosshair');
-    carPrompt = document.getElementById('prompt');
 
     setupLights();
     setupWorld();
     setupBuildings();
-    setupCar();
     setupNPCs();
     setupControls();
 
@@ -739,57 +733,6 @@ function setupWorld() {
     }
 }
 
-function setupCar() {
-    const carGroup = new THREE.Group();
-
-    const bodyMat = new THREE.MeshLambertMaterial({ color: 0xcc2222 });
-    const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1, 4.5), bodyMat);
-    body.position.y = 0.8;
-    body.castShadow = true;
-    body.userData = { isCar: true };
-    carGroup.add(body);
-
-    const cabinMat = new THREE.MeshLambertMaterial({ color: 0x88ccff, transparent: true, opacity: 0.7 });
-    const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.8, 2), cabinMat);
-    cabin.position.set(0, 1.7, -0.3);
-    cabin.castShadow = true;
-    cabin.userData = { isCar: true };
-    carGroup.add(cabin);
-
-    const wheelMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
-    const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 12);
-    const wheelPositions = [
-        [-1.1, 0.4, 1.4], [1.1, 0.4, 1.4],
-        [-1.1, 0.4, -1.4], [1.1, 0.4, -1.4]
-    ];
-    wheelPositions.forEach(pos => {
-        const wheel = new THREE.Mesh(wheelGeo, wheelMat);
-        wheel.position.set(pos[0], pos[1], pos[2]);
-        wheel.rotation.z = Math.PI / 2;
-        wheel.castShadow = true;
-        wheel.userData = { isCar: true };
-        carGroup.add(wheel);
-    });
-
-    const lightMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const light1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.1), lightMat);
-    light1.position.set(-0.7, 0.9, 2.25);
-    light1.userData = { isCar: true };
-    carGroup.add(light1);
-    const light2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.1), lightMat);
-    light2.position.set(0.7, 0.9, 2.25);
-    light2.userData = { isCar: true };
-    carGroup.add(light2);
-
-    carGroup.position.set(8, 0, 0);
-    carGroup.rotation.y = Math.PI / 2;
-
-    scene.add(carGroup);
-    car = carGroup;
-    carMesh = carGroup;
-    colliders.push({ x: 8, z: 0, r: 3 });
-}
-
 function setupNPCs() {
     const loader = new THREE.TextureLoader();
 
@@ -867,10 +810,6 @@ function despawnNPC(npc) {
     }
 }
 
-function enterCar() {
-    window.location.href = 'susfeed-university.html';
-}
-
 function setupControls() {
     const overlay = document.getElementById('overlay');
 
@@ -900,7 +839,6 @@ function setupControls() {
                 event.preventDefault();
                 break;
             case 'KeyE':
-                if (inCarRange) enterCar();
                 break;
         }
     });
@@ -930,13 +868,6 @@ function setupControls() {
                 window.location.href = path;
             }
             return;
-        }
-
-        if (carMesh) {
-            const carHits = raycaster.intersectObjects(carMesh.children, true);
-            if (carHits.length > 0 && carHits[0].distance < 15) {
-                enterCar();
-            }
         }
     });
 }
@@ -1004,24 +935,10 @@ function animate() {
         let lookingAtInteractable = false;
         if (doorHits.length > 0 && doorHits[0].distance < 10) lookingAtInteractable = true;
 
-        if (carMesh) {
-            const carHits = raycaster.intersectObjects(carMesh.children, true);
-            if (carHits.length > 0 && carHits[0].distance < 15) lookingAtInteractable = true;
-        }
-
         if (lookingAtInteractable) {
             crosshair.classList.add('active');
         } else {
             crosshair.classList.remove('active');
-        }
-
-        const carDist = player.position.distanceTo(car.position);
-        if (carDist < 6) {
-            inCarRange = true;
-            if (carPrompt) carPrompt.style.display = 'block';
-        } else {
-            inCarRange = false;
-            if (carPrompt) carPrompt.style.display = 'none';
         }
     }
 

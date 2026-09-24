@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SusFeed 5</title>
+  <link rel="shortcut icon" href="../img/amogus.webp" type="image/x-icon">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f4f1ec;
+      color: #1c1c1c;
+      line-height: 1.55;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .anniversary-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: #f4f1ec;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: color .3s ease;
+    }
+
+    .site-header {
+      background: #fff;
+      color: #222;
+      border-bottom: 1px solid #ddd;
+      margin-top: 0;
+      position: relative;
+    }
+
+    .site-header::after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 6px;
+      background-color: #ba1a1a;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 0 14px;
+      gap: 12px;
+    }
+
+    .logo-link {
+      display: inline-block;
+    }
+
+    .logo {
+      width: 200px;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,.2));
+    }
+
+    .masthead-flag {
+      display: inline-block;
+      background-color: #ba1a1a;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 6px 24px 5px;
+    }
+
+    .masthead-date {
+      font-size: 11px;
+      color: #6b6b6b;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .main-nav {
+      background-color: #ba1a1a;
+      box-shadow: inset 0 -2px 0 #ffcccc;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      list-style: none;
+      padding: 12px 0;
+      gap: 36px;
+      width: 90%;
+      max-width: 1100px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a,
+    .nav-links li a {
+      color: white;
+      font-weight: bold;
+      font-size: 15px;
+      position: relative;
+      padding: 4px 0;
+      display: inline-block;
+    }
+
+    .nav-links .nav-icon {
+      height: 2em;
+      width: auto;
+      display: inline-block;
+      vertical-align: middle;
+      transition: transform 0.2s ease;
+    }
+
+    .nav-links .nav-icon:hover {
+      transform: translateY(-2px);
+    }
+
+    .nav-links a:hover,
+    .nav-links li a:hover {
+      color: #ffe5e5;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 0;
+      height: 3px;
+      background: #ffe5e5;
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .dropdown {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .dropdown > a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 0;
+      height: 3px;
+      background: #ffe5e5;
+      transition: width 0.3s ease;
+    }
+
+    .dropdown:hover > a::after {
+      width: 100%;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #ba1a1a;
+      list-style: none;
+      padding: 10px 0;
+      margin: 0;
+      min-width: 180px;
+      border-radius: 6px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.25s ease;
+      z-index: 999;
+    }
+
+    .dropdown-menu li {
+      padding: 8px 20px;
+    }
+
+    .dropdown-menu li a {
+      color: white;
+      font-weight: 500;
+      display: block;
+      font-size: 14px;
+    }
+
+    .dropdown-menu li a::after {
+      display: none;
+    }
+
+    .dropdown-menu li:hover {
+      background: #9e1414;
+    }
+
+    .dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown.open .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    @media (hover: none) {
+      .dropdown:hover .dropdown-menu {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        gap: 20px;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        min-width: 160px;
+        display: none;
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .dropdown.open .dropdown-menu {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .header-top { padding: 16px 0 10px; }
+      .logo { width: 160px; }
+      .masthead-flag { font-size: 10px; letter-spacing: 3px; padding: 5px 16px 4px; }
+      .nav-links { gap: 14px; padding: 10px 0; }
+      .nav-links a { font-size: 13px; }
+      .main-nav { box-shadow: none; }
+    }
+
+    .anniversary-main {
+      flex: 1;
+      padding: 0 0 60px;
+    }
+
+    .anniversary-container {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 0 24px;
+      width: 100%;
+    }
+
+    .anniversary-hero {
+      background-color: #ffffff;
+      border-left: 6px solid #ba1a1a;
+      border-right: 6px solid #ba1a1a;
+      border-bottom: 6px solid #ba1a1a;
+      padding: 44px 40px 40px;
+      margin: 40px 0 40px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .anniversary-hero h1 {
+      font-size: 3.8rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #1c1c1c;
+      line-height: 1.05;
+      margin-bottom: 6px;
+    }
+
+    .anniversary-hero h1 span {
+      color: #ba1a1a;
+    }
+
+    .anniversary-hero .hero-rule {
+      width: 80px;
+      height: 3px;
+      background-color: #ba1a1a;
+      margin: 18px auto 20px;
+    }
+
+    .anniversary-hero .hero-sub {
+      font-size: 1.1rem;
+      color: #555;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .anniversary-hero .hero-lede {
+      max-width: 720px;
+      margin: 22px auto 0;
+      font-size: 1.05rem;
+      color: #444;
+      line-height: 1.7;
+    }
+
+    .category-block {
+      margin-bottom: 52px;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #d8d2c6;
+    }
+
+    .category-header .cat-label {
+      background-color: #ba1a1a;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 14px 5px;
+      white-space: nowrap;
+    }
+
+    .category-header h2 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #1c1c1c;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .project-grid.three-col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .project-grid.one-col {
+      grid-template-columns: 1fr;
+      max-width: 520px;
+    }
+
+    .project-card {
+      background-color: #ffffff;
+      border: 1px solid #d8d2c6;
+      border-top: 4px solid #ba1a1a;
+      text-decoration: none;
+      color: #1c1c1c;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.25s ease;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      position: relative;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+    }
+
+    .project-card-visual {
+      width: 100%;
+      height: 180px;
+      background-color: #e8e4dc;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-bottom: 1px solid #d8d2c6;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card-visual::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 40%;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.35), transparent);
+      pointer-events: none;
+    }
+
+    .project-card-body {
+      padding: 18px 18px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-card-kicker {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #ba1a1a;
+      margin-bottom: 6px;
+    }
+
+    .project-card-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #1c1c1c;
+      line-height: 1.25;
+      margin-bottom: 8px;
+      letter-spacing: 0.2px;
+    }
+
+    .project-card-desc {
+      font-size: 0.88rem;
+      color: #666;
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .project-card.wide {
+      grid-column: span 2;
+      flex-direction: row;
+    }
+
+    .project-card.wide .project-card-visual {
+      width: 42%;
+      height: auto;
+      min-height: 210px;
+      border-bottom: none;
+      border-right: 1px solid #d8d2c6;
+    }
+
+    .project-card.wide .project-card-body {
+      padding: 24px 26px 26px;
+    }
+
+    .project-card.wide .project-card-title {
+      font-size: 1.5rem;
+    }
+
+    .celebration-ticker {
+      background-color: #ba1a1a;
+      color: #ffffff;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      margin: 34px 0 36px;
+      border-bottom: 2px solid #8f1414;
+    }
+
+    .ticker-label {
+      background-color: #8f1414;
+      padding: 0 18px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .ticker-track {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      height: 100%;
+    }
+
+    .ticker-content {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%;
+      animation: tickerScroll 38s linear infinite;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      line-height: 34px;
+      will-change: transform;
+    }
+
+    .ticker-content span {
+      display: inline-block;
+      margin-right: 60px;
+    }
+
+    .ticker-content span::before {
+      content: "—";
+      margin-right: 12px;
+      opacity: 0.6;
+    }
+
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .celebration-ticker:hover .ticker-content {
+      animation-play-state: paused;
+    }
+
+    .anniversary-quote {
+      background-color: #ffffff;
+      border-left: 6px solid #ba1a1a;
+      padding: 34px 40px 30px;
+      margin: 0 0 50px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      text-align: center;
+    }
+
+    .anniversary-quote blockquote {
+      font-size: 1.25rem;
+      font-style: italic;
+      color: #333;
+      max-width: 760px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .anniversary-quote cite {
+      display: block;
+      margin-top: 14px;
+      font-style: normal;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #ba1a1a;
+    }
+
+    .site-footer {
+      background: #ba1a1a;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      font-size: 14px;
+      margin-top: auto;
+      box-shadow: inset 0 1px 0 #ffdddd;
+    }
+
+    .site-footer .container {
+      width: 90%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .site-footer a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .site-footer a:hover {
+      color: #ffe5e5;
+    }
+
+    @media (max-width: 1100px) {
+      .project-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .project-grid.three-col {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .project-grid.one-col {
+        max-width: 100%;
+      }
+      .project-card.wide {
+        grid-column: span 2;
+        flex-direction: column;
+      }
+      .project-card.wide .project-card-visual {
+        width: 100%;
+        min-height: 180px;
+        border-right: none;
+        border-bottom: 1px solid #d8d2c6;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .anniversary-hero h1 {
+        font-size: 2.2rem;
+        letter-spacing: 1px;
+      }
+      .anniversary-hero {
+        padding: 30px 20px 28px;
+      }
+      .anniversary-hero .hero-sub {
+        font-size: 0.9rem;
+      }
+      .project-grid,
+      .project-grid.three-col {
+        grid-template-columns: 1fr;
+      }
+      .project-card.wide {
+        grid-column: span 1;
+      }
+      .category-header h2 {
+        font-size: 1.15rem;
+      }
+      .anniversary-quote {
+        padding: 24px 20px 22px;
+      }
+      .anniversary-quote blockquote {
+        font-size: 1rem;
+      }
+      .celebration-ticker {
+        height: 28px;
+      }
+      .ticker-content {
+        font-size: 10px;
+        line-height: 28px;
+      }
+      .ticker-label {
+        font-size: 9px;
+        padding: 0 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .anniversary-hero h1 {
+        font-size: 1.7rem;
+      }
+      .anniversary-container {
+        padding: 0 14px;
+      }
+      .project-card-title {
+        font-size: 1rem;
+      }
+      .project-card.wide .project-card-title {
+        font-size: 1.15rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="anniversary-wrapper">
+
+    <header class="site-header">
+      <div class="header-top">
+        <a href="../index.html" class="logo-link">
+          <img src="../img/logo.webp" alt="SusFeed Logo" class="logo" />
+        </a>
+        <div class="masthead-flag">5th Anniversary</div>
+        <div class="masthead-date">Est. 2022 - 2027</div>
+      </div>
+
+      <nav class="main-nav">
+        <ul class="nav-links">
+          <li><a href="../index.html"><img src="../img/amogus.webp" alt="SusFeed Icon" class="nav-icon" /></a></li>
+
+          <li class="dropdown">
+            <a href="#">SusFeed News ▾</a>
+            <ul class="dropdown-menu">
+              <li><a href="../articles.html">Susarticles</a></li>
+              <li><a href="../quiz.html">Quizzes</a></li>
+              <li><a href="../games.html">Games</a></li>
+            </ul>
+          </li>
+
+          <li class="dropdown">
+            <a href="../TV/index.html">SusFeed Video</a>
+          </li>
+
+          <li class="dropdown">
+            <a href="#">SusFeed Edu ▾</a>
+            <ul class="dropdown-menu">
+              <li><a href="../susipedia/index.html">SusiPedia</a></li>
+            </ul>
+          </li>
+
+          <li class="dropdown">
+            <a href="#">About ▾</a>
+            <ul class="dropdown-menu">
+              <li><a href="../about.html">About</a></li>
+              <li><a href="../corporate/index.html">Corporate</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="anniversary-main">
+      <div class="anniversary-container">
+
+        <div class="celebration-ticker">
+          <div class="ticker-label">Anniversary</div>
+          <div class="ticker-track">
+            <div class="ticker-content">
+              <span>SusFeed celebrates five years of sus</span>
+              <span>Coke on Coke declared funniest video ever made</span>
+              <span>The Boys: The Game wins Game of the Year</span>
+              <span>SusFeed Expands to Other Languages</span>
+              <span>SusFeed University Accepts Record Number of Students</span>
+              <span>SusFeed Declared Greatest Publisher Ever</span>
+              <span>SusFeed Invents The Matrix</span>
+              <span>SusFeed Invents New AI-Free OS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="anniversary-hero">
+          <h1>Five Years of <span>SusFeed</span></h1>
+          <div class="hero-rule"></div>
+          <div class="hero-sub">Happy 5 Years of SusFeed!</div>
+          <p class="hero-lede">
+            From Top 10 Farts of All Time to a brand beyond the ages.
+            SusFeed is honoring our legacy with a host of new projects.
+            Please enjoy!
+          </p>
+        </div>
+
+        <section class="category-block">
+          <div class="category-header">
+            <div class="cat-label">Project Coke</div>
+            <h2>Honoring Our Legacy</h2>
+          </div>
+          <div class="project-grid">
+            <a href="../games/anniversary/index.html" class="project-card">
+              <div class="project-card-visual" style="background-image: url('img/classic.png');"></div>
+              <div class="project-card-body">
+                <div class="project-card-kicker">C</div>
+                <div class="project-card-title">SusFeed Classic</div>
+                <div class="project-card-desc">The original site, recreated from scratch.</div>
+              </div>
+            </a>
+            <a href="../susfeed-japan/index.html" class="project-card">
+              <div class="project-card-visual" style="background-image: url('../img/japan-cover.webp');"></div>
+              <div class="project-card-body">
+                <div class="project-card-kicker">O</div>
+                <div class="project-card-title">SusFeed Japan</div>
+                <div class="project-card-desc">Original content, now in Japanese.</div>
+              </div>
+            </a>
+            <a href="../university/journal/index.html" class="project-card">
+              <div class="project-card-visual" style="background-image: url('img/press.png');"></div>
+              <div class="project-card-body">
+                <div class="project-card-kicker">K</div>
+                <div class="project-card-title">SusFeed Press</div>
+                <div class="project-card-desc">The print wing of SusFeed University.</div>
+              </div>
+            </a>
+            <a href="../university/index.html" class="project-card">
+              <div class="project-card-visual" style="background-image: url('img/university.png');"></div>
+              <div class="project-card-body">
+                <div class="project-card-kicker">E</div>
+                <div class="project-card-title">SusFeed University</div>
+                <div class="project-card-desc">Enroll now!</div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <div class="anniversary-quote">
+          <blockquote>
+            &ldquo;To think, making one silly article could bring us here.
+            Thank you, everyone. Thank you for everything we have made.&rdquo;
+          </blockquote>
+          <cite>— Cameron Impostor</cite>
+        </div>
+
+        <section class="category-block">
+          <div class="category-header">
+            <div class="cat-label">Project World</div>
+            <h2>Reinventing SusFeed</h2>
+          </div>
+          <div class="project-grid one-col">
+            <a href="../games/world/index.html" class="project-card">
+              <div class="project-card-visual" style="background-image: url('img/world.png');"></div>
+              <div class="project-card-body">
+                <div class="project-card-kicker">World</div>
+                <div class="project-card-title">SusFeed World</div>
+                <div class="project-card-desc">Become immersed, become sus.</div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <section class="category-block">
+          <div class="category-header">
+            <div class="cat-label">Project 5</div>
+            <h2>Honoring The Boys</h2>
+          </div>
+          <div class="project-grid three-col">
+            <a href="../os/theboys/The Boys the Game.html" class="project-card">
+              <div class="project-card-visual" style="background-image: url('img/theboys.png');"></div>
+              <div class="project-card-body">
+                <div class="project-card-kicker">The Boys</div>
+                <div class="project-card-title">The Boys: The Game</div>
+                <div class="project-card-desc">The group that runs the site. Thank you all.</div>
+              </div>
+            </a>
+            <a href="../os/os.html" class="project-card">
+              <div class="project-card-visual" style="background-image: url('img/suos.png');"></div>
+              <div class="project-card-body">
+                <div class="project-card-kicker">SusFeed's Final Form</div>
+                <div class="project-card-title">SUOS</div>
+                <div class="project-card-desc">SusFeed, but as an OS???</div>
+              </div>
+            </a>
+            <a href="../coke-on-coke/index.html" class="project-card">
+              <div class="project-card-visual" style="background-image: url('../img/coke-cover.webp');"></div>
+              <div class="project-card-body">
+                <div class="project-card-kicker">The First Video</div>
+                <div class="project-card-title">Coke on Coke</div>
+                <div class="project-card-desc">Ladies and gentlemen:</div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <a href="../games/anniversary/index.html">
+          <p>&copy; 2027 SusFeed. All rights reserved.</p>
+        </a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.dropdown').forEach(drop => {
+        drop.addEventListener('click', function (e) {
+          e.stopPropagation();
+          this.classList.toggle('open');
+        });
+      });
+
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+      });
+    });
+  </script>
+</body>
+</html>
