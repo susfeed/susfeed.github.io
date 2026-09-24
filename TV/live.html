@@ -26,31 +26,32 @@
     </nav>
   </header>
 
-  <main class="container" style="padding:40px 0;text-align:center;">
+  <main class="container live-container-page">
     <div class="live-wrapper">
-  <video id="live-player" autoplay></video>
+      <video id="live-player" autoplay playsinline></video>
 
-  <div class="live-overlay">
-    <div class="live-bug">
-        LIVE <span class="channel-num">CH 69</span>
-        <div id="channel-popup" class="channel-popup hidden">
-          <div class="popup-number"></div>
-          <div class="popup-name"></div>
+      <div class="live-overlay">
+        <div class="live-bug">
+          LIVE <span class="channel-num">CH 69</span>
+          <div id="channel-popup" class="channel-popup hidden">
+            <div class="popup-number"></div>
+            <div class="popup-name"></div>
+          </div>
         </div>
+        <div class="live-title" id="live-title">Now Playing</div>
+      </div>
+
+      <button id="mobile-play" class="mobile-play hidden">▶ Tap to Play</button>
+      <img src="img/logo.png" class="live-watermark" alt="" />
+
+      <div class="live-controls">
+        <div class="channel-controls">
+          <button id="ch-down" aria-label="Previous channel">◀</button>
+          <button id="ch-up" aria-label="Next channel">▶</button>
+        </div>
+        <button id="fs-btn" class="fs-btn" aria-label="Fullscreen">⛶</button>
+      </div>
     </div>
-    <div class="live-title" id="live-title">Now Playing</div>
-</div>
-
-  <button id="mobile-play" class="mobile-play hidden">▶ Tap to Play</button>
-  <img src="img/logo.png" class="live-watermark" />
-
-  
-  <button id="fs-btn" class="fs-btn">⛶</button>
-  <div class="channel-controls">
-  <button id="ch-down">◀ CH</button>
-  <button id="ch-up">CH ▶</button>
-  </div>
-</div>
   </main>
 
   <footer class="site-footer">©2026 SusFeed Video</footer>

@@ -33,6 +33,17 @@ let mode = 'content';
 let blockTime = CONTENT_BLOCK;
 let blockExpired = false;
 
+let titleFadeTimer;
+
+function showTitle(text) {
+  titleBox.textContent = text;
+  titleBox.classList.remove('fade-out');
+  clearTimeout(titleFadeTimer);
+  titleFadeTimer = setTimeout(() => {
+    titleBox.classList.add('fade-out');
+  }, 3000);
+}
+
 async function init() {
   const data = await fetchJSON('videos/index.json');
   allVideos = data.videos;
@@ -52,6 +63,7 @@ async function init() {
 }
 
 function showChannelPopup(ch) {
+  popupNum.textContent = `CH ${ch.number}`;
   popupName.textContent = ch.name;
 
   popup.classList.remove('hidden');
@@ -60,6 +72,7 @@ function showChannelPopup(ch) {
   clearTimeout(popupTimer);
   popupTimer = setTimeout(() => {
     popup.classList.remove('show');
+    setTimeout(() => popup.classList.add('hidden'), 300);
   }, 2000);
 }
 
@@ -72,7 +85,7 @@ function loadChannel() {
   );
 
   channelNumBox.textContent = `CH ${ch.number}`;
-  titleBox.textContent = ch.name || 'Now Playing';
+  showTitle(ch.name || 'Now Playing');
 
   if (ch.logo) {
     watermark.src = `img/${ch.logo}`;
@@ -95,7 +108,7 @@ function playRandomVideo(startMid = false) {
   if (!videos.length) return;
 
   const vid = rand(videos);
-  titleBox.textContent = vid.src.replace('.mp4', '');
+  showTitle(vid.src.replace('.mp4', ''));
   player.src = `videos/${vid.src}`;
 
   player.onloadedmetadata = () => {
@@ -111,7 +124,7 @@ function startAds() {
   mode = 'ads';
   blockTime = AD_BLOCK;
   watermark.style.display = 'none';
-  titleBox.textContent = 'Advertisement';
+  showTitle('Advertisement');
   playRandomAd();
 }
 
