@@ -162,12 +162,76 @@ function scrollToTop() {
   window.scrollTo(0, 0);
 }
 
+function makeCache(compute) {
+  let value = null;
+  let dirty = true;
+  return {
+    get() {
+      if (dirty || value === null) {
+        value = compute();
+        dirty = false;
+      }
+      return value;
+    },
+    invalidate() {
+      dirty = true;
+    }
+  };
+}
+
+function watchedBarHTML(progress) {
+  if (progress > 0 && progress < 1) {
+    return `<div class="watched-bar" style="width:${progress * 100}%"></div>`;
+  }
+  return '';
+}
+
+function wireSubscribeBtn(btn) {
+  if (!btn) return;
+  btn.onclick = e => {
+    e.stopPropagation();
+    const key = btn.dataset.channel;
+    const now = toggleSubscribe(key);
+    btn.textContent = now ? 'Subscribed' : 'Subscribe';
+    btn.classList.toggle('subscribed', now);
+    invalidateRecommendations();
+  };
+}
+
+function wireVoteButtons(scope, videoSrc, onChange) {
+  const likeBtn = scope.querySelector('.thumb.like');
+  const dislikeBtn = scope.querySelector('.thumb.dislike');
+  const refresh = () => {
+    const vote = getVotes()[videoSrc];
+    if (likeBtn) likeBtn.classList.toggle('active', vote === 'like');
+    if (dislikeBtn) dislikeBtn.classList.toggle('active', vote === 'dislike');
+  };
+  if (likeBtn) {
+    likeBtn.onclick = e => {
+      e.stopPropagation();
+      const cur = getVotes()[videoSrc];
+      setVote(videoSrc, cur === 'like' ? null : 'like');
+      invalidateRecommendations();
+      refresh();
+      if (onChange) onChange();
+    };
+  }
+  if (dislikeBtn) {
+    dislikeBtn.onclick = e => {
+      e.stopPropagation();
+      const cur = getVotes()[videoSrc];
+      setVote(videoSrc, cur === 'dislike' ? null : 'dislike');
+      invalidateRecommendations();
+      refresh();
+      if (onChange) onChange();
+    };
+  }
+  refresh();
+}
+
 let allVideos = [];
 let ads = [];
 let channels = {};
-let currentPage = 'home';
-let hoverTimer = null;
-let hoverVideo = null;
 let acSelectedIndex = -1;
 let acResults = [];
 
@@ -183,43 +247,11 @@ let autoplayTimer = null;
 let autoplayCountdown = 5;
 
 let activeWatchPlayer = null;
-let activeShortsVideos = new Set();
 let watchSkipTimer = null;
 
-function getChannelForVideo(video) {
-  if (!video.channels || !video.channels.length) return null;
+let shortsResumeIndex = 0;
 
-  let best = null;
-  for (const key of video.channels) {
-    const ch = channels[key];
-    if (!ch) continue;
-    if (!best || ch.number < best.number) {
-      best = { key, name: ch.name, logo: ch.logo, number: ch.number };
-    }
-  }
-  return best;
-}
-
-function channelAvatarHTML(video) {
-  const ch = getChannelForVideo(video);
-  if (!ch) return '<div class="channel-avatar"></div>';
-  return `<img class="channel-avatar" src="img/${ch.logo}" alt="${ch.name}" data-channel="${ch.key}" onerror="this.style.display='none'">`;
-}
-
-function channelNameHTML(video) {
-  const ch = getChannelForVideo(video);
-  if (!ch) return '';
-  return `<a class="channel-name" href="#/channel/${ch.key}" data-channel="${ch.key}">${ch.name}</a>`;
-}
-
-function subscribeBtnHTML(video) {
-  const ch = getChannelForVideo(video);
-  if (!ch) return '';
-  const subbed = isSubscribed(ch.key);
-  return `<button class="subscribe-btn ${subbed ? 'subscribed' : ''}" data-channel="${ch.key}">${subbed ? 'Subscribed' : 'Subscribe'}</button>`;
-}
-
-function getRecommendations() {
+function computeRecommendations() {
   const nonShortsVideos = allVideos.filter(v => !isShort(v));
 
   const votes = getVotes();
@@ -260,7 +292,7 @@ function getRecommendations() {
   return scored.map(s => s.video);
 }
 
-function getShortsRecommendations() {
+function computeShortsRecommendations() {
   const shorts = allVideos.filter(v => isShort(v));
   const votes = getVotes();
 
@@ -294,6 +326,55 @@ function getShortsRecommendations() {
   return scored.map(s => s.video);
 }
 
+const recCache = makeCache(computeRecommendations);
+const shortsCache = makeCache(computeShortsRecommendations);
+
+function getRecommendations() {
+  return recCache.get();
+}
+
+function getShortsRecommendations() {
+  return shortsCache.get();
+}
+
+function invalidateRecommendations() {
+  recCache.invalidate();
+  shortsCache.invalidate();
+}
+
+function getChannelForVideo(video) {
+  if (!video.channels || !video.channels.length) return null;
+
+  let best = null;
+  for (const key of video.channels) {
+    const ch = channels[key];
+    if (!ch) continue;
+    if (!best || ch.number < best.number) {
+      best = { key, name: ch.name, logo: ch.logo, number: ch.number };
+    }
+  }
+  return best;
+}
+
+function channelAvatarHTML(video) {
+  const ch = getChannelForVideo(video);
+  if (!ch) return '<div class="channel-avatar"></div>';
+  return `<img class="channel-avatar" src="img/${ch.logo}" alt="${ch.name}" data-channel="${ch.key}" onerror="this.style.display='none'">`;
+}
+
+function channelNameHTML(video) {
+  const ch = getChannelForVideo(video);
+  if (!ch) return '';
+  return `<a class="channel-name" href="#/channel/${ch.key}" data-channel="${ch.key}">${ch.name}</a>`;
+}
+
+function subscribeBtnHTML(video) {
+  const ch = getChannelForVideo(video);
+  if (!ch) return '';
+  const subbed = isSubscribed(ch.key);
+  return `<button class="subscribe-btn ${subbed ? 'subscribed' : ''}" data-channel="${ch.key}">${subbed ? 'Subscribed' : 'Subscribe'}</button>`;
+}
+
 function attachDurationBadge(videoEl, badgeEl) {
   const setBadge = () => {
     if (videoEl.duration && isFinite(videoEl.duration)) {
@@ -314,12 +395,6 @@ function pauseAllMedia() {
       if (!v.paused) v.pause();
     } catch {}
   });
-  if (activeWatchPlayer) {
-    try { activeWatchPlayer.pause(); } catch {}
-  }
-  activeShortsVideos.forEach(v => {
-    try { v.pause(); } catch {}
-  });
 }
 
 function clearWatchSkipTimer() {
@@ -338,24 +413,29 @@ function navigate(path, replace) {
 }
 
 function route() {
-  pauseAllMedia();
   destroyInfiniteScroll();
   clearAutoplayTimer();
   clearWatchSkipTimer();
 
   const hash = location.hash || '';
+  const isWatchRoute = hash.startsWith('#/watch/');
+  const isShortsRoute = hash.startsWith('#/shorts');
 
-  if (hash.startsWith('#/watch/')) {
+  if (!isWatchRoute && !isShortsRoute) {
+    pauseAllMedia();
+  }
+
+  if (isWatchRoute) {
     const src = decodeURIComponent(hash.slice('#/watch/'.length));
-    showWatchPage(src, false);
+    showWatchPage(src);
     return;
   }
   if (hash.startsWith('#/channel/')) {
     const key = decodeURIComponent(hash.slice('#/channel/'.length));
-    showChannelPage(key, false);
+    showChannelPage(key);
     return;
   }
-  if (hash.startsWith('#/shorts')) {
+  if (isShortsRoute) {
     openShortsPlayer();
     return;
   }
@@ -367,15 +447,14 @@ function route() {
   }
   if (hash.startsWith('#/page/')) {
     const page = hash.slice('#/page/'.length);
-    showPage(page, false);
+    showPage(page);
     return;
   }
 
-  showPage('home', false);
+  showPage('home');
 }
 
-function showPage(page, push) {
-  currentPage = page;
+function showPage(page) {
   destroyInfiniteScroll();
   scrollToTop();
 
@@ -601,32 +680,51 @@ function openShortsPlayer(startSrc) {
   if (!location.hash.startsWith('#/shorts')) {
     history.pushState({}, '', `${location.pathname}${location.search}#/shorts`);
   }
-  buildShortsFeed(startSrc);
-  shortsCurrentIndex = 0;
 
   const modal = document.getElementById('shorts-modal');
+  const container = document.getElementById('shorts-container');
+  const wasOpen = !modal.classList.contains('hidden');
+
+  if (startSrc) {
+    buildShortsFeed(startSrc);
+    shortsCurrentIndex = 0;
+    shortsResumeIndex = 0;
+  } else if (!wasOpen) {
+    if (shortsFeed.length === 0) {
+      buildShortsFeed();
+      shortsResumeIndex = 0;
+    }
+    shortsCurrentIndex = Math.min(shortsResumeIndex, Math.max(0, shortsFeed.length - 1));
+  }
+
   modal.classList.remove('hidden');
 
   renderShortsSlides();
 
-  const container = document.getElementById('shorts-container');
-  container.scrollTop = 0;
-
-  setTimeout(() => setupShortsObserver(), 50);
+  requestAnimationFrame(() => {
+    const slide = container.querySelector(`.short-slide[data-index="${shortsCurrentIndex}"]`);
+    if (slide) {
+      container.scrollTop = slide.offsetTop;
+    } else {
+      container.scrollTop = 0;
+    }
+    setTimeout(() => setupShortsObserver(), 50);
+  });
 }
 
 function closeShortsPlayer() {
   const modal = document.getElementById('shorts-modal');
-  modal.classList.add('hidden');
-
   const container = document.getElementById('shorts-container');
+
+  shortsResumeIndex = shortsCurrentIndex;
+
   container.querySelectorAll('video').forEach(v => {
     v.pause();
     v.removeAttribute('src');
     v.load();
   });
-  activeShortsVideos.clear();
-  container.innerHTML = '';
+
+  modal.classList.add('hidden');
 
   if (shortsObserver) {
     shortsObserver.disconnect();
@@ -641,7 +739,6 @@ function closeShortsPlayer() {
 function renderShortsSlides() {
   const container = document.getElementById('shorts-container');
   container.innerHTML = '';
-  activeShortsVideos.clear();
 
   shortsFeed.forEach((item, idx) => {
     const slide = document.createElement('div');
@@ -661,6 +758,9 @@ function renderShortsSlides() {
       const video = item.video;
       const ch = getChannelForVideo(video);
       const subbed = ch ? isSubscribed(ch.key) : false;
+      const votes = getVotes();
+      const likeActive = votes[video.src] === 'like' ? 'active' : '';
+      const dislikeActive = votes[video.src] === 'dislike' ? 'active' : '';
       slide.innerHTML = `
         <video playsinline loop preload="metadata">
           <source src="videos/${video.src}" type="video/mp4">
@@ -678,11 +778,11 @@ function renderShortsSlides() {
           ` : ''}
         </div>
         <div class="short-actions">
-          <div class="short-action like-action" data-src="${video.src}">
+          <div class="short-action like-action ${likeActive}" data-src="${video.src}">
             <div class="short-action-icon">👍</div>
             <span>Like</span>
           </div>
-          <div class="short-action dislike-action" data-src="${video.src}">
+          <div class="short-action dislike-action ${dislikeActive}" data-src="${video.src}">
             <div class="short-action-icon">👎</div>
             <span>Dislike</span>
           </div>
@@ -715,6 +815,7 @@ function attachShortsControls() {
       container.querySelectorAll(`.short-action.dislike-action[data-src="${CSS.escape(src)}"]`).forEach(a => {
         a.classList.remove('active');
       });
+      invalidateRecommendations();
     };
   });
 
@@ -732,6 +833,7 @@ function attachShortsControls() {
       container.querySelectorAll(`.short-action.like-action[data-src="${CSS.escape(src)}"]`).forEach(a => {
         a.classList.remove('active');
       });
+      invalidateRecommendations();
     };
   });
 
@@ -742,6 +844,7 @@ function attachShortsControls() {
       const nowSubbed = toggleSubscribe(key);
       el.textContent = nowSubbed ? 'Subscribed' : 'Subscribe';
       el.classList.toggle('subscribed', nowSubbed);
+      invalidateRecommendations();
     };
   });
 
@@ -770,12 +873,12 @@ function setupShortsObserver() {
 
       if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
         shortsCurrentIndex = idx;
+        shortsResumeIndex = idx;
         const item = shortsFeed[idx];
 
         if (item.type === 'ad') {
           startShortAd(slide, video, idx);
         } else {
-          activeShortsVideos.add(video);
           video.muted = false;
           video.loop = true;
           video.play().catch(() => {
@@ -789,7 +892,6 @@ function setupShortsObserver() {
         if (video) {
           video.pause();
           video.muted = true;
-          activeShortsVideos.delete(video);
         }
       }
     });
@@ -805,7 +907,6 @@ function startShortAd(slide, video, idx) {
   video.muted = true;
   video.loop = false;
   video.currentTime = 0;
-  activeShortsVideos.add(video);
   video.play().catch(() => {});
 
   const timerEl = slide.querySelector(`#ad-timer-${idx}`);
@@ -819,7 +920,6 @@ function startShortAd(slide, video, idx) {
 
   video.onended = () => {
     clearInterval(interval);
-    activeShortsVideos.delete(video);
     scrollToNextShort();
   };
 
@@ -861,7 +961,6 @@ function scrollToPrevShort() {
 function renderHistory() {
   const list = document.getElementById('history-list');
   const history = getHistory();
-  const votes = getVotes();
 
   list.innerHTML = '';
 
@@ -874,7 +973,6 @@ function renderHistory() {
     const video = allVideos.find(v => `videos/${v.src}` === item.src);
     if (!video) return;
 
-    const vote = votes[video.src];
     const progress = item.progress || 0;
     const el = document.createElement('div');
     el.className = 'history-item';
@@ -885,17 +983,17 @@ function renderHistory() {
           <source src="videos/${video.src}" type="video/mp4">
         </video>
         <div class="duration-badge"></div>
-        ${progress > 0 && progress < 1 ? `<div class="watched-bar" style="width:${progress * 100}%"></div>` : ''}
+        ${watchedBarHTML(progress)}
       </div>
       <div class="history-info">
         <div class="history-item-title">${video.src.replace('.mp4', '')}</div>
         <div class="history-item-meta">${channelNameHTML(video)} Watched ${timeAgo(item.timestamp)}</div>
         <div class="history-item-actions">
-          <button class="thumb like ${vote === 'like' ? 'active' : ''}">
+          <button class="thumb like">
             <span class="thumb-icon">👍</span>
             <span>Like</span>
           </button>
-          <button class="thumb dislike ${vote === 'dislike' ? 'active' : ''}">
+          <button class="thumb dislike">
             <span class="thumb-icon">👎</span>
             <span>Dislike</span>
           </button>
@@ -912,28 +1010,8 @@ function renderHistory() {
     histThumb.onclick = () => navigate(`#/watch/${encodeURIComponent(`videos/${video.src}`)}`);
     el.querySelector('.history-item-title').onclick = () => navigate(`#/watch/${encodeURIComponent(`videos/${video.src}`)}`);
 
-    el.querySelector('.like').onclick = e => {
-      e.stopPropagation();
-      setVote(video.src, vote === 'like' ? null : 'like');
-      renderHistory();
-    };
-
-    el.querySelector('.dislike').onclick = e => {
-      e.stopPropagation();
-      setVote(video.src, vote === 'dislike' ? null : 'dislike');
-      renderHistory();
-    };
-
-    const subBtn = el.querySelector('.subscribe-btn');
-    if (subBtn) {
-      subBtn.onclick = e => {
-        e.stopPropagation();
-        const key = subBtn.dataset.channel;
-        const nowSubbed = toggleSubscribe(key);
-        subBtn.textContent = nowSubbed ? 'Subscribed' : 'Subscribe';
-        subBtn.classList.toggle('subscribed', nowSubbed);
-      };
-    }
+    wireVoteButtons(el.querySelector('.history-item-actions'), video.src, renderHistory);
+    wireSubscribeBtn(el.querySelector('.subscribe-btn'));
 
     const chName = el.querySelector('.channel-name');
     if (chName) {
@@ -954,11 +1032,18 @@ function renderHistory() {
   });
 }
 
-function showWatchPage(videoSrc, push) {
+function showWatchPage(videoSrc) {
   const src = videoSrc.startsWith('videos/') ? videoSrc : `videos/${videoSrc}`;
   const video = allVideos.find(v => `videos/${v.src}` === src);
   if (!video) {
     navigate('/', true);
+    return;
+  }
+
+  const existingPlayer = document.getElementById('watch-player');
+  const existingSrc = existingPlayer ? existingPlayer.dataset.currentSrc : null;
+
+  if (existingPlayer && existingSrc === src) {
     return;
   }
 
@@ -1009,7 +1094,7 @@ function showWatchPage(videoSrc, push) {
   watchSection.innerHTML = `
     <div class="watch-main">
       <div class="watch-player-wrap ambient" id="watch-player-wrap">
-        <video id="watch-player" controls playsinline preload="metadata"></video>
+        <video id="watch-player" controls playsinline preload="metadata" data-current-src="${src}"></video>
         <button class="watch-skip-btn hidden" id="watch-skip-btn">Skip Ad</button>
         <div class="autoplay-overlay hidden" id="autoplay-overlay">
           <div class="autoplay-title" id="autoplay-title">Up next</div>
@@ -1112,15 +1197,8 @@ ${ch ? '\nChannel: ' + ch.name : ''}</div>
 
   addToHistory(src);
 
-  const subBtn = watchSection.querySelector('.subscribe-btn');
-  if (subBtn) {
-    subBtn.onclick = () => {
-      const key = subBtn.dataset.channel;
-      const now = toggleSubscribe(key);
-      subBtn.textContent = now ? 'Subscribed' : 'Subscribe';
-      subBtn.classList.toggle('subscribed', now);
-    };
-  }
+  wireSubscribeBtn(watchSection.querySelector('.subscribe-btn'));
+  wireVoteButtons(watchSection.querySelector('.watch-actions'), video.src);
 
   watchSection.querySelectorAll('.watch-channel-avatar, .watch-channel-info').forEach(el => {
     el.style.cursor = 'pointer';
@@ -1129,18 +1207,6 @@ ${ch ? '\nChannel: ' + ch.name : ''}</div>
       if (key) navigate(`#/channel/${key}`);
     };
   });
-
-  watchSection.querySelector('.like').onclick = () => {
-    const cur = getVotes()[video.src];
-    setVote(video.src, cur === 'like' ? null : 'like');
-    showWatchPage(src, false);
-  };
-
-  watchSection.querySelector('.dislike').onclick = () => {
-    const cur = getVotes()[video.src];
-    setVote(video.src, cur === 'dislike' ? null : 'dislike');
-    showWatchPage(src, false);
-  };
 
   const recsContainer = document.getElementById('watch-recs');
   recs.forEach(r => {
@@ -1207,7 +1273,7 @@ function clearAutoplayTimer() {
   }
 }
 
-function showChannelPage(channelKey, push) {
+function showChannelPage(channelKey) {
   const ch = channels[channelKey];
   if (!ch) {
     navigate('/', true);
@@ -1259,6 +1325,7 @@ function showChannelPage(channelKey, push) {
     const btn = document.getElementById('channel-sub-btn');
     btn.textContent = now ? 'Subscribed' : 'Subscribe';
     btn.classList.toggle('subscribed', now);
+    invalidateRecommendations();
   };
 
   const tabContent = document.getElementById('channel-tab-content');
@@ -1413,10 +1480,6 @@ async function init() {
     }
   });
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) pauseAllMedia();
-  });
-
   window.addEventListener('pagehide', pauseAllMedia);
   window.addEventListener('beforeunload', pauseAllMedia);
 
@@ -1558,7 +1621,6 @@ function setupSearch() {
 }
 
 function runSearchInternal(q) {
-  currentPage = 'search';
   destroyInfiniteScroll();
   scrollToTop();
 
@@ -1631,42 +1693,81 @@ function runSearchInternal(q) {
 }
 
 function attachHoverPreview(thumb, videoSrc) {
-  thumb.addEventListener('mouseenter', () => {
-    clearTimeout(hoverTimer);
-    hoverTimer = setTimeout(() => {
-      if (hoverVideo) {
-        hoverVideo.pause();
-        hoverVideo.remove();
-        hoverVideo = null;
+  const wrapper = thumb.parentElement;
+  if (!wrapper) return;
+
+  const preview = document.createElement('video');
+  preview.muted = true;
+  preview.playsInline = true;
+  preview.preload = 'none';
+  preview.loop = true;
+  preview.className = 'video-thumb';
+  preview.style.position = 'absolute';
+  preview.style.inset = '0';
+  preview.style.width = '100%';
+  preview.style.height = '100%';
+  preview.style.objectFit = 'cover';
+  preview.style.zIndex = '2';
+  preview.style.pointerEvents = 'none';
+  preview.style.opacity = '0';
+  preview.style.transition = 'opacity .15s ease';
+  preview.style.display = 'none';
+
+  const source = document.createElement('source');
+  source.src = videoSrc;
+  source.type = 'video/mp4';
+  preview.appendChild(source);
+
+  wrapper.appendChild(preview);
+
+  let hoverTimer = null;
+  let active = false;
+
+  function show() {
+    if (active) return;
+    active = true;
+    preview.style.display = 'block';
+    preview.style.opacity = '1';
+    try {
+      if (preview.duration && isFinite(preview.duration) && preview.duration > 6) {
+        preview.currentTime = Math.random() * (preview.duration - 5);
+      } else if (preview.readyState >= 1) {
+        preview.currentTime = 0;
       }
-      const preview = document.createElement('video');
-      preview.src = videoSrc;
-      preview.muted = true;
-      preview.playsInline = true;
-      preview.className = 'video-thumb';
-      preview.style.position = 'absolute';
-      preview.style.inset = '0';
-      preview.style.zIndex = '2';
-      thumb.parentElement.appendChild(preview);
-      preview.play().catch(() => {});
-      hoverVideo = preview;
-      setTimeout(() => {
-        if (hoverVideo === preview) {
-          preview.pause();
-          preview.remove();
-          hoverVideo = null;
-        }
-      }, 4000);
-    }, 600);
+    } catch {}
+    const p = preview.play();
+    if (p && p.catch) p.catch(() => {});
+  }
+
+  function hide() {
+    active = false;
+    if (hoverTimer) {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+    }
+    preview.style.opacity = '0';
+    setTimeout(() => {
+      if (!active) preview.style.display = 'none';
+    }, 150);
+    try { preview.pause(); } catch {}
+  }
+
+  preview.addEventListener('loadedmetadata', () => {
+    if (active) {
+      try {
+        const maxStart = Math.max(0, preview.duration - 5);
+        if (maxStart > 0) preview.currentTime = Math.random() * maxStart;
+      } catch {}
+    }
   });
 
-  thumb.addEventListener('mouseleave', () => {
-    clearTimeout(hoverTimer);
-    if (hoverVideo) {
-      hoverVideo.pause();
-      hoverVideo.remove();
-      hoverVideo = null;
-    }
+  wrapper.addEventListener('mouseenter', () => {
+    if (hoverTimer) clearTimeout(hoverTimer);
+    hoverTimer = setTimeout(show, 500);
+  });
+
+  wrapper.addEventListener('mouseleave', () => {
+    hide();
   });
 }
 
@@ -1700,7 +1801,7 @@ function renderVideos(videos, container, append) {
           <source src="videos/${video.src}" type="video/mp4">
         </video>
         <div class="duration-badge"></div>
-        ${progress > 0 && progress < 1 ? `<div class="watched-bar" style="width:${progress * 100}%"></div>` : ''}
+        ${watchedBarHTML(progress)}
         ${watched && progress >= 1 ? '<div class="watched-check">Watched</div>' : ''}
       </div>
       <div class="video-info">
@@ -1733,30 +1834,8 @@ function renderVideos(videos, container, append) {
     thumb.onclick = () => navigate(`#/watch/${encodeURIComponent(`videos/${video.src}`)}`);
     attachHoverPreview(thumb, `videos/${video.src}`);
 
-    card.querySelector('.like').onclick = e => {
-      e.stopPropagation();
-      setVote(video.src, vote === 'like' ? null : 'like');
-      card.querySelector('.like').classList.toggle('active', getVotes()[video.src] === 'like');
-      card.querySelector('.dislike').classList.remove('active');
-    };
-
-    card.querySelector('.dislike').onclick = e => {
-      e.stopPropagation();
-      setVote(video.src, vote === 'dislike' ? null : 'dislike');
-      card.querySelector('.dislike').classList.toggle('active', getVotes()[video.src] === 'dislike');
-      card.querySelector('.like').classList.remove('active');
-    };
-
-    const subBtn = card.querySelector('.subscribe-btn');
-    if (subBtn) {
-      subBtn.onclick = e => {
-        e.stopPropagation();
-        const key = subBtn.dataset.channel;
-        const nowSubbed = toggleSubscribe(key);
-        subBtn.textContent = nowSubbed ? 'Subscribed' : 'Subscribe';
-        subBtn.classList.toggle('subscribed', nowSubbed);
-      };
-    }
+    wireVoteButtons(card.querySelector('.video-actions'), video.src);
+    wireSubscribeBtn(card.querySelector('.subscribe-btn'));
 
     const chName = card.querySelector('.channel-name');
     if (chName) {

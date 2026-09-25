@@ -82,70 +82,142 @@ document.addEventListener("DOMContentLoaded", async () => {
       const ad = a.title.toLowerCase().includes("disambiguation");
       const bd = b.title.toLowerCase().includes("disambiguation");
       if (ad !== bd) return ad ? 1 : -1;
-      return a.title.length - b.title.length;
+      return b.title.length - a.title.length;
     });
 
-  function prefixRegex(title) {
-    const words = title
-      .trim()
-      .split(/\s+/)
-      .map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-
-    if (words.length === 1) {
-      return new RegExp(`\\b${words[0]}s?\\b`, "gi");
-    }
-
-    let pattern = `\\b${words[0]}\\s+${words[1]}`;
-    for (let i = 2; i < words.length; i++) {
-      pattern += `\\s+${words[i]}`;
-    }
-
-    return new RegExp(pattern + "\\b", "gi");
+  function buildArticleIndex(list) {
+    return list.map(a => {
+      const escaped = a.title
+        .trim()
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return {
+        ...a,
+        regex: new RegExp(`\\b${escaped}s?\\b`, "i"),
+        lowerTitle: a.title.toLowerCase(),
+        titleLength: a.title.length,
+      };
+    });
   }
 
-  function linkText(container, article, limitOne) {
-    let used = false;
-    const regex = prefixRegex(article.title);
+  const articleIndex = buildArticleIndex(articles);
+
+  function linkTextInContainer(container, opts = {}) {
+    const {
+      limitOne = true,
+      skipBold = true,
+    } = opts;
+
+    const usedInContainer = new Set();
 
     const walker = document.createTreeWalker(
       container,
       NodeFilter.SHOW_TEXT,
-      null
+      {
+        acceptNode(node) {
+          if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+
+          if (parent.closest("a")) return NodeFilter.FILTER_REJECT;
+
+          if (skipBold && parent.closest("b, strong")) {
+            return NodeFilter.FILTER_REJECT;
+          }
+
+          if (parent.closest("h1, h2, h3, h4, h5, h6")) {
+            return NodeFilter.FILTER_REJECT;
+          }
+
+          if (parent.closest(".toc")) return NodeFilter.FILTER_REJECT;
+          if (parent.closest(".footer")) return NodeFilter.FILTER_REJECT;
+          if (parent.closest(".tagline")) return NodeFilter.FILTER_REJECT;
+
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      }
     );
 
-    let node;
-    while ((node = walker.nextNode())) {
-      if (limitOne && used) break;
-      if (node.parentElement.closest("a")) continue;
+    const textNodes = [];
+    let n;
+    while ((n = walker.nextNode())) textNodes.push(n);
 
-      regex.lastIndex = 0;
-      const match = regex.exec(node.nodeValue);
-      if (!match) continue;
-
-      const a = document.createElement("a");
-      a.href = `${contentPath}/${article.file}`;
-      a.dataset.preview = article.title;
-      a.textContent = match[0];
-
-      const before = node.nodeValue.slice(0, match.index);
-      const after = node.nodeValue.slice(match.index + match[0].length);
-
+    for (const node of textNodes) {
+      let text = node.nodeValue;
+      let changed = false;
       const frag = document.createDocumentFragment();
-      if (before) frag.appendChild(document.createTextNode(before));
-      frag.appendChild(a);
-      if (after) frag.appendChild(document.createTextNode(after));
 
-      node.replaceWith(frag);
-      used = true;
+      while (text.length > 0) {
+        let bestMatch = null;
+
+        for (const article of articleIndex) {
+          if (limitOne && usedInContainer.has(article.lowerTitle)) continue;
+
+          article.regex.lastIndex = 0;
+          const match = article.regex.exec(text);
+          if (!match) continue;
+
+          const matchIndex = match.index;
+          const matchedText = match[0];
+
+          const charBefore = text[matchIndex - 1];
+          const charAfter = text[matchIndex + matchedText.length];
+          if (charBefore && /[A-Za-z0-9]/.test(charBefore)) continue;
+          if (charAfter && /[A-Za-z0-9]/.test(charAfter)) continue;
+
+          if (
+            !bestMatch ||
+            matchIndex < bestMatch.matchIndex ||
+            (matchIndex === bestMatch.matchIndex &&
+              matchedText.length > bestMatch.matchedText.length)
+          ) {
+            bestMatch = { article, matchIndex, matchedText };
+          }
+        }
+
+        if (!bestMatch) {
+          frag.appendChild(document.createTextNode(text));
+          break;
+        }
+
+        const { article, matchIndex, matchedText } = bestMatch;
+
+        if (matchIndex > 0) {
+          frag.appendChild(document.createTextNode(text.slice(0, matchIndex)));
+        }
+
+        const a = document.createElement("a");
+        a.href = `${contentPath}/${article.file}`;
+        a.dataset.preview = article.title;
+        a.textContent = matchedText;
+        frag.appendChild(a);
+
+        if (limitOne) usedInContainer.add(article.lowerTitle);
+
+        changed = true;
+        text = text.slice(matchIndex + matchedText.length);
+      }
+
+      if (changed) {
+        node.replaceWith(frag);
+      }
     }
   }
 
   document.querySelectorAll(".page p").forEach(p => {
-    articles.forEach(article => linkText(p, article, true));
+    linkTextInContainer(p, { limitOne: true, skipBold: true });
+  });
+
+  document.querySelectorAll(".page li").forEach(li => {
+    linkTextInContainer(li, { limitOne: true, skipBold: true });
+  });
+
+  document.querySelectorAll(".thumb .caption, .infobox .caption").forEach(cap => {
+    linkTextInContainer(cap, { limitOne: true, skipBold: false });
   });
 
   document.querySelectorAll(".infobox td").forEach(td => {
-    articles.forEach(article => linkText(td, article, false));
+    linkTextInContainer(td, { limitOne: true, skipBold: true });
   });
 
   const preview = document.createElement("div");
