@@ -1,11 +1,12 @@
 {
   "channels": {
-  "coke": { "number": 1, "name": "Coke on Coke", "logo": "coke.png" },
-  "neil": { "number": 6, "name": "The Neil Channel", "logo": "neil.png" },
-  "keihan": { "number": 24, "name": "Keihan Network", "logo": "keihan.png" },
-  "boys": { "number": 42, "name": "The Boys", "logo": "boys.png" },
-  "shorts": { "number": 67, "name": "Shorts", "logo": "shorts.png" },
-  "sus": { "number": 69, "name": "Sus Network", "logo": "logo.png" }
+  "coke": { "number": 1, "name": "Coke on Coke", "logo": "coke.png", "banner": "coke.png" },
+  "neil": { "number": 6, "name": "The Neil Channel", "logo": "neil.png", "banner": "banners/neil.png" },
+  "milk": { "number": 8, "name": "Milk Toons", "logo": "milk.png", "banner": "banners/milk.png" },
+  "keihan": { "number": 24, "name": "Keihan Network", "logo": "keihan.png", "banner": "keihan.png" },
+  "boys": { "number": 42, "name": "The Boys", "logo": "boys.png", "banner": "banners/boys.png" },
+  "shorts": { "number": 67, "name": "Shorts", "logo": "shorts.png", "banner": "shorts.png"},
+  "sus": { "number": 69, "name": "Sus Network", "logo": "logo.png",  "banner": "banners/sus.png"}
   },
   "videos": [
     { "src": "Coke on Coke.mp4", "channels": ["sus", "shorts", "boys", "coke"] },
@@ -67,6 +68,8 @@
     {"src": "Ringo Starr Endorses Reese's Puffs.mp4", "channels": ["sus", "boys"] },
     {"src": "The Great Smeff Debate.mp4", "channels": ["sus", "boys", "neil"] },
     {"src": "Interview With Mark Pierce, Creator of Klax.mp4", "channels": ["sus", "boys"] },
-    {"src": "He died as he lived.mp4", "channels": ["sus", "boys"] }
+    {"src": "He died as he lived.mp4", "channels": ["sus", "boys"] },
+    {"src": "Is This Loss.mp4", "channels": ["milk"] },
+    {"src": "Is This Loss short.mp4", "channels": ["milk", "shorts"] }
   ]
 }

@@ -17,29 +17,25 @@ function setVote(videoSrc, vote) {
 
 function getSubs() {
   const raw = localStorage.getItem('subscriptions');
-  if (raw === null) return null;
-  return JSON.parse(raw);
+  if (raw === null) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 function setSubs(subs) {
   localStorage.setItem('subscriptions', JSON.stringify(subs));
 }
 
-function initSubs() {
-  const existing = getSubs();
-  if (existing) return existing;
-  const all = Object.keys(channels);
-  setSubs(all);
-  return all;
-}
-
 function isSubscribed(channelKey) {
-  const subs = getSubs() || [];
-  return subs.includes(channelKey);
+  return getSubs().includes(channelKey);
 }
 
 function toggleSubscribe(channelKey) {
-  let subs = getSubs() || [];
+  let subs = getSubs();
   if (subs.includes(channelKey)) {
     subs = subs.filter(k => k !== channelKey);
   } else {
@@ -97,6 +93,11 @@ function timeAgo(timestamp) {
   return `${years} year${years !== 1 ? 's' : ''} ago`;
 }
 
+function formatDate(timestamp) {
+  const d = new Date(timestamp);
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 function formatDuration(seconds) {
   if (!seconds || isNaN(seconds) || !isFinite(seconds)) return '';
   const s = Math.floor(seconds);
@@ -113,6 +114,12 @@ function formatViews(n) {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M views`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, '')}K views`;
   return `${n} view${n !== 1 ? 's' : ''}`;
+}
+
+function formatSubs(n) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M subscribers`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, '')}K subscribers`;
+  return `${n} subscriber${n !== 1 ? 's' : ''}`;
 }
 
 function hashString(str) {
@@ -134,6 +141,12 @@ function getUploadDate(video) {
   return Date.now() - daysAgo * 24 * 60 * 60 * 1000;
 }
 
+function getChannelSubs(key) {
+  const ch = channels[key];
+  if (!ch) return 0;
+  return 10_000 + (hashString('subs' + key) % 9_990_000);
+}
+
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -141,11 +154,18 @@ function shuffle(arr) {
   }
 }
 
+function isShort(video) {
+  return !!(video.channels && video.channels.includes('shorts'));
+}
+
+function scrollToTop() {
+  window.scrollTo(0, 0);
+}
+
 let allVideos = [];
 let ads = [];
 let channels = {};
 let currentPage = 'home';
-let currentChannelFilter = null;
 let hoverTimer = null;
 let hoverVideo = null;
 let acSelectedIndex = -1;
@@ -153,6 +173,18 @@ let acResults = [];
 
 let shortsFeed = [];
 let shortsAdEvery = 4;
+
+let homeFeed = [];
+let homeFeedIndex = 0;
+let homeFeedBatch = 12;
+let infiniteObserver = null;
+
+let autoplayTimer = null;
+let autoplayCountdown = 5;
+
+let activeWatchPlayer = null;
+let activeShortsVideos = new Set();
+let watchSkipTimer = null;
 
 function getChannelForVideo(video) {
   if (!video.channels || !video.channels.length) return null;
@@ -171,13 +203,13 @@ function getChannelForVideo(video) {
 function channelAvatarHTML(video) {
   const ch = getChannelForVideo(video);
   if (!ch) return '<div class="channel-avatar"></div>';
-  return `<img class="channel-avatar" src="img/${ch.logo}" alt="${ch.name}" onerror="this.style.display='none'">`;
+  return `<img class="channel-avatar" src="img/${ch.logo}" alt="${ch.name}" data-channel="${ch.key}" onerror="this.style.display='none'">`;
 }
 
 function channelNameHTML(video) {
   const ch = getChannelForVideo(video);
   if (!ch) return '';
-  return `<a class="channel-name" href="#" data-channel="${ch.key}">${ch.name}</a>`;
+  return `<a class="channel-name" href="#/channel/${ch.key}" data-channel="${ch.key}">${ch.name}</a>`;
 }
 
 function subscribeBtnHTML(video) {
@@ -187,17 +219,9 @@ function subscribeBtnHTML(video) {
   return `<button class="subscribe-btn ${subbed ? 'subscribed' : ''}" data-channel="${ch.key}">${subbed ? 'Subscribed' : 'Subscribe'}</button>`;
 }
 
-function filterByChannel(channelKey) {
-  const ch = channels[channelKey];
-  if (!ch) return;
-  showPage('home');
-  currentChannelFilter = channelKey;
-  const filtered = allVideos.filter(v => v.channels && v.channels.includes(channelKey));
-  document.getElementById('video-grid').classList.remove('hidden');
-  renderVideos(filtered, document.getElementById('video-grid'));
-}
-
 function getRecommendations() {
+  const nonShortsVideos = allVideos.filter(v => !isShort(v));
+
   const votes = getVotes();
   const likedChannels = {};
   const dislikedChannels = {};
@@ -206,18 +230,58 @@ function getRecommendations() {
     const video = allVideos.find(v => v.src === src);
     if (!video || !video.channels) continue;
     for (const key of video.channels) {
+      if (key === 'shorts') continue;
       if (vote === 'like') likedChannels[key] = (likedChannels[key] || 0) + 1;
       if (vote === 'dislike') dislikedChannels[key] = (dislikedChannels[key] || 0) + 1;
     }
   }
 
-  const hasSignal = Object.keys(likedChannels).length > 0 || Object.keys(dislikedChannels).length > 0;
-  if (!hasSignal) return allVideos.slice();
+  const subs = getSubs();
+  subs.forEach(key => {
+    likedChannels[key] = (likedChannels[key] || 0) + 2;
+  });
 
-  const scored = allVideos.map(video => {
+  const hasSignal = Object.keys(likedChannels).length > 0 || Object.keys(dislikedChannels).length > 0;
+  if (!hasSignal) return nonShortsVideos.slice();
+
+  const scored = nonShortsVideos.map(video => {
     let score = 0;
     if (video.channels) {
       for (const key of video.channels) {
+        score += (likedChannels[key] || 0) * 3;
+        score -= (dislikedChannels[key] || 0) * 4;
+      }
+    }
+    score += Math.random() * 2;
+    return { video, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map(s => s.video);
+}
+
+function getShortsRecommendations() {
+  const shorts = allVideos.filter(v => isShort(v));
+  const votes = getVotes();
+
+  const likedChannels = {};
+  const dislikedChannels = {};
+
+  for (const [src, vote] of Object.entries(votes)) {
+    const video = allVideos.find(v => v.src === src);
+    if (!video || !video.channels) continue;
+    for (const key of video.channels) {
+      if (key === 'shorts') continue;
+      if (vote === 'like') likedChannels[key] = (likedChannels[key] || 0) + 1;
+      if (vote === 'dislike') dislikedChannels[key] = (dislikedChannels[key] || 0) + 1;
+    }
+  }
+
+  const scored = shorts.map(video => {
+    let score = 0;
+    if (video.channels) {
+      for (const key of video.channels) {
+        if (key === 'shorts') continue;
         score += (likedChannels[key] || 0) * 3;
         score -= (dislikedChannels[key] || 0) * 4;
       }
@@ -244,93 +308,76 @@ function attachDurationBadge(videoEl, badgeEl) {
   }
 }
 
-function playVideo(videoSrc) {
-  const modal = document.getElementById('player-modal');
-  const player = document.getElementById('player');
-  const skipBtn = document.getElementById('skip-btn');
-
-  modal.classList.remove('hidden');
-
-  player.pause();
-  player.removeAttribute('src');
-  player.load();
-
-  const ad = ads[Math.floor(Math.random() * ads.length)];
-  const playlist = [`commercials/${ad}`, videoSrc];
-  let index = 0;
-
-  player.controls = true;
-  player.playsInline = true;
-  player.muted = false;
-  player.src = playlist[index];
-  player.style.display = 'block';
-
-  skipBtn.classList.add('hidden');
-  skipBtn.onclick = null;
-
-  const skipTimer = setTimeout(() => {
-    skipBtn.classList.remove('hidden');
-  }, 5000);
-
-  skipBtn.onclick = () => {
-    clearTimeout(skipTimer);
-    index = 1;
-    skipBtn.classList.add('hidden');
-    player.src = playlist[index];
-    player.play();
-  };
-
-  let lastSaved = 0;
-  player.ontimeupdate = () => {
-    if (index !== 1) return;
-    if (!player.duration) return;
-    const pct = player.currentTime / player.duration;
-    if (Math.abs(pct - lastSaved) > 0.02) {
-      lastSaved = pct;
-      updateProgress(videoSrc, pct);
-    }
-  };
-
-  player.onended = () => {
-    if (index === 0) clearTimeout(skipTimer);
-    index++;
-    skipBtn.classList.add('hidden');
-    if (index < playlist.length) {
-      player.src = playlist[index];
-      player.play();
-    } else {
-      updateProgress(videoSrc, 1);
-    }
-  };
-
-  player.play().catch(err => {
-    console.warn('play() rejected:', err);
+function pauseAllMedia() {
+  document.querySelectorAll('video').forEach(v => {
+    try {
+      if (!v.paused) v.pause();
+    } catch {}
   });
-
-  addToHistory(videoSrc);
-
-  if (currentPage === 'history') renderHistory();
+  if (activeWatchPlayer) {
+    try { activeWatchPlayer.pause(); } catch {}
+  }
+  activeShortsVideos.forEach(v => {
+    try { v.pause(); } catch {}
+  });
 }
 
-document.getElementById('close-btn').onclick = () => {
-  const modal = document.getElementById('player-modal');
-  const player = document.getElementById('player');
-  const adPlayer = document.getElementById('ad-player');
+function clearWatchSkipTimer() {
+  if (watchSkipTimer) {
+    clearTimeout(watchSkipTimer);
+    watchSkipTimer = null;
+  }
+}
 
-  player.pause();
-  player.src = '';
-  player.ontimeupdate = null;
-  player.onended = null;
+function navigate(path, replace) {
+  const target = path.startsWith('#') ? path : `#${path}`;
+  const url = `${location.pathname}${location.search}${target}`;
+  if (replace) history.replaceState({}, '', url);
+  else history.pushState({}, '', url);
+  route();
+}
 
-  adPlayer.pause();
-  adPlayer.src = '';
+function route() {
+  pauseAllMedia();
+  destroyInfiniteScroll();
+  clearAutoplayTimer();
+  clearWatchSkipTimer();
 
-  modal.classList.add('hidden');
-};
+  const hash = location.hash || '';
 
-function showPage(page) {
+  if (hash.startsWith('#/watch/')) {
+    const src = decodeURIComponent(hash.slice('#/watch/'.length));
+    showWatchPage(src, false);
+    return;
+  }
+  if (hash.startsWith('#/channel/')) {
+    const key = decodeURIComponent(hash.slice('#/channel/'.length));
+    showChannelPage(key, false);
+    return;
+  }
+  if (hash.startsWith('#/shorts')) {
+    openShortsPlayer();
+    return;
+  }
+  if (hash.startsWith('#/search/')) {
+    const q = decodeURIComponent(hash.slice('#/search/'.length));
+    document.getElementById('video-search').value = q;
+    runSearchInternal(q);
+    return;
+  }
+  if (hash.startsWith('#/page/')) {
+    const page = hash.slice('#/page/'.length);
+    showPage(page, false);
+    return;
+  }
+
+  showPage('home', false);
+}
+
+function showPage(page, push) {
   currentPage = page;
-  currentChannelFilter = null;
+  destroyInfiniteScroll();
+  scrollToTop();
 
   document.querySelectorAll('.sidebar-item').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
@@ -340,14 +387,17 @@ function showPage(page) {
   document.getElementById('video-section').classList.add('hidden');
   document.getElementById('subscriptions-section').classList.add('hidden');
   document.getElementById('history-section').classList.add('hidden');
-  document.getElementById('video-grid').classList.remove('hidden');
+  document.getElementById('watch-section').classList.add('hidden');
+  document.getElementById('channel-section').classList.add('hidden');
 
   if (page === 'home') {
     document.getElementById('shorts-shelf').classList.remove('hidden');
     document.getElementById('video-section').classList.remove('hidden');
-    renderVideos(getRecommendations(), document.getElementById('video-grid'));
+    renderShortsShelf();
+    startHomeFeed();
   } else if (page === 'shorts') {
     openShortsPlayer();
+    return;
   } else if (page === 'subscriptions') {
     document.getElementById('subscriptions-section').classList.remove('hidden');
     renderSubscriptions();
@@ -357,26 +407,115 @@ function showPage(page) {
   } else if (page === 'liked') {
     const votes = getVotes();
     document.getElementById('video-section').classList.remove('hidden');
-    renderVideos(allVideos.filter(v => votes[v.src] === 'like'), document.getElementById('video-grid'));
+    const liked = allVideos.filter(v => votes[v.src] === 'like' && !isShort(v));
+    renderVideos(liked, document.getElementById('video-grid'));
   } else if (page === 'disliked') {
     const votes = getVotes();
     document.getElementById('video-section').classList.remove('hidden');
-    renderVideos(allVideos.filter(v => votes[v.src] === 'dislike'), document.getElementById('video-grid'));
+    const disliked = allVideos.filter(v => votes[v.src] === 'dislike' && !isShort(v));
+    renderVideos(disliked, document.getElementById('video-grid'));
   }
 
   closeSidebarOnMobile();
 }
 
+function startHomeFeed() {
+  const grid = document.getElementById('video-grid');
+  homeFeed = getRecommendations();
+  homeFeedIndex = 0;
+  grid.innerHTML = '';
+  appendHomeBatch();
+  setupInfiniteScroll(appendHomeBatch);
+}
+
+function appendHomeBatch() {
+  const grid = document.getElementById('video-grid');
+  const batch = homeFeed.slice(homeFeedIndex, homeFeedIndex + homeFeedBatch);
+  if (!batch.length) return;
+  renderVideos(batch, grid, true);
+  homeFeedIndex += homeFeedBatch;
+}
+
+function setupInfiniteScroll(loader) {
+  destroyInfiniteScroll();
+  const sentinel = document.getElementById('scroll-sentinel');
+  if (!sentinel) return;
+  infiniteObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) loader();
+    });
+  }, { rootMargin: '600px' });
+  infiniteObserver.observe(sentinel);
+}
+
+function destroyInfiniteScroll() {
+  if (infiniteObserver) {
+    infiniteObserver.disconnect();
+    infiniteObserver = null;
+  }
+}
+
 function renderSubscriptions() {
-  const subs = getSubs() || [];
+  const subs = getSubs();
   const chContainer = document.getElementById('subs-channels');
   const feed = document.getElementById('subs-feed');
+  const shortsBlock = document.getElementById('subs-shorts');
+  const shortsRow = document.getElementById('subs-shorts-row');
 
   chContainer.innerHTML = '';
+  feed.innerHTML = '';
+  shortsRow.innerHTML = '';
+  shortsBlock.classList.add('hidden');
 
   if (!subs.length) {
-    feed.innerHTML = '<p class="history-empty">You are not subscribed to any channels.</p>';
+    feed.innerHTML = '<p class="history-empty">You are not subscribed to any channels. Subscribe to see their videos here.</p>';
     return;
+  }
+
+  function renderChannelFeed(key) {
+    const vids = allVideos.filter(v =>
+      v.channels &&
+      v.channels.includes(key) &&
+      !v.channels.includes('shorts')
+    );
+    const sh = allVideos.filter(v =>
+      v.channels &&
+      v.channels.includes(key) &&
+      v.channels.includes('shorts')
+    );
+
+    if (vids.length) {
+      feed.classList.remove('hidden');
+      renderVideos(vids, feed);
+    } else {
+      feed.innerHTML = '<p class="history-empty">No videos from this channel yet.</p>';
+    }
+
+    if (sh.length) {
+      shortsBlock.classList.remove('hidden');
+      shortsRow.innerHTML = '';
+      sh.forEach(video => {
+        const card = document.createElement('div');
+        card.className = 'short-card';
+        card.innerHTML = `
+          <div class="short-thumb-wrapper">
+            <video class="short-thumb" muted preload="metadata">
+              <source src="videos/${video.src}" type="video/mp4">
+            </video>
+            <div class="duration-badge"></div>
+          </div>
+          <div class="short-title">${video.src.replace('.mp4', '')}</div>
+          <div class="short-views">${formatViews(getViews(video))}</div>
+        `;
+        const t = card.querySelector('.short-thumb');
+        const b = card.querySelector('.duration-badge');
+        attachDurationBadge(t, b);
+        card.onclick = () => openShortsPlayer(video.src);
+        shortsRow.appendChild(card);
+      });
+    } else {
+      shortsBlock.classList.add('hidden');
+    }
   }
 
   subs.forEach(key => {
@@ -391,21 +530,22 @@ function renderSubscriptions() {
     el.onclick = () => {
       chContainer.querySelectorAll('.subs-channel').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
-      const vids = allVideos.filter(v => v.channels && v.channels.includes(key));
-      renderVideos(vids, feed);
+      renderChannelFeed(key);
     };
     chContainer.appendChild(el);
   });
 
-  const firstKey = subs[0];
-  const firstVids = allVideos.filter(v => v.channels && v.channels.includes(firstKey));
-  renderVideos(firstVids, feed);
+  const first = chContainer.querySelector('.subs-channel');
+  if (first) {
+    first.classList.add('active');
+    renderChannelFeed(subs[0]);
+  }
 }
 
 function renderShortsShelf() {
   const row = document.getElementById('shorts-row');
   row.innerHTML = '';
-  const shorts = allVideos.filter(v => v.channels && v.channels.includes('shorts'));
+  const shorts = getShortsRecommendations();
 
   shorts.forEach(video => {
     const views = getViews(video);
@@ -432,7 +572,7 @@ function renderShortsShelf() {
 }
 
 function buildShortsFeed(startSrc) {
-  const shorts = allVideos.filter(v => v.channels && v.channels.includes('shorts'));
+  const shorts = getShortsRecommendations();
   shortsFeed = [];
 
   let counter = 0;
@@ -446,7 +586,8 @@ function buildShortsFeed(startSrc) {
   });
 
   if (startSrc) {
-    const idx = shortsFeed.findIndex(item => item.type === 'video' && `videos/${item.video.src}` === startSrc);
+    const target = startSrc.startsWith('videos/') ? startSrc : `videos/${startSrc}`;
+    const idx = shortsFeed.findIndex(item => item.type === 'video' && `videos/${item.video.src}` === target);
     if (idx > 0) {
       shortsFeed = shortsFeed.slice(idx).concat(shortsFeed.slice(0, idx));
     }
@@ -457,6 +598,9 @@ let shortsCurrentIndex = 0;
 let shortsObserver = null;
 
 function openShortsPlayer(startSrc) {
+  if (!location.hash.startsWith('#/shorts')) {
+    history.pushState({}, '', `${location.pathname}${location.search}#/shorts`);
+  }
   buildShortsFeed(startSrc);
   shortsCurrentIndex = 0;
 
@@ -478,9 +622,10 @@ function closeShortsPlayer() {
   const container = document.getElementById('shorts-container');
   container.querySelectorAll('video').forEach(v => {
     v.pause();
-    v.src = '';
+    v.removeAttribute('src');
     v.load();
   });
+  activeShortsVideos.clear();
   container.innerHTML = '';
 
   if (shortsObserver) {
@@ -488,12 +633,15 @@ function closeShortsPlayer() {
     shortsObserver = null;
   }
 
-  showPage('home');
+  if (location.hash.startsWith('#/shorts')) {
+    navigate('/', true);
+  }
 }
 
 function renderShortsSlides() {
   const container = document.getElementById('shorts-container');
   container.innerHTML = '';
+  activeShortsVideos.clear();
 
   shortsFeed.forEach((item, idx) => {
     const slide = document.createElement('div');
@@ -520,7 +668,7 @@ function renderShortsSlides() {
         <div class="short-overlay">
           <div class="short-overlay-title">${video.src.replace('.mp4', '')}</div>
           ${ch ? `
-            <div class="short-overlay-channel">
+            <div class="short-overlay-channel" data-channel="${ch.key}">
               <img class="short-overlay-avatar" src="img/${ch.logo}" alt="${ch.name}" onerror="this.style.display='none'">
               <span class="short-overlay-name">${ch.name}</span>
               <button class="short-overlay-sub ${subbed ? 'subscribed' : ''}" data-channel="${ch.key}">
@@ -596,6 +744,16 @@ function attachShortsControls() {
       el.classList.toggle('subscribed', nowSubbed);
     };
   });
+
+  container.querySelectorAll('.short-overlay-channel').forEach(el => {
+    el.onclick = e => {
+      e.stopPropagation();
+      const key = el.dataset.channel;
+      if (!key) return;
+      closeShortsPlayer();
+      navigate(`#/channel/${key}`);
+    };
+  });
 }
 
 function setupShortsObserver() {
@@ -617,6 +775,7 @@ function setupShortsObserver() {
         if (item.type === 'ad') {
           startShortAd(slide, video, idx);
         } else {
+          activeShortsVideos.add(video);
           video.muted = false;
           video.loop = true;
           video.play().catch(() => {
@@ -630,6 +789,7 @@ function setupShortsObserver() {
         if (video) {
           video.pause();
           video.muted = true;
+          activeShortsVideos.delete(video);
         }
       }
     });
@@ -645,22 +805,21 @@ function startShortAd(slide, video, idx) {
   video.muted = true;
   video.loop = false;
   video.currentTime = 0;
+  activeShortsVideos.add(video);
   video.play().catch(() => {});
 
   const timerEl = slide.querySelector(`#ad-timer-${idx}`);
   let remaining = 5;
 
-  const tick = () => {
-    if (remaining > 0) {
-      remaining--;
-      if (timerEl) timerEl.textContent = `${remaining}s`;
-    }
-  };
-
-  const interval = setInterval(tick, 1000);
+  const interval = setInterval(() => {
+    remaining--;
+    if (timerEl) timerEl.textContent = `${Math.max(remaining, 0)}s`;
+    if (remaining <= 0) clearInterval(interval);
+  }, 1000);
 
   video.onended = () => {
     clearInterval(interval);
+    activeShortsVideos.delete(video);
     scrollToNextShort();
   };
 
@@ -698,25 +857,6 @@ function scrollToPrevShort() {
     if (slide) slide.scrollIntoView({ behavior: 'smooth' });
   }
 }
-
-document.getElementById('shorts-close-btn').onclick = closeShortsPlayer;
-document.getElementById('shorts-up').onclick = scrollToPrevShort;
-document.getElementById('shorts-down').onclick = scrollToNextShort;
-
-document.addEventListener('keydown', e => {
-  const shortsModal = document.getElementById('shorts-modal');
-  if (shortsModal.classList.contains('hidden')) return;
-
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    scrollToNextShort();
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    scrollToPrevShort();
-  } else if (e.key === 'Escape') {
-    closeShortsPlayer();
-  }
-});
 
 function renderHistory() {
   const list = document.getElementById('history-list');
@@ -769,8 +909,8 @@ function renderHistory() {
     const histBadge = el.querySelector('.duration-badge');
     attachDurationBadge(histThumb, histBadge);
 
-    histThumb.onclick = () => playVideo(`videos/${video.src}`);
-    el.querySelector('.history-item-title').onclick = () => playVideo(`videos/${video.src}`);
+    histThumb.onclick = () => navigate(`#/watch/${encodeURIComponent(`videos/${video.src}`)}`);
+    el.querySelector('.history-item-title').onclick = () => navigate(`#/watch/${encodeURIComponent(`videos/${video.src}`)}`);
 
     el.querySelector('.like').onclick = e => {
       e.stopPropagation();
@@ -795,6 +935,15 @@ function renderHistory() {
       };
     }
 
+    const chName = el.querySelector('.channel-name');
+    if (chName) {
+      chName.onclick = e => {
+        e.stopPropagation();
+        e.preventDefault();
+        navigate(`#/channel/${chName.dataset.channel}`);
+      };
+    }
+
     el.querySelector('.history-remove-btn').onclick = e => {
       e.stopPropagation();
       removeFromHistory(`videos/${video.src}`);
@@ -805,6 +954,367 @@ function renderHistory() {
   });
 }
 
+function showWatchPage(videoSrc, push) {
+  const src = videoSrc.startsWith('videos/') ? videoSrc : `videos/${videoSrc}`;
+  const video = allVideos.find(v => `videos/${v.src}` === src);
+  if (!video) {
+    navigate('/', true);
+    return;
+  }
+
+  destroyInfiniteScroll();
+  clearAutoplayTimer();
+  clearWatchSkipTimer();
+  scrollToTop();
+
+  if (activeWatchPlayer) {
+    try {
+      activeWatchPlayer.pause();
+      activeWatchPlayer.removeAttribute('src');
+      activeWatchPlayer.load();
+    } catch {}
+    activeWatchPlayer = null;
+  }
+
+  document.getElementById('shorts-shelf').classList.add('hidden');
+  document.getElementById('video-section').classList.add('hidden');
+  document.getElementById('subscriptions-section').classList.add('hidden');
+  document.getElementById('history-section').classList.add('hidden');
+  document.getElementById('channel-section').classList.add('hidden');
+  const watchSection = document.getElementById('watch-section');
+  watchSection.classList.remove('hidden');
+
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+
+  const ch = getChannelForVideo(video);
+  const vote = getVotes()[video.src];
+  const views = getViews(video);
+  const uploaded = getUploadDate(video);
+  const subbed = ch ? isSubscribed(ch.key) : false;
+  const historyItem = getHistory().find(h => h.src === src);
+  const progress = historyItem ? historyItem.progress : 0;
+
+  const recs = allVideos
+    .filter(v => !isShort(v) && v.src !== video.src)
+    .map(v => {
+      let score = 0;
+      if (ch && v.channels && v.channels.includes(ch.key)) score += 5;
+      score += Math.random() * 2;
+      return { v, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 20)
+    .map(s => s.v);
+
+  watchSection.innerHTML = `
+    <div class="watch-main">
+      <div class="watch-player-wrap ambient" id="watch-player-wrap">
+        <video id="watch-player" controls playsinline preload="metadata"></video>
+        <button class="watch-skip-btn hidden" id="watch-skip-btn">Skip Ad</button>
+        <div class="autoplay-overlay hidden" id="autoplay-overlay">
+          <div class="autoplay-title" id="autoplay-title">Up next</div>
+          <div class="autoplay-countdown" id="autoplay-countdown">5</div>
+          <div class="autoplay-actions">
+            <button id="autoplay-cancel">Cancel</button>
+            <button id="autoplay-play">Play now</button>
+          </div>
+        </div>
+      </div>
+      <h1 class="watch-title">${video.src.replace('.mp4', '')}</h1>
+      <div class="watch-meta">${formatViews(views)} • ${formatDate(uploaded)}</div>
+      <div class="watch-channel-row">
+        ${ch ? `<img class="watch-channel-avatar" src="img/${ch.logo}" alt="${ch.name}" onerror="this.style.display='none'" data-channel="${ch.key}">` : '<div class="watch-channel-avatar"></div>'}
+        <div class="watch-channel-info" ${ch ? `data-channel="${ch.key}"` : ''}>
+          <div class="watch-channel-name">${ch ? ch.name : 'Unknown'}</div>
+          <div class="watch-channel-subs">${ch ? formatSubs(getChannelSubs(ch.key)) : ''}</div>
+        </div>
+        ${ch ? `<button class="subscribe-btn ${subbed ? 'subscribed' : ''}" data-channel="${ch.key}">${subbed ? 'Subscribed' : 'Subscribe'}</button>` : ''}
+        <div class="watch-actions">
+          <button class="thumb like ${vote === 'like' ? 'active' : ''}">
+            <span class="thumb-icon">👍</span>
+            <span>Like</span>
+          </button>
+          <button class="thumb dislike ${vote === 'dislike' ? 'active' : ''}">
+            <span class="thumb-icon">👎</span>
+            <span>Dislike</span>
+          </button>
+        </div>
+      </div>
+      <div class="watch-desc">Uploaded ${timeAgo(uploaded)} • ${formatViews(views)}
+${ch ? '\nChannel: ' + ch.name : ''}</div>
+    </div>
+    <aside class="watch-sidebar">
+      <div class="watch-sidebar-title">Up next</div>
+      <div class="watch-recs" id="watch-recs"></div>
+    </aside>
+  `;
+
+  const player = document.getElementById('watch-player');
+  activeWatchPlayer = player;
+  const skipBtn = document.getElementById('watch-skip-btn');
+
+  const ad = ads.length ? ads[Math.floor(Math.random() * ads.length)] : null;
+  const playlist = ad ? [`commercials/${ad}`, src] : [src];
+  let adIndex = 0;
+
+  player.controls = true;
+  player.playsInline = true;
+  player.src = playlist[adIndex];
+
+  if (ad) {
+    watchSkipTimer = setTimeout(() => {
+      skipBtn.classList.remove('hidden');
+    }, 5000);
+  }
+
+  skipBtn.onclick = () => {
+    clearWatchSkipTimer();
+    skipBtn.classList.add('hidden');
+    if (adIndex === 0 && ad) {
+      adIndex = 1;
+      player.src = playlist[adIndex];
+      player.play().catch(() => {});
+    }
+  };
+
+  player.addEventListener('loadedmetadata', () => {
+    if (adIndex === 0 && ad) return;
+    if (progress > 0 && progress < 1) {
+      try { player.currentTime = progress * player.duration; } catch {}
+    }
+  });
+
+  let lastSaved = 0;
+  player.ontimeupdate = () => {
+    if (adIndex === 0 && ad) return;
+    if (!player.duration) return;
+    const pct = player.currentTime / player.duration;
+    if (Math.abs(pct - lastSaved) > 0.02) {
+      lastSaved = pct;
+      updateProgress(src, pct);
+    }
+  };
+
+  player.onended = () => {
+    adIndex++;
+    if (adIndex < playlist.length) {
+      clearWatchSkipTimer();
+      skipBtn.classList.add('hidden');
+      player.src = playlist[adIndex];
+      player.play().catch(() => {});
+      return;
+    }
+    updateProgress(src, 1);
+    startAutoplay(recs[0]);
+  };
+
+  player.play().catch(() => {});
+
+  addToHistory(src);
+
+  const subBtn = watchSection.querySelector('.subscribe-btn');
+  if (subBtn) {
+    subBtn.onclick = () => {
+      const key = subBtn.dataset.channel;
+      const now = toggleSubscribe(key);
+      subBtn.textContent = now ? 'Subscribed' : 'Subscribe';
+      subBtn.classList.toggle('subscribed', now);
+    };
+  }
+
+  watchSection.querySelectorAll('.watch-channel-avatar, .watch-channel-info').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.onclick = () => {
+      const key = el.dataset.channel;
+      if (key) navigate(`#/channel/${key}`);
+    };
+  });
+
+  watchSection.querySelector('.like').onclick = () => {
+    const cur = getVotes()[video.src];
+    setVote(video.src, cur === 'like' ? null : 'like');
+    showWatchPage(src, false);
+  };
+
+  watchSection.querySelector('.dislike').onclick = () => {
+    const cur = getVotes()[video.src];
+    setVote(video.src, cur === 'dislike' ? null : 'dislike');
+    showWatchPage(src, false);
+  };
+
+  const recsContainer = document.getElementById('watch-recs');
+  recs.forEach(r => {
+    const rch = getChannelForVideo(r);
+    const card = document.createElement('div');
+    card.className = 'rec-card';
+    card.innerHTML = `
+      <div class="rec-thumb-wrap">
+        <video muted preload="metadata">
+          <source src="videos/${r.src}" type="video/mp4">
+        </video>
+        <div class="duration-badge"></div>
+      </div>
+      <div class="rec-info">
+        <div class="rec-title">${r.src.replace('.mp4', '')}</div>
+        <div class="rec-meta">${rch ? rch.name : ''}<br>${formatViews(getViews(r))} • ${timeAgo(getUploadDate(r))}</div>
+      </div>
+    `;
+    const rv = card.querySelector('video');
+    const rb = card.querySelector('.duration-badge');
+    attachDurationBadge(rv, rb);
+    card.onclick = () => navigate(`#/watch/${encodeURIComponent(`videos/${r.src}`)}`);
+    recsContainer.appendChild(card);
+  });
+}
+
+function startAutoplay(nextVideo) {
+  if (!nextVideo) return;
+  const overlay = document.getElementById('autoplay-overlay');
+  const titleEl = document.getElementById('autoplay-title');
+  const countEl = document.getElementById('autoplay-countdown');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  titleEl.textContent = nextVideo.src.replace('.mp4', '');
+  autoplayCountdown = 5;
+  countEl.textContent = autoplayCountdown;
+
+  autoplayTimer = setInterval(() => {
+    autoplayCountdown--;
+    countEl.textContent = autoplayCountdown;
+    if (autoplayCountdown <= 0) {
+      clearAutoplayTimer();
+      navigate(`#/watch/${encodeURIComponent(`videos/${nextVideo.src}`)}`);
+    }
+  }, 1000);
+
+  document.getElementById('autoplay-cancel').onclick = e => {
+    e.stopPropagation();
+    clearAutoplayTimer();
+    overlay.classList.add('hidden');
+  };
+
+  document.getElementById('autoplay-play').onclick = e => {
+    e.stopPropagation();
+    clearAutoplayTimer();
+    navigate(`#/watch/${encodeURIComponent(`videos/${nextVideo.src}`)}`);
+  };
+}
+
+function clearAutoplayTimer() {
+  if (autoplayTimer) {
+    clearInterval(autoplayTimer);
+    autoplayTimer = null;
+  }
+}
+
+function showChannelPage(channelKey, push) {
+  const ch = channels[channelKey];
+  if (!ch) {
+    navigate('/', true);
+    return;
+  }
+
+  destroyInfiniteScroll();
+  clearAutoplayTimer();
+  clearWatchSkipTimer();
+  scrollToTop();
+
+  document.getElementById('shorts-shelf').classList.add('hidden');
+  document.getElementById('video-section').classList.add('hidden');
+  document.getElementById('subscriptions-section').classList.add('hidden');
+  document.getElementById('history-section').classList.add('hidden');
+  document.getElementById('watch-section').classList.add('hidden');
+  const section = document.getElementById('channel-section');
+  section.classList.remove('hidden');
+
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+
+  const subbed = isSubscribed(channelKey);
+  const vids = allVideos.filter(v => v.channels && v.channels.includes(channelKey) && !v.channels.includes('shorts'));
+  const shorts = allVideos.filter(v => v.channels && v.channels.includes(channelKey) && v.channels.includes('shorts'));
+  const totalVideos = vids.length + shorts.length;
+  const totalViews = vids.reduce((sum, v) => sum + getViews(v), 0);
+
+  section.innerHTML = `
+    <div class="channel-banner"${ch.banner ? ` style="background-image:url('img/${ch.banner}')"` : ''}></div>
+    <div class="channel-header">
+      <img class="channel-big-avatar" src="img/${ch.logo}" alt="${ch.name}" onerror="this.style.display='none'">
+      <div class="channel-details">
+        <h1 class="channel-name-big">${ch.name}</h1>
+        <div class="channel-stats">@${channelKey} • ${formatSubs(getChannelSubs(channelKey))} • ${totalVideos} videos • ${formatViews(totalViews)}</div>
+        <div class="channel-desc">Welcome to ${ch.name}. Subscribe for more content.</div>
+      </div>
+      <button class="subscribe-btn ${subbed ? 'subscribed' : ''}" id="channel-sub-btn">${subbed ? 'Subscribed' : 'Subscribe'}</button>
+    </div>
+    <div class="channel-tabs">
+      <div class="channel-tab active" data-tab="videos">Videos</div>
+      ${shorts.length ? '<div class="channel-tab" data-tab="shorts">Shorts</div>' : ''}
+      <div class="channel-tab" data-tab="about">About</div>
+    </div>
+    <div id="channel-tab-content"></div>
+  `;
+
+  document.getElementById('channel-sub-btn').onclick = () => {
+    const now = toggleSubscribe(channelKey);
+    const btn = document.getElementById('channel-sub-btn');
+    btn.textContent = now ? 'Subscribed' : 'Subscribe';
+    btn.classList.toggle('subscribed', now);
+  };
+
+  const tabContent = document.getElementById('channel-tab-content');
+
+  function renderTab(tab) {
+    if (tab === 'videos') {
+      tabContent.innerHTML = '<div class="video-grid" id="channel-grid"></div>';
+      const grid = document.getElementById('channel-grid');
+      if (vids.length) renderVideos(vids, grid);
+      else grid.innerHTML = '<p class="history-empty">No videos yet.</p>';
+    } else if (tab === 'shorts') {
+      tabContent.innerHTML = '<div class="shorts-row" id="channel-shorts"></div>';
+      const row = document.getElementById('channel-shorts');
+      shorts.forEach(video => {
+        const card = document.createElement('div');
+        card.className = 'short-card';
+        card.innerHTML = `
+          <div class="short-thumb-wrapper">
+            <video class="short-thumb" muted preload="metadata">
+              <source src="videos/${video.src}" type="video/mp4">
+            </video>
+            <div class="duration-badge"></div>
+          </div>
+          <div class="short-title">${video.src.replace('.mp4', '')}</div>
+          <div class="short-views">${formatViews(getViews(video))}</div>
+        `;
+        const t = card.querySelector('.short-thumb');
+        const b = card.querySelector('.duration-badge');
+        attachDurationBadge(t, b);
+        card.onclick = () => openShortsPlayer(video.src);
+        row.appendChild(card);
+      });
+    } else if (tab === 'about') {
+      tabContent.innerHTML = `
+        <div class="watch-desc">
+          <strong>About ${ch.name}</strong>
+          <p>Channel handle: @${channelKey}</p>
+          <p>Subscribers: ${formatSubs(getChannelSubs(channelKey))}</p>
+          <p>Total videos: ${totalVideos}</p>
+          <p>Total views: ${formatViews(totalViews)}</p>
+        </div>
+      `;
+    }
+  }
+
+  section.querySelectorAll('.channel-tab').forEach(tab => {
+    tab.onclick = () => {
+      section.querySelectorAll('.channel-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderTab(tab.dataset.tab);
+    };
+  });
+
+  renderTab('videos');
+}
+
 document.getElementById('clear-history-btn').onclick = () => {
   if (confirm('Clear all watch history?')) {
     clearHistory();
@@ -812,11 +1322,19 @@ document.getElementById('clear-history-btn').onclick = () => {
   }
 };
 
+document.getElementById('logo-link').onclick = e => {
+  e.preventDefault();
+  navigate('/');
+};
+
 document.querySelectorAll('.sidebar-item').forEach(item => {
   item.onclick = e => {
     if (item.dataset.page === 'live') return;
     e.preventDefault();
-    showPage(item.dataset.page);
+    const page = item.dataset.page;
+    if (page === 'home') navigate('/');
+    else if (page === 'shorts') navigate('#/shorts');
+    else navigate(`#/page/${page}`);
   };
 });
 
@@ -837,11 +1355,8 @@ function openSidebarOnMobile() {
 document.getElementById('menu-toggle').onclick = () => {
   const sidebar = document.getElementById('sidebar');
   if (window.innerWidth <= 768) {
-    if (sidebar.classList.contains('collapsed')) {
-      openSidebarOnMobile();
-    } else {
-      closeSidebarOnMobile();
-    }
+    if (sidebar.classList.contains('collapsed')) openSidebarOnMobile();
+    else closeSidebarOnMobile();
   } else {
     sidebar.classList.toggle('collapsed');
   }
@@ -877,14 +1392,69 @@ async function init() {
   channels = data.channels || {};
   ads = await fetchJSON('commercials/index.json');
 
-  initSubs();
   shuffle(allVideos);
 
-  renderShortsShelf();
+  document.getElementById('shorts-close-btn').onclick = closeShortsPlayer;
+  document.getElementById('shorts-up').onclick = scrollToPrevShort;
+  document.getElementById('shorts-down').onclick = scrollToNextShort;
 
-  showPage('home');
+  document.addEventListener('keydown', e => {
+    const shortsModal = document.getElementById('shorts-modal');
+    if (!shortsModal.classList.contains('hidden')) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        scrollToNextShort();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        scrollToPrevShort();
+      } else if (e.key === 'Escape') {
+        closeShortsPlayer();
+      }
+    }
+  });
 
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseAllMedia();
+  });
+
+  window.addEventListener('pagehide', pauseAllMedia);
+  window.addEventListener('beforeunload', pauseAllMedia);
+
+  setupShortsSwipe();
   setupSearch();
+
+  window.addEventListener('popstate', route);
+
+  route();
+}
+
+function setupShortsSwipe() {
+  const container = document.getElementById('shorts-container');
+  let touchStartY = 0;
+  let touchEndY = 0;
+
+  container.addEventListener('touchstart', e => {
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  container.addEventListener('touchend', e => {
+    touchEndY = e.changedTouches[0].screenY;
+    const diff = touchStartY - touchEndY;
+    if (Math.abs(diff) > 60) {
+      if (diff > 0) scrollToNextShort();
+      else scrollToPrevShort();
+    }
+  }, { passive: true });
+
+  let wheelLocked = false;
+  container.addEventListener('wheel', e => {
+    if (wheelLocked) return;
+    if (Math.abs(e.deltaY) < 20) return;
+    wheelLocked = true;
+    if (e.deltaY > 0) scrollToNextShort();
+    else scrollToPrevShort();
+    setTimeout(() => { wheelLocked = false; }, 600);
+  }, { passive: true });
 }
 
 function setupSearch() {
@@ -893,17 +1463,13 @@ function setupSearch() {
   const acBox = document.getElementById('autocomplete');
 
   function runSearch() {
-    const q = input.value.trim().toLowerCase();
+    const q = input.value.trim();
     hideAutocomplete();
-    if (currentPage !== 'home') showPage('home');
-    currentChannelFilter = null;
-    document.getElementById('video-section').classList.remove('hidden');
-    document.getElementById('video-grid').classList.remove('hidden');
     if (!q) {
-      renderVideos(getRecommendations(), document.getElementById('video-grid'));
+      navigate('/');
       return;
     }
-    renderVideos(allVideos.filter(v => v.src.toLowerCase().includes(q)), document.getElementById('video-grid'));
+    navigate(`#/search/${encodeURIComponent(q)}`);
   }
 
   function showAutocomplete(q) {
@@ -927,7 +1493,7 @@ function setupSearch() {
       el.innerHTML = `
         <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
         <span class="ac-text">${video.src.replace('.mp4', '')}</span>
-        ${ch ? `<span class="ac-channel">${ch.name}</span>` : ''}
+        ${isShort(video) ? '<span class="ac-channel">Short</span>' : (ch ? `<span class="ac-channel">${ch.name}</span>` : '')}
       `;
       el.onmousedown = (e) => {
         e.preventDefault();
@@ -991,6 +1557,79 @@ function setupSearch() {
   btn.onclick = runSearch;
 }
 
+function runSearchInternal(q) {
+  currentPage = 'search';
+  destroyInfiniteScroll();
+  scrollToTop();
+
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+
+  document.getElementById('shorts-shelf').classList.add('hidden');
+  document.getElementById('subscriptions-section').classList.add('hidden');
+  document.getElementById('history-section').classList.add('hidden');
+  document.getElementById('watch-section').classList.add('hidden');
+  document.getElementById('channel-section').classList.add('hidden');
+  document.getElementById('video-section').classList.remove('hidden');
+
+  const grid = document.getElementById('video-grid');
+  const lower = q.toLowerCase();
+
+  const shortsMatches = allVideos.filter(v => isShort(v) && v.src.toLowerCase().includes(lower));
+  const videoMatches = allVideos.filter(v => !isShort(v) && v.src.toLowerCase().includes(lower));
+
+  grid.innerHTML = '';
+
+  if (shortsMatches.length) {
+    const wrapper = document.createElement('div');
+    wrapper.style.gridColumn = '1 / -1';
+    wrapper.innerHTML = `
+      <div class="shorts-header" style="margin-bottom:12px;">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <rect x="7" y="2" width="10" height="20" rx="2.5" fill="#ba1a1a"/>
+          <path fill="#0f0f0f" d="M10.5 8.5v7l6-3.5z"/>
+        </svg>
+        <span class="shorts-title">Shorts</span>
+      </div>
+      <div class="shorts-row" id="search-shorts-row"></div>
+    `;
+    grid.appendChild(wrapper);
+
+    const searchRow = wrapper.querySelector('#search-shorts-row');
+    shortsMatches.forEach(video => {
+      const card = document.createElement('div');
+      card.className = 'short-card';
+      card.innerHTML = `
+        <div class="short-thumb-wrapper">
+          <video class="short-thumb" muted preload="metadata">
+            <source src="videos/${video.src}" type="video/mp4">
+          </video>
+          <div class="duration-badge"></div>
+        </div>
+        <div class="short-title">${video.src.replace('.mp4', '')}</div>
+        <div class="short-views">${formatViews(getViews(video))}</div>
+      `;
+      const t = card.querySelector('.short-thumb');
+      const b = card.querySelector('.duration-badge');
+      attachDurationBadge(t, b);
+      card.onclick = () => openShortsPlayer(video.src);
+      searchRow.appendChild(card);
+    });
+  }
+
+  if (videoMatches.length) {
+    const wrapper = document.createElement('div');
+    wrapper.style.gridColumn = '1 / -1';
+    wrapper.className = 'video-grid';
+    if (shortsMatches.length) wrapper.style.marginTop = '24px';
+    grid.appendChild(wrapper);
+    renderVideos(videoMatches, wrapper);
+  }
+
+  if (!shortsMatches.length && !videoMatches.length) {
+    grid.innerHTML = '<p class="history-empty">No results found.</p>';
+  }
+}
+
 function attachHoverPreview(thumb, videoSrc) {
   thumb.addEventListener('mouseenter', () => {
     clearTimeout(hoverTimer);
@@ -1031,11 +1670,11 @@ function attachHoverPreview(thumb, videoSrc) {
   });
 }
 
-function renderVideos(videos, container) {
+function renderVideos(videos, container, append) {
   if (!container) container = document.getElementById('video-grid');
-  container.innerHTML = '';
+  if (!append) container.innerHTML = '';
 
-  if (!videos.length) {
+  if (!videos.length && !append) {
     container.innerHTML = '<p class="history-empty">No results found.</p>';
     return;
   }
@@ -1091,19 +1730,21 @@ function renderVideos(videos, container) {
     const badge = card.querySelector('.duration-badge');
     attachDurationBadge(thumb, badge);
 
-    thumb.onclick = () => playVideo(`videos/${video.src}`);
+    thumb.onclick = () => navigate(`#/watch/${encodeURIComponent(`videos/${video.src}`)}`);
     attachHoverPreview(thumb, `videos/${video.src}`);
 
     card.querySelector('.like').onclick = e => {
       e.stopPropagation();
       setVote(video.src, vote === 'like' ? null : 'like');
-      renderVideos(videos, container);
+      card.querySelector('.like').classList.toggle('active', getVotes()[video.src] === 'like');
+      card.querySelector('.dislike').classList.remove('active');
     };
 
     card.querySelector('.dislike').onclick = e => {
       e.stopPropagation();
       setVote(video.src, vote === 'dislike' ? null : 'dislike');
-      renderVideos(videos, container);
+      card.querySelector('.dislike').classList.toggle('active', getVotes()[video.src] === 'dislike');
+      card.querySelector('.like').classList.remove('active');
     };
 
     const subBtn = card.querySelector('.subscribe-btn');
@@ -1122,7 +1763,16 @@ function renderVideos(videos, container) {
       chName.onclick = e => {
         e.stopPropagation();
         e.preventDefault();
-        filterByChannel(chName.dataset.channel);
+        navigate(`#/channel/${chName.dataset.channel}`);
+      };
+    }
+
+    const chAvatar = card.querySelector('.channel-avatar');
+    if (chAvatar && chAvatar.dataset.channel) {
+      chAvatar.style.cursor = 'pointer';
+      chAvatar.onclick = e => {
+        e.stopPropagation();
+        navigate(`#/channel/${chAvatar.dataset.channel}`);
       };
     }
 

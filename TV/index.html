@@ -16,7 +16,7 @@
         <button id="menu-toggle" class="icon-btn" aria-label="Menu">
           <span></span><span></span><span></span>
         </button>
-        <a href="../index.html" class="logo-link">
+        <a href="./" id="logo-link" class="logo-link">
           <img src="img/logo.png" alt="SusTube" class="logo-img" />
         </a>
       </div>
@@ -45,7 +45,7 @@
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
     <aside id="sidebar" class="sidebar collapsed">
     <nav class="sidebar-nav">
-      <a href="#" class="sidebar-item active" data-page="home">
+      <a href="#/" class="sidebar-item active" data-page="home">
         <svg viewBox="0 0 24 24" width="24" height="24">
           <path fill="#ba1a1a" d="M12 3L2 12h3v9h5v-6h4v6h5v-9h3L12 3z"/>
           <ellipse cx="9.5" cy="10.5" rx="1.3" ry="1.8" fill="#0f0f0f"/>
@@ -53,7 +53,7 @@
         </svg>
         <span>Home</span>
       </a>
-      <a href="#" class="sidebar-item" data-page="shorts">
+      <a href="#/shorts" class="sidebar-item" data-page="shorts">
         <svg viewBox="0 0 24 24" width="24" height="24">
           <rect x="6.5" y="2.5" width="11" height="19" rx="2.5" fill="none" stroke="#ba1a1a" stroke-width="2"/>
           <path fill="#ba1a1a" d="M10.5 8.5v7l6-3.5z"/>
@@ -68,7 +68,7 @@
         </svg>
         <span>Live TV</span>
       </a>
-      <a href="#" class="sidebar-item" data-page="subscriptions">
+      <a href="#/page/subscriptions" class="sidebar-item" data-page="subscriptions">
         <svg viewBox="0 0 24 24" width="24" height="24">
           <circle cx="12" cy="12" r="9.5" fill="none" stroke="#ba1a1a" stroke-width="1.5"/>
           <ellipse cx="9" cy="10.5" rx="1.6" ry="2.2" fill="#ba1a1a"/>
@@ -78,7 +78,7 @@
         <span>Subscriptions</span>
       </a>
       <div class="sidebar-divider"></div>
-      <a href="#" class="sidebar-item" data-page="history">
+      <a href="#/page/history" class="sidebar-item" data-page="history">
         <svg viewBox="0 0 24 24" width="24" height="24">
           <path d="M12 4.5a7.5 7.5 0 1 0 7.5 7.5" fill="none" stroke="#ba1a1a" stroke-width="2" stroke-linecap="round"/>
           <path d="M19.5 4.5v5h-5" fill="none" stroke="#ba1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -86,7 +86,7 @@
         </svg>
         <span>History</span>
       </a>
-      <a href="#" class="sidebar-item" data-page="liked">
+      <a href="#/page/liked" class="sidebar-item" data-page="liked">
         <svg viewBox="0 0 24 24" width="24" height="24">
           <path fill="#ba1a1a" d="M12 21s-8-5-8-11a5 5 0 0 1 8-4 5 5 0 0 1 8 4c0 6-8 11-8 11z"/>
           <ellipse cx="9.3" cy="10" rx="1.3" ry="1.8" fill="#0f0f0f"/>
@@ -94,7 +94,7 @@
         </svg>
         <span>Liked videos</span>
       </a>
-      <a href="#" class="sidebar-item" data-page="disliked">
+      <a href="#/page/disliked" class="sidebar-item" data-page="disliked">
         <svg viewBox="0 0 24 24" width="24" height="24">
           <path fill="#ba1a1a" d="M12 3s8 5 8 11a5 5 0 0 1-8 4 5 5 0 0 1-8-4c0-6 8-11 8-11z"/>
           <ellipse cx="9.3" cy="14" rx="1.3" ry="1.8" fill="#0f0f0f"/>
@@ -119,7 +119,12 @@
 
       <section id="video-section">
         <div id="video-grid" class="video-grid"></div>
+        <div id="scroll-sentinel" class="scroll-sentinel"></div>
       </section>
+
+      <section id="watch-section" class="watch-section hidden"></section>
+
+      <section id="channel-section" class="channel-section hidden"></section>
 
       <section id="subscriptions-section" class="subscriptions-section hidden">
         <div class="subs-header">
@@ -127,6 +132,16 @@
         </div>
         <div id="subs-channels" class="subs-channels"></div>
         <div id="subs-feed" class="video-grid"></div>
+        <div id="subs-shorts" class="subs-shorts hidden">
+          <div class="shorts-header">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+              <rect x="7" y="2" width="10" height="20" rx="2.5" fill="#ba1a1a"/>
+              <path fill="#0f0f0f" d="M10.5 8.5v7l6-3.5z"/>
+            </svg>
+            <span class="shorts-title">Shorts</span>
+          </div>
+          <div id="subs-shorts-row" class="shorts-row"></div>
+        </div>
       </section>
 
       <section id="history-section" class="history-section hidden">
@@ -142,19 +157,11 @@
   <footer class="site-footer">©2026 SusFeed Video</footer>
 </div>
 
-<div id="player-modal" class="player-modal hidden">
-  <button id="close-btn" class="close-btn">✕</button>
-  <video id="player" controls></video>
-  <video id="ad-player"></video>
-  <button id="skip-btn" class="skip-btn hidden">Skip Ad</button>
-</div>
-
 <div id="shorts-modal" class="shorts-modal hidden">
   <button id="shorts-close-btn" class="close-btn">✕</button>
   <button id="shorts-up" class="shorts-nav shorts-up" aria-label="Previous">▲</button>
   <button id="shorts-down" class="shorts-nav shorts-down" aria-label="Next">▼</button>
   <div id="shorts-container" class="shorts-container"></div>
-  <button id="shorts-skip-btn" class="skip-btn hidden">Skip Ad</button>
 </div>
 
 <script src="index.js"></script>
