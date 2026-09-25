@@ -245,7 +245,7 @@ function wireVoteButtons(scope, videoSrc, onChange) {
 }
 
 function shareVideo(videoSrc) {
-  const url = `susfeed.com/TV/index.html#/watch/${encodeURIComponent(`videos/${videoSrc}`)}`;
+  const url = `https://susfeed.com/TV/index.html#/watch/${encodeURIComponent(`videos/${videoSrc}`)}`;
   if (navigator.share) {
     navigator.share({ url, title: videoSrc.replace('.mp4', '') }).catch(() => {});
   } else if (navigator.clipboard) {
