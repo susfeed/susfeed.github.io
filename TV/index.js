@@ -1044,6 +1044,14 @@ function showWatchPage(videoSrc) {
   const existingSrc = existingPlayer ? existingPlayer.dataset.currentSrc : null;
 
   if (existingPlayer && existingSrc === src) {
+    document.getElementById('shorts-shelf').classList.add('hidden');
+    document.getElementById('video-section').classList.add('hidden');
+    document.getElementById('subscriptions-section').classList.add('hidden');
+    document.getElementById('history-section').classList.add('hidden');
+    document.getElementById('channel-section').classList.add('hidden');
+    document.getElementById('watch-section').classList.remove('hidden');
+    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+    scrollToTop();
     return;
   }
 
