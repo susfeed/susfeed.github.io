@@ -262,6 +262,7 @@ function shareVideo(videoSrc) {
 let allVideos = [];
 let ads = [];
 let channels = {};
+let videoBySrc = new Map();
 let acSelectedIndex = -1;
 let acResults = [];
 
@@ -274,7 +275,7 @@ let homeFeedBatch = 12;
 let infiniteObserver = null;
 
 let autoplayTimer = null;
-let autoplayCountdown = 5;
+let autoplayCountdown;
 
 let activeWatchPlayer = null;
 let watchSkipTimer = null;
@@ -288,6 +289,15 @@ let originalFaviconHref = null;
 
 let currentWatchSrc = null;
 
+let orientationHandler = null;
+
+function indexVideos() {
+  videoBySrc.clear();
+  for (const v of allVideos) {
+    videoBySrc.set(v.src, v);
+  }
+}
+
 function computeRecommendations() {
   const nonShortsVideos = allVideos.filter(v => !isShort(v));
 
@@ -296,7 +306,7 @@ function computeRecommendations() {
   const dislikedChannels = {};
 
   for (const [src, vote] of Object.entries(votes)) {
-    const video = allVideos.find(v => v.src === src);
+    const video = videoBySrc.get(src);
     if (!video || !video.channels) continue;
     for (const key of video.channels) {
       if (key === 'shorts') continue;
@@ -337,7 +347,7 @@ function computeShortsRecommendations() {
   const dislikedChannels = {};
 
   for (const [src, vote] of Object.entries(votes)) {
-    const video = allVideos.find(v => v.src === src);
+    const video = videoBySrc.get(src);
     if (!video || !video.channels) continue;
     for (const key of video.channels) {
       if (key === 'shorts') continue;
@@ -453,6 +463,7 @@ function route() {
   destroyInfiniteScroll();
   clearAutoplayTimer();
   clearWatchSkipTimer();
+  teardownOrientationHandler();
 
   const hash = location.hash || '';
   const isWatchRoute = hash.startsWith('#/watch/');
@@ -1333,11 +1344,6 @@ function renderWatchContent(video, src) {
   const bufferingOverlay = document.getElementById('buffering-overlay');
   const playerWrap = document.getElementById('watch-player-wrap');
 
-  if (playerWrap._landscapeCleanup) {
-    playerWrap._landscapeCleanup();
-    playerWrap._landscapeCleanup = null;
-  }
-
   applyMobileLandscape(playerWrap);
 
   const ad = ads.length ? ads[Math.floor(Math.random() * ads.length)] : null;
@@ -1348,25 +1354,19 @@ function renderWatchContent(video, src) {
   player.playsInline = true;
   player.src = playlist[adIndex];
 
-  player.addEventListener('waiting', () => {
+  const showBuffering = () => {
     bufferingOverlay.classList.add('show');
     startBufferingSpinner();
-  });
-
-  player.addEventListener('playing', () => {
+  };
+  const hideBuffering = () => {
     bufferingOverlay.classList.remove('show');
     stopBufferingSpinner();
-  });
+  };
 
-  player.addEventListener('canplay', () => {
-    bufferingOverlay.classList.remove('show');
-    stopBufferingSpinner();
-  });
-
-  player.addEventListener('stalled', () => {
-    bufferingOverlay.classList.add('show');
-    startBufferingSpinner();
-  });
+  player.addEventListener('waiting', showBuffering);
+  player.addEventListener('stalled', showBuffering);
+  player.addEventListener('playing', hideBuffering);
+  player.addEventListener('canplay', hideBuffering);
 
   if (ad) {
     watchSkipTimer = setTimeout(() => {
@@ -1463,37 +1463,77 @@ function renderWatchContent(video, src) {
   });
 }
 
+function teardownOrientationHandler() {
+  if (orientationHandler) {
+    orientationHandler.cleanup();
+    orientationHandler = null;
+  }
+}
+
 function applyMobileLandscape(playerWrap) {
-  if (window.innerWidth > 768) return;
+  if (!window.matchMedia) return;
+
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth <= 768;
+  if (!isMobile) return;
 
   const landscapeQuery = window.matchMedia('(orientation: landscape)');
 
-  function handleOrientation() {
-    if (window.innerWidth <= 768 && landscapeQuery.matches) {
-      playerWrap.classList.add('mobile-landscape');
-    } else {
-      playerWrap.classList.remove('mobile-landscape');
+  function enterLandscape() {
+    if (document.fullscreenElement || document.webkitFullscreenElement) return;
+
+    if (playerWrap.requestFullscreen) {
+      playerWrap.requestFullscreen().catch(() => {});
+    } else if (playerWrap.webkitRequestFullscreen) {
+      playerWrap.webkitRequestFullscreen();
+    } else if (playerWrap.webkitEnterFullscreen) {
+      const video = playerWrap.querySelector('video');
+      if (video) video.webkitEnterFullscreen();
+    }
+
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('landscape').catch(() => {});
     }
   }
 
-  handleOrientation();
+  function exitLandscape() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else if (document.webkitFullscreenElement) {
+      document.webkitExitFullscreen();
+    }
+
+    if (screen.orientation && screen.orientation.unlock) {
+      try { screen.orientation.unlock(); } catch {}
+    }
+  }
+
+  function onOrientationChange() {
+    if (landscapeQuery.matches) {
+      enterLandscape();
+    } else {
+      exitLandscape();
+    }
+  }
+
+  if (landscapeQuery.matches) {
+    enterLandscape();
+  }
 
   if (landscapeQuery.addEventListener) {
-    landscapeQuery.addEventListener('change', handleOrientation);
+    landscapeQuery.addEventListener('change', onOrientationChange);
   } else if (landscapeQuery.addListener) {
-    landscapeQuery.addListener(handleOrientation);
+    landscapeQuery.addListener(onOrientationChange);
   }
 
-  window.addEventListener('resize', handleOrientation);
-
-  playerWrap._landscapeCleanup = () => {
-    playerWrap.classList.remove('mobile-landscape');
-    if (landscapeQuery.removeEventListener) {
-      landscapeQuery.removeEventListener('change', handleOrientation);
-    } else if (landscapeQuery.removeListener) {
-      landscapeQuery.removeListener(handleOrientation);
+  orientationHandler = {
+    cleanup() {
+      if (landscapeQuery.removeEventListener) {
+        landscapeQuery.removeEventListener('change', onOrientationChange);
+      } else if (landscapeQuery.removeListener) {
+        landscapeQuery.removeListener(onOrientationChange);
+      }
+      exitLandscape();
     }
-    window.removeEventListener('resize', handleOrientation);
   };
 }
 
@@ -1664,37 +1704,31 @@ function setupMiniPlayer() {
   const closeBtn = document.getElementById('mini-player-close');
   const expandBtn = document.getElementById('mini-player-expand');
 
+  const dismiss = () => {
+    mini.classList.add('hidden');
+    miniVideo.pause();
+    miniVideo.removeAttribute('src');
+    miniVideo.load();
+    miniPlayerVideoSrc = null;
+  };
+
   closeBtn.onclick = e => {
     e.stopPropagation();
-    mini.classList.add('hidden');
-    miniVideo.pause();
-    miniVideo.removeAttribute('src');
-    miniVideo.load();
-    miniPlayerVideoSrc = null;
+    dismiss();
   };
 
-  expandBtn.onclick = e => {
+  const expand = e => {
     e.stopPropagation();
     if (!miniPlayerVideoSrc) return;
     const src = miniPlayerVideoSrc;
-    mini.classList.add('hidden');
-    miniVideo.pause();
-    miniVideo.removeAttribute('src');
-    miniVideo.load();
-    miniPlayerVideoSrc = null;
+    dismiss();
     navigate(`#/watch/${encodeURIComponent(src)}`);
   };
 
+  expandBtn.onclick = expand;
   mini.onclick = e => {
     if (e.target === closeBtn || e.target === expandBtn) return;
-    if (!miniPlayerVideoSrc) return;
-    const src = miniPlayerVideoSrc;
-    mini.classList.add('hidden');
-    miniVideo.pause();
-    miniVideo.removeAttribute('src');
-    miniVideo.load();
-    miniPlayerVideoSrc = null;
-    navigate(`#/watch/${encodeURIComponent(src)}`);
+    expand(e);
   };
 }
 
@@ -1805,6 +1839,7 @@ async function init() {
   ads = await fetchJSON('commercials/index.json');
 
   shuffle(allVideos);
+  indexVideos();
 
   document.getElementById('shorts-close-btn').onclick = closeShortsPlayer;
   document.getElementById('shorts-up').onclick = scrollToPrevShort;
@@ -1828,7 +1863,6 @@ async function init() {
   });
 
   window.addEventListener('pagehide', pauseAllMedia);
-  window.addEventListener('beforeunload', pauseAllMedia);
 
   setupShortsSwipe();
   setupSearch();

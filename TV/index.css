@@ -2318,62 +2318,7 @@ a {
     .watch-skeleton-sidebar {
         width: 100%;
     }
-
-    .watch-player-wrap.mobile-landscape {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        width: 100vh;
-        height: 100vw;
-        max-width: none;
-        max-height: none;
-        transform: translate(-50%, -50%) rotate(90deg);
-        border-radius: 0;
-        z-index: 9998;
-        box-shadow: none;
-    }
-
-    .watch-player-wrap.mobile-landscape video {
-        object-fit: contain;
-    }
-
-    .watch-player-wrap.mobile-landscape .watch-skip-btn {
-        bottom: 60px;
-        right: 60px;
-    }
-
-    .watch-player-wrap.mobile-landscape .autoplay-overlay {
-        padding: 40px;
-    }
-
-    .watch-player-wrap.mobile-landscape .autoplay-title {
-        font-size: 20px;
-    }
-
-    .watch-player-wrap.mobile-landscape .autoplay-actions button {
-        padding: 14px 28px;
-        font-size: 16px;
-    }
 }
-
-    .watch-player-wrap:not(.mobile-landscape) .rotate-btn {
-        position: absolute;
-        bottom: 12px;
-        left: 12px;
-        background: rgba(0,0,0,.75);
-        color: #fff;
-        border: none;
-        padding: 8px 14px;
-        border-radius: 6px;
-        font-size: 13px;
-        cursor: pointer;
-        z-index: 10;
-        backdrop-filter: blur(4px);
-    }
-
-    .watch-player-wrap:not(.mobile-landscape) .rotate-btn:hover {
-        background: #ba1a1a;
-    }
 
 @media (max-width: 480px) {
     .header-top {
