@@ -2356,6 +2356,25 @@ a {
     }
 }
 
+    .watch-player-wrap:not(.mobile-landscape) .rotate-btn {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        background: rgba(0,0,0,.75);
+        color: #fff;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        z-index: 10;
+        backdrop-filter: blur(4px);
+    }
+
+    .watch-player-wrap:not(.mobile-landscape) .rotate-btn:hover {
+        background: #ba1a1a;
+    }
+
 @media (max-width: 480px) {
     .header-top {
         padding: 6px 8px;

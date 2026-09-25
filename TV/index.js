@@ -1333,6 +1333,11 @@ function renderWatchContent(video, src) {
   const bufferingOverlay = document.getElementById('buffering-overlay');
   const playerWrap = document.getElementById('watch-player-wrap');
 
+  if (playerWrap._landscapeCleanup) {
+    playerWrap._landscapeCleanup();
+    playerWrap._landscapeCleanup = null;
+  }
+
   applyMobileLandscape(playerWrap);
 
   const ad = ads.length ? ads[Math.floor(Math.random() * ads.length)] : null;
@@ -1460,23 +1465,36 @@ function renderWatchContent(video, src) {
 
 function applyMobileLandscape(playerWrap) {
   if (window.innerWidth > 768) return;
-  playerWrap.classList.add('mobile-landscape');
 
-  const closeLandscape = () => {
-    playerWrap.classList.remove('mobile-landscape');
-  };
+  const landscapeQuery = window.matchMedia('(orientation: landscape)');
 
-  if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
-    if (document.fullscreenElement) {
-      window.screen.orientation.lock('landscape').catch(() => {});
+  function handleOrientation() {
+    if (window.innerWidth <= 768 && landscapeQuery.matches) {
+      playerWrap.classList.add('mobile-landscape');
+    } else {
+      playerWrap.classList.remove('mobile-landscape');
     }
   }
 
-  const unlockHandler = () => {
-    if (window.innerWidth > 768) closeLandscape();
+  handleOrientation();
+
+  if (landscapeQuery.addEventListener) {
+    landscapeQuery.addEventListener('change', handleOrientation);
+  } else if (landscapeQuery.addListener) {
+    landscapeQuery.addListener(handleOrientation);
+  }
+
+  window.addEventListener('resize', handleOrientation);
+
+  playerWrap._landscapeCleanup = () => {
+    playerWrap.classList.remove('mobile-landscape');
+    if (landscapeQuery.removeEventListener) {
+      landscapeQuery.removeEventListener('change', handleOrientation);
+    } else if (landscapeQuery.removeListener) {
+      landscapeQuery.removeListener(handleOrientation);
+    }
+    window.removeEventListener('resize', handleOrientation);
   };
-  window.addEventListener('resize', unlockHandler);
-  window.addEventListener('orientationchange', unlockHandler);
 }
 
 function startAutoplay(nextVideo) {
