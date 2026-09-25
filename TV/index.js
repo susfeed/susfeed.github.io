@@ -186,6 +186,20 @@ function watchedBarHTML(progress) {
   return '';
 }
 
+function showToast(message, duration) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  const dur = duration || 2200;
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    setTimeout(() => toast.remove(), 300);
+  }, dur);
+}
+
 function wireSubscribeBtn(btn) {
   if (!btn) return;
   btn.onclick = e => {
@@ -195,6 +209,7 @@ function wireSubscribeBtn(btn) {
     btn.textContent = now ? 'Subscribed' : 'Subscribe';
     btn.classList.toggle('subscribed', now);
     invalidateRecommendations();
+    showToast(now ? 'Subscribed' : 'Unsubscribed');
   };
 }
 
@@ -229,6 +244,21 @@ function wireVoteButtons(scope, videoSrc, onChange) {
   refresh();
 }
 
+function shareVideo(videoSrc) {
+  const url = `susfeed.com/TV/index.html#/watch/${encodeURIComponent(`videos/${videoSrc}`)}`;
+  if (navigator.share) {
+    navigator.share({ url, title: videoSrc.replace('.mp4', '') }).catch(() => {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Link copied to clipboard');
+    }).catch(() => {
+      showToast('Unable to copy link');
+    });
+  } else {
+    showToast('Sharing not supported');
+  }
+}
+
 let allVideos = [];
 let ads = [];
 let channels = {};
@@ -250,6 +280,13 @@ let activeWatchPlayer = null;
 let watchSkipTimer = null;
 
 let shortsResumeIndex = 0;
+
+let miniPlayerVideoSrc = null;
+
+let bufferingFaviconState = false;
+let originalFaviconHref = null;
+
+let currentWatchSrc = null;
 
 function computeRecommendations() {
   const nonShortsVideos = allVideos.filter(v => !isShort(v));
@@ -454,6 +491,15 @@ function route() {
   showPage('home');
 }
 
+function hideAllSections() {
+  document.getElementById('shorts-shelf').classList.add('hidden');
+  document.getElementById('video-section').classList.add('hidden');
+  document.getElementById('subscriptions-section').classList.add('hidden');
+  document.getElementById('history-section').classList.add('hidden');
+  document.getElementById('watch-section').classList.add('hidden');
+  document.getElementById('channel-section').classList.add('hidden');
+}
+
 function showPage(page) {
   destroyInfiniteScroll();
   scrollToTop();
@@ -462,12 +508,7 @@ function showPage(page) {
     el.classList.toggle('active', el.dataset.page === page);
   });
 
-  document.getElementById('shorts-shelf').classList.add('hidden');
-  document.getElementById('video-section').classList.add('hidden');
-  document.getElementById('subscriptions-section').classList.add('hidden');
-  document.getElementById('history-section').classList.add('hidden');
-  document.getElementById('watch-section').classList.add('hidden');
-  document.getElementById('channel-section').classList.add('hidden');
+  hideAllSections();
 
   if (page === 'home') {
     document.getElementById('shorts-shelf').classList.remove('hidden');
@@ -584,7 +625,11 @@ function renderSubscriptions() {
             <div class="duration-badge"></div>
           </div>
           <div class="short-title">${video.src.replace('.mp4', '')}</div>
-          <div class="short-views">${formatViews(getViews(video))}</div>
+          <div class="short-meta">
+            <span>${formatViews(getViews(video))}</span>
+            <span>•</span>
+            <span>${timeAgo(getUploadDate(video))}</span>
+          </div>
         `;
         const t = card.querySelector('.short-thumb');
         const b = card.querySelector('.duration-badge');
@@ -628,6 +673,7 @@ function renderShortsShelf() {
 
   shorts.forEach(video => {
     const views = getViews(video);
+    const uploaded = getUploadDate(video);
     const card = document.createElement('div');
     card.className = 'short-card';
     card.innerHTML = `
@@ -638,7 +684,11 @@ function renderShortsShelf() {
         <div class="duration-badge"></div>
       </div>
       <div class="short-title">${video.src.replace('.mp4', '')}</div>
-      <div class="short-views">${formatViews(views)}</div>
+      <div class="short-meta">
+        <span>${formatViews(views)}</span>
+        <span>•</span>
+        <span>${timeAgo(uploaded)}</span>
+      </div>
     `;
 
     const thumb = card.querySelector('.short-thumb');
@@ -761,12 +811,15 @@ function renderShortsSlides() {
       const votes = getVotes();
       const likeActive = votes[video.src] === 'like' ? 'active' : '';
       const dislikeActive = votes[video.src] === 'dislike' ? 'active' : '';
+      const uploaded = getUploadDate(video);
+      const views = getViews(video);
       slide.innerHTML = `
         <video playsinline loop preload="metadata">
           <source src="videos/${video.src}" type="video/mp4">
         </video>
         <div class="short-overlay">
           <div class="short-overlay-title">${video.src.replace('.mp4', '')}</div>
+          <div class="short-overlay-meta">${formatViews(views)} • ${timeAgo(uploaded)}</div>
           ${ch ? `
             <div class="short-overlay-channel" data-channel="${ch.key}">
               <img class="short-overlay-avatar" src="img/${ch.logo}" alt="${ch.name}" onerror="this.style.display='none'">
@@ -787,6 +840,7 @@ function renderShortsSlides() {
             <span>Dislike</span>
           </div>
         </div>
+        <div class="short-pause-indicator">⏸</div>
         <div class="short-progress"></div>
       `;
     }
@@ -807,7 +861,8 @@ function attachShortsControls() {
     el.onclick = e => {
       e.stopPropagation();
       const current = getVotes();
-      setVote(src, current[src] === 'like' ? null : 'like');
+      const wasLiked = current[src] === 'like';
+      setVote(src, wasLiked ? null : 'like');
       const updated = getVotes();
       container.querySelectorAll(`.short-action.like-action[data-src="${CSS.escape(src)}"]`).forEach(a => {
         a.classList.toggle('active', updated[src] === 'like');
@@ -816,6 +871,7 @@ function attachShortsControls() {
         a.classList.remove('active');
       });
       invalidateRecommendations();
+      if (!wasLiked) showToast('Liked');
     };
   });
 
@@ -825,7 +881,8 @@ function attachShortsControls() {
     el.onclick = e => {
       e.stopPropagation();
       const current = getVotes();
-      setVote(src, current[src] === 'dislike' ? null : 'dislike');
+      const wasDisliked = current[src] === 'dislike';
+      setVote(src, wasDisliked ? null : 'dislike');
       const updated = getVotes();
       container.querySelectorAll(`.short-action.dislike-action[data-src="${CSS.escape(src)}"]`).forEach(a => {
         a.classList.toggle('active', updated[src] === 'dislike');
@@ -834,6 +891,7 @@ function attachShortsControls() {
         a.classList.remove('active');
       });
       invalidateRecommendations();
+      if (!wasDisliked) showToast('Disliked');
     };
   });
 
@@ -845,6 +903,7 @@ function attachShortsControls() {
       el.textContent = nowSubbed ? 'Subscribed' : 'Subscribe';
       el.classList.toggle('subscribed', nowSubbed);
       invalidateRecommendations();
+      showToast(nowSubbed ? 'Subscribed' : 'Unsubscribed');
     };
   });
 
@@ -886,6 +945,7 @@ function setupShortsObserver() {
             video.play().catch(() => {});
           });
           attachShortProgress(video, slide);
+          attachShortGestures(slide, video, item.video);
           addToHistory(`videos/${item.video.src}`);
         }
       } else {
@@ -901,6 +961,72 @@ function setupShortsObserver() {
   });
 
   slides.forEach(s => shortsObserver.observe(s));
+}
+
+function attachShortGestures(slide, video, videoData) {
+  let lastTap = 0;
+  let tapTimer = null;
+  let longPressTimer = null;
+  let wasPlaying = true;
+  let longPressActive = false;
+
+  slide.addEventListener('touchstart', e => {
+    if (e.target.closest('.short-action') || e.target.closest('.short-overlay-sub') || e.target.closest('.short-overlay-channel')) return;
+    wasPlaying = !video.paused;
+    longPressActive = false;
+    longPressTimer = setTimeout(() => {
+      longPressActive = true;
+      video.pause();
+      const indicator = slide.querySelector('.short-pause-indicator');
+      if (indicator) indicator.classList.add('show');
+    }, 500);
+  }, { passive: true });
+
+  slide.addEventListener('touchend', e => {
+    if (e.target.closest('.short-action') || e.target.closest('.short-overlay-sub') || e.target.closest('.short-overlay-channel')) return;
+    clearTimeout(longPressTimer);
+    const indicator = slide.querySelector('.short-pause-indicator');
+    if (longPressActive) {
+      longPressActive = false;
+      video.play().catch(() => {});
+      if (indicator) indicator.classList.remove('show');
+      return;
+    }
+    const now = Date.now();
+    const timeSince = now - lastTap;
+    if (timeSince < 300 && timeSince > 0) {
+      clearTimeout(tapTimer);
+      lastTap = 0;
+      const heart = document.createElement('div');
+      heart.className = 'short-heart';
+      heart.textContent = '❤️';
+      slide.appendChild(heart);
+      setTimeout(() => heart.remove(), 800);
+      const current = getVotes();
+      if (current[videoData.src] !== 'like') {
+        setVote(videoData.src, 'like');
+        const container = document.getElementById('shorts-container');
+        container.querySelectorAll(`.short-action.like-action[data-src="${CSS.escape(videoData.src)}"]`).forEach(a => a.classList.add('active'));
+        container.querySelectorAll(`.short-action.dislike-action[data-src="${CSS.escape(videoData.src)}"]`).forEach(a => a.classList.remove('active'));
+        invalidateRecommendations();
+      }
+    } else {
+      lastTap = now;
+      tapTimer = setTimeout(() => {
+        if (wasPlaying) video.pause();
+        else video.play().catch(() => {});
+      }, 300);
+    }
+  }, { passive: true });
+
+  slide.addEventListener('touchmove', () => {
+    clearTimeout(longPressTimer);
+    if (longPressActive) {
+      longPressActive = false;
+      const indicator = slide.querySelector('.short-pause-indicator');
+      if (indicator) indicator.classList.remove('show');
+    }
+  }, { passive: true });
 }
 
 function startShortAd(slide, video, idx) {
@@ -1032,6 +1158,55 @@ function renderHistory() {
   });
 }
 
+function renderWatchSkeleton() {
+  const watchSection = document.getElementById('watch-section');
+  watchSection.innerHTML = `
+    <div class="watch-skeleton">
+      <div class="watch-skeleton-main">
+        <div class="watch-skeleton-player"></div>
+        <div class="watch-skeleton-title"></div>
+        <div class="watch-skeleton-meta"></div>
+        <div class="watch-skeleton-channel">
+          <div class="watch-skeleton-avatar"></div>
+          <div class="watch-skeleton-channel-text">
+            <div class="watch-skeleton-line" style="width:40%"></div>
+            <div class="watch-skeleton-line" style="width:25%"></div>
+          </div>
+        </div>
+        <div class="watch-skeleton-desc"></div>
+      </div>
+      <aside class="watch-skeleton-sidebar">
+        ${Array(6).fill(`
+          <div class="watch-skeleton-rec">
+            <div class="watch-skeleton-rec-thumb"></div>
+            <div class="watch-skeleton-rec-text">
+              <div class="watch-skeleton-line"></div>
+              <div class="watch-skeleton-line" style="width:60%"></div>
+            </div>
+          </div>
+        `).join('')}
+      </aside>
+    </div>
+  `;
+}
+
+function startBufferingSpinner() {
+  if (bufferingFaviconState) return;
+  bufferingFaviconState = true;
+  const favicon = document.getElementById('dynamic-favicon');
+  if (!favicon) return;
+  if (!originalFaviconHref) originalFaviconHref = favicon.href;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="none" stroke="#272727" stroke-width="4"/><path d="M16 4a12 12 0 0 1 12 12" fill="none" stroke="#ba1a1a" stroke-width="4" stroke-linecap="round"/></svg>`;
+  favicon.href = `data:image/svg+xml;base64,${btoa(svg)}`;
+}
+
+function stopBufferingSpinner() {
+  if (!bufferingFaviconState) return;
+  bufferingFaviconState = false;
+  const favicon = document.getElementById('dynamic-favicon');
+  if (favicon && originalFaviconHref) favicon.href = originalFaviconHref;
+}
+
 function showWatchPage(videoSrc) {
   const src = videoSrc.startsWith('videos/') ? videoSrc : `videos/${videoSrc}`;
   const video = allVideos.find(v => `videos/${v.src}` === src);
@@ -1044,11 +1219,7 @@ function showWatchPage(videoSrc) {
   const existingSrc = existingPlayer ? existingPlayer.dataset.currentSrc : null;
 
   if (existingPlayer && existingSrc === src) {
-    document.getElementById('shorts-shelf').classList.add('hidden');
-    document.getElementById('video-section').classList.add('hidden');
-    document.getElementById('subscriptions-section').classList.add('hidden');
-    document.getElementById('history-section').classList.add('hidden');
-    document.getElementById('channel-section').classList.add('hidden');
+    hideAllSections();
     document.getElementById('watch-section').classList.remove('hidden');
     document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
     scrollToTop();
@@ -1069,16 +1240,20 @@ function showWatchPage(videoSrc) {
     activeWatchPlayer = null;
   }
 
-  document.getElementById('shorts-shelf').classList.add('hidden');
-  document.getElementById('video-section').classList.add('hidden');
-  document.getElementById('subscriptions-section').classList.add('hidden');
-  document.getElementById('history-section').classList.add('hidden');
-  document.getElementById('channel-section').classList.add('hidden');
+  hideAllSections();
   const watchSection = document.getElementById('watch-section');
   watchSection.classList.remove('hidden');
+  renderWatchSkeleton();
 
   document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
 
+  setTimeout(() => {
+    renderWatchContent(video, src);
+  }, 50);
+}
+
+function renderWatchContent(video, src) {
+  const watchSection = document.getElementById('watch-section');
   const ch = getChannelForVideo(video);
   const vote = getVotes()[video.src];
   const views = getViews(video);
@@ -1103,6 +1278,12 @@ function showWatchPage(videoSrc) {
     <div class="watch-main">
       <div class="watch-player-wrap ambient" id="watch-player-wrap">
         <video id="watch-player" controls playsinline preload="metadata" data-current-src="${src}"></video>
+        <div class="buffering-overlay" id="buffering-overlay">
+          <svg class="buffering-favicon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="12" fill="none" stroke="#272727" stroke-width="4"/>
+            <path d="M16 4a12 12 0 0 1 12 12" fill="none" stroke="#ba1a1a" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
         <button class="watch-skip-btn hidden" id="watch-skip-btn">Skip Ad</button>
         <div class="autoplay-overlay hidden" id="autoplay-overlay">
           <div class="autoplay-title" id="autoplay-title">Up next</div>
@@ -1131,6 +1312,10 @@ function showWatchPage(videoSrc) {
             <span class="thumb-icon">👎</span>
             <span>Dislike</span>
           </button>
+          <button class="share-btn" id="share-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z"/></svg>
+            <span>Share</span>
+          </button>
         </div>
       </div>
       <div class="watch-desc">Uploaded ${timeAgo(uploaded)} • ${formatViews(views)}${video.description ? `<div class="watch-desc-text">${video.description}</div>` : ''}</div>
@@ -1143,7 +1328,12 @@ function showWatchPage(videoSrc) {
 
   const player = document.getElementById('watch-player');
   activeWatchPlayer = player;
+  currentWatchSrc = src;
   const skipBtn = document.getElementById('watch-skip-btn');
+  const bufferingOverlay = document.getElementById('buffering-overlay');
+  const playerWrap = document.getElementById('watch-player-wrap');
+
+  applyMobileLandscape(playerWrap);
 
   const ad = ads.length ? ads[Math.floor(Math.random() * ads.length)] : null;
   const playlist = ad ? [`commercials/${ad}`, src] : [src];
@@ -1152,6 +1342,26 @@ function showWatchPage(videoSrc) {
   player.controls = true;
   player.playsInline = true;
   player.src = playlist[adIndex];
+
+  player.addEventListener('waiting', () => {
+    bufferingOverlay.classList.add('show');
+    startBufferingSpinner();
+  });
+
+  player.addEventListener('playing', () => {
+    bufferingOverlay.classList.remove('show');
+    stopBufferingSpinner();
+  });
+
+  player.addEventListener('canplay', () => {
+    bufferingOverlay.classList.remove('show');
+    stopBufferingSpinner();
+  });
+
+  player.addEventListener('stalled', () => {
+    bufferingOverlay.classList.add('show');
+    startBufferingSpinner();
+  });
 
   if (ad) {
     watchSkipTimer = setTimeout(() => {
@@ -1207,6 +1417,14 @@ function showWatchPage(videoSrc) {
   wireSubscribeBtn(watchSection.querySelector('.subscribe-btn'));
   wireVoteButtons(watchSection.querySelector('.watch-actions'), video.src);
 
+  const shareBtn = document.getElementById('share-btn');
+  if (shareBtn) {
+    shareBtn.onclick = e => {
+      e.stopPropagation();
+      shareVideo(video.src);
+    };
+  }
+
   watchSection.querySelectorAll('.watch-channel-avatar, .watch-channel-info').forEach(el => {
     el.style.cursor = 'pointer';
     el.onclick = () => {
@@ -1240,6 +1458,27 @@ function showWatchPage(videoSrc) {
   });
 }
 
+function applyMobileLandscape(playerWrap) {
+  if (window.innerWidth > 768) return;
+  playerWrap.classList.add('mobile-landscape');
+
+  const closeLandscape = () => {
+    playerWrap.classList.remove('mobile-landscape');
+  };
+
+  if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+    if (document.fullscreenElement) {
+      window.screen.orientation.lock('landscape').catch(() => {});
+    }
+  }
+
+  const unlockHandler = () => {
+    if (window.innerWidth > 768) closeLandscape();
+  };
+  window.addEventListener('resize', unlockHandler);
+  window.addEventListener('orientationchange', unlockHandler);
+}
+
 function startAutoplay(nextVideo) {
   if (!nextVideo) return;
   const overlay = document.getElementById('autoplay-overlay');
@@ -1260,17 +1499,27 @@ function startAutoplay(nextVideo) {
     }
   }, 1000);
 
-  document.getElementById('autoplay-cancel').onclick = e => {
+  const cancelBtn = document.getElementById('autoplay-cancel');
+  const playBtn = document.getElementById('autoplay-play');
+
+  const cancelHandler = e => {
     e.stopPropagation();
+    e.preventDefault();
     clearAutoplayTimer();
     overlay.classList.add('hidden');
   };
 
-  document.getElementById('autoplay-play').onclick = e => {
+  const playHandler = e => {
     e.stopPropagation();
+    e.preventDefault();
     clearAutoplayTimer();
     navigate(`#/watch/${encodeURIComponent(`videos/${nextVideo.src}`)}`);
   };
+
+  cancelBtn.onclick = cancelHandler;
+  playBtn.onclick = playHandler;
+  cancelBtn.ontouchend = cancelHandler;
+  playBtn.ontouchend = playHandler;
 }
 
 function clearAutoplayTimer() {
@@ -1292,11 +1541,7 @@ function showChannelPage(channelKey) {
   clearWatchSkipTimer();
   scrollToTop();
 
-  document.getElementById('shorts-shelf').classList.add('hidden');
-  document.getElementById('video-section').classList.add('hidden');
-  document.getElementById('subscriptions-section').classList.add('hidden');
-  document.getElementById('history-section').classList.add('hidden');
-  document.getElementById('watch-section').classList.add('hidden');
+  hideAllSections();
   const section = document.getElementById('channel-section');
   section.classList.remove('hidden');
 
@@ -1333,6 +1578,7 @@ function showChannelPage(channelKey) {
     btn.textContent = now ? 'Subscribed' : 'Subscribe';
     btn.classList.toggle('subscribed', now);
     invalidateRecommendations();
+    showToast(now ? 'Subscribed' : 'Unsubscribed');
   };
 
   const tabContent = document.getElementById('channel-tab-content');
@@ -1357,7 +1603,11 @@ function showChannelPage(channelKey) {
             <div class="duration-badge"></div>
           </div>
           <div class="short-title">${video.src.replace('.mp4', '')}</div>
-          <div class="short-views">${formatViews(getViews(video))}</div>
+          <div class="short-meta">
+            <span>${formatViews(getViews(video))}</span>
+            <span>•</span>
+            <span>${timeAgo(getUploadDate(video))}</span>
+          </div>
         `;
         const t = card.querySelector('.short-thumb');
         const b = card.querySelector('.duration-badge');
@@ -1390,10 +1640,79 @@ function showChannelPage(channelKey) {
   renderTab('videos');
 }
 
+function setupMiniPlayer() {
+  const mini = document.getElementById('mini-player');
+  const miniVideo = document.getElementById('mini-player-video');
+  const closeBtn = document.getElementById('mini-player-close');
+  const expandBtn = document.getElementById('mini-player-expand');
+
+  closeBtn.onclick = e => {
+    e.stopPropagation();
+    mini.classList.add('hidden');
+    miniVideo.pause();
+    miniVideo.removeAttribute('src');
+    miniVideo.load();
+    miniPlayerVideoSrc = null;
+  };
+
+  expandBtn.onclick = e => {
+    e.stopPropagation();
+    if (!miniPlayerVideoSrc) return;
+    const src = miniPlayerVideoSrc;
+    mini.classList.add('hidden');
+    miniVideo.pause();
+    miniVideo.removeAttribute('src');
+    miniVideo.load();
+    miniPlayerVideoSrc = null;
+    navigate(`#/watch/${encodeURIComponent(src)}`);
+  };
+
+  mini.onclick = e => {
+    if (e.target === closeBtn || e.target === expandBtn) return;
+    if (!miniPlayerVideoSrc) return;
+    const src = miniPlayerVideoSrc;
+    mini.classList.add('hidden');
+    miniVideo.pause();
+    miniVideo.removeAttribute('src');
+    miniVideo.load();
+    miniPlayerVideoSrc = null;
+    navigate(`#/watch/${encodeURIComponent(src)}`);
+  };
+}
+
+function activateMiniPlayer() {
+  if (!activeWatchPlayer || !currentWatchSrc) return;
+  const mini = document.getElementById('mini-player');
+  const miniVideo = document.getElementById('mini-player-video');
+
+  const currentTime = activeWatchPlayer.currentTime;
+  const wasPlaying = !activeWatchPlayer.paused;
+
+  miniPlayerVideoSrc = currentWatchSrc;
+
+  miniVideo.src = currentWatchSrc;
+  miniVideo.currentTime = currentTime;
+  miniVideo.muted = activeWatchPlayer.muted;
+
+  mini.classList.remove('hidden');
+
+  if (wasPlaying) {
+    miniVideo.play().catch(() => {});
+  }
+
+  try {
+    activeWatchPlayer.pause();
+  } catch {}
+
+  activeWatchPlayer = null;
+  currentWatchSrc = null;
+}
+
 document.getElementById('clear-history-btn').onclick = () => {
   if (confirm('Clear all watch history?')) {
     clearHistory();
     renderHistory();
+    showToast('Watch history cleared');
   }
 };
 
@@ -1473,6 +1792,8 @@ async function init() {
   document.getElementById('shorts-up').onclick = scrollToPrevShort;
   document.getElementById('shorts-down').onclick = scrollToNextShort;
 
+  setupMiniPlayer();
+
   document.addEventListener('keydown', e => {
     const shortsModal = document.getElementById('shorts-modal');
     if (!shortsModal.classList.contains('hidden')) {
@@ -1494,7 +1815,19 @@ async function init() {
   setupShortsSwipe();
   setupSearch();
 
-  window.addEventListener('popstate', route);
+  window.addEventListener('popstate', () => {
+    const hash = location.hash || '';
+    if (!hash.startsWith('#/watch/') && activeWatchPlayer && currentWatchSrc) {
+      activateMiniPlayer();
+    }
+    if (!hash.startsWith('#/shorts')) {
+      const modal = document.getElementById('shorts-modal');
+      if (!modal.classList.contains('hidden')) {
+        closeShortsPlayer();
+      }
+    }
+    route();
+  });
 
   route();
 }
@@ -1634,11 +1967,7 @@ function runSearchInternal(q) {
 
   document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
 
-  document.getElementById('shorts-shelf').classList.add('hidden');
-  document.getElementById('subscriptions-section').classList.add('hidden');
-  document.getElementById('history-section').classList.add('hidden');
-  document.getElementById('watch-section').classList.add('hidden');
-  document.getElementById('channel-section').classList.add('hidden');
+  hideAllSections();
   document.getElementById('video-section').classList.remove('hidden');
 
   const grid = document.getElementById('video-grid');
@@ -1676,7 +2005,11 @@ function runSearchInternal(q) {
           <div class="duration-badge"></div>
         </div>
         <div class="short-title">${video.src.replace('.mp4', '')}</div>
-        <div class="short-views">${formatViews(getViews(video))}</div>
+        <div class="short-meta">
+          <span>${formatViews(getViews(video))}</span>
+          <span>•</span>
+          <span>${timeAgo(getUploadDate(video))}</span>
+        </div>
       `;
       const t = card.querySelector('.short-thumb');
       const b = card.querySelector('.duration-badge');

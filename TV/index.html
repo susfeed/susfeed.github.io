@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>SusFeed Video</title>
   <link rel="shortcut icon" href="../img/amogus.webp" type="image/x-icon" />
+  <link rel="icon" href="../img/amogus.webp" type="image/webp" id="dynamic-favicon" />
   <link rel="stylesheet" href="index.css" />
 </head>
 <body>
@@ -163,6 +164,14 @@
   <button id="shorts-down" class="shorts-nav shorts-down" aria-label="Next">▼</button>
   <div id="shorts-container" class="shorts-container"></div>
 </div>
+
+<div id="mini-player" class="mini-player hidden">
+  <button class="mini-player-close" id="mini-player-close" aria-label="Close">✕</button>
+  <button class="mini-player-expand" id="mini-player-expand" aria-label="Expand">⤢</button>
+  <video id="mini-player-video" playsinline controls></video>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
 
 <script src="index.js"></script>
 </body>
