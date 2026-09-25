@@ -69,7 +69,10 @@
     {"src": "The Great Smeff Debate.mp4", "channels": ["sus", "boys", "neil"] },
     {"src": "Interview With Mark Pierce, Creator of Klax.mp4", "channels": ["sus", "boys"] },
     {"src": "He died as he lived.mp4", "channels": ["sus", "boys"] },
-    {"src": "Is This Loss.mp4", "channels": ["milk"] },
-    {"src": "Is This Loss short.mp4", "channels": ["milk", "shorts"] }
+    {"src": "Is This Loss.mp4", "channels": ["sus", "milk"] },
+    {"src": "Is This Loss short.mp4", "channels": ["sus", "milk", "shorts"] },
+    {"src": "Antonio.mp4", "channels": ["sus", "boys"] },
+    {"src": "Joke of the Year 2025 Winner.mp4", "channels": ["sus", "boys", "shorts"] },
+    {"src": "Neil Cube.mp4", "channels": ["sus", "boys", "neil", "shorts"] }
   ]
 }
