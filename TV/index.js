@@ -1133,8 +1133,7 @@ function showWatchPage(videoSrc) {
           </button>
         </div>
       </div>
-      <div class="watch-desc">Uploaded ${timeAgo(uploaded)} • ${formatViews(views)}
-${ch ? '\nChannel: ' + ch.name : ''}</div>
+      <div class="watch-desc">Uploaded ${timeAgo(uploaded)} • ${formatViews(views)}${video.description ? `<div class="watch-desc-text">${video.description}</div>` : ''}</div>
     </div>
     <aside class="watch-sidebar">
       <div class="watch-sidebar-title">Up next</div>
@@ -1316,7 +1315,7 @@ function showChannelPage(channelKey) {
       <div class="channel-details">
         <h1 class="channel-name-big">${ch.name}</h1>
         <div class="channel-stats">@${channelKey} • ${formatSubs(getChannelSubs(channelKey))} • ${totalVideos} videos • ${formatViews(totalViews)}</div>
-        <div class="channel-desc">Welcome to ${ch.name}. Subscribe for more content.</div>
+        <div class="channel-desc">${ch.description || `Welcome to ${ch.name}. Subscribe for more content.`}</div>
       </div>
       <button class="subscribe-btn ${subbed ? 'subscribed' : ''}" id="channel-sub-btn">${subbed ? 'Subscribed' : 'Subscribe'}</button>
     </div>
@@ -1367,9 +1366,10 @@ function showChannelPage(channelKey) {
         row.appendChild(card);
       });
     } else if (tab === 'about') {
-      tabContent.innerHTML = `
+        tabContent.innerHTML = `
         <div class="watch-desc">
           <strong>About ${ch.name}</strong>
+          ${ch.description ? `<p>${ch.description}</p>` : ''}
           <p>Channel handle: @${channelKey}</p>
           <p>Subscribers: ${formatSubs(getChannelSubs(channelKey))}</p>
           <p>Total videos: ${totalVideos}</p>
