@@ -2,115 +2,310 @@
     padding: 40px 20px;
     line-height: 1.7;
     font-size: 17pt;
-  }
-  
-  .article-main-title {
+}
+
+.article-main-title {
     font-size: 35px;
     text-align: center;
     margin-bottom: 10px;
     font-family: 'SusFont', sans-serif;
-  }
-  
-  .article-date {
+}
+
+.article-date {
     text-align: right;
     font-size: 12px;
     margin-bottom: 30px;
     font-style: italic;
     color: #666;
-  }
-  
-  .intro {
+}
+
+.intro {
     margin: 0 auto 40px auto;
     max-width: 800px;
     font-size: 18pt;
     text-align: center;
-  }
-  
-  .title {
+}
+
+.title {
     font-size: 28px;
     margin: 40px 0 15px;
     color: #b30000;
     text-align: center;
-  }
-  
-.image {
-  height: 450px;
-  width: auto;
-
-  max-width: 100%;
-
-  display: block;
-  margin: 0 auto 20px;
-
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-  
-  .description {
+
+.image {
+    height: 450px;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.description {
     max-width: 900px;
     margin: 0 auto 40px;
     padding: 0 10px;
-  }
-  
+}
+
 .question-block {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-  border: 2px solid #ddd;
-  border-radius: 12px;
-  background-color: #fefefe;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    background-color: #fefefe;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .question-block label {
-  display: block;
-  margin: 10px 0;
-  font-size: 16pt;
-  cursor: pointer;
+    display: block;
+    margin: 10px 0;
+    font-size: 16pt;
+    cursor: pointer;
 }
 
 .question-block input[type="radio"] {
-  margin-right: 10px;
-  transform: scale(1.2);
-  vertical-align: middle;
+    margin-right: 10px;
+    transform: scale(1.2);
+    vertical-align: middle;
 }
 
 button {
-  background-color: #b30000;
-  color: white;
-  font-size: 18px;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    background-color: #b30000;
+    color: white;
+    font-size: 18px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #800000;
+    background-color: #800000;
 }
 
 #result {
-  font-size: 18pt;
-  background-color: #fff7f7;
-  border: 2px solid #ffcccc;
-  border-radius: 10px;
-  padding: 30px;
-  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.1);
+    font-size: 18pt;
+    background-color: #fff7f7;
+    border: 2px solid #ffcccc;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.1);
 }
 
 .centered-dropdown {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
 }
 
 .centered-dropdown select {
-  font-size: 1.1rem;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.article-content,
+.article-main-title,
+.intro,
+.title,
+.description,
+.question-block,
+#result {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.image {
+    object-fit: contain;
+}
+
+@media (max-width: 1024px) {
+    .article-content {
+        padding: 30px 16px;
+        font-size: 15pt;
+    }
+
+    .article-main-title {
+        font-size: 28px;
+    }
+
+    .intro {
+        font-size: 16pt;
+    }
+
+    .title {
+        font-size: 24px;
+    }
+
+    .image {
+        height: auto;
+        max-height: 400px;
+        width: 100%;
+    }
+
+    .question-block label {
+        font-size: 15pt;
+    }
+
+    #result {
+        font-size: 16pt;
+        padding: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .article-content {
+        padding: 24px 14px;
+        font-size: 13pt;
+        line-height: 1.6;
+    }
+
+    .article-main-title {
+        font-size: 24px;
+    }
+
+    .article-date {
+        font-size: 11px;
+        margin-bottom: 20px;
+    }
+
+    .intro {
+        font-size: 14pt;
+        margin-bottom: 30px;
+    }
+
+    .title {
+        font-size: 22px;
+        margin: 30px 0 12px;
+    }
+
+    .image {
+        max-height: 320px;
+        width: 100%;
+        height: auto;
+    }
+
+    .description {
+        padding: 0 14px;
+        margin-bottom: 30px;
+    }
+
+    .question-block {
+        margin: 25px 14px;
+        padding: 16px;
+    }
+
+    .question-block label {
+        font-size: 14pt;
+    }
+
+    #result {
+        font-size: 15pt;
+        padding: 20px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
+
+    .centered-dropdown select {
+        font-size: 1rem;
+        padding: 0.45rem 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .article-content {
+        padding: 20px 12px;
+        font-size: 12pt;
+        line-height: 1.55;
+    }
+
+    .article-main-title {
+        font-size: 20px;
+    }
+
+    .article-date {
+        font-size: 10px;
+        margin-bottom: 16px;
+    }
+
+    .intro {
+        font-size: 13pt;
+        margin-bottom: 24px;
+    }
+
+    .title {
+        font-size: 19px;
+        margin: 24px 0 10px;
+    }
+
+    .image {
+        max-height: 240px;
+        border-radius: 6px;
+    }
+
+    .description {
+        padding: 0 10px;
+        margin-bottom: 24px;
+    }
+
+    .question-block {
+        margin: 20px 10px;
+        padding: 14px;
+        border-radius: 10px;
+    }
+
+    .question-block label {
+        font-size: 13pt;
+    }
+
+    #result {
+        font-size: 13pt;
+        padding: 16px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 10px 18px;
+    }
+
+    .centered-dropdown select {
+        font-size: 0.95rem;
+        padding: 0.4rem 0.8rem;
+        width: 90%;
+    }
+}
+
+@media (max-width: 360px) {
+    .article-content {
+        padding: 16px 10px;
+        font-size: 11pt;
+    }
+
+    .article-main-title {
+        font-size: 18px;
+    }
+
+    .title {
+        font-size: 17px;
+    }
+
+    .intro {
+        font-size: 12pt;
+    }
+
+    #result {
+        font-size: 12pt;
+        padding: 14px;
+    }
 }

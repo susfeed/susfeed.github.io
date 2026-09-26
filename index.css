@@ -6,6 +6,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 body {
@@ -113,14 +114,6 @@ a {
   width: 100%;
 }
 
-@media (max-width: 600px) {
-  .header-top { padding: 10px 0; }
-  .logo { width: 170px; }
-  .nav-links { flex-wrap: wrap; gap: 14px; padding: 10px; }
-  .nav-links a { font-size: 14px; }
-  .main-nav { box-shadow: none; }
-}
-
 .site-footer {
   background: #ba1a1a;
   color: white;
@@ -147,7 +140,9 @@ a {
   position: relative;
 }
 
-.card-content { padding: 15px; }
+.card-content {
+  padding: 15px;
+}
 
 .card-title {
   font-size: 18px;
@@ -185,16 +180,6 @@ a {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
-}
-
-@media (max-width: 768px) {
-  .article-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 480px) {
-  .article-grid { grid-template-columns: 1fr; }
-  .search-bar-container { width: 100%; margin: 10px 0; text-align: center; }
-  #article-search { width: 90%; }
 }
 
 .load-more-container {
@@ -302,6 +287,9 @@ a {
   padding: 40px 20px;
   line-height: 1.7;
   font-size: 17pt;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 .article-main-title {
@@ -309,6 +297,8 @@ a {
   text-align: center;
   margin-bottom: 10px;
   font-family: 'SusFont', sans-serif;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .article-date {
@@ -324,6 +314,8 @@ a {
   max-width: 800px;
   font-size: 18pt;
   text-align: center;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .title {
@@ -331,6 +323,8 @@ a {
   margin: 40px 0 15px;
   color: #b30000;
   text-align: center;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .image {
@@ -341,12 +335,15 @@ a {
   margin: 0 auto 20px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  object-fit: contain;
 }
 
 .description {
   max-width: 900px;
   margin: 0 auto 40px;
   padding: 0 10px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .question-block {
@@ -357,6 +354,8 @@ a {
   border-radius: 12px;
   background-color: #fefefe;
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .question-block label {
@@ -392,6 +391,8 @@ button:hover {
   border-radius: 10px;
   padding: 30px;
   box-shadow: 0 4px 12px rgba(255, 0, 0, 0.1);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .homepage {
@@ -435,14 +436,6 @@ button:hover {
   font-size: 14px;
   font-weight: 600;
   color: #222;
-}
-
-@media (max-width: 1200px) {
-  .homepage { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 768px) {
-  .homepage { grid-template-columns: 1fr; }
 }
 
 #os-button {
@@ -682,16 +675,6 @@ button:hover {
   animation-play-state: paused;
 }
 
-@media (max-width: 600px) {
-  .breaking-news {
-    height: 24px;
-  }
-
-  .breaking-item {
-    font-size: 11px;
-  }
-}
-
 @keyframes pulse {
   0% { opacity: .3; }
   50% { opacity: 1; }
@@ -709,30 +692,30 @@ button:hover {
 }
 
 * {
-    scrollbar-width: thin;
-    scrollbar-color: #ba1a1a #ffffff;
+  scrollbar-width: thin;
+  scrollbar-color: #ba1a1a #ffffff;
 }
 
 ::-webkit-scrollbar {
-    width: 10px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #121212;
+  background: #121212;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #ba1a1a;
-    border-radius: 8px;
-    border: 2px solid #121212;
+  background: #ba1a1a;
+  border-radius: 8px;
+  border: 2px solid #121212;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #d62828;
+  background: #d62828;
 }
 
 ::-webkit-scrollbar-corner {
-    background: #121212;
+  background: #121212;
 }
 
 .dropdown {
@@ -792,12 +775,57 @@ button:hover {
   }
 }
 
+@media (max-width: 1024px) {
+  .homepage {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .article-content {
+    font-size: 15pt;
+    padding: 30px 16px;
+  }
+
+  .article-main-title {
+    font-size: 28px;
+  }
+
+  .intro {
+    font-size: 16pt;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+}
+
 @media (max-width: 768px) {
+  .container {
+    width: 94%;
+  }
+
+  .header-top {
+    padding: 10px 0;
+  }
+
+  .logo {
+    width: 170px;
+    margin-left: 0;
+  }
+
   .nav-links {
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
     gap: 20px;
+    padding: 10px;
+  }
+
+  .nav-links a {
+    font-size: 14px;
+  }
+
+  .main-nav {
+    box-shadow: none;
   }
 
   .dropdown-menu {
@@ -816,5 +844,276 @@ button:hover {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(0);
+  }
+
+  .section-title {
+    font-size: 26px;
+    margin: 20px 0 15px;
+  }
+
+  .new-articles,
+  .new-games {
+    padding: 25px 14px;
+  }
+
+  .article-grid,
+  .game-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .article-content {
+    font-size: 13pt;
+    padding: 24px 14px;
+    line-height: 1.6;
+  }
+
+  .article-main-title {
+    font-size: 24px;
+  }
+
+  .article-date {
+    font-size: 11px;
+    margin-bottom: 20px;
+  }
+
+  .intro {
+    font-size: 14pt;
+    margin-bottom: 30px;
+  }
+
+  .title {
+    font-size: 22px;
+    margin: 30px 0 12px;
+  }
+
+  .image {
+    height: auto;
+    max-height: 320px;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  .description {
+    padding: 0 14px;
+    margin-bottom: 30px;
+  }
+
+  .question-block {
+    margin: 25px 14px;
+    padding: 16px;
+  }
+
+  .question-block label {
+    font-size: 14pt;
+  }
+
+  #result {
+    font-size: 15pt;
+    padding: 20px;
+  }
+
+  .homepage {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 14px 0;
+  }
+
+  .sort-container {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .search-bar-container {
+    width: 100%;
+    margin: 10px 0;
+    text-align: center;
+  }
+
+  #article-search,
+  #game-search {
+    width: 90%;
+  }
+
+  .sus-header {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    width: 96%;
+  }
+
+  .header-top {
+    padding: 8px 0;
+  }
+
+  .logo {
+    width: 140px;
+  }
+
+  .nav-links {
+    gap: 12px;
+    padding: 8px;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    margin: 16px 0 12px;
+  }
+
+  .new-articles,
+  .new-games {
+    padding: 18px 10px;
+  }
+
+  .article-grid,
+  .game-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .article-content {
+    font-size: 12pt;
+    padding: 20px 12px;
+    line-height: 1.55;
+  }
+
+  .article-main-title {
+    font-size: 20px;
+  }
+
+  .article-date {
+    font-size: 10px;
+    margin-bottom: 16px;
+  }
+
+  .intro {
+    font-size: 13pt;
+    margin-bottom: 24px;
+  }
+
+  .title {
+    font-size: 19px;
+    margin: 24px 0 10px;
+  }
+
+  .image {
+    max-height: 240px;
+    border-radius: 6px;
+  }
+
+  .description {
+    padding: 0 10px;
+    margin-bottom: 24px;
+  }
+
+  .question-block {
+    margin: 20px 10px;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .question-block label {
+    font-size: 13pt;
+  }
+
+  #result {
+    font-size: 13pt;
+    padding: 16px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 10px 18px;
+  }
+
+  .homepage {
+    gap: 14px;
+  }
+
+  .block {
+    padding: 12px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .classic-badge {
+    width: 60px;
+    height: 60px;
+    font-size: 8px;
+  }
+
+  .circle-text {
+    font-size: 7px;
+  }
+
+  .sort-label {
+    font-size: 14px;
+  }
+
+  .sort-select {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  #os-button {
+    width: 50px;
+    height: 50px;
+    bottom: 16px;
+    left: 16px;
+  }
+
+  #sus-bot-button {
+    width: 50px;
+    height: 50px;
+    bottom: 16px;
+    right: 16px;
+  }
+
+  #sus-bot {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 76px;
+  }
+
+  #sus-messages {
+    height: 180px;
+  }
+
+  .rainbow-text {
+    font-size: 30px;
+  }
+
+  .scrolling-gif {
+    width: 36px;
+  }
+}
+
+@media (max-width: 360px) {
+  .article-content {
+    font-size: 11pt;
+    padding: 16px 10px;
+  }
+
+  .article-main-title {
+    font-size: 18px;
+  }
+
+  .nav-links a {
+    font-size: 12px;
+  }
+
+  .logo {
+    width: 120px;
   }
 }
