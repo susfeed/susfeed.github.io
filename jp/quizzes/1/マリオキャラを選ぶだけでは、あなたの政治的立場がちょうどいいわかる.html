@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>マリオキャラ政治</title>
+
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <div class="site-header"></div>
+
+  <main class="container article-content">
+
+    <h1 class="article-main-title">
+      <u>マリオキャラを選ぶだけでは、あなたの政治的立場がちょうどいいわかる。</u>
+    </h1>
+
+    <p class="article-date">
+      <i>キャメロン、2026年6月01日</i>
+    </p>
+
+    <p class="intro">
+      ルイージは共産主義者ですか？
+    </p>
+
+    <form id="quiz-form">
+
+      <!-- QUESTION 1 -->
+      <div class="question-block">
+        <h2 class="title">1. 主人公</h2>
+
+        <div class="answers">
+
+          <button type="button" class="answer-btn" data-result="liberal">
+            <img src="img/mario.png" class="answer-image" alt="マリオ">
+            <span>マリオ</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="communist">
+            <img src="img/luigi.png" class="answer-image" alt="ルイージ">
+            <span>ルイージ</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="conservative">
+            <img src="img/wario.png" class="answer-image" alt="ワリオ">
+            <span>ワリオ</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="anarchist">
+            <img src="img/waluigi.png" class="answer-image" alt="ワルイージ">
+            <span>ワルイージ</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- QUESTION 2 -->
+      <div class="question-block">
+        <h2 class="title">2. プリンセス</h2>
+
+        <div class="answers">
+
+          <button type="button" class="answer-btn" data-result="liberal">
+            <img src="img/peach.png" class="answer-image" alt="ピーチ">
+            <span>ピーチ</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="anarchist">
+            <img src="img/daisy.png" class="answer-image" alt="デイジー">
+            <span>デイジー</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="communist">
+            <img src="img/rosalina.png" class="answer-image" alt="ロゼッタ">
+            <span>ロゼッタ</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="conservative">
+            <img src="img/bowser.png" class="answer-image" alt="クッパ">
+            <span>クッパ</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- QUESTION 3 -->
+      <div class="question-block">
+        <h2 class="title">3. サイドキック</h2>
+
+        <div class="answers">
+
+          <button type="button" class="answer-btn" data-result="conservative">
+            <img src="img/yoshi.png" class="answer-image" alt="ヨッシー">
+            <span>ヨッシー</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="liberal">
+            <img src="img/toad.png" class="answer-image" alt="キノピオ">
+            <span>キノピオ</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="anarchist">
+            <img src="img/luma.png" class="answer-image" alt="チコ">
+            <span>チコ</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="communist">
+            <img src="img/nabbit.png" class="answer-image" alt="トッテン">
+            <span>トッテン</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- QUESTION 4 -->
+      <div class="question-block">
+        <h2 class="title">4. 猿</h2>
+
+        <div class="answers">
+
+          <button type="button" class="answer-btn" data-result="communist">
+            <img src="img/donkeykong.png" class="answer-image" alt="ドンキーコング">
+            <span>ドンキーコング</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="liberal">
+            <img src="img/diddykong.png" class="answer-image" alt="ディディコング">
+            <span>ディディコング</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="communist">
+            <img src="img/funkykong.png" class="answer-image" alt="ファンキーコング">
+            <span>ファンキーコング</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="anarchist">
+            <img src="img/kiddykong.png" class="answer-image" alt="ディンキーコング">
+            <span>ディンキーコング</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- QUESTION 5 -->
+      <div class="question-block">
+        <h2 class="title">5. 敵</h2>
+
+        <div class="answers">
+
+          <button type="button" class="answer-btn" data-result="liberal">
+            <img src="img/goomba.png" class="answer-image" alt="クリボー">
+            <span>クリボー</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="communist">
+            <img src="img/koopatroopa.png" class="answer-image" alt="ノコノコ">
+            <span>ノコノコ</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="anarchist">
+            <img src="img/boo.png" class="answer-image" alt="テレサ">
+            <span>テレサ</span>
+          </button>
+
+          <button type="button" class="answer-btn" data-result="conservative">
+            <img src="img/bulletbill.png" class="answer-image" alt="キラー">
+            <span>キラー</span>
+          </button>
+
+        </div>
+      </div>
+
+      <div id="final-result"
+           class="description"
+           style="display:none; text-align:center; margin-top:40px;">
+
+        <h2 id="result-title" class="title"></h2>
+
+        <img id="result-image" src="" alt="結果">
+
+        <p id="result-desc"></p>
+
+      </div>
+
+    </form>
+
+  </main>
+
+  <div class="site-footer"></div>
+
+</div>
+
+<script>
+
+const scores = {
+  conservative: 0,
+  communist: 0,
+  anarchist: 0,
+  liberal: 0
+};
+
+let answered = 0;
+const totalQuestions = 5;
+
+document.querySelectorAll('.question-block').forEach(block => {
+
+  const buttons = block.querySelectorAll('.answer-btn');
+
+  buttons.forEach(btn => {
+
+    btn.addEventListener('click', () => {
+
+      if (block.classList.contains('answered')) return;
+
+      block.classList.add('answered');
+
+      answered++;
+
+      scores[btn.dataset.result]++;
+
+      btn.classList.add('selected');
+
+      buttons.forEach(b => {
+        b.disabled = true;
+      });
+
+      if (answered === totalQuestions) {
+        showResult();
+      }
+
+    });
+
+  });
+
+});
+
+function showResult() {
+
+  let winner = Object.keys(scores).reduce((a, b) =>
+    scores[a] > scores[b] ? a : b
+  );
+
+  const final = document.getElementById('final-result');
+  const title = document.getElementById('result-title');
+  const desc = document.getElementById('result-desc');
+  const image = document.getElementById('result-image');
+
+  final.style.display = "block";
+
+  if (winner === "conservative") {
+
+    title.textContent = "あなたは保守主義者！";
+    desc.textContent = "なんで？";
+    image.src = "img/conservative.avif";
+
+  }
+
+  else if (winner === "communist") {
+
+    title.textContent = "あなたは共産主義者！";
+    desc.textContent = "おめでとう、同志。";
+    image.src = "img/communist.jpg";
+
+  }
+
+  else if (winner === "anarchist") {
+
+    title.textContent = "あなたはアナーキスト！";
+    desc.textContent = "世界が燃え尽きるのを見よ！";
+    image.src = "img/anarchist.png";
+
+  }
+
+  else {
+
+    title.textContent = "あなたはリベラル！";
+    desc.textContent = "同性愛者が好きに違いない！";
+    image.src = "img/liberal.gif";
+
+  }
+
+  final.scrollIntoView({
+    behavior: "smooth"
+  });
+
+}
+
+</script>
+
+<script src="../../content.js"></script>
+<script src="../../contentheader.js"></script>
+
+</body>
+</html>

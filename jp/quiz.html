@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>クイズ</title>
+  <link rel="shortcut icon" href="img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body data-type="quizzes">
+  <div class="wrapper">
+    <header class="site-header">
+    </header>
+
+    <main>
+      <section class="new-articles container">
+        <h2 class="section-title">全クイズ</h2>
+        <div class="sort-container">
+          <label for="sort-select" class="sort-label">Sort by:</label>
+          <select id="sort-select" class="sort-select">
+            <option value="newest">新</option>
+            <option value="oldest">古</option>
+            <option value="az">A-Z</option>
+            <option value="za">Z-A</option>
+          </select>
+        </div>        
+        <div class="article-grid" id="articles-container">
+        </div>
+        <div class="load-more-container">
+          <button id="load-more-btn" class="load-more-btn">もっと見る</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+  <script src="list.js"></script>
+  <script src="header.js"></script>
+</body>
+</html>

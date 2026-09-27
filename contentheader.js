@@ -22,7 +22,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     </li>
 
                     <li class="dropdown">
-                        <a href="../../TV/index.html">SusFeed Video</a>
+                        <a href="#">SusFeed Video ▾</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="../../TV/index.html">SusFeed Video</a></li>
+                            <li><a href="../../TV/index.html#/shorts">Shorts</a></li>
+                            <li><a href="../../TV/live.html">SusFeed TV</a></li>
+                        </ul>
                     </li>
 
                     <li class="dropdown">

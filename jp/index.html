@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>サッスフィードニュース</title>
+  <link rel="shortcut icon" href="img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="site-header"></div>
+  
+
+  <main>
+    <section class="breaking-news">
+      <div class="breaking-label">ニュス</div>
+      <div class="breaking-track">
+        <div class="breaking-content" id="breaking-content"></div>
+      </div>
+    </section>
+    <section class="homepage container">
+
+      <section class="block">
+        <h2 class="section-title">ピックアップ疑記事</h2>
+        <div class="block-grid">
+          <a href="articles\1\オナラのTOP10.htmll" class="block-card">
+            <img src="articles/1/cover.webp" alt="">
+            <h3>オナラのTOP10</h3>
+          </a>
+
+          <a href="articles\1\オナラのTOP10.html" class="block-card">
+            <img src="articles/1/cover.webp" alt="">
+            <h3>オナラのTOP10</h3>
+          </a>
+
+          <a href="articles\1\オナラのTOP10.html" class="block-card">
+            <img src="articles/1/cover.webp" alt="">
+            <h3>オナラのTOP10</h3>
+          </a>
+
+        </div>
+      </section>
+
+      <section class="block quiz">
+        <h2 class="section-title">ピックアップクイズ</h2>
+        <div class="block-grid">
+          <a href="quizzes\1\マリオキャラを選ぶだけでは、あなたの政治的立場がちょうどいいわかる.html" class="block-card">
+            <img src="quizzes/1/cover.webp" alt="">
+            <h3>マリオキャラを選ぶだけでは、あなたの政治的立場がちょうどいいわかる</h3>
+          </a>
+
+          <a href="quizzes\1\マリオキャラを選ぶだけでは、あなたの政治的立場がちょうどいいわかる.html" class="block-card">
+            <img src="quizzes/1/cover.webp" alt="">
+            <h3>マリオキャラを選ぶだけでは、あなたの政治的立場がちょうどいいわかる</h3>
+          </a>
+
+          <a href="quizzes\1\マリオキャラを選ぶだけでは、あなたの政治的立場がちょうどいいわかる.html" class="block-card">
+            <img src="quizzes/1/cover.webp" alt="">
+            <h3>マリオキャラを選ぶだけでは、あなたの政治的立場がちょうどいいわかる</h3>
+          </a>
+
+        </div>
+      </section>
+
+      <section class="block games">
+        <h2 class="section-title">ピックアップゲーム</h2>
+        <div class="block-grid">
+          <a href="games\1\赤ちゃんから政治家を育てよう.html" class="block-card">
+            <img src="games/1/cover.webp" alt="">
+            <h3>赤ちゃんから政治家を育てよう</h3>
+          </a>
+
+          <a href="games\1\赤ちゃんから政治家を育てよう.html" class="block-card">
+            <img src="games/1/cover.webp" alt="">
+            <h3>赤ちゃんから政治家を育てよう</h3>
+          </a>
+
+          <a href="games\1\赤ちゃんから政治家を育てよう.html" class="block-card">
+            <img src="games/1/cover.webp" alt="">
+            <h3>赤ちゃんから政治家を育てよう</h3>
+          </a>
+          
+        </div>
+      </section>
+
+      <section class="block new">
+        <h2 class="section-title">新着疑記事</h2>
+        <div id="new-articles" class="block-grid"></div>
+
+        <h2 class="section-title">新着クイズ</h2>
+        <div id="new-quizzes" class="block-grid"></div>
+
+        <h2 class="section-title">新着ゲーム</h2>
+        <div id="new-games" class="block-grid"></div>
+      </section>
+
+    </section>
+  </main>
+
+  <div class="site-footer"></div>
+
+</div>
+
+<script src="header.js"></script>
+<script src="index.js"></script>
+
+<div id="sus-bot-button">
+  <img src="img/howard.gif" alt="Sus Bot" class="sus-bot-icon">
+</div>
+
+<div id="sus-bot" class="hidden">
+  <div class="sus-header">サッス AI</div>
+  <div id="sus-messages"></div>
+  <div class="sus-input">
+    <input id="sus-text" placeholder="疑わしいものを出して..." />
+    <button id="sus-send">送り</button>
+  </div>
+</div>
+
+</body>
+</html>

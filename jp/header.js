@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <header class="site-header">
             <div class="container header-top">
                 <a href="index.html" class="logo-link">
-                    <img src="img/logo.webp" alt="SusFeed Logo" class="logo" />
+                    <img src="img/jplogo.png" alt="SusFeed Logo" class="logo" />
                 </a>
             </div>
 
@@ -13,36 +13,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     <li><a href="index.html"><img src="img/amogus.webp" alt="SusFeed Icon" class="logo" /></a></li>
 
                     <li class="dropdown">
-                        <a href="#">SusFeed News ▾</a>
+                        <a href="#">サッスフィードニュース ▾</a>
                         <ul class="dropdown-menu">
-                            <li><a href="articles.html">Susarticles</a></li>
-                            <li><a href="quiz.html">Quizzes</a></li>
-                            <li><a href="games.html">Games</a></li>
+                            <li><a href="articles.html">疑記事</a></li>
+                            <li><a href="quiz.html">クイズ</a></li>
+                            <li><a href="games.html">ゲーム</a></li>
                         </ul>
                     </li>
 
                     <li class="dropdown">
-                        <a href="#">SusFeed Video ▾</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="TV/index.html">SusFeed Video</a></li>
-                            <li><a href="TV/index.html#/shorts">Shorts</a></li>
-                            <li><a href="TV/live.html">SusFeed TV</a></li>
-                        </ul>
-                    </li>
-
-                    <li class="dropdown">
-                        <a href="#">SusFeed Edu ▾</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="susipedia/index.html">SusiPedia</a></li>
-                        </ul>
-                    </li>
-
-                    <li class="dropdown">
-                        <a href="#">About ▾</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="about.html">About</a></li>
-                            <li><a href="corporate/index.html">Corporate</a></li>
-                        </ul>
+                        <a href="about.html">アバウト</a>
                     </li>
 
                 </ul>
@@ -67,8 +47,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const footerContent = `
         <footer class="site-footer">
             <div class="container">
-                <a href="games/anniversary/index.html">
-                    <p>&copy; 2026 SusFeed. All rights reserved.</p>
+                <a href="67.html">
+                    <p>&copy; 2026 SusFeed JP.</p>
                 </a>
             </div>
         </footer>

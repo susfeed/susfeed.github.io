@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>赤ちゃんから政治家を育てよう</title>
+
+<link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+<link rel="stylesheet" href="../../index.css" />
+<link rel="stylesheet" href="../../content.css" />
+
+<style>
+
+.game-container{
+    text-align:center;
+    max-width:700px;
+    margin:auto;
+}
+
+.character{
+    width:100%;
+    max-width:400px;
+    user-select:none;
+    margin-bottom:20px;
+}
+
+.stats{
+    font-size:1.3rem;
+    margin-bottom:20px;
+}
+
+.corrupt-btn{
+    font-size:1.6rem;
+    padding:18px 35px;
+    cursor:pointer;
+    border:none;
+    border-radius:10px;
+}
+
+.corrupt-btn:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+.result{
+    display:none;
+    margin-top:30px;
+}
+
+.result img{
+    width:100%;
+    max-width:300px;
+}
+
+.result h2{
+    margin-bottom:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="site-header"></div>
+
+<main class="container article-content">
+
+<h1 class="article-main-title">
+<u>赤ちゃんから政治家を育てよう</u>
+</h1>
+
+<p class="article-date">
+<i>キャメロン、2026年6月01日</i>
+</p>
+
+<p>
+政治家を一人育ててみましょう。
+</p>
+
+<div class="game-container">
+
+<img
+    id="character"
+    class="character"
+    src="img/baby.jpg"
+    alt="政治家">
+
+<div class="stats">
+
+<p>
+年齢:
+<span id="age">0</span>
+</p>
+
+<p>
+汚職度:
+<span id="corruption">0</span>
+%
+</p>
+
+</div>
+
+<button
+    class="corrupt-btn"
+    id="corruptBtn">
+🍬 お菓子を受け取る
+</button>
+
+<div
+    id="result"
+    class="result">
+
+<h2 id="resultTitle"></h2>
+
+<img
+    id="resultImage"
+    src=""
+    alt="結果">
+
+<p id="resultText"></p>
+
+</div>
+
+</div>
+
+</main>
+
+<div class="site-footer"></div>
+
+</div>
+
+<script src="../../contentheader.js"></script>
+
+<script>
+
+let age = 0;
+let corruption = 0;
+
+const ageEl = document.getElementById("age");
+const corruptionEl = document.getElementById("corruption");
+
+const character = document.getElementById("character");
+
+const button = document.getElementById("corruptBtn");
+
+const result = document.getElementById("result");
+const resultTitle = document.getElementById("resultTitle");
+const resultImage = document.getElementById("resultImage");
+const resultText = document.getElementById("resultText");
+
+button.addEventListener("click", () => {
+
+    age += 4;
+
+    corruption += Math.floor(Math.random() * 8) + 4.5;
+
+    ageEl.textContent = age;
+    corruptionEl.textContent = corruption;
+
+    updateCharacter();
+    updateButton();
+
+    if(age >= 40){
+        finishGame();
+    }
+
+});
+
+function updateButton(){
+
+    if(age < 12){
+
+        button.textContent =
+            "🍬 お菓子を受け取る";
+
+    }
+
+    else if(age < 20){
+
+        button.textContent =
+            "🎁 贈り物を受け取る";
+
+    }
+
+    else if(age < 30){
+
+        button.textContent =
+            "💴 献金を受け取る";
+
+    }
+
+    else{
+
+        button.textContent =
+            "🏝️ 海外送金を受け取る";
+
+    }
+
+}
+
+function updateCharacter(){
+
+    if(age < 8){
+
+        character.src =
+            "img/baby.jpg";
+
+    }
+
+    else if(age < 16){
+
+        character.src =
+            "img/student.jpg";
+
+    }
+
+    else if(age < 24){
+
+        character.src =
+            "img/local.jpg";
+
+    }
+
+    else if(age < 32){
+
+        character.src =
+            "img/governor.jpg";
+
+    }
+
+    else{
+
+        character.src =
+            "img/pm.jpg";
+
+    }
+
+}
+
+function finishGame(){
+
+    button.disabled = true;
+
+    result.style.display = "block";
+
+    if(corruption < 80){
+
+        resultTitle.textContent =
+            "正直すぎる政治家";
+
+        resultText.textContent =
+            "あまりにも正直だったため、誰も投票しませんでした。";
+
+        resultImage.src =
+            "img/angel.jpg";
+
+    }
+
+    else if(corruption < 85){
+
+        resultTitle.textContent =
+            "普通の政治家";
+
+        resultText.textContent =
+            "少し怪しいお金の流れがありますが、証拠はありません。";
+
+        resultImage.src =
+            "img/governor.jpg";
+
+    }
+
+    else{
+
+        resultTitle.textContent =
+            "総理大臣";
+
+        resultText.textContent =
+            "おめでとうございます。豪華なヨット生活が始まります。";
+
+        resultImage.src =
+            "img/corrupt.jpg";
+
+    }
+
+    result.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+</script>
+
+</body>
+</html>
