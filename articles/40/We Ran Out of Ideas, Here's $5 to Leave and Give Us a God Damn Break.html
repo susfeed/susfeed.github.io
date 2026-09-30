@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>$5</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>We Ran Out of Ideas, Here's $5 to Leave and Give Us a God Damn Break</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/09/30 9:23 PM CET</i></p>
+
+      <p class="intro">We have nothing.</p>
+
+      <h2 class="title">Here's Your $5</h2>
+      <img src="money.jpg" alt="pic" class="image" id="moneyImage" />
+      <p>Go ahead, take it.</p>
+
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+  <script src="../../contentheader.js"></script>
+
+  <style>
+    .money-plus-five {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      font-family: 'Segoe UI', 'Arial Black', system-ui, sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      color: #22c55e;
+      text-shadow: 3px 3px 0 #14532d, 0 0 18px rgba(34, 197, 94, 0.7);
+      letter-spacing: 2px;
+      white-space: nowrap;
+      will-change: transform, opacity;
+      animation: moneyPlusFive 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes moneyPlusFive {
+      0%   { opacity: 0; transform: translateY(15px) scale(0.6); }
+      20%  { opacity: 1; transform: translateY(-10px) scale(1.2); }
+      55%  { opacity: 1; transform: translateY(-40px) scale(1); }
+      100% { opacity: 0; transform: translateY(-100px) scale(0.9); }
+    }
+
+    .money-envelope {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      width: 140px;
+      height: 90px;
+      will-change: transform, opacity;
+    }
+
+    .money-envelope .env-body {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #fdf6e3 0%, #f0e2c4 100%);
+      border: 2px solid #c9ab7a;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .money-envelope .env-body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, transparent 49.3%, #c9ab7a 49.3%, #c9ab7a 50.7%, transparent 50.7%),
+        linear-gradient(-135deg, transparent 49.3%, #c9ab7a 49.3%, #c9ab7a 50.7%, transparent 50.7%);
+      opacity: 0.55;
+    }
+
+    .money-envelope .env-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 55%;
+      background: linear-gradient(180deg, #f5e6c8 0%, #e6d3a8 100%);
+      border: 2px solid #c9ab7a;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top center;
+      z-index: 2;
+    }
+
+    .money-envelope .env-stamp {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 22px;
+      height: 26px;
+      background: #d9534f;
+      border: 1px dashed #fff;
+      border-radius: 2px;
+      z-index: 1;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+    }
+
+    .money-envelope .env-stamp::after {
+      content: "5¢";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      font-family: system-ui, sans-serif;
+    }
+
+    @keyframes moneyEnvelopeShoot {
+      0%   { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(0.9); }
+      30%  { opacity: 1; transform: translate(30vw, -20vh) rotate(15deg) scale(0.85); }
+      70%  { opacity: 0.9; transform: translate(70vw, -30vh) rotate(25deg) scale(0.55); }
+      100% { opacity: 0; transform: translate(120vw, -50vh) rotate(40deg) scale(0.2); }
+    }
+
+    .money-image-fold {
+      animation: moneyImageFold 0.45s ease-in forwards;
+      pointer-events: none !important;
+    }
+
+    @keyframes moneyImageFold {
+      0%   { transform: scale(1) rotateY(0deg); opacity: 1; }
+      100% { transform: scale(0.35) rotateY(90deg); opacity: 0; }
+    }
+
+    .money-image-hidden {
+      visibility: hidden;
+    }
+
+    .money-image-done {
+      display: none !important;
+    }
+  </style>
+
+  <script>
+    (function () {
+      var moneyImg = document.getElementById('moneyImage');
+      if (!moneyImg) return;
+
+      var busy = false;
+      var consumed = false;
+
+      function spawnPopup(x, y) {
+        var popup = document.createElement('div');
+        popup.className = 'money-plus-five';
+        popup.textContent = '+$5';
+        popup.style.left = x + 'px';
+        popup.style.top = (y - 60) + 'px';
+        document.body.appendChild(popup);
+        setTimeout(function () {
+          if (popup.parentNode) popup.parentNode.removeChild(popup);
+        }, 1200);
+      }
+
+      function spawnEnvelope(rect) {
+        var env = document.createElement('div');
+        env.className = 'money-envelope';
+
+        var flap = document.createElement('div');
+        flap.className = 'env-flap';
+
+        var body = document.createElement('div');
+        body.className = 'env-body';
+
+        var stamp = document.createElement('div');
+        stamp.className = 'env-stamp';
+
+        body.appendChild(stamp);
+        env.appendChild(body);
+        env.appendChild(flap);
+
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+
+        env.style.left = (cx - 70) + 'px';
+        env.style.top = (cy - 45) + 'px';
+
+        document.body.appendChild(env);
+
+        requestAnimationFrame(function () {
+          env.style.animation = 'moneyEnvelopeShoot 1.6s cubic-bezier(0.2, 0.9, 0.3, 1) forwards';
+        });
+
+        setTimeout(function () {
+          if (env.parentNode) env.parentNode.removeChild(env);
+        }, 1800);
+      }
+
+      function handleClick(e) {
+        if (busy || consumed) return;
+        busy = true;
+        consumed = true;
+
+        var rect = moneyImg.getBoundingClientRect();
+
+        var cx, cy;
+        if (e.touches && e.touches.length) {
+          cx = e.touches[0].clientX;
+          cy = e.touches[0].clientY;
+        } else if (typeof e.clientX === 'number' && e.clientX !== 0) {
+          cx = e.clientX;
+          cy = e.clientY;
+        } else {
+          cx = rect.left + rect.width / 2;
+          cy = rect.top + rect.height / 2;
+        }
+
+        spawnPopup(cx, cy);
+
+        moneyImg.classList.add('money-image-fold');
+
+        setTimeout(function () {
+          spawnEnvelope(rect);
+        }, 280);
+
+        setTimeout(function () {
+          moneyImg.classList.add('money-image-hidden');
+        }, 700);
+
+        setTimeout(function () {
+          moneyImg.classList.add('money-image-done');
+          busy = false;
+        }, 1400);
+      }
+
+      moneyImg.addEventListener('click', handleClick);
+      moneyImg.addEventListener('touchstart', function (e) {
+        e.preventDefault();
+        handleClick(e);
+      }, { passive: false });
+    })();
+  </script>
+
+</body>
+</html>
