@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>What You Would Do for a Klondike Bar</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: none;
+      background: #0d0d10;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      border-radius: 4px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      cursor: none;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: none;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>What You Would Do for a Klondike Bar</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/10/06 6:30 PM CET</i></p>
+
+      <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    (function(){
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const BASE_W = 960;
+      const BASE_H = 540;
+      let scaleX = 1, scaleY = 1;
+
+      function resizeCanvas() {
+        const container = canvas.parentElement;
+        const rect = container.getBoundingClientRect();
+        canvas.width = rect.width * window.devicePixelRatio;
+        canvas.height = rect.height * window.devicePixelRatio;
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        scaleX = canvas.width / BASE_W;
+        scaleY = canvas.height / BASE_H;
+      }
+      window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("orientationchange", () => {
+        setTimeout(resizeCanvas, 100);
+      });
+      resizeCanvas();
+
+      let audioCtx = null;
+      let audioUnlocked = false;
+      let audioReady = false;
+      let musicNode = null;
+      let musicGain = null;
+      let shotBuffer = null;
+      let explodeBuffer = null;
+      let mgShotBuffer = null;
+
+      async function loadAudioBuffer(url) {
+        try {
+          const response = await fetch(url);
+          const arrayBuffer = await response.arrayBuffer();
+          return await audioCtx.decodeAudioData(arrayBuffer);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      async function initAudio() {
+        if (audioUnlocked) return;
+        audioUnlocked = true;
+
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === 'suspended') {
+            await audioCtx.resume();
+          }
+
+          shotBuffer = await loadAudioBuffer('shot.mp3');
+          explodeBuffer = await loadAudioBuffer('explode.mp3');
+          mgShotBuffer = await loadAudioBuffer('mgshot.mp3');
+
+          const musicBuffer = await loadAudioBuffer('music.mp3');
+          if (musicBuffer) {
+            musicGain = audioCtx.createGain();
+            musicGain.gain.value = 0.225;
+            musicGain.connect(audioCtx.destination);
+
+            musicNode = audioCtx.createBufferSource();
+            musicNode.buffer = musicBuffer;
+            musicNode.loop = true;
+            musicNode.connect(musicGain);
+            musicNode.start(0);
+          }
+          audioReady = true;
+        } catch (e) {
+          console.warn('Audio init failed:', e);
+          audioReady = true;
+        }
+      }
+
+      function playShot() {
+        if (!audioCtx || !shotBuffer) return;
+        try {
+          const source = audioCtx.createBufferSource();
+          source.buffer = shotBuffer;
+          const gain = audioCtx.createGain();
+          gain.gain.value = 0.45;
+          source.connect(gain);
+          gain.connect(audioCtx.destination);
+          source.start(0);
+        } catch (e) {}
+      }
+
+      function playExplode() {
+        if (!audioCtx || !explodeBuffer) return;
+        try {
+          const source = audioCtx.createBufferSource();
+          source.buffer = explodeBuffer;
+          const gain = audioCtx.createGain();
+          gain.gain.value = 0.55;
+          source.connect(gain);
+          gain.connect(audioCtx.destination);
+          source.start(0);
+        } catch (e) {}
+      }
+
+      function playMGShot() {
+        if (!audioCtx || !mgShotBuffer) {
+          playShot();
+          return;
+        }
+        try {
+          const source = audioCtx.createBufferSource();
+          source.buffer = mgShotBuffer;
+          const gain = audioCtx.createGain();
+          gain.gain.value = 0.35;
+          source.connect(gain);
+          gain.connect(audioCtx.destination);
+          source.start(0);
+        } catch (e) {}
+      }
+
+      let gameStarted = false;
+      let level = 1;
+      let killsThisLevel = 0;
+      let targetsThisLevel = 5;
+      let klondikeCount = 0;
+      let gameState = "playing";
+      let barEaten = false;
+      let barEating = 0;
+      let barX = BASE_W / 2;
+      let barY = BASE_H / 2 - 20;
+      let barRadius = 70;
+      let barHovered = false;
+
+      let civilians = [];
+      let goreParticles = [];
+      let bloodSplatters = [];
+      let celestialParticles = [];
+      let muzzleFlash = 0;
+      let screenShake = 0;
+
+      let mouseX = BASE_W / 2;
+      let mouseY = BASE_H / 2;
+
+      let hasMachineGun = false;
+      let mgAmmo = 0;
+      const MG_MAX_AMMO = 60;
+      let mgFireCooldown = 0;
+      let isFiring = false;
+
+      let moonDestroyed = false;
+      let moonExplosionActive = false;
+      let moonExplosionTimer = 0;
+
+      let isBossLevel = false;
+      let boss = null;
+
+      const moonX = BASE_W * 0.75;
+      const moonY = BASE_H * 0.15;
+
+      const gun = {
+        x: BASE_W / 2,
+        y: BASE_H + 20,
+        angle: -Math.PI / 2,
+        recoil: 0,
+        barrelLength: 200,
+        barrelWidth: 20,
+        offsetX: 0,
+        offsetY: 0,
+        targetOffsetX: 0,
+        targetOffsetY: 0,
+        swayX: 0,
+        swayY: 0,
+        swayTimer: 0
+      };
+
+      const mgGun = {
+        x: BASE_W / 2,
+        y: BASE_H + 20,
+        angle: -Math.PI / 2,
+        recoil: 0,
+        barrelLength: 240,
+        barrelWidth: 16,
+        offsetX: 0,
+        offsetY: 0
+      };
+
+      const klondikeImg = new Image();
+      klondikeImg.src = "klondike.avif";
+      let klondikeLoaded = false;
+      klondikeImg.onload = () => { klondikeLoaded = true; };
+      klondikeImg.onerror = () => { klondikeLoaded = false; };
+
+      const buildingData = [];
+      for (let i = 0; i < 14; i++) {
+        const bx = i * 72 - 30;
+        const bh = 180 + Math.sin(i * 1.7) * 50 + Math.cos(i * 0.9) * 40;
+        const windows = [];
+        for (let wy = 0; wy < bh - 60; wy += 22) {
+          const row = [];
+          for (let wx = 0; wx < 50; wx += 18) {
+            row.push({
+              lit: Math.random() > 0.55,
+              flicker: Math.random() * 100,
+              brightness: 0.15 + Math.random() * 0.25
+            });
+          }
+          windows.push(row);
+        }
+        buildingData.push({ x: bx, w: 64, h: bh, windows });
+      }
+
+      function createBoss(levelNum) {
+        const bossHp = 10 + levelNum * 2;
+        return {
+          x: BASE_W / 2,
+          y: 120,
+          vx: 1.8,
+          vy: 0.8,
+          radius: 55,
+          hp: bossHp,
+          maxHp: bossHp,
+          hitFlash: 0,
+          type: levelNum >= 20 ? 2 : (levelNum >= 10 ? 1 : 0),
+          shootCooldown: 90,
+          projectiles: [],
+          alive: true,
+          walkCycle: 0
+        };
+      }
+
+      function spawnCiviliansForLevel() {
+        civilians = [];
+        const count = targetsThisLevel;
+        for (let i = 0; i < count; i++) {
+          const x = 100 + Math.random() * (BASE_W - 200);
+          const groundY = BASE_H - 70;
+          const y = groundY - 20 - Math.random() * 80;
+          const type = Math.floor(Math.random() * 3);
+          const scale = 0.85 + Math.random() * 0.3;
+          civilians.push({
+            x, y,
+            baseY: y,
+            vx: (Math.random() > 0.5 ? 1 : -1) * (0.8 + Math.random() * 0.7),
+            vy: 0,
+            radius: 22 * scale,
+            scale,
+            type,
+            alive: true,
+            state: "walking",
+            stateTimer: 0,
+            walkCycle: Math.random() * Math.PI * 2,
+            direction: Math.random() > 0.5 ? 1 : -1,
+            duckCooldown: 2 + Math.random() * 4,
+            duckDuration: 0,
+            targetDuckX: 0,
+            opacity: 1,
+            shadowAlpha: 0.3,
+            panic: 0
+          });
+        }
+      }
+
+      function startLevel(newLevel) {
+        level = newLevel;
+        killsThisLevel = 0;
+        isBossLevel = (level % 10 === 0);
+        moonDestroyed = false;
+        moonExplosionActive = false;
+        moonExplosionTimer = 0;
+
+        if (isBossLevel) {
+          targetsThisLevel = 1;
+          civilians = [];
+          boss = createBoss(level);
+        } else {
+          targetsThisLevel = Math.min(5 + (level - 1) * 2, 14);
+          boss = null;
+          spawnCiviliansForLevel();
+        }
+
+        gameState = "playing";
+        barEaten = false;
+        barEating = 0;
+        goreParticles = [];
+        bloodSplatters = [];
+        celestialParticles = [];
+        muzzleFlash = 0;
+      }
+
+      startLevel(1);
+
+      function explodeMoon() {
+        hasMachineGun = true;
+        mgAmmo = MG_MAX_AMMO;
+        playExplode();
+        screenShake = 30;
+
+        moonDestroyed = true;
+        moonExplosionActive = true;
+        moonExplosionTimer = 120;
+
+        for (let i = 0; i < 200; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2 + Math.random() * 22;
+          const hue = 30 + Math.random() * 40;
+          celestialParticles.push({
+            x: moonX,
+            y: moonY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 80 + Math.random() * 120,
+            maxLife: 200,
+            size: 3 + Math.random() * 14,
+            color: `hsl(${hue}, 100%, ${60 + Math.random()*35}%)`,
+            gravity: 0.02,
+            type: 'spark'
+          });
+        }
+
+        for (let i = 0; i < 60; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1 + Math.random() * 8;
+          celestialParticles.push({
+            x: moonX,
+            y: moonY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 120 + Math.random() * 150,
+            maxLife: 270,
+            size: 8 + Math.random() * 20,
+            color: `hsla(${40 + Math.random()*30}, 100%, 85%, 0.6)`,
+            gravity: -0.01,
+            type: 'dust'
+          });
+        }
+
+        for (let i = 0; i < 40; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 0.5 + Math.random() * 4;
+          celestialParticles.push({
+            x: moonX,
+            y: moonY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 150 + Math.random() * 200,
+            maxLife: 350,
+            size: 15 + Math.random() * 30,
+            color: `hsla(${30 + Math.random()*50}, 80%, 70%, 0.25)`,
+            gravity: -0.005,
+            type: 'smoke'
+          });
+        }
+      }
+
+      function damageCivilian(c, baseX, baseY) {
+        c.alive = false;
+        killsThisLevel++;
+        screenShake = 10;
+        playExplode();
+
+        for (let i = 0; i < 50; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1.5 + Math.random() * 11;
+          goreParticles.push({
+            x: c.x,
+            y: c.y,
+            vx: Math.cos(angle) * speed + (Math.random()-0.5)*4,
+            vy: Math.sin(angle) * speed + (Math.random()-0.5)*4,
+            life: 40 + Math.random() * 55,
+            size: 2 + Math.random() * 7,
+            color: `hsl(${Math.random()*15 + 350}, 85%, ${20 + Math.random()*40}%)`,
+            gravity: 0.35
+          });
+        }
+        for (let s = 0; s < 18; s++) {
+          bloodSplatters.push({
+            x: c.x + (Math.random()-0.5)*90,
+            y: c.y + (Math.random()-0.5)*90,
+            radius: 12 + Math.random() * 40,
+            alpha: 0.55 + Math.random() * 0.4,
+            life: 500 + Math.random() * 400
+          });
+        }
+
+        if (killsThisLevel >= targetsThisLevel) {
+          gameState = "levelComplete";
+          klondikeCount++;
+          barEaten = false;
+          barEating = 0;
+          barX = BASE_W / 2;
+          barY = BASE_H / 2 - 20;
+        }
+      }
+
+      function damageBoss(amount) {
+        if (!boss || !boss.alive) return;
+        boss.hp -= amount;
+        boss.hitFlash = 10;
+        screenShake = 8;
+
+        for (let i = 0; i < 25; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2 + Math.random() * 8;
+          goreParticles.push({
+            x: boss.x + (Math.random()-0.5)*40,
+            y: boss.y + (Math.random()-0.5)*40,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 30 + Math.random() * 40,
+            size: 3 + Math.random() * 6,
+            color: `hsl(${Math.random()*15 + 350}, 85%, ${25 + Math.random()*30}%)`,
+            gravity: 0.3
+          });
+        }
+
+        if (boss.hp <= 0) {
+          boss.alive = false;
+          playExplode();
+          screenShake = 25;
+
+          for (let i = 0; i < 120; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 3 + Math.random() * 16;
+            goreParticles.push({
+              x: boss.x,
+              y: boss.y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              life: 60 + Math.random() * 80,
+              size: 4 + Math.random() * 10,
+              color: `hsl(${Math.random()*15 + 350}, 90%, ${20 + Math.random()*40}%)`,
+              gravity: 0.25
+            });
+          }
+          for (let s = 0; s < 50; s++) {
+            bloodSplatters.push({
+              x: boss.x + (Math.random()-0.5)*200,
+              y: boss.y + (Math.random()-0.5)*200,
+              radius: 20 + Math.random() * 60,
+              alpha: 0.6 + Math.random() * 0.4,
+              life: 800 + Math.random() * 600
+            });
+          }
+
+          killsThisLevel = 1;
+          gameState = "levelComplete";
+          klondikeCount++;
+          barEaten = false;
+          barEating = 0;
+          barX = BASE_W / 2;
+          barY = BASE_H / 2 - 20;
+        }
+      }
+
+      function shootAt(mx, my) {
+        if (!gameStarted) return;
+        if (gameState !== "playing") return;
+
+        const baseX = mx / scaleX;
+        const baseY = my / scaleY;
+
+        if (!moonDestroyed) {
+          const moonDx = baseX - moonX;
+          const moonDy = baseY - moonY;
+          if (Math.sqrt(moonDx*moonDx + moonDy*moonDy) < 45) {
+            explodeMoon();
+            return;
+          }
+        }
+
+        playShot();
+        gun.recoil = 20;
+        muzzleFlash = 10;
+        screenShake = 5;
+
+        if (isBossLevel && boss && boss.alive) {
+          const bdx = boss.x - baseX;
+          const bdy = boss.y - baseY;
+          const dist = Math.sqrt(bdx*bdx + bdy*bdy);
+          if (dist < boss.radius + 15) {
+            damageBoss(1);
+            return;
+          }
+        }
+
+        let hit = false;
+        for (let c of civilians) {
+          if (!c.alive) continue;
+          if (c.state === "ducking" && c.opacity < 0.5) continue;
+
+          const dx = c.x - baseX;
+          const dy = c.y - baseY;
+          const hitRadius = c.radius * 1.1;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < hitRadius) {
+            damageCivilian(c, baseX, baseY);
+            hit = true;
+          }
+        }
+
+        if (!hit) {
+          for (let i = 0; i < 10; i++) {
+            goreParticles.push({
+              x: baseX,
+              y: baseY,
+              vx: (Math.random()-0.5)*8,
+              vy: (Math.random()-0.5)*8,
+              life: 12 + Math.random()*12,
+              size: 2 + Math.random()*3,
+              color: `hsl(40, 60%, 55%)`,
+              gravity: 0.2
+            });
+          }
+        }
+      }
+
+      function getCanvasCoords(clientX, clientY) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: (clientX - rect.left) * (canvas.width / rect.width),
+          y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
+      }
+
+      canvas.addEventListener("mousemove", (e) => {
+        const coords = getCanvasCoords(e.clientX, e.clientY);
+        mouseX = coords.x;
+        mouseY = coords.y;
+      });
+
+      canvas.addEventListener("mousedown", async (e) => {
+        const coords = getCanvasCoords(e.clientX, e.clientY);
+
+        if (!gameStarted) {
+          await initAudio();
+          gameStarted = true;
+          return;
+        }
+
+        if (gameState === "levelComplete" && !barEaten) {
+          const baseX = coords.x / scaleX;
+          const baseY = coords.y / scaleY;
+          const dx = baseX - barX;
+          const dy = baseY - barY;
+          if (Math.sqrt(dx*dx + dy*dy) < barRadius) {
+            barEaten = true;
+            barEating = 70;
+          }
+          return;
+        }
+
+        if (hasMachineGun && mgAmmo > 0) {
+          isFiring = true;
+          mgFireCooldown = 0;
+          return;
+        }
+
+        shootAt(coords.x, coords.y);
+      });
+
+      canvas.addEventListener("mouseup", () => {
+        isFiring = false;
+      });
+
+      window.addEventListener("mouseup", () => {
+        isFiring = false;
+      });
+
+      canvas.addEventListener("touchstart", async (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const coords = getCanvasCoords(touch.clientX, touch.clientY);
+
+        mouseX = coords.x;
+        mouseY = coords.y;
+
+        if (!gameStarted) {
+          await initAudio();
+          gameStarted = true;
+          return;
+        }
+
+        if (gameState === "levelComplete" && !barEaten) {
+          const baseX = coords.x / scaleX;
+          const baseY = coords.y / scaleY;
+          const dx = baseX - barX;
+          const dy = baseY - barY;
+          if (Math.sqrt(dx*dx + dy*dy) < barRadius) {
+            barEaten = true;
+            barEating = 70;
+          }
+          return;
+        }
+
+        if (hasMachineGun && mgAmmo > 0) {
+          isFiring = true;
+          mgFireCooldown = 0;
+          return;
+        }
+
+        shootAt(coords.x, coords.y);
+      }, { passive: false });
+
+      canvas.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        isFiring = false;
+      }, { passive: false });
+
+      canvas.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const coords = getCanvasCoords(touch.clientX, touch.clientY);
+        mouseX = coords.x;
+        mouseY = coords.y;
+      }, { passive: false });
+
+      function fireMachineGun() {
+        if (!hasMachineGun || mgAmmo <= 0) return;
+        if (gameState !== "playing") return;
+
+        mgAmmo--;
+        playMGShot();
+
+        const baseX = mouseX / scaleX;
+        const baseY = mouseY / scaleY;
+
+        mgGun.recoil = 10;
+        muzzleFlash = 8;
+        screenShake = 4;
+
+        if (isBossLevel && boss && boss.alive) {
+          const bdx = boss.x - baseX;
+          const bdy = boss.y - baseY;
+          const dist = Math.sqrt(bdx*bdx + bdy*bdy);
+          if (dist < boss.radius + 20) {
+            damageBoss(0.5);
+          }
+        }
+
+        for (let c of civilians) {
+          if (!c.alive) continue;
+          if (c.state === "ducking" && c.opacity < 0.5) continue;
+
+          const dx = c.x - baseX;
+          const dy = c.y - baseY;
+          const hitRadius = c.radius * 1.4;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < hitRadius) {
+            damageCivilian(c, baseX, baseY);
+          }
+        }
+
+        if (mgAmmo <= 0) {
+          hasMachineGun = false;
+          isFiring = false;
+        }
+      }
+
+      function updateBoss() {
+        if (!boss || !boss.alive) return;
+
+        boss.x += boss.vx;
+        boss.y += boss.vy;
+        boss.walkCycle += 0.05;
+
+        if (boss.x < boss.radius + 40) { boss.x = boss.radius + 40; boss.vx *= -1; }
+        if (boss.x > BASE_W - boss.radius - 40) { boss.x = BASE_W - boss.radius - 40; boss.vx *= -1; }
+        if (boss.y < boss.radius + 40) { boss.y = boss.radius + 40; boss.vy *= -1; }
+        if (boss.y > BASE_H * 0.5) { boss.y = BASE_H * 0.5; boss.vy *= -1; }
+
+        if (boss.hitFlash > 0) boss.hitFlash--;
+
+        boss.shootCooldown--;
+        if (boss.shootCooldown <= 0) {
+          boss.shootCooldown = 60 + Math.random() * 40;
+          const angle = Math.atan2(mouseY / scaleY - boss.y, mouseX / scaleX - boss.x);
+          boss.projectiles.push({
+            x: boss.x,
+            y: boss.y,
+            vx: Math.cos(angle) * 3.5,
+            vy: Math.sin(angle) * 3.5,
+            radius: 8,
+            life: 200
+          });
+        }
+
+        for (let i = boss.projectiles.length - 1; i >= 0; i--) {
+          const p = boss.projectiles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life--;
+
+          if (p.x < -50 || p.x > BASE_W + 50 || p.y < -50 || p.y > BASE_H + 50 || p.life <= 0) {
+            boss.projectiles.splice(i, 1);
+          }
+        }
+      }
+
+      function update() {
+        if (screenShake > 0) screenShake *= 0.86;
+
+        const baseMouseX = mouseX / scaleX;
+        const baseMouseY = mouseY / scaleY;
+
+        if (!gameStarted) {
+          gun.angle = -Math.PI / 2;
+          return;
+        }
+
+        gun.swayTimer += 0.016;
+
+        const dx = baseMouseX - gun.x;
+        const dy = baseMouseY - gun.y;
+        let targetAngle = Math.atan2(dy, dx);
+
+        let angleDiff = targetAngle - gun.angle;
+        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+        gun.angle += angleDiff * 0.35;
+
+        if (gun.angle > -0.15) gun.angle = -0.15;
+        if (gun.angle < -Math.PI + 0.15) gun.angle = -Math.PI + 0.15;
+
+        const pullX = (baseMouseX - BASE_W / 2) * 0.08;
+        const pullY = (baseMouseY - BASE_H / 2) * 0.06;
+
+        const swayX = Math.sin(gun.swayTimer * 1.3) * 4 + Math.sin(gun.swayTimer * 0.7) * 3;
+        const swayY = Math.cos(gun.swayTimer * 1.1) * 3 + Math.sin(gun.swayTimer * 0.5) * 2;
+
+        gun.targetOffsetX = pullX + swayX;
+        gun.targetOffsetY = pullY + swayY;
+
+        gun.offsetX += (gun.targetOffsetX - gun.offsetX) * 0.12;
+        gun.offsetY += (gun.targetOffsetY - gun.offsetY) * 0.12;
+
+        gun.x = BASE_W / 2 + gun.offsetX;
+        gun.y = BASE_H + 20 + gun.offsetY;
+
+        mgGun.x = gun.x;
+        mgGun.y = gun.y;
+        mgGun.angle = gun.angle;
+
+        if (isFiring && hasMachineGun && mgAmmo > 0) {
+          mgFireCooldown -= 1;
+          if (mgFireCooldown <= 0) {
+            fireMachineGun();
+            mgFireCooldown = 4;
+          }
+        }
+
+        if (moonExplosionActive) {
+          moonExplosionTimer--;
+          if (moonExplosionTimer <= 0) {
+            moonExplosionActive = false;
+          }
+        }
+
+        for (let i = celestialParticles.length - 1; i >= 0; i--) {
+          const p = celestialParticles[i];
+          p.vy += p.gravity || 0;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.99;
+          p.vy *= 0.99;
+          p.life--;
+          if (p.life <= 0) {
+            celestialParticles.splice(i, 1);
+          }
+        }
+
+        if (gameState === "levelComplete") {
+          if (barEaten) {
+            barEating--;
+            if (barEating <= 0) {
+              startLevel(level + 1);
+            }
+          }
+          return;
+        }
+
+        if (isBossLevel) {
+          updateBoss();
+        }
+
+        const groundY = BASE_H - 70;
+
+        for (let c of civilians) {
+          if (!c.alive) continue;
+
+          c.stateTimer += 1 / 60;
+          c.walkCycle += 0.12 * c.direction;
+
+          if (c.panic > 0) c.panic -= 0.02;
+
+          if (c.state === "walking") {
+            c.duckCooldown -= 1 / 60;
+
+            if (c.duckCooldown <= 0 && c.stateTimer > 1.5) {
+              c.state = "ducking";
+              c.stateTimer = 0;
+              c.duckDuration = 1.2 + Math.random() * 1.5;
+              c.targetDuckX = c.x + (Math.random() - 0.5) * 120;
+              c.targetDuckX = Math.max(60, Math.min(BASE_W - 60, c.targetDuckX));
+            }
+          } else if (c.state === "ducking") {
+            if (c.stateTimer > c.duckDuration) {
+              c.state = "walking";
+              c.stateTimer = 0;
+              c.duckCooldown = 3 + Math.random() * 5;
+            }
+          }
+
+          if (c.state === "walking") {
+            c.opacity += (1 - c.opacity) * 0.08;
+            c.shadowAlpha += (0.35 - c.shadowAlpha) * 0.08;
+            c.y += (c.baseY - c.y) * 0.06;
+
+            if (Math.random() < 0.008) {
+              c.direction *= -1;
+            }
+
+            const speed = 1.0 + (c.panic * 1.5);
+            c.vx = c.direction * speed;
+            c.x += c.vx;
+
+            if (c.x < c.radius) { c.x = c.radius; c.direction = 1; }
+            if (c.x > BASE_W - c.radius) { c.x = BASE_W - c.radius; c.direction = -1; }
+
+          } else if (c.state === "ducking") {
+            c.opacity += (0.35 - c.opacity) * 0.1;
+            c.shadowAlpha += (0.05 - c.shadowAlpha) * 0.1;
+
+            const duckProgress = Math.min(1, c.stateTimer / 0.3);
+            const duckY = c.baseY + 18 * duckProgress;
+            c.y += (duckY - c.y) * 0.15;
+
+            const targetX = c.targetDuckX;
+            c.x += (targetX - c.x) * 0.08;
+          }
+
+          c.x = Math.max(c.radius, Math.min(BASE_W - c.radius, c.x));
+          c.y = Math.min(groundY - 10, c.y);
+        }
+
+        for (let i = goreParticles.length - 1; i >= 0; i--) {
+          const p = goreParticles[i];
+          p.vy += p.gravity || 0.3;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.985;
+          p.vy *= 0.985;
+          p.life--;
+          if (p.life <= 0 || p.y > BASE_H + 150 || p.x < -150 || p.x > BASE_W + 150) {
+            goreParticles.splice(i, 1);
+          }
+        }
+
+        for (let i = bloodSplatters.length - 1; i >= 0; i--) {
+          const s = bloodSplatters[i];
+          s.life--;
+          s.alpha *= 0.9985;
+          if (s.life <= 0) bloodSplatters.splice(i, 1);
+        }
+
+        if (muzzleFlash > 0) muzzleFlash -= 1.5;
+        if (gun.recoil > 0) gun.recoil *= 0.78;
+        if (mgGun.recoil > 0) mgGun.recoil *= 0.7;
+      }
+
+      function drawCity() {
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, BASE_H * 0.7);
+        skyGrad.addColorStop(0, '#08080e');
+        skyGrad.addColorStop(0.6, '#0e0e18');
+        skyGrad.addColorStop(1, '#14141f');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, BASE_W, BASE_H);
+
+        if (!moonDestroyed && !moonExplosionActive) {
+          const moonGrad = ctx.createRadialGradient(moonX, moonY, 5, moonX, moonY, 80);
+          moonGrad.addColorStop(0, 'rgba(220, 225, 255, 0.25)');
+          moonGrad.addColorStop(0.3, 'rgba(180, 190, 230, 0.08)');
+          moonGrad.addColorStop(1, 'rgba(180, 190, 230, 0)');
+          ctx.fillStyle = moonGrad;
+          ctx.beginPath();
+          ctx.arc(moonX, moonY, 80, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = 'rgba(210, 215, 240, 0.5)';
+          ctx.beginPath();
+          ctx.arc(moonX, moonY, 22, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        if (moonExplosionActive) {
+          const explosionProgress = moonExplosionTimer / 120;
+          const coreSize = 30 + (1 - explosionProgress) * 180;
+          const coreAlpha = Math.min(1, explosionProgress * 1.5);
+
+          const explGrad = ctx.createRadialGradient(moonX, moonY, 2, moonX, moonY, coreSize);
+          explGrad.addColorStop(0, `rgba(255, 255, 255, ${coreAlpha})`);
+          explGrad.addColorStop(0.15, `rgba(255, 255, 220, ${coreAlpha * 0.95})`);
+          explGrad.addColorStop(0.35, `rgba(255, 220, 100, ${coreAlpha * 0.85})`);
+          explGrad.addColorStop(0.55, `rgba(255, 160, 40, ${coreAlpha * 0.6})`);
+          explGrad.addColorStop(0.8, `rgba(255, 80, 20, ${coreAlpha * 0.3})`);
+          explGrad.addColorStop(1, `rgba(255, 40, 0, 0)`);
+          ctx.fillStyle = explGrad;
+          ctx.beginPath();
+          ctx.arc(moonX, moonY, coreSize, 0, Math.PI * 2);
+          ctx.fill();
+
+          const ringSize = 50 + (1 - explosionProgress) * 280;
+          const ringAlpha = explosionProgress * 0.8;
+          ctx.strokeStyle = `rgba(255, 230, 150, ${ringAlpha})`;
+          ctx.lineWidth = 6 * explosionProgress;
+          ctx.beginPath();
+          ctx.arc(moonX, moonY, ringSize, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.strokeStyle = `rgba(255, 180, 80, ${ringAlpha * 0.5})`;
+          ctx.lineWidth = 3 * explosionProgress;
+          ctx.beginPath();
+          ctx.arc(moonX, moonY, ringSize * 1.3, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        for (let p of celestialParticles) {
+          const alpha = p.life / p.maxLife;
+          if (p.type === 'smoke') {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * (1 + (1 - alpha) * 1.5), 0, Math.PI * 2);
+            ctx.fillStyle = p.color.replace(/[\d.]+\)$/, (alpha * 0.3) + ')');
+            ctx.fill();
+          } else if (p.type === 'dust') {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+            ctx.fillStyle = p.color.replace(/[\d.]+\)$/, (alpha * 0.6) + ')');
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+            ctx.fillStyle = p.color.replace(/[\d.]+%\)$/, (60 + alpha * 35) + '%)');
+            ctx.fill();
+          }
+        }
+
+        const time = Date.now() * 0.00005;
+        for (let b of buildingData) {
+          const bx = b.x;
+          const by = BASE_H - 60 - b.h;
+
+          ctx.fillStyle = '#0c0c14';
+          ctx.fillRect(bx, by, b.w, b.h);
+
+          ctx.fillStyle = '#10101a';
+          ctx.fillRect(bx + 3, by + 3, b.w - 6, b.h - 6);
+
+          ctx.fillStyle = 'rgba(180, 190, 220, 0.06)';
+          ctx.fillRect(bx + 3, by + 3, b.w - 6, 4);
+
+          for (let wy = 0; wy < b.windows.length; wy++) {
+            for (let wx = 0; wx < b.windows[wy].length; wx++) {
+              const win = b.windows[wy][wx];
+              const flickerVal = Math.sin(time + win.flicker) * 0.15 + 0.85;
+              const alpha = win.lit ? win.brightness * flickerVal : 0.02;
+              const warm = Math.random() > 0.7 ? 1 : 0;
+              ctx.fillStyle = warm
+                ? `rgba(255, 220, 150, ${alpha})`
+                : `rgba(180, 210, 255, ${alpha})`;
+              ctx.fillRect(bx + 8 + wx * 18, by + 15 + wy * 22, 9, 12);
+            }
+          }
+        }
+
+        const groundGrad = ctx.createLinearGradient(0, BASE_H - 80, 0, BASE_H);
+        groundGrad.addColorStop(0, '#0c0c12');
+        groundGrad.addColorStop(0.5, '#101018');
+        groundGrad.addColorStop(1, '#0a0a10');
+        ctx.fillStyle = groundGrad;
+        ctx.fillRect(0, BASE_H - 80, BASE_W, 80);
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 10; i++) {
+          const lx = i * 96;
+          ctx.beginPath();
+          ctx.moveTo(lx, BASE_H - 80);
+          ctx.lineTo(lx, BASE_H);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = 'rgba(180, 190, 220, 0.03)';
+        ctx.fillRect(0, BASE_H - 82, BASE_W, 2);
+
+        for (let s of bloodSplatters) {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2);
+          ctx.fillStyle = `rgba(110, 0, 0, ${s.alpha * 0.75})`;
+          ctx.fill();
+        }
+      }
+
+      function drawCivilians() {
+        for (let c of civilians) {
+          if (!c.alive) {
+            ctx.globalAlpha = 0.6;
+            ctx.beginPath();
+            ctx.ellipse(c.x, c.y + 10, c.radius * 1.2, c.radius * 0.4, 0, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(60, 0, 0, 0.7)';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(c.x - 6, c.y + 2, c.radius * 0.5, 0, Math.PI*2);
+            ctx.fillStyle = '#3a0000';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(c.x + 9, c.y + 5, c.radius * 0.35, 0, Math.PI*2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            continue;
+          }
+
+          const isDucking = c.state === "ducking";
+          const s = c.scale;
+
+          ctx.globalAlpha = c.opacity;
+
+          ctx.beginPath();
+          ctx.ellipse(c.x, c.y + 18 * s, c.radius * 0.9, c.radius * 0.25, 0, 0, Math.PI*2);
+          ctx.fillStyle = `rgba(0, 0, 0, ${c.shadowAlpha})`;
+          ctx.fill();
+
+          const bodyColor = c.type === 0 ? '#3a5570' : (c.type === 1 ? '#8a6030' : '#7a4040');
+          const bodyDark = c.type === 0 ? '#2a4055' : (c.type === 1 ? '#6a4820' : '#5a3030');
+          const skinColor = '#d4a882';
+          const skinDark = '#b8906a';
+
+          const legSpread = isDucking ? 0.3 : Math.sin(c.walkCycle) * 0.25;
+          const armSwing = isDucking ? 0 : Math.sin(c.walkCycle + Math.PI) * 0.2;
+
+          ctx.save();
+          ctx.translate(c.x, c.y);
+
+          ctx.fillStyle = bodyDark;
+          ctx.beginPath();
+          ctx.ellipse(-6 * s, 8 * s + legSpread * 8, 5 * s, 14 * s, -0.1 + legSpread * 0.3, 0, Math.PI*2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(6 * s, 8 * s - legSpread * 8, 5 * s, 14 * s, 0.1 - legSpread * 0.3, 0, Math.PI*2);
+          ctx.fill();
+
+          ctx.fillStyle = bodyColor;
+          ctx.beginPath();
+          ctx.ellipse(0, -4 * s, 12 * s, 16 * s, 0, 0, Math.PI*2);
+          ctx.fill();
+
+          ctx.fillStyle = skinColor;
+          ctx.beginPath();
+          ctx.arc(0, -20 * s, 10 * s, 0, Math.PI*2);
+          ctx.fill();
+
+          ctx.fillStyle = skinDark;
+          ctx.beginPath();
+          ctx.arc(0, -22 * s, 10 * s, Math.PI * 0.8, Math.PI * 1.2);
+          ctx.fill();
+
+          ctx.fillStyle = '#1a1a1a';
+          ctx.beginPath();
+          ctx.arc(-3.5 * s, -21 * s, 1.8 * s, 0, Math.PI*2);
+          ctx.arc(3.5 * s, -21 * s, 1.8 * s, 0, Math.PI*2);
+          ctx.fill();
+
+          ctx.fillStyle = bodyColor;
+          ctx.beginPath();
+          ctx.ellipse(-14 * s, -4 * s + armSwing * 6, 4 * s, 10 * s, 0.3 + armSwing, 0, Math.PI*2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(14 * s, -4 * s - armSwing * 6, 4 * s, 10 * s, -0.3 - armSwing, 0, Math.PI*2);
+          ctx.fill();
+
+          if (isDucking) {
+            const duckAlpha = 0.25;
+            ctx.globalAlpha = duckAlpha;
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 24 * s, 28 * s, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.globalAlpha = c.opacity;
+          }
+
+          ctx.restore();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function drawBoss() {
+        if (!boss || !boss.alive) return;
+
+        const hitFlash = boss.hitFlash > 0;
+        const scalePulse = 1 + Math.sin(boss.walkCycle * 2) * 0.05;
+
+        ctx.save();
+        ctx.translate(boss.x, boss.y);
+        ctx.scale(scalePulse, scalePulse);
+
+        const bodyColor = boss.type === 0 ? '#4a2a5a' : (boss.type === 1 ? '#5a2a2a' : '#2a2a5a');
+        const bodyDark = boss.type === 0 ? '#3a1a4a' : (boss.type === 1 ? '#4a1a1a' : '#1a1a4a');
+        const eyeColor = boss.type === 0 ? '#ff00ff' : (boss.type === 1 ? '#ff4400' : '#00ffff');
+
+        ctx.beginPath();
+        ctx.arc(0, 0, boss.radius, 0, Math.PI * 2);
+        ctx.fillStyle = hitFlash ? '#ffffff' : bodyColor;
+        ctx.fill();
+        ctx.strokeStyle = bodyDark;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(-15, -12, 10, 0, Math.PI * 2);
+        ctx.arc(15, -12, 10, 0, Math.PI * 2);
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(-15, -12, 5, 0, Math.PI * 2);
+        ctx.arc(15, -12, 5, 0, Math.PI * 2);
+        ctx.fillStyle = eyeColor;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(-15, -12, 2, 0, Math.PI * 2);
+        ctx.arc(15, -12, 2, 0, Math.PI * 2);
+        ctx.fillStyle = '#000';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-20, 20);
+        ctx.lineTo(-10, 30);
+        ctx.lineTo(0, 20);
+        ctx.lineTo(10, 30);
+        ctx.lineTo(20, 20);
+        ctx.strokeStyle = '#0a0a0a';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(-25, -boss.radius - 15);
+        ctx.lineTo(-15, -boss.radius - 35);
+        ctx.lineTo(0, -boss.radius - 20);
+        ctx.lineTo(15, -boss.radius - 35);
+        ctx.lineTo(25, -boss.radius - 15);
+        ctx.fillStyle = bodyDark;
+        ctx.fill();
+
+        ctx.restore();
+
+        const hpPct = boss.hp / boss.maxHp;
+        const hpBarW = 300;
+        const hpBarH = 16;
+        const hpBarX = BASE_W / 2 - hpBarW / 2;
+        const hpBarY = 70;
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.beginPath();
+        ctx.roundRect(hpBarX - 4, hpBarY - 4, hpBarW + 8, hpBarH + 8, 6);
+        ctx.fill();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.beginPath();
+        ctx.roundRect(hpBarX, hpBarY, hpBarW, hpBarH, 4);
+        ctx.fill();
+
+        const hpColor = hpPct > 0.5 ? '#d4a028' : (hpPct > 0.25 ? '#ffa030' : '#ff3020');
+        ctx.fillStyle = hpColor;
+        ctx.beginPath();
+        ctx.roundRect(hpBarX, hpBarY, hpBarW * hpPct, hpBarH, 4);
+        ctx.fill();
+
+        ctx.font = '700 14px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('BOSS', BASE_W / 2, hpBarY - 18);
+
+        ctx.restore();
+
+        for (let p of boss.projectiles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = '#ff4400';
+          ctx.shadowColor = '#ff0000';
+          ctx.shadowBlur = 15;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      function drawGore() {
+        for (let p of goreParticles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        }
+      }
+
+      function drawPistol() {
+        const recoilOffset = gun.recoil;
+        const barrelLen = gun.barrelLength - recoilOffset;
+        const bw = gun.barrelWidth;
+
+        ctx.save();
+        ctx.translate(gun.x, gun.y);
+        ctx.rotate(gun.angle);
+
+        ctx.fillStyle = '#0e0e12';
+        ctx.beginPath();
+        ctx.roundRect(-25, -8, 50, 60, 6);
+        ctx.fill();
+        ctx.fillStyle = '#1a1a20';
+        ctx.beginPath();
+        ctx.roundRect(-20, -4, 40, 50, 5);
+        ctx.fill();
+
+        ctx.fillStyle = '#14141a';
+        ctx.beginPath();
+        ctx.roundRect(0, -bw/2, barrelLen, bw, 4);
+        ctx.fill();
+        ctx.fillStyle = '#1c1c24';
+        ctx.beginPath();
+        ctx.roundRect(2, -bw/2 + 3, barrelLen - 8, bw - 6, 3);
+        ctx.fill();
+
+        ctx.fillStyle = '#0a0a0e';
+        ctx.beginPath();
+        ctx.roundRect(barrelLen - 12, -bw/2 - 3, 14, bw + 6, 3);
+        ctx.fill();
+
+        ctx.fillStyle = '#22222c';
+        ctx.beginPath();
+        ctx.roundRect(barrelLen - 30, -bw/2 - 6, 22, 8, 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#2a2a36';
+        ctx.beginPath();
+        ctx.roundRect(20, -bw/2 - 8, 30, 6, 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0a0a0e';
+        ctx.beginPath();
+        ctx.arc(barrelLen - 4, 0, bw/2 - 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+
+        const tipX = gun.x + Math.cos(gun.angle) * barrelLen;
+        const tipY = gun.y + Math.sin(gun.angle) * barrelLen;
+
+        if (muzzleFlash > 0) {
+          const flashSize = muzzleFlash * 5;
+          const grad = ctx.createRadialGradient(tipX, tipY, 2, tipX, tipY, flashSize);
+          grad.addColorStop(0, 'rgba(255, 255, 220, 0.95)');
+          grad.addColorStop(0.3, 'rgba(255, 200, 60, 0.8)');
+          grad.addColorStop(0.6, 'rgba(255, 100, 10, 0.4)');
+          grad.addColorStop(1, 'rgba(255, 40, 0, 0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(tipX, tipY, flashSize, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+
+      function drawMachineGun() {
+        const recoilOffset = mgGun.recoil;
+        const barrelLen = mgGun.barrelLength - recoilOffset;
+        const bw = mgGun.barrelWidth;
+
+        ctx.save();
+        ctx.translate(mgGun.x, mgGun.y);
+        ctx.rotate(mgGun.angle);
+
+        ctx.fillStyle = '#0e0e12';
+        ctx.beginPath();
+        ctx.roundRect(-35, -12, 70, 70, 6);
+        ctx.fill();
+        ctx.fillStyle = '#1a1a20';
+        ctx.beginPath();
+        ctx.roundRect(-30, -8, 60, 60, 5);
+        ctx.fill();
+
+        ctx.fillStyle = '#14141a';
+        ctx.beginPath();
+        ctx.roundRect(0, -bw/2, barrelLen, bw, 4);
+        ctx.fill();
+        ctx.fillStyle = '#1c1c24';
+        ctx.beginPath();
+        ctx.roundRect(2, -bw/2 + 3, barrelLen - 8, bw - 6, 3);
+        ctx.fill();
+
+        ctx.fillStyle = '#0a0a0e';
+        ctx.beginPath();
+        ctx.roundRect(barrelLen - 14, -bw/2 - 4, 16, bw + 8, 3);
+        ctx.fill();
+
+        ctx.fillStyle = '#22222c';
+        ctx.beginPath();
+        ctx.roundRect(barrelLen - 40, -bw/2 - 8, 26, 10, 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#2a2a36';
+        ctx.beginPath();
+        ctx.roundRect(30, -bw/2 - 10, 40, 8, 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0a0a0e';
+        ctx.beginPath();
+        ctx.arc(barrelLen - 5, 0, bw/2 - 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#3a3a48';
+        ctx.beginPath();
+        ctx.roundRect(-10, -bw/2 - 16, 20, 20, 3);
+        ctx.fill();
+        ctx.fillStyle = '#4a4a5a';
+        ctx.beginPath();
+        ctx.roundRect(-6, -bw/2 - 12, 12, 12, 2);
+        ctx.fill();
+
+        ctx.restore();
+
+        const tipX = mgGun.x + Math.cos(mgGun.angle) * barrelLen;
+        const tipY = mgGun.y + Math.sin(mgGun.angle) * barrelLen;
+
+        if (muzzleFlash > 0) {
+          const flashSize = muzzleFlash * 5;
+          const grad = ctx.createRadialGradient(tipX, tipY, 2, tipX, tipY, flashSize);
+          grad.addColorStop(0, 'rgba(255, 255, 220, 0.95)');
+          grad.addColorStop(0.3, 'rgba(255, 200, 60, 0.8)');
+          grad.addColorStop(0.6, 'rgba(255, 100, 10, 0.4)');
+          grad.addColorStop(1, 'rgba(255, 40, 0, 0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(tipX, tipY, flashSize, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+
+      function drawKlondikeBar() {
+        if (gameState !== "levelComplete" || barEaten) return;
+
+        const baseX = barX;
+        const baseY = barY;
+        const hoverDx = (mouseX / scaleX) - baseX;
+        const hoverDy = (mouseY / scaleY) - baseY;
+        barHovered = Math.sqrt(hoverDx*hoverDx + hoverDy*hoverDy) < barRadius;
+
+        const pulse = 1 + Math.sin(Date.now() * 0.005) * 0.05;
+        const hoverScale = barHovered ? 1.12 : 1;
+        const totalScale = pulse * hoverScale;
+
+        ctx.save();
+        ctx.translate(baseX, baseY);
+        ctx.scale(totalScale, totalScale);
+
+        ctx.shadowColor = barHovered ? 'rgba(212, 160, 40, 0.8)' : 'rgba(212, 160, 40, 0.4)';
+        ctx.shadowBlur = barHovered ? 60 : 35;
+
+        ctx.fillStyle = '#f0e068';
+        ctx.beginPath();
+        ctx.roundRect(-85, -55, 170, 110, 10);
+        ctx.fill();
+        ctx.strokeStyle = '#c8a020';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        ctx.fillStyle = '#d4a028';
+        ctx.beginPath();
+        ctx.roundRect(-80, -50, 160, 30, 6);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 26px "Segoe UI", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 0;
+        ctx.fillText('KLONDIKE', 0, -35);
+
+        ctx.font = 'bold 16px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = '#3a2a0a';
+        ctx.fillText('EAT IT', 0, 22);
+
+        if (klondikeLoaded) {
+          ctx.drawImage(klondikeImg, -50, 35, 100, 45);
+        }
+
+        ctx.restore();
+        ctx.shadowBlur = 0;
+
+        const hintAlpha = barHovered ? 1 : 0.6;
+        ctx.font = '600 14px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = `rgba(200, 200, 210, ${hintAlpha})`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('TAP TO EAT', baseX, baseY + 95);
+      }
+
+      function drawEatingAnimation() {
+        if (!barEaten || barEating <= 0) return;
+
+        const progress = 1 - (barEating / 70);
+        const eatScale = 1 + progress * 2.5;
+        const alpha = Math.max(0, 1 - progress * 1.4);
+
+        ctx.save();
+        ctx.translate(BASE_W / 2, BASE_H / 2 - 20);
+        ctx.scale(eatScale, eatScale);
+        ctx.globalAlpha = alpha;
+
+        ctx.fillStyle = '#f0e068';
+        ctx.beginPath();
+        ctx.arc(0, 0, 55, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = '#d4a028';
+        ctx.beginPath();
+        ctx.arc(0, 0, 40, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = '#b08020';
+        ctx.beginPath();
+        ctx.arc(0, 0, 22, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.restore();
+        ctx.globalAlpha = 1;
+
+        ctx.font = '700 52px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = `rgba(240, 224, 104, ${alpha})`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 40;
+        ctx.shadowColor = 'rgba(212, 160, 40, 0.6)';
+        ctx.fillText('DELICIOUS', BASE_W/2, BASE_H/2 - 100);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+      }
+
+      function drawCrosshair() {
+        if (!gameStarted) return;
+        if (gameState !== "playing") return;
+
+        const cx = mouseX / scaleX;
+        const cy = mouseY / scaleY;
+        const gap = 5;
+        const len = 12;
+        const thick = 2;
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(240, 240, 250, 0.9)';
+        ctx.lineWidth = thick;
+        ctx.lineCap = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(cx - gap - len, cy);
+        ctx.lineTo(cx - gap, cy);
+        ctx.moveTo(cx + gap, cy);
+        ctx.lineTo(cx + gap + len, cy);
+        ctx.moveTo(cx, cy - gap - len);
+        ctx.lineTo(cx, cy - gap);
+        ctx.moveTo(cx, cy + gap);
+        ctx.lineTo(cx, cy + gap + len);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(240, 240, 250, 0.9)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 2, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(240, 240, 250, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 20, 0, Math.PI*2);
+        ctx.stroke();
+
+        if (hasMachineGun) {
+          ctx.strokeStyle = 'rgba(255, 200, 60, 0.8)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 28, 0, Math.PI*2);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      function drawCursorForEating() {
+        if (!gameStarted) return;
+        if (gameState !== "levelComplete" || barEaten) return;
+
+        const cx = mouseX / scaleX;
+        const cy = mouseY / scaleY;
+
+        ctx.save();
+        ctx.strokeStyle = '#f0e068';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.shadowColor = 'rgba(212, 160, 40, 0.8)';
+        ctx.shadowBlur = 15;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cx - 10, cy);
+        ctx.lineTo(cx - 4, cy);
+        ctx.moveTo(cx + 4, cy);
+        ctx.lineTo(cx + 10, cy);
+        ctx.moveTo(cx, cy - 10);
+        ctx.lineTo(cx, cy - 4);
+        ctx.moveTo(cx, cy + 4);
+        ctx.lineTo(cx, cy + 10);
+        ctx.stroke();
+
+        ctx.fillStyle = '#f0e068';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function drawCursorForStart() {
+        if (gameStarted) return;
+
+        const cx = mouseX / scaleX;
+        const cy = mouseY / scaleY;
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(212, 160, 40, 0.9)';
+        ctx.shadowBlur = 20;
+
+        ctx.fillStyle = '#f0e068';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0d0d10';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#f0e068';
+        ctx.beginPath();
+        ctx.moveTo(cx - 5, cy - 7);
+        ctx.lineTo(cx - 5, cy + 7);
+        ctx.lineTo(cx + 7, cy);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function drawVignette() {
+        const grad = ctx.createRadialGradient(BASE_W/2, BASE_H/2, BASE_H * 0.4, BASE_W/2, BASE_H/2, BASE_H * 0.9);
+        grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0.45)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, BASE_W, BASE_H);
+      }
+
+      function drawHUD() {
+        if (!gameStarted) return;
+
+        ctx.save();
+
+        const pad = 20;
+
+        ctx.font = '600 11px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = 'rgba(160, 160, 175, 0.7)';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText('LEVEL', pad, pad);
+
+        ctx.font = '700 28px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = isBossLevel ? '#ff4040' : '#ffffff';
+        ctx.fillText(level, pad, pad + 14);
+
+        if (isBossLevel) {
+          ctx.font = '600 11px "Segoe UI", Arial, sans-serif';
+          ctx.fillStyle = '#ff6060';
+          ctx.fillText('BOSS FIGHT', pad, pad + 50);
+        }
+
+        const barX = pad;
+        const barY = pad + 70;
+        const barW = 140;
+        const barH = 4;
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW, barH, 2);
+        ctx.fill();
+
+        const pct = isBossLevel ? (boss ? 1 - boss.hp / boss.maxHp : 0) : killsThisLevel / targetsThisLevel;
+        ctx.fillStyle = '#d4a028';
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW * pct, barH, 2);
+        ctx.fill();
+
+        ctx.font = '600 11px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = 'rgba(160, 160, 175, 0.7)';
+        ctx.fillText('TARGETS', pad, pad + 86);
+
+        ctx.font = '700 18px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = '#ffffff';
+        if (isBossLevel) {
+          ctx.fillText('BOSS', pad, pad + 100);
+        } else {
+          ctx.fillText(killsThisLevel + ' / ' + targetsThisLevel, pad, pad + 100);
+        }
+
+        const krX = BASE_W - pad;
+        ctx.textAlign = 'right';
+
+        ctx.font = '600 11px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = 'rgba(160, 160, 175, 0.7)';
+        ctx.fillText('KLONDIKE BARS', krX, pad);
+
+        ctx.font = '700 28px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = '#d4a028';
+        ctx.fillText(klondikeCount, krX, pad + 14);
+
+        if (klondikeLoaded && klondikeCount > 0) {
+          for (let i = 0; i < Math.min(klondikeCount, 6); i++) {
+            const ix = krX - 30 - (i * 36);
+            ctx.drawImage(klondikeImg, ix, pad + 50, 30, 30);
+          }
+        }
+
+        if (hasMachineGun) {
+          const mgX = pad;
+          const mgY = BASE_H - 60;
+
+          ctx.font = '600 11px "Segoe UI", Arial, sans-serif';
+          ctx.fillStyle = 'rgba(255, 200, 60, 0.9)';
+          ctx.textAlign = 'left';
+          ctx.fillText('MACHINE GUN AMMO', mgX, mgY - 16);
+
+          const ammoW = 160;
+          const ammoH = 10;
+
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+          ctx.beginPath();
+          ctx.roundRect(mgX, mgY, ammoW, ammoH, 3);
+          ctx.fill();
+
+          const ammoPct = mgAmmo / MG_MAX_AMMO;
+          const ammoColor = ammoPct > 0.5 ? '#f0e068' : (ammoPct > 0.25 ? '#ffa030' : '#ff4020');
+          ctx.fillStyle = ammoColor;
+          ctx.beginPath();
+          ctx.roundRect(mgX, mgY, ammoW * ammoPct, ammoH, 3);
+          ctx.fill();
+
+          ctx.font = '700 16px "Segoe UI", Arial, sans-serif';
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(mgAmmo + ' / ' + MG_MAX_AMMO, mgX + ammoW + 12, mgY - 2);
+        }
+
+        ctx.restore();
+      }
+
+      function drawPlayButton() {
+        if (gameStarted) return;
+
+        const bw = 320;
+        const bh = 90;
+        const bx = BASE_W / 2 - bw / 2;
+        const by = BASE_H / 2 - bh / 2;
+
+        const pulse = 1 + Math.sin(Date.now() * 0.004) * 0.03;
+        const hoverDx = (mouseX / scaleX) - BASE_W / 2;
+        const hoverDy = (mouseY / scaleY) - BASE_H / 2;
+        const hovered = Math.sqrt(hoverDx*hoverDx + hoverDy*hoverDy) < 160;
+        const hoverScale = hovered ? 1.08 : 1;
+        const totalScale = pulse * hoverScale;
+
+        ctx.save();
+        ctx.translate(BASE_W / 2, BASE_H / 2);
+        ctx.scale(totalScale, totalScale);
+
+        ctx.shadowColor = 'rgba(212, 160, 40, 0.6)';
+        ctx.shadowBlur = 40;
+
+        ctx.fillStyle = 'rgba(10, 10, 14, 0.92)';
+        ctx.beginPath();
+        ctx.roundRect(-bw/2, -bh/2, bw, bh, 14);
+        ctx.fill();
+        ctx.strokeStyle = '#d4a028';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = '#f0e068';
+        ctx.beginPath();
+        ctx.moveTo(-bw/2 + 55, -bh/2 + bh/2 - 20);
+        ctx.lineTo(-bw/2 + 55, -bh/2 + bh/2 + 20);
+        ctx.lineTo(-bw/2 + 95, -bh/2 + bh/2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.font = '700 30px "Segoe UI", Arial, sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('PLAY', -bw/2 + 120, -bh/2 + bh/2);
+
+        ctx.restore();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const shakeX = (Math.random() - 0.5) * screenShake;
+        const shakeY = (Math.random() - 0.5) * screenShake;
+
+        ctx.save();
+        ctx.translate(shakeX * scaleX, shakeY * scaleY);
+        ctx.scale(scaleX, scaleY);
+
+        drawCity();
+        drawGore();
+        drawCivilians();
+        drawBoss();
+        if (hasMachineGun) {
+          drawMachineGun();
+        } else {
+          drawPistol();
+        }
+        drawVignette();
+        drawHUD();
+        drawKlondikeBar();
+        drawEatingAnimation();
+        drawCrosshair();
+        drawCursorForEating();
+        drawPlayButton();
+        drawCursorForStart();
+
+        ctx.restore();
+      }
+
+      function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      resizeCanvas();
+      loop();
+
+    })();
+  </script>
+
+</body>
+</html>
