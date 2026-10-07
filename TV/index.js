@@ -273,6 +273,7 @@ let homeFeed = [];
 let homeFeedIndex = 0;
 let homeFeedBatch = 12;
 let infiniteObserver = null;
+let homeSortMode = 'recommended';
 
 let autoplayTimer = null;
 let autoplayCountdown;
@@ -550,9 +551,17 @@ function showPage(page) {
   closeSidebarOnMobile();
 }
 
+function getHomeFeed() {
+  const base = getRecommendations();
+  if (homeSortMode === 'new') {
+    return base.slice().sort((a, b) => getUploadDate(b) - getUploadDate(a));
+  }
+  return base;
+}
+
 function startHomeFeed() {
   const grid = document.getElementById('video-grid');
-  homeFeed = getRecommendations();
+  homeFeed = getHomeFeed();
   homeFeedIndex = 0;
   grid.innerHTML = '';
   appendHomeBatch();
@@ -1846,6 +1855,8 @@ async function init() {
   document.getElementById('shorts-down').onclick = scrollToNextShort;
 
   setupMiniPlayer();
+  setupNotifications();
+  setupSortBar();
 
   document.addEventListener('keydown', e => {
     const shortsModal = document.getElementById('shorts-modal');
@@ -2011,6 +2022,124 @@ function setupSearch() {
   });
 
   btn.onclick = runSearch;
+}
+
+const NOTIF_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+
+function getRecentVideos() {
+  const cutoff = Date.now() - NOTIF_WINDOW_MS;
+  return allVideos
+    .filter(v => getUploadDate(v) >= cutoff)
+    .sort((a, b) => getUploadDate(b) - getUploadDate(a));
+}
+
+function getLastSeenNotif() {
+  return parseInt(localStorage.getItem('notifLastSeen') || '0', 10);
+}
+
+function setLastSeenNotif(ts) {
+  localStorage.setItem('notifLastSeen', String(ts));
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notif-badge');
+  if (!badge) return;
+  const lastSeen = getLastSeenNotif();
+  const unseen = getRecentVideos().filter(v => getUploadDate(v) > lastSeen).length;
+  if (unseen > 0) {
+    badge.textContent = unseen > 99 ? '99+' : String(unseen);
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+function renderNotifPanel() {
+  const panel = document.getElementById('notif-panel');
+  const recent = getRecentVideos();
+  panel.innerHTML = `<div class="notif-header">New this week</div>`;
+  if (!recent.length) {
+    panel.innerHTML += '<div class="notif-empty">No new videos in the past week.</div>';
+    return;
+  }
+  recent.forEach(video => {
+    const ch = getChannelForVideo(video);
+    const item = document.createElement('div');
+    item.className = 'notif-item';
+    item.innerHTML = `
+      <video class="notif-thumb" muted preload="metadata">
+        <source src="videos/${video.src}" type="video/mp4">
+      </video>
+      <div class="notif-info">
+        <div class="notif-title">${video.src.replace('.mp4', '')}</div>
+        <div class="notif-meta">${ch ? ch.name : ''} • ${timeAgo(getUploadDate(video))}</div>
+      </div>
+    `;
+    if (isShort(video)) {
+      item.onclick = () => {
+        closeNotifPanel();
+        openShortsPlayer(video.src);
+      };
+    } else {
+      item.onclick = () => {
+        closeNotifPanel();
+        navigate(`#/watch/${encodeURIComponent(`videos/${video.src}`)}`);
+      };
+    }
+    panel.appendChild(item);
+  });
+}
+
+function openNotifPanel() {
+  const panel = document.getElementById('notif-panel');
+  renderNotifPanel();
+  panel.classList.remove('hidden');
+}
+
+function closeNotifPanel() {
+  document.getElementById('notif-panel').classList.add('hidden');
+  setLastSeenNotif(Date.now());
+  updateNotifBadge();
+}
+
+function setupNotifications() {
+  const btn = document.getElementById('notif-btn');
+  const panel = document.getElementById('notif-panel');
+
+  btn.onclick = e => {
+    e.stopPropagation();
+    if (panel.classList.contains('hidden')) openNotifPanel();
+    else closeNotifPanel();
+  };
+
+  document.addEventListener('click', e => {
+    if (!panel.classList.contains('hidden') && !panel.contains(e.target) && e.target !== btn) {
+      closeNotifPanel();
+    }
+  });
+
+  updateNotifBadge();
+}
+
+function setupSortBar() {
+  const recBtn = document.getElementById('sort-recommended');
+  const newBtn = document.getElementById('sort-new');
+
+  recBtn.onclick = () => {
+    if (homeSortMode === 'recommended') return;
+    homeSortMode = 'recommended';
+    recBtn.classList.add('active');
+    newBtn.classList.remove('active');
+    startHomeFeed();
+  };
+
+  newBtn.onclick = () => {
+    if (homeSortMode === 'new') return;
+    homeSortMode = 'new';
+    newBtn.classList.add('active');
+    recBtn.classList.remove('active');
+    startHomeFeed();
+  };
 }
 
 function runSearchInternal(q) {

@@ -38,7 +38,15 @@
         </div>
       </div>
 
-      <div class="header-right"></div>
+      <div class="header-right">
+        <button id="notif-btn" class="icon-btn notif-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <path fill="currentColor" d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6v-5a7 7 0 0 0-5.5-6.83V3a1.5 1.5 0 0 0-3 0v1.17A7 7 0 0 0 5 11v5l-1.5 2h17z"/>
+          </svg>
+          <span id="notif-badge" class="notif-badge hidden">0</span>
+        </button>
+        <div id="notif-panel" class="notif-panel hidden"></div>
+      </div>
     </div>
   </header>
 
@@ -119,6 +127,10 @@
       </section>
 
       <section id="video-section">
+        <div class="sort-bar" id="sort-bar">
+          <button id="sort-recommended" class="sort-btn active">Recommended</button>
+          <button id="sort-new" class="sort-btn">Newest</button>
+        </div>
         <div id="video-grid" class="video-grid"></div>
         <div id="scroll-sentinel" class="scroll-sentinel"></div>
       </section>
