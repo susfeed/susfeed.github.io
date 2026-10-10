@@ -1,6 +1,6 @@
 async function loadBreakingNews() {
   try {
-    const response = await fetch("news/scroll.json");
+    const response = await fetch("scroll.json");
     const stories = await response.json();
 
     const shuffled = stories.sort(() => 0.5 - Math.random());
