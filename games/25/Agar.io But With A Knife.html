@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agar.io But With A Knife</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: none;
+      background: #0d0d0d;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+      cursor: crosshair;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hud {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #000000aa;
+      backdrop-filter: blur(4px);
+      color: #eee;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 13px;
+      border: 1px solid #ffffff22;
+      min-width: 150px;
+      pointer-events: none;
+    }
+
+    .hud h4 {
+      margin: 0 0 6px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #3ecf8e;
+      text-align: center;
+    }
+
+    .hud ol {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.5;
+    }
+
+    .hud li {
+      white-space: nowrap;
+    }
+
+    .hud .you {
+      color: #3ecf8e;
+      font-weight: 600;
+    }
+
+    .mass-display {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #000000aa;
+      backdrop-filter: blur(4px);
+      color: #3ecf8e;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid #3ecf8e55;
+      pointer-events: none;
+    }
+
+    .minimap-container {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 150px;
+      height: 150px;
+      background: #000000cc;
+      backdrop-filter: blur(4px);
+      border-radius: 10px;
+      border: 1px solid #ffffff33;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .minimap-container canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Agar.io But With A Knife</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/10/11 10:30 PM CET</i></p>
+
+      <div class="game-container" id="gameContainer">
+        <canvas id="agarCanvas"></canvas>
+        <div class="mass-display" id="massDisplay">Mass: 0</div>
+        <div class="hud" id="leaderboardHud">
+          <h4>Leaderboard</h4>
+          <ol id="leaderboardList"></ol>
+        </div>
+        <div class="minimap-container">
+          <canvas id="minimapCanvas" width="150" height="150"></canvas>
+        </div>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    (function() {
+      const canvas = document.getElementById("agarCanvas");
+      const ctx = canvas.getContext("2d");
+      const minimapCanvas = document.getElementById("minimapCanvas");
+      const minimapCtx = minimapCanvas.getContext("2d");
+      const massDisplay = document.getElementById("massDisplay");
+      const leaderboardList = document.getElementById("leaderboardList");
+
+      function resizeCanvas() {
+        const container = document.getElementById("gameContainer");
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        canvas.width = w;
+        canvas.height = h;
+      }
+
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      const WORLD_SIZE = 10000;
+      const FOOD_COUNT = 4000;
+      const AI_COUNT = 50;
+      const START_RADIUS = 20;
+      const EAT_RATIO = 1.15;
+      const SPEED_BASE = 2.6;
+      const AI_SPEED_FACTOR = 0.9;
+      const AI_VISION = 550;
+      const MAX_SPEED_RADIUS = 300;
+      const ZOOM_BASE = 1.0;
+      const ZOOM_MIN = 0.08;
+      const SPAWN_SAFE_RADIUS = 700;
+      const KNIFE_SPEED = 14;
+      const KNIFE_COOLDOWN_MAX = 90;
+      const KNIFE_RADIUS = 8;
+
+      let cameraX = 0;
+      let cameraY = 0;
+      let cameraZoom = ZOOM_BASE;
+      let mouseX = 0;
+      let mouseY = 0;
+      let mouseWorldX = 0;
+      let mouseWorldY = 0;
+      let gameOver = false;
+      let knifeCooldown = 0;
+
+      const player = {
+        x: WORLD_SIZE / 2,
+        y: WORLD_SIZE / 2,
+        r: START_RADIUS,
+        displayR: START_RADIUS,
+        targetR: START_RADIUS,
+        color: "#3ecf8e",
+        name: "YOU",
+        vx: 0,
+        vy: 0,
+        alive: true,
+        hasKnife: true,
+        knifeAngle: 0,
+      };
+
+      const foods = [];
+      const aiCells = [];
+      const knives = [];
+      const absorbAnimations = [];
+
+      const names = [
+        "Blob", "Ooze", "Gobble", "Nibble", "Slurp", "Chomp", "Gulp",
+        "Wobble", "Squish", "Bloop", "Jelly", "Pudding", "Munch", "Glob",
+        "Splat", "Squishy", "Bubbles", "Wiggly", "Gummy", "Jiggle",
+        "Noodle", "Sprout", "Fuzz", "Puff", "Dough", "Mochi", "Tofu",
+        "Pebble", "Boulder", "Chunk", "Nugget", "Bean", "Pea", "Dot"
+      ];
+
+      function randomColor() {
+        const hue = Math.floor(Math.random() * 360);
+        const sat = 55 + Math.floor(Math.random() * 40);
+        const light = 45 + Math.floor(Math.random() * 30);
+        return `hsl(${hue}, ${sat}%, ${light}%)`;
+      }
+
+      function randomPosition(margin = 200) {
+        return {
+          x: margin + Math.random() * (WORLD_SIZE - margin * 2),
+          y: margin + Math.random() * (WORLD_SIZE - margin * 2),
+        };
+      }
+
+      function safeSpawnPosition(minDistFromPlayer, margin = 300) {
+        let attempts = 0;
+        let pos;
+        do {
+          pos = randomPosition(margin);
+          attempts++;
+          if (attempts > 30) break;
+        } while (player.alive && distance(pos.x, pos.y, player.x, player.y) < minDistFromPlayer);
+        return pos;
+      }
+
+      function spawnFood(count) {
+        for (let i = 0; i < count; i++) {
+          const pos = randomPosition(80);
+          const sizeRoll = Math.random();
+          let r;
+          if (sizeRoll < 0.65) r = 4;
+          else if (sizeRoll < 0.88) r = 6;
+          else if (sizeRoll < 0.97) r = 9;
+          else r = 13;
+          foods.push({
+            x: pos.x,
+            y: pos.y,
+            r: r,
+            color: randomColor(),
+          });
+        }
+      }
+
+      function spawnAI(count) {
+        for (let i = 0; i < count; i++) {
+          const pos = safeSpawnPosition(SPAWN_SAFE_RADIUS, 400);
+          const radius = 15 + Math.random() * 50;
+          aiCells.push({
+            x: pos.x,
+            y: pos.y,
+            r: radius,
+            displayR: radius,
+            targetR: radius,
+            color: randomColor(),
+            name: names[Math.floor(Math.random() * names.length)],
+            vx: 0,
+            vy: 0,
+            alive: true,
+            wanderAngle: Math.random() * Math.PI * 2,
+          });
+        }
+      }
+
+      function resetGame() {
+        player.x = WORLD_SIZE / 2;
+        player.y = WORLD_SIZE / 2;
+        player.r = START_RADIUS;
+        player.displayR = START_RADIUS;
+        player.targetR = START_RADIUS;
+        player.alive = true;
+        player.vx = 0;
+        player.vy = 0;
+        player.hasKnife = true;
+        player.knifeAngle = 0;
+        gameOver = false;
+        knifeCooldown = 0;
+
+        foods.length = 0;
+        aiCells.length = 0;
+        knives.length = 0;
+        absorbAnimations.length = 0;
+
+        spawnFood(FOOD_COUNT);
+        spawnAI(AI_COUNT);
+
+        cameraZoom = ZOOM_BASE;
+        cameraX = player.x - canvas.width / 2;
+        cameraY = player.y - canvas.height / 2;
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function distance(x1, y1, x2, y2) {
+        return Math.hypot(x2 - x1, y2 - y1);
+      }
+
+      function massFromRadius(r) {
+        return Math.PI * r * r;
+      }
+
+      function radiusFromMass(m) {
+        return Math.sqrt(m / Math.PI);
+      }
+
+      function canEat(bigR, smallR) {
+        return bigR > smallR * EAT_RATIO;
+      }
+
+      function speedForRadius(r) {
+        const t = Math.min(1, r / MAX_SPEED_RADIUS);
+        return SPEED_BASE * (1 - t * 0.7);
+      }
+
+      function getZoomForPlayer() {
+        const scale = Math.pow(player.r / START_RADIUS, 0.35);
+        return Math.max(ZOOM_MIN, ZOOM_BASE / scale);
+      }
+
+      function addAbsorbAnimation(x, y, r, color) {
+        absorbAnimations.push({
+          x: x,
+          y: y,
+          r: r,
+          maxR: r * 1.8,
+          color: color,
+          life: 1,
+        });
+      }
+
+      function explodeIntoPellets(x, y, r, color) {
+        const totalMass = massFromRadius(r);
+        const pelletCount = Math.min(40, Math.max(8, Math.floor(totalMass / 400)));
+        const massPerPellet = totalMass / pelletCount;
+        const pelletRadius = Math.max(4, radiusFromMass(massPerPellet));
+
+        for (let i = 0; i < pelletCount; i++) {
+          const angle = (i / pelletCount) * Math.PI * 2 + Math.random() * 0.5;
+          const dist = r * 0.6 + Math.random() * r * 1.2;
+          const px = x + Math.cos(angle) * dist;
+          const py = y + Math.sin(angle) * dist;
+          foods.push({
+            x: clamp(px, 20, WORLD_SIZE - 20),
+            y: clamp(py, 20, WORLD_SIZE - 20),
+            r: pelletRadius * (0.7 + Math.random() * 0.6),
+            color: color,
+          });
+        }
+      }
+
+      function throwKnife() {
+        if (!player.alive || !player.hasKnife || gameOver || knifeCooldown > 0) return;
+
+        const dx = mouseWorldX - player.x;
+        const dy = mouseWorldY - player.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 1) return;
+
+        const angle = Math.atan2(dy, dx);
+        knives.push({
+          x: player.x + Math.cos(angle) * player.r,
+          y: player.y + Math.sin(angle) * player.r,
+          vx: Math.cos(angle) * KNIFE_SPEED,
+          vy: Math.sin(angle) * KNIFE_SPEED,
+          angle: angle,
+          life: 120,
+        });
+
+        player.hasKnife = false;
+        knifeCooldown = KNIFE_COOLDOWN_MAX;
+        player.vx -= Math.cos(angle) * 3;
+        player.vy -= Math.sin(angle) * 3;
+      }
+
+      function updateCamera() {
+        if (!player.alive) return;
+        const targetZoom = getZoomForPlayer();
+        cameraZoom += (targetZoom - cameraZoom) * 0.05;
+
+        const targetCamX = player.x - canvas.width / (2 * cameraZoom);
+        const targetCamY = player.y - canvas.height / (2 * cameraZoom);
+        cameraX += (targetCamX - cameraX) * 0.12;
+        cameraY += (targetCamY - cameraY) * 0.12;
+
+        const viewW = canvas.width / cameraZoom;
+        const viewH = canvas.height / cameraZoom;
+        cameraX = clamp(cameraX, 0, Math.max(0, WORLD_SIZE - viewW));
+        cameraY = clamp(cameraY, 0, Math.max(0, WORLD_SIZE - viewH));
+      }
+
+      function updateMouseWorld() {
+        mouseWorldX = mouseX / cameraZoom + cameraX;
+        mouseWorldY = mouseY / cameraZoom + cameraY;
+      }
+
+      function movePlayer() {
+        if (!player.alive || gameOver) return;
+
+        const dx = mouseWorldX - player.x;
+        const dy = mouseWorldY - player.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 4) {
+          const speed = speedForRadius(player.r);
+          player.vx += (dx / dist) * speed * 0.4;
+          player.vy += (dy / dist) * speed * 0.4;
+        }
+
+        player.vx *= 0.85;
+        player.vy *= 0.85;
+
+        player.x += player.vx;
+        player.y += player.vy;
+
+        player.x = clamp(player.x, player.r, WORLD_SIZE - player.r);
+        player.y = clamp(player.y, player.r, WORLD_SIZE - player.r);
+
+        if (player.hasKnife) {
+          player.knifeAngle = Math.atan2(mouseWorldY - player.y, mouseWorldX - player.x);
+        }
+      }
+
+      function moveAI() {
+        for (let ai of aiCells) {
+          if (!ai.alive) continue;
+
+          let targetX = null;
+          let targetY = null;
+          let bestScore = -Infinity;
+          let fleeMode = false;
+
+          for (let food of foods) {
+            if (!food) continue;
+            const d = distance(ai.x, ai.y, food.x, food.y);
+            if (d < AI_VISION && food.r < ai.r * 0.9) {
+              const score = (1 / (d + 1)) * 100 + food.r * 4;
+              if (score > bestScore) {
+                bestScore = score;
+                targetX = food.x;
+                targetY = food.y;
+                fleeMode = false;
+              }
+            }
+          }
+
+          for (let other of aiCells) {
+            if (other === ai || !other.alive) continue;
+            const d = distance(ai.x, ai.y, other.x, other.y);
+            if (d < AI_VISION) {
+              if (ai.r > other.r * EAT_RATIO) {
+                const score = (1 / (d + 1)) * 160 + other.r * 6;
+                if (score > bestScore) {
+                  bestScore = score;
+                  targetX = other.x;
+                  targetY = other.y;
+                  fleeMode = false;
+                }
+              } else if (other.r > ai.r * EAT_RATIO) {
+                const fleeX = ai.x - (other.x - ai.x) * 1.5;
+                const fleeY = ai.y - (other.y - ai.y) * 1.5;
+                const score = (1 / (d + 1)) * 240;
+                if (score > bestScore) {
+                  bestScore = score;
+                  targetX = fleeX;
+                  targetY = fleeY;
+                  fleeMode = true;
+                }
+              }
+            }
+          }
+
+          if (player.alive) {
+            const d = distance(ai.x, ai.y, player.x, player.y);
+            if (d < AI_VISION) {
+              if (ai.r > player.r * EAT_RATIO) {
+                const score = (1 / (d + 1)) * 180 + player.r * 6;
+                if (score > bestScore) {
+                  bestScore = score;
+                  targetX = player.x;
+                  targetY = player.y;
+                  fleeMode = false;
+                }
+              } else if (player.r > ai.r * EAT_RATIO) {
+                const fleeX = ai.x - (player.x - ai.x) * 1.5;
+                const fleeY = ai.y - (player.y - ai.y) * 1.5;
+                const score = (1 / (d + 1)) * 260;
+                if (score > bestScore) {
+                  bestScore = score;
+                  targetX = fleeX;
+                  targetY = fleeY;
+                  fleeMode = true;
+                }
+              }
+            }
+          }
+
+          if (targetX !== null && targetY !== null) {
+            const dx = targetX - ai.x;
+            const dy = targetY - ai.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist > 2) {
+              const speed = speedForRadius(ai.r) * AI_SPEED_FACTOR;
+              const moveSpeed = Math.max(0.5, speed);
+              const boost = fleeMode ? 1.5 : 1;
+              ai.vx += (dx / dist) * moveSpeed * 0.3 * boost;
+              ai.vy += (dy / dist) * moveSpeed * 0.3 * boost;
+            }
+          } else {
+            ai.wanderAngle += (Math.random() - 0.5) * 0.3;
+            ai.vx += Math.cos(ai.wanderAngle) * 0.12;
+            ai.vy += Math.sin(ai.wanderAngle) * 0.12;
+          }
+
+          ai.vx *= 0.88;
+          ai.vy *= 0.88;
+
+          ai.x += ai.vx;
+          ai.y += ai.vy;
+
+          ai.x = clamp(ai.x, ai.r, WORLD_SIZE - ai.r);
+          ai.y = clamp(ai.y, ai.r, WORLD_SIZE - ai.r);
+        }
+      }
+
+      function updateKnives() {
+        for (let i = knives.length - 1; i >= 0; i--) {
+          const k = knives[i];
+          k.x += k.vx;
+          k.y += k.vy;
+          k.life--;
+          k.angle = Math.atan2(k.vy, k.vx);
+
+          let hit = false;
+
+          for (let ai of aiCells) {
+            if (!ai.alive) continue;
+            const d = distance(k.x, k.y, ai.x, ai.y);
+            if (d < ai.r + KNIFE_RADIUS) {
+              explodeIntoPellets(ai.x, ai.y, ai.r, ai.color);
+              addAbsorbAnimation(ai.x, ai.y, ai.r * 1.2, "#ffaa33");
+              ai.alive = false;
+              hit = true;
+              break;
+            }
+          }
+
+          if (hit || k.life <= 0 || k.x < 0 || k.x > WORLD_SIZE || k.y < 0 || k.y > WORLD_SIZE) {
+            knives.splice(i, 1);
+          }
+        }
+
+        if (!player.hasKnife && knifeCooldown > 0) {
+          knifeCooldown--;
+          if (knifeCooldown <= 0) {
+            player.hasKnife = true;
+          }
+        }
+      }
+
+      function handleEating() {
+        if (player.alive) {
+          for (let i = foods.length - 1; i >= 0; i--) {
+            const food = foods[i];
+            if (!food) continue;
+            const d = distance(player.x, player.y, food.x, food.y);
+            if (d < player.r + food.r - 2) {
+              const foodMass = massFromRadius(food.r);
+              const newMass = massFromRadius(player.r) + foodMass * 1.3;
+              player.r = radiusFromMass(newMass);
+              player.targetR = player.r;
+              foods.splice(i, 1);
+            }
+          }
+
+          for (let ai of aiCells) {
+            if (!ai.alive) continue;
+            const d = distance(player.x, player.y, ai.x, ai.y);
+            if (d < player.r + ai.r - 2) {
+              if (canEat(player.r, ai.r)) {
+                const consumedMass = massFromRadius(ai.r);
+                const newMass = massFromRadius(player.r) + consumedMass;
+                player.r = radiusFromMass(newMass);
+                player.targetR = player.r;
+                addAbsorbAnimation(ai.x, ai.y, ai.r, ai.color);
+                ai.alive = false;
+              }
+            }
+          }
+        }
+
+        for (let ai of aiCells) {
+          if (!ai.alive) continue;
+
+          for (let i = foods.length - 1; i >= 0; i--) {
+            const food = foods[i];
+            if (!food) continue;
+            const d = distance(ai.x, ai.y, food.x, food.y);
+            if (d < ai.r + food.r - 2) {
+              const foodMass = massFromRadius(food.r);
+              const newMass = massFromRadius(ai.r) + foodMass * 1.2;
+              ai.r = radiusFromMass(newMass);
+              ai.targetR = ai.r;
+              foods.splice(i, 1);
+            }
+          }
+
+          for (let other of aiCells) {
+            if (other === ai || !other.alive) continue;
+            const d = distance(ai.x, ai.y, other.x, other.y);
+            if (d < ai.r + other.r - 2) {
+              if (canEat(ai.r, other.r)) {
+                const consumedMass = massFromRadius(other.r);
+                const newMass = massFromRadius(ai.r) + consumedMass;
+                ai.r = radiusFromMass(newMass);
+                ai.targetR = ai.r;
+                addAbsorbAnimation(other.x, other.y, other.r, other.color);
+                other.alive = false;
+              }
+            }
+          }
+
+          if (player.alive) {
+            const d = distance(ai.x, ai.y, player.x, player.y);
+            if (d < ai.r + player.r - 2) {
+              if (canEat(ai.r, player.r)) {
+                player.alive = false;
+                gameOver = true;
+              }
+            }
+          }
+        }
+
+        for (let i = aiCells.length - 1; i >= 0; i--) {
+          if (!aiCells[i].alive) {
+            aiCells.splice(i, 1);
+          }
+        }
+
+        while (foods.length < FOOD_COUNT) {
+          const pos = randomPosition(80);
+          const sizeRoll = Math.random();
+          let r;
+          if (sizeRoll < 0.65) r = 4;
+          else if (sizeRoll < 0.88) r = 6;
+          else if (sizeRoll < 0.97) r = 9;
+          else r = 13;
+          foods.push({
+            x: pos.x,
+            y: pos.y,
+            r: r,
+            color: randomColor(),
+          });
+        }
+
+        while (aiCells.length < AI_COUNT) {
+          const pos = safeSpawnPosition(SPAWN_SAFE_RADIUS, 400);
+          const radius = 15 + Math.random() * 50;
+          aiCells.push({
+            x: pos.x,
+            y: pos.y,
+            r: radius,
+            displayR: radius,
+            targetR: radius,
+            color: randomColor(),
+            name: names[Math.floor(Math.random() * names.length)],
+            vx: 0,
+            vy: 0,
+            alive: true,
+            wanderAngle: Math.random() * Math.PI * 2,
+          });
+        }
+      }
+
+      function updateAnimations() {
+        if (player.alive) {
+          const diff = player.targetR - player.displayR;
+          player.displayR += diff * 0.15;
+          if (Math.abs(diff) < 0.1) player.displayR = player.targetR;
+        }
+
+        for (let ai of aiCells) {
+          if (!ai.alive) continue;
+          const diff = ai.targetR - ai.displayR;
+          ai.displayR += diff * 0.15;
+          if (Math.abs(diff) < 0.1) ai.displayR = ai.targetR;
+        }
+
+        for (let i = absorbAnimations.length - 1; i >= 0; i--) {
+          const anim = absorbAnimations[i];
+          anim.r += (anim.maxR - anim.r) * 0.18;
+          anim.life -= 0.035;
+          if (anim.life <= 0) {
+            absorbAnimations.splice(i, 1);
+          }
+        }
+      }
+
+      function drawGrid() {
+        const gridSize = 120;
+        const viewW = canvas.width / cameraZoom;
+        const viewH = canvas.height / cameraZoom;
+        const startX = Math.floor(cameraX / gridSize) * gridSize;
+        const startY = Math.floor(cameraY / gridSize) * gridSize;
+
+        ctx.strokeStyle = "#1a1a1a";
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        for (let x = startX; x < cameraX + viewW + gridSize; x += gridSize) {
+          const sx = (x - cameraX) * cameraZoom;
+          ctx.moveTo(sx, 0);
+          ctx.lineTo(sx, canvas.height);
+        }
+        for (let y = startY; y < cameraY + viewH + gridSize; y += gridSize) {
+          const sy = (y - cameraY) * cameraZoom;
+          ctx.moveTo(0, sy);
+          ctx.lineTo(canvas.width, sy);
+        }
+        ctx.stroke();
+      }
+
+      function drawWorldBorder() {
+        ctx.strokeStyle = "#4a4a4a";
+        ctx.lineWidth = 6 * cameraZoom;
+        const sx = -cameraX * cameraZoom;
+        const sy = -cameraY * cameraZoom;
+        const sw = WORLD_SIZE * cameraZoom;
+        const sh = WORLD_SIZE * cameraZoom;
+        ctx.strokeRect(sx, sy, sw, sh);
+      }
+
+      function drawFoods() {
+        const viewW = canvas.width / cameraZoom;
+        const viewH = canvas.height / cameraZoom;
+
+        for (let food of foods) {
+          if (!food) continue;
+          const screenX = (food.x - cameraX) * cameraZoom;
+          const screenY = (food.y - cameraY) * cameraZoom;
+          const screenR = Math.max(1, food.r * cameraZoom);
+          if (screenX < -screenR || screenX > canvas.width + screenR ||
+              screenY < -screenR || screenY > canvas.height + screenR) continue;
+
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, screenR, 0, Math.PI * 2);
+          ctx.fillStyle = food.color;
+          ctx.fill();
+        }
+      }
+
+      function drawCircle(x, y, r, color, name, isPlayer = false) {
+        const screenX = (x - cameraX) * cameraZoom;
+        const screenY = (y - cameraY) * cameraZoom;
+        const screenR = r * cameraZoom;
+
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, screenR, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        ctx.strokeStyle = isPlayer ? "#ffffff" : "#00000044";
+        ctx.lineWidth = (isPlayer ? 3 : 1.5) * cameraZoom;
+        ctx.stroke();
+
+        if (screenR > 12) {
+          const fontSize = Math.max(9, Math.floor(screenR * 0.42));
+          ctx.font = `bold ${fontSize}px 'Segoe UI', Arial, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "#ffffffdd";
+          ctx.fillText(name, screenX, screenY - 2);
+        }
+      }
+
+      function drawAbsorbAnimations() {
+        for (let anim of absorbAnimations) {
+          const screenX = (anim.x - cameraX) * cameraZoom;
+          const screenY = (anim.y - cameraY) * cameraZoom;
+          const screenR = anim.r * cameraZoom;
+          const alpha = anim.life * 0.7;
+
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, screenR, 0, Math.PI * 2);
+          ctx.strokeStyle = anim.color;
+          ctx.globalAlpha = alpha;
+          ctx.lineWidth = 3 * cameraZoom;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, screenR * 0.7, 0, Math.PI * 2);
+          ctx.fillStyle = anim.color;
+          ctx.globalAlpha = alpha * 0.4;
+          ctx.fill();
+
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function drawKnives() {
+        for (let k of knives) {
+          const screenX = (k.x - cameraX) * cameraZoom;
+          const screenY = (k.y - cameraY) * cameraZoom;
+
+          ctx.save();
+          ctx.translate(screenX, screenY);
+          ctx.rotate(k.angle);
+
+          const size = 18 * cameraZoom;
+          ctx.beginPath();
+          ctx.moveTo(size * 0.7, 0);
+          ctx.lineTo(-size * 0.3, -size * 0.25);
+          ctx.lineTo(-size * 0.5, 0);
+          ctx.lineTo(-size * 0.3, size * 0.25);
+          ctx.closePath();
+          ctx.fillStyle = "#e0e0e0";
+          ctx.fill();
+          ctx.strokeStyle = "#999";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.rect(-size * 0.55, -size * 0.12, size * 0.25, size * 0.24);
+          ctx.fillStyle = "#8B4513";
+          ctx.fill();
+
+          ctx.restore();
+        }
+      }
+
+      function drawAI() {
+        const viewW = canvas.width / cameraZoom;
+        const viewH = canvas.height / cameraZoom;
+
+        for (let ai of aiCells) {
+          if (!ai.alive) continue;
+          if (ai.x + ai.displayR < cameraX || ai.x - ai.displayR > cameraX + viewW ||
+              ai.y + ai.displayR < cameraY || ai.y - ai.displayR > cameraY + viewH) continue;
+          drawCircle(ai.x, ai.y, ai.displayR, ai.color, ai.name, false);
+        }
+      }
+
+      function drawPlayer() {
+        if (!player.alive) return;
+
+        const screenX = (player.x - cameraX) * cameraZoom;
+        const screenY = (player.y - cameraY) * cameraZoom;
+        const screenR = player.displayR * cameraZoom;
+
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, screenR, 0, Math.PI * 2);
+        ctx.fillStyle = player.color;
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3 * cameraZoom;
+        ctx.stroke();
+
+        if (screenR > 12) {
+          const fontSize = Math.max(9, Math.floor(screenR * 0.42));
+          ctx.font = `bold ${fontSize}px 'Segoe UI', Arial, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "#ffffffdd";
+          ctx.fillText("YOU", screenX, screenY - 2);
+        }
+
+        if (player.hasKnife) {
+          ctx.save();
+          ctx.translate(screenX, screenY);
+          ctx.rotate(player.knifeAngle);
+
+          const size = screenR * 0.6;
+          const knifeX = screenR * 1.1;
+          ctx.translate(knifeX, 0);
+
+          ctx.beginPath();
+          ctx.moveTo(size * 0.6, 0);
+          ctx.lineTo(-size * 0.25, -size * 0.2);
+          ctx.lineTo(-size * 0.4, 0);
+          ctx.lineTo(-size * 0.25, size * 0.2);
+          ctx.closePath();
+          ctx.fillStyle = "#e0e0e0";
+          ctx.fill();
+          ctx.strokeStyle = "#999";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.rect(-size * 0.45, -size * 0.1, size * 0.2, size * 0.2);
+          ctx.fillStyle = "#8B4513";
+          ctx.fill();
+
+          ctx.restore();
+        }
+      }
+
+      function drawGameOver() {
+        if (!gameOver) return;
+        ctx.fillStyle = "#000000cc";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.font = "bold 52px 'Segoe UI', Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#ff6b6b";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 50);
+
+        ctx.font = "22px 'Segoe UI', Arial, sans-serif";
+        ctx.fillStyle = "#dddddd";
+        ctx.fillText("Click to restart", canvas.width / 2, canvas.height / 2 + 40);
+
+        const mass = Math.floor(massFromRadius(player.r));
+        ctx.font = "20px 'Segoe UI', Arial, sans-serif";
+        ctx.fillStyle = "#3ecf8e";
+        ctx.fillText(`Final mass: ${mass}`, canvas.width / 2, canvas.height / 2 + 90);
+      }
+
+      function drawMinimap() {
+        const mw = minimapCanvas.width;
+        const mh = minimapCanvas.height;
+        const scaleX = mw / WORLD_SIZE;
+        const scaleY = mh / WORLD_SIZE;
+
+        minimapCtx.clearRect(0, 0, mw, mh);
+        minimapCtx.fillStyle = "#111111";
+        minimapCtx.fillRect(0, 0, mw, mh);
+
+        for (let ai of aiCells) {
+          if (!ai.alive) continue;
+          const r = Math.max(1.5, ai.r * scaleX * 1.5);
+          minimapCtx.beginPath();
+          minimapCtx.arc(ai.x * scaleX, ai.y * scaleY, r, 0, Math.PI * 2);
+          minimapCtx.fillStyle = ai.color;
+          minimapCtx.fill();
+        }
+
+        if (player.alive) {
+          minimapCtx.beginPath();
+          minimapCtx.arc(player.x * scaleX, player.y * scaleY, Math.max(2.5, player.r * scaleX * 2), 0, Math.PI * 2);
+          minimapCtx.fillStyle = "#3ecf8e";
+          minimapCtx.fill();
+          minimapCtx.strokeStyle = "#ffffff";
+          minimapCtx.lineWidth = 1.5;
+          minimapCtx.stroke();
+        }
+
+        const viewW = (canvas.width / cameraZoom) * scaleX;
+        const viewH = (canvas.height / cameraZoom) * scaleY;
+        minimapCtx.strokeStyle = "#ffffff66";
+        minimapCtx.lineWidth = 1;
+        minimapCtx.strokeRect(cameraX * scaleX, cameraY * scaleY, viewW, viewH);
+      }
+
+      function updateLeaderboard() {
+        const entries = [];
+
+        if (player.alive) {
+          entries.push({
+            name: "YOU",
+            mass: Math.floor(massFromRadius(player.r)),
+            isPlayer: true,
+          });
+        }
+
+        for (let ai of aiCells) {
+          if (!ai.alive) continue;
+          entries.push({
+            name: ai.name,
+            mass: Math.floor(massFromRadius(ai.r)),
+            isPlayer: false,
+          });
+        }
+
+        entries.sort((a, b) => b.mass - a.mass);
+
+        const top = entries.slice(0, 8);
+        let html = "";
+        for (let i = 0; i < top.length; i++) {
+          const e = top[i];
+          const cls = e.isPlayer ? ' class="you"' : '';
+          html += `<li${cls}>${e.name} <span style="float:right;color:#999">${e.mass}</span></li>`;
+        }
+        leaderboardList.innerHTML = html;
+      }
+
+      function updateDisplays() {
+        if (player.alive) {
+          const mass = Math.floor(massFromRadius(player.r));
+          massDisplay.textContent = `Mass: ${mass}`;
+        } else {
+          massDisplay.textContent = `Mass: 0`;
+        }
+      }
+
+      function update() {
+        if (!gameOver) {
+          updateMouseWorld();
+          movePlayer();
+          moveAI();
+          updateKnives();
+          handleEating();
+          updateAnimations();
+        }
+        updateCamera();
+        updateLeaderboard();
+        updateDisplays();
+      }
+
+      function draw() {
+        ctx.fillStyle = "#0d0d0d";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        drawGrid();
+        drawWorldBorder();
+        drawFoods();
+        drawAbsorbAnimations();
+        drawKnives();
+        drawAI();
+        drawPlayer();
+        drawGameOver();
+        drawMinimap();
+      }
+
+      function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+      }
+
+      canvas.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        mouseX = (e.clientX - rect.left) * scaleX;
+        mouseY = (e.clientY - rect.top) * scaleY;
+      });
+
+      canvas.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        mouseX = (touch.clientX - rect.left) * scaleX;
+        mouseY = (touch.clientY - rect.top) * scaleY;
+      }, { passive: false });
+
+      canvas.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        mouseX = (touch.clientX - rect.left) * scaleX;
+        mouseY = (touch.clientY - rect.top) * scaleY;
+        if (gameOver) {
+          resetGame();
+        } else if (player.hasKnife && knifeCooldown <= 0) {
+          throwKnife();
+        }
+      }, { passive: false });
+
+      canvas.addEventListener("mousedown", (e) => {
+        if (e.button === 0) {
+          if (gameOver) {
+            resetGame();
+          } else if (player.hasKnife && knifeCooldown <= 0) {
+            throwKnife();
+          }
+        }
+      });
+
+      resetGame();
+      gameLoop();
+
+      window.resetGame = resetGame;
+    })();
+  </script>
+
+</body>
+</html>
