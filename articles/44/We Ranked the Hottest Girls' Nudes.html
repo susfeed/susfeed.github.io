@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nudes</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+  <style>
+    body.no-scroll {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
+
+    .article-content.blurred {
+      filter: blur(10px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .popup-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      pointer-events: none;
+    }
+
+    .popup-layer > * {
+      pointer-events: auto;
+    }
+
+    .popup-card {
+      position: fixed;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.6);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      animation: popIn 0.2s ease;
+      overflow: hidden;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.94); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .popup-card.pos-center {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .popup-card.pos-left {
+      top: 50%;
+      left: 30px;
+      transform: translateY(-50%);
+    }
+
+    .popup-card.pos-right {
+      top: 50%;
+      right: 30px;
+      transform: translateY(-50%);
+    }
+
+    .popup-card.pos-left-top {
+      top: 90px;
+      left: 30px;
+    }
+
+    .popup-card.pos-right-top {
+      top: 90px;
+      right: 30px;
+    }
+
+    .popup-card.pos-left-bottom {
+      bottom: 90px;
+      left: 30px;
+    }
+
+    .popup-card.pos-right-bottom {
+      bottom: 90px;
+      right: 30px;
+    }
+
+    .popup-card.pos-top {
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .popup-card.pos-bottom {
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .popup-card.style-cookie {
+      max-width: 520px;
+      width: 92%;
+      border-top: 8px solid #ba1a1a;
+    }
+
+    .popup-card.style-cookie .inner {
+      padding: 32px 30px 26px;
+    }
+
+    .popup-card.style-cookie h2 {
+      color: #ba1a1a;
+      font-size: 26px;
+      margin: 0 0 10px;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .popup-card.style-cookie p {
+      font-size: 15px;
+      color: #333;
+      line-height: 1.6;
+      margin: 0 0 16px;
+      text-align: center;
+    }
+
+    .popup-card.style-cookie .guilt {
+      font-size: 14px;
+      color: #7a0000;
+      background: #ffecec;
+      border: 1px solid #f3b3b3;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 16px 0;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .popup-card.style-cookie .guilt strong {
+      color: #ba1a1a;
+    }
+
+    .popup-card.style-cookie .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .popup-card.style-cookie .btn-row button {
+      flex: 1 1 160px;
+      padding: 14px 18px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      min-width: 130px;
+    }
+
+    .popup-card.style-cookie .btn-primary {
+      background: #ba1a1a;
+      color: #fff;
+    }
+    .popup-card.style-cookie .btn-primary:hover {
+      background: #9e1414;
+    }
+
+    .popup-card.style-cookie .btn-secondary {
+      background: #eee;
+      color: #333;
+    }
+    .popup-card.style-cookie .btn-secondary:hover {
+      background: #ddd;
+    }
+
+    .popup-card.style-newsletter {
+      max-width: 460px;
+      width: 92%;
+      background: #1a1a1a;
+      color: #fff;
+      border: 2px solid #ba1a1a;
+      border-radius: 0;
+    }
+
+    .popup-card.style-newsletter .header-bar {
+      background: #ba1a1a;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .popup-card.style-newsletter .content {
+      padding: 26px 24px 22px;
+    }
+
+    .popup-card.style-newsletter h2 {
+      color: #fff;
+      font-size: 22px;
+      margin: 0 0 10px;
+      font-weight: 700;
+    }
+
+    .popup-card.style-newsletter p {
+      font-size: 14px;
+      color: #ccc;
+      line-height: 1.6;
+      margin: 0 0 14px;
+    }
+
+    .popup-card.style-newsletter .guilt {
+      font-size: 13px;
+      color: #ff9999;
+      background: #2a0000;
+      border-left: 4px solid #ba1a1a;
+      padding: 10px 14px;
+      margin: 14px 0;
+      font-style: italic;
+    }
+
+    .popup-card.style-newsletter .guilt strong {
+      color: #ff6666;
+    }
+
+    .popup-card.style-newsletter .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .popup-card.style-newsletter .field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .popup-card.style-newsletter .field input {
+      padding: 11px 13px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      font-size: 14px;
+      background: #2a2a2a;
+      color: #fff;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .popup-card.style-newsletter .field input:focus {
+      outline: none;
+      border-color: #ba1a1a;
+    }
+
+    .popup-card.style-newsletter .field input.error {
+      border-color: #ba1a1a;
+      background: #3a1a1a;
+    }
+
+    .popup-card.style-newsletter .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .popup-card.style-newsletter .btn-row button {
+      flex: 1 1 120px;
+      padding: 12px 14px;
+      font-size: 13px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .popup-card.style-newsletter .btn-primary {
+      background: #ba1a1a;
+      color: #fff;
+    }
+    .popup-card.style-newsletter .btn-primary:hover {
+      background: #d62828;
+    }
+
+    .popup-card.style-newsletter .btn-ghost {
+      background: transparent;
+      color: #888;
+      border: 1px solid #444;
+    }
+    .popup-card.style-newsletter .btn-ghost:hover {
+      background: #2a2a2a;
+      color: #ccc;
+    }
+
+    .popup-card.style-account {
+      max-width: 500px;
+      width: 92%;
+      border-radius: 12px;
+      border: 3px solid #ba1a1a;
+    }
+
+    .popup-card.style-account .inner {
+      padding: 30px 28px 24px;
+    }
+
+    .popup-card.style-account .badge {
+      display: inline-block;
+      background: #ba1a1a;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 3px;
+      margin-bottom: 12px;
+    }
+
+    .popup-card.style-account h2 {
+      color: #111;
+      font-size: 24px;
+      margin: 0 0 10px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .popup-card.style-account p {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+      margin: 0 0 14px;
+    }
+
+    .popup-card.style-account .guilt {
+      font-size: 13px;
+      color: #666;
+      background: #f5f5f5;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 14px 0;
+      border-left: 4px solid #ba1a1a;
+    }
+
+    .popup-card.style-account .guilt strong {
+      color: #ba1a1a;
+    }
+
+    .popup-card.style-account .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .popup-card.style-account .field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .popup-card.style-account .field input {
+      padding: 11px 13px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .popup-card.style-account .field input:focus {
+      outline: none;
+      border-color: #ba1a1a;
+    }
+
+    .popup-card.style-account .field input.error {
+      border-color: #ba1a1a;
+      background: #fff7f7;
+    }
+
+    .popup-card.style-account .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .popup-card.style-account .btn-row button {
+      flex: 1 1 140px;
+      padding: 13px 16px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      min-width: 120px;
+    }
+
+    .popup-card.style-account .btn-primary {
+      background: #ba1a1a;
+      color: #fff;
+    }
+    .popup-card.style-account .btn-primary:hover {
+      background: #9e1414;
+    }
+
+    .popup-card.style-account .btn-outline {
+      background: #fff;
+      color: #ba1a1a;
+      border: 2px solid #ba1a1a;
+    }
+    .popup-card.style-account .btn-outline:hover {
+      background: #ffecec;
+    }
+
+    .popup-card.style-email {
+      max-width: 440px;
+      width: 92%;
+      border-radius: 0;
+      border: 1px solid #ddd;
+    }
+
+    .popup-card.style-email .top-strip {
+      background: #f5f5f5;
+      border-bottom: 1px solid #ddd;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+      font-weight: 600;
+    }
+
+    .popup-card.style-email .top-strip .close-x {
+      cursor: pointer;
+      font-size: 20px;
+      color: #999;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    .popup-card.style-email .top-strip .close-x:hover {
+      color: #333;
+    }
+
+    .popup-card.style-email .content {
+      padding: 26px 26px 22px;
+    }
+
+    .popup-card.style-email h2 {
+      color: #111;
+      font-size: 22px;
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    .popup-card.style-email p {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+      margin: 0 0 12px;
+    }
+
+    .popup-card.style-email .guilt {
+      font-size: 12px;
+      color: #888;
+      background: #fafafa;
+      border: 1px dashed #ddd;
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+
+    .popup-card.style-email .guilt strong {
+      color: #ba1a1a;
+    }
+
+    .popup-card.style-email .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .popup-card.style-email .field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .popup-card.style-email .field input {
+      padding: 11px 13px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .popup-card.style-email .field input:focus {
+      outline: none;
+      border-color: #ba1a1a;
+    }
+
+    .popup-card.style-email .field input.error {
+      border-color: #ba1a1a;
+      background: #fff7f7;
+    }
+
+    .popup-card.style-email .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .popup-card.style-email .btn-row button {
+      padding: 12px 20px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .popup-card.style-email .btn-primary {
+      background: #ba1a1a;
+      color: #fff;
+      flex: 1;
+    }
+    .popup-card.style-email .btn-primary:hover {
+      background: #9e1414;
+    }
+
+    .popup-card.style-email .btn-text {
+      background: transparent;
+      color: #888;
+      text-decoration: underline;
+      padding: 12px 8px;
+    }
+    .popup-card.style-email .btn-text:hover {
+      color: #333;
+    }
+
+    .popup-card.style-premium {
+      max-width: 480px;
+      width: 92%;
+      background: #1a1a1a;
+      color: #fff;
+      border: 2px solid #ba1a1a;
+      border-radius: 0;
+    }
+
+    .popup-card.style-premium .header-bar {
+      background: #ba1a1a;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .popup-card.style-premium .content {
+      padding: 26px 24px 22px;
+    }
+
+    .popup-card.style-premium h2 {
+      color: #fff;
+      font-size: 22px;
+      margin: 0 0 10px;
+      font-weight: 700;
+    }
+
+    .popup-card.style-premium p {
+      font-size: 14px;
+      color: #ccc;
+      line-height: 1.6;
+      margin: 0 0 14px;
+    }
+
+    .popup-card.style-premium .guilt {
+      font-size: 13px;
+      color: #ff9999;
+      background: #2a0000;
+      border-left: 4px solid #ba1a1a;
+      padding: 10px 14px;
+      margin: 14px 0;
+      font-style: italic;
+    }
+
+    .popup-card.style-premium .guilt strong {
+      color: #ff6666;
+    }
+
+    .popup-card.style-premium .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .popup-card.style-premium .field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .popup-card.style-premium .field input {
+      padding: 11px 13px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      font-size: 14px;
+      background: #2a2a2a;
+      color: #fff;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .popup-card.style-premium .field input:focus {
+      outline: none;
+      border-color: #ba1a1a;
+    }
+
+    .popup-card.style-premium .field input.error {
+      border-color: #ba1a1a;
+      background: #3a1a1a;
+    }
+
+    .popup-card.style-premium .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .popup-card.style-premium .btn-row button {
+      flex: 1 1 120px;
+      padding: 12px 14px;
+      font-size: 13px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .popup-card.style-premium .btn-primary {
+      background: #ba1a1a;
+      color: #fff;
+    }
+    .popup-card.style-premium .btn-primary:hover {
+      background: #d62828;
+    }
+
+    .popup-card.style-premium .btn-ghost {
+      background: transparent;
+      color: #888;
+      border: 1px solid #444;
+    }
+    .popup-card.style-premium .btn-ghost:hover {
+      background: #2a2a2a;
+      color: #ccc;
+    }
+
+    .popup-card .tiny-note {
+      font-size: 11px;
+      color: #999;
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+
+    .popup-card .tiny-note a {
+      color: #ba1a1a;
+      text-decoration: underline;
+    }
+
+    .popup-card .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #eee;
+      border-radius: 4px;
+      margin: 12px 0 6px;
+      overflow: hidden;
+    }
+
+    .popup-card .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #ba1a1a;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .toast-stack {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10020;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 360px;
+    }
+
+    .toast {
+      background: #fff;
+      border-left: 5px solid #ba1a1a;
+      border-radius: 6px;
+      padding: 16px 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      font-size: 14px;
+      color: #333;
+      animation: slideUp 0.3s ease;
+    }
+
+    .toast strong {
+      color: #ba1a1a;
+    }
+
+    @keyframes slideUp {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .sticky-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ba1a1a;
+      color: white;
+      text-align: center;
+      padding: 16px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      z-index: 9998;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .sticky-banner button {
+      background: white;
+      color: #ba1a1a;
+      border: none;
+      padding: 9px 22px;
+      border-radius: 30px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .sticky-banner button:hover {
+      background: #ffe5e5;
+    }
+
+    .sticky-banner .dismiss {
+      background: transparent;
+      color: #ffcccc;
+      border: 1px solid #ffcccc;
+    }
+    .sticky-banner .dismiss:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    @media (max-width: 900px) {
+      .popup-card.pos-left,
+      .popup-card.pos-right,
+      .popup-card.pos-left-top,
+      .popup-card.pos-right-top,
+      .popup-card.pos-left-bottom,
+      .popup-card.pos-right-bottom {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: 92%;
+        max-width: 480px;
+      }
+      .popup-card.pos-left-top { top: 90px; bottom: auto; }
+      .popup-card.pos-right-top { top: 90px; bottom: auto; }
+      .popup-card.pos-left-bottom { bottom: 90px; top: auto; }
+      .popup-card.pos-right-bottom { bottom: 90px; top: auto; }
+    }
+
+    @media (max-width: 600px) {
+      .popup-card {
+        width: 94%;
+      }
+      .popup-card.style-cookie .inner,
+      .popup-card.style-newsletter .content,
+      .popup-card.style-account .inner,
+      .popup-card.style-email .content,
+      .popup-card.style-premium .content {
+        padding: 22px 18px;
+      }
+      .popup-card.style-cookie h2 { font-size: 22px; }
+      .popup-card.style-account h2 { font-size: 22px; }
+      .popup-card.style-email h2 { font-size: 20px; }
+      .popup-card.style-premium h2 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content" id="articleContent">
+      <h1 class="article-main-title"><u>We Ranked the Hottest Girls' Nudes</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/10/13 9:49 PM CET</i></p>
+
+      <p class="intro">You want titties? We will show you only the best!</p>
+
+      <h2 class="title">100. Jane Hotgirl</h2>
+      <img src="0.jpg" alt="pic" class="image" />
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <div id="popupRoot"></div>
+
+  <div class="sticky-banner hidden" id="stickyBanner">
+    <span>Our staff haven't eaten since yesterday. A single click helps us buy some Chef Boyardee Beefaroni.</span>
+    <button id="stickySupport">Support now</button>
+    <button class="dismiss" id="stickyDismiss">No thanks</button>
+  </div>
+
+  <script src="../../contentheader.js"></script>
+  <script>
+    (function() {
+      const article = document.getElementById('articleContent');
+      const popupRoot = document.getElementById('popupRoot');
+      const toastStack = document.getElementById('toastStack');
+      const stickyBanner = document.getElementById('stickyBanner');
+
+      let popupCycle = 0;
+      const popupDefs = [];
+      let activePopups = [];
+
+      function lockScroll() {
+        document.body.classList.add('no-scroll');
+        article.classList.add('blurred');
+      }
+
+      function showToast(html) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = html;
+        toastStack.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.4s';
+          setTimeout(() => toast.remove(), 500);
+        }, 7000);
+      }
+
+      function validateEmail(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      }
+
+      function validatePassword(value) {
+        return value.length >= 6;
+      }
+
+      function validateUsername(value) {
+        return value.length >= 3;
+      }
+
+      function checkAllActive() {
+        if (activePopups.length === 0) {
+          document.body.classList.remove('no-scroll');
+          article.classList.remove('blurred');
+        }
+      }
+
+      function removePopup(modal) {
+        modal.remove();
+        activePopups = activePopups.filter(m => m !== modal);
+        checkAllActive();
+      }
+
+      function spawnPopup(def) {
+        const modal = document.createElement('div');
+        modal.className = 'popup-card ' + def.className + ' ' + def.position;
+        modal.style.zIndex = 10000 + activePopups.length;
+        modal.innerHTML = def.html;
+
+        popupRoot.appendChild(modal);
+        activePopups.push(modal);
+
+        lockScroll();
+
+        def.buttons.forEach(btn => {
+          const el = modal.querySelector(btn.selector);
+          if (el) {
+            el.addEventListener('click', (e) => {
+              e.preventDefault();
+
+              if (btn.validate) {
+                const input = modal.querySelector(btn.validate.selector);
+                if (input) {
+                  const val = input.value.trim();
+                  let valid = true;
+                  if (btn.validate.type === 'email') valid = validateEmail(val);
+                  if (btn.validate.type === 'password') valid = validatePassword(val);
+                  if (btn.validate.type === 'username') valid = validateUsername(val);
+                  if (!valid) {
+                    input.classList.add('error');
+                    showToast('Please enter a valid ' + btn.validate.type + '.');
+                    return;
+                  }
+                  input.classList.remove('error');
+                }
+              }
+
+              if (btn.action === 'close') {
+                removePopup(modal);
+              } else if (btn.action === 'toast') {
+                showToast(btn.message);
+                if (btn.after === 'close') removePopup(modal);
+                if (btn.after === 'cycle') {
+                  removePopup(modal);
+                  popupCycle++;
+                  if (popupCycle < popupDefs.length) {
+                    popupDefs[popupCycle]();
+                  } else {
+                    popupCycle = 0;
+                    popupDefs[0]();
+                    setTimeout(() => { if (popupCycle === 0) popupDefs[1](); }, 300);
+                    setTimeout(() => { if (popupCycle === 0) popupDefs[2](); }, 700);
+                  }
+                }
+              } else if (btn.action === 'cycle') {
+                removePopup(modal);
+                popupCycle++;
+                if (popupCycle < popupDefs.length) {
+                  popupDefs[popupCycle]();
+                } else {
+                  popupCycle = 0;
+                  popupDefs[0]();
+                  setTimeout(() => { if (popupCycle === 0) popupDefs[1](); }, 300);
+                  setTimeout(() => { if (popupCycle === 0) popupDefs[2](); }, 700);
+                }
+              }
+            });
+          }
+        });
+
+        return modal;
+      }
+
+      popupDefs.push(() => {
+        spawnPopup({
+          className: 'style-cookie',
+          position: 'pos-center',
+          html: `
+            <div class="inner">
+              <h2>We Value Your Privacy</h2>
+              <p>We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking "Accept All", you consent to our use of cookies.</p>
+              <div class="guilt">Our staff works hard to bring you quality content. Supporting us helps keep the <strong>Chef Boyardee Beefaroni</strong> stocked in the break room.</div>
+              <div class="btn-row">
+                <button class="btn-primary" id="cookieAccept">Accept All</button>
+                <button class="btn-secondary" id="cookieEssential">Essential Only</button>
+              </div>
+              <p class="tiny-note">Read our <a href="#">Cookie Policy</a> and <a href="#">Privacy Policy</a>.</p>
+            </div>
+          `,
+          buttons: [
+            { selector: '#cookieAccept', action: 'cycle' },
+            { selector: '#cookieEssential', action: 'toast', message: 'You selected essential cookies only. Some staff members are now sharing a single can of <strong>Chef Boyardee Beefaroni</strong>.', after: 'cycle' }
+          ]
+        });
+      });
+
+      popupDefs.push(() => {
+        spawnPopup({
+          className: 'style-newsletter',
+          position: 'pos-left',
+          html: `
+            <div class="header-bar">Newsletter Signup</div>
+            <div class="content">
+              <h2>Get the best articles in your inbox</h2>
+              <p>Join over 50,000 readers who receive our weekly digest of top stories, susarticles, and exclusive content.</p>
+              <div class="guilt">Every new subscriber helps us buy <strong>Chef Boyardee Beefaroni</strong> for the editorial team. They are very hungry.</div>
+              <div class="field">
+                <label>Email Address</label>
+                <input type="email" placeholder="you@example.com" id="nlEmail" />
+              </div>
+              <div class="btn-row">
+                <button class="btn-primary" id="nlSubmit">Subscribe</button>
+                <button class="btn-ghost" id="nlSkip">Skip</button>
+              </div>
+            </div>
+          `,
+          buttons: [
+            { selector: '#nlSubmit', action: 'toast', message: 'Thank you for subscribing. A writer just got a single spoonful of <strong>Chef Boyardee Beefaroni</strong> thanks to you.', after: 'cycle', validate: { selector: '#nlEmail', type: 'email' } },
+            { selector: '#nlSkip', action: 'toast', message: 'You skipped the newsletter. A writer just stared at an empty can of <strong>Chef Boyardee Beefaroni</strong> can.', after: 'cycle' }
+          ]
+        });
+      });
+
+      popupDefs.push(() => {
+        spawnPopup({
+          className: 'style-account',
+          position: 'pos-right',
+          html: `
+            <div class="inner">
+              <div class="badge">Account Required</div>
+              <h2>Create your free account</h2>
+              <p>Sign up to read the full article, leave comments, and save your favorite stories. It only takes a moment.</p>
+              <div class="guilt">Registration is free and helps support our staff. They rely on <strong>Chef Boyardee Beefaroni</strong> to get through the day.</div>
+              <div class="field">
+                <label>Username</label>
+                <input type="text" placeholder="Choose a username" id="acctUser" />
+              </div>
+              <div class="field">
+                <label>Email Address</label>
+                <input type="email" placeholder="you@example.com" id="acctEmail" />
+              </div>
+              <div class="field">
+                <label>Password</label>
+                <input type="password" placeholder="Create a password" id="acctPass" />
+              </div>
+              <div class="btn-row">
+                <button class="btn-primary" id="acctCreate">Create Account</button>
+                <button class="btn-outline" id="acctLater">Maybe Later</button>
+              </div>
+            </div>
+          `,
+          buttons: [
+            { selector: '#acctCreate', action: 'toast', message: 'Account created. The staff is grateful. They can now afford <strong>Chef Boyardee Beefaroni</strong> for one more day.', after: 'cycle', validate: { selector: '#acctEmail', type: 'email' } },
+            { selector: '#acctLater', action: 'toast', message: 'You postponed account creation. The staff will have to split one can of <strong>Chef Boyardee Beefaroni</strong> three ways.', after: 'cycle' }
+          ]
+        });
+      });
+
+      popupDefs.push(() => {
+        spawnPopup({
+          className: 'style-email',
+          position: 'pos-left-top',
+          html: `
+            <div class="top-strip">
+              <span>Almost there</span>
+              <span class="close-x" id="emailClose">&times;</span>
+            </div>
+            <div class="content">
+              <h2>Enter your email to continue</h2>
+              <p>We need your email address to send you the article link and occasional updates. We will never share your information.</p>
+              <div class="guilt">Each email address helps us afford another can of <strong>Chef Boyardee Beefaroni</strong> for the break room. The staff thanks you.</div>
+              <div class="field">
+                <label>Email Address</label>
+                <input type="email" placeholder="your@email.com" id="finalEmail" />
+              </div>
+              <div class="btn-row">
+                <button class="btn-primary" id="finalSubmit">Submit and Continue</button>
+                <button class="btn-text" id="finalNo">No thanks</button>
+              </div>
+            </div>
+          `,
+          buttons: [
+            { selector: '#finalSubmit', action: 'toast', message: 'Email received. The staff thanks you for the <strong>Chef Boyardee Beefaroni</strong> funds.', after: 'cycle', validate: { selector: '#finalEmail', type: 'email' } },
+            { selector: '#finalNo', action: 'toast', message: 'You declined. The staff will remember this when their <strong>Chef Boyardee Beefaroni</strong> runs out.', after: 'cycle' },
+            { selector: '#emailClose', action: 'toast', message: 'The close button does not work. Please enter your email. The staff needs <strong>Chef Boyardee Beefaroni</strong>.', after: 'none' }
+          ]
+        });
+      });
+
+      popupDefs.push(() => {
+        spawnPopup({
+          className: 'style-premium',
+          position: 'pos-right-top',
+          html: `
+            <div class="header-bar">Premium Membership</div>
+            <div class="content">
+              <h2>Unlock the full experience</h2>
+              <p>Premium members get ad free reading, exclusive articles, and early access to new content. Cancel anytime.</p>
+              <div class="guilt">Premium subscriptions directly fund <strong>Chef Boyardee Beefaroni</strong> for our writers. They have not eaten solid food in days.</div>
+              <div class="field">
+                <label>Email Address</label>
+                <input type="email" placeholder="you@example.com" id="premEmail" />
+              </div>
+              <div class="btn-row">
+                <button class="btn-primary" id="premGo">Start Premium</button>
+                <button class="btn-ghost" id="premLater">Not right now</button>
+              </div>
+            </div>
+          `,
+          buttons: [
+            { selector: '#premGo', action: 'toast', message: 'Thank you for going premium. The staff can finally afford a full Costco-sized case of <strong>Chef Boyardee Beefaroni</strong>.', after: 'cycle', validate: { selector: '#premEmail', type: 'email' } },
+            { selector: '#premLater', action: 'toast', message: 'You declined premium. A staff member just put a single <strong>Chef Boyardee Beefaroni</strong> can back on the shelf.', after: 'cycle' }
+          ]
+        });
+      });
+
+      function startCycle() {
+        popupCycle = 0;
+        if (popupDefs.length > 0) {
+          popupDefs[0]();
+          setTimeout(() => { if (popupCycle === 0) popupDefs[1](); }, 400);
+          setTimeout(() => { if (popupCycle === 0) popupDefs[2](); }, 800);
+          setTimeout(() => { if (popupCycle === 0) popupDefs[3](); }, 1200);
+          setTimeout(() => { if (popupCycle === 0) popupDefs[4](); }, 1600);
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(startCycle, 400);
+      });
+
+      stickyBanner.querySelector('#stickySupport').addEventListener('click', () => {
+        showToast('You clicked support. A single <strong>Chef Boyardee Beefaroni</strong> can worth of funds has been donated. The staff thanks you.');
+        stickyBanner.classList.add('hidden');
+      });
+
+      stickyBanner.querySelector('#stickyDismiss').addEventListener('click', () => {
+        showToast('You dismissed the banner. The staff is now starving without <strong>Chef Boyardee Beefaroni</strong>.');
+        stickyBanner.classList.add('hidden');
+      });
+
+    })();
+  </script>
+</body>
+</html>
