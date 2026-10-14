@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <a href="#">About ▾</a>
                         <ul class="dropdown-menu">
                             <li><a href="about.html">About</a></li>
+                            <li><a href="corporate/coke.html">Coke on Ice Conversation</a></li>
                             <li><a href="corporate/index.html">Corporate</a></li>
                         </ul>
                     </li>

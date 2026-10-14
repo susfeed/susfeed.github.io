@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coke on Ice Conversation</title>
+<link rel="shortcut icon" href="../img/amogus.webp" type="image/x-icon" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;400;600;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #080808;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  #rainCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .lightning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    background: rgba(200, 20, 20, 0.08);
+    opacity: 0;
+    animation: flash 8s infinite;
+  }
+
+  @keyframes flash {
+    0%, 91%, 93%, 95%, 100% { opacity: 0; }
+    92% { opacity: 1; }
+    94% { opacity: 0.3; }
+    96% { opacity: 0.6; }
+  }
+
+  .vignette {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.95) 100%);
+  }
+
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 820px;
+    width: 100%;
+    background: rgba(12, 12, 12, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(200, 20, 20, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 
+      0 0 60px rgba(0, 0, 0, 0.9),
+      0 0 120px rgba(150, 10, 10, 0.15),
+      inset 0 0 80px rgba(0, 0, 0, 0.7);
+    animation: containerGlow 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes containerGlow {
+    0% { box-shadow: 0 0 60px rgba(0,0,0,0.9), 0 0 120px rgba(150,10,10,0.15), inset 0 0 80px rgba(0,0,0,0.7); }
+    100% { box-shadow: 0 0 80px rgba(0,0,0,0.95), 0 0 160px rgba(200,20,20,0.25), inset 0 0 100px rgba(0,0,0,0.8); }
+  }
+
+  .banner {
+    width: 100%;
+    display: block;
+    border-bottom: 2px solid rgba(220, 20, 20, 0.4);
+    filter: brightness(0.8) contrast(1.2) sepia(0.2) hue-rotate(-10deg);
+    transition: filter 0.5s;
+  }
+
+  .banner:hover {
+    filter: brightness(1) contrast(1.2) sepia(0.1) hue-rotate(-10deg);
+  }
+
+  .nav {
+    padding: 16px 30px;
+    border-bottom: 1px solid rgba(200, 20, 20, 0.15);
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav a {
+    color: #a0a0a0;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color 0.3s, text-shadow 0.3s;
+    position: relative;
+  }
+
+  .nav a::before {
+    content: '← ';
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    display: inline-block;
+    transform: translateX(-5px);
+    color: #e02020;
+  }
+
+  .nav a:hover {
+    color: #fff;
+    text-shadow: 0 0 20px rgba(220, 40, 40, 0.6);
+  }
+
+  .nav a:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .content {
+    position: relative;
+    padding: 30px 50px 50px;
+    min-height: 450px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #666;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+
+  .conversation {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .line {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .line.visible {
+    opacity: 1;
+  }
+
+  .speaker {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .speaker.pat {
+    color: #e02020;
+    text-shadow: 0 0 20px rgba(224, 32, 32, 0.4);
+  }
+
+  .speaker.doug {
+    color: #888;
+    text-shadow: 0 0 20px rgba(150, 150, 150, 0.2);
+  }
+
+  .dialogue {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #b0b0b0;
+    font-weight: 300;
+    padding-left: 16px;
+    border-left: 2px solid rgba(200, 20, 20, 0.15);
+    transition: border-color 0.3s, color 0.3s;
+    min-height: 1.6em;
+  }
+
+  .line:hover .dialogue {
+    border-left-color: rgba(220, 40, 40, 0.5);
+    color: #e0e0e0;
+  }
+
+  .stage-direction {
+    color: #555;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+
+  .final {
+    margin-top: 10px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(200, 20, 20, 0.15);
+  }
+
+  .final .dialogue {
+    color: #e0e0e0;
+    font-weight: 400;
+    border-left-color: rgba(220, 40, 40, 0.6);
+  }
+
+  .final .speaker {
+    color: #e02020;
+    text-shadow: 0 0 30px rgba(224, 32, 32, 0.6);
+  }
+
+  .thunder {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+    background: rgba(255, 255, 255, 0.02);
+    opacity: 0;
+    animation: thunderFlash 12s infinite;
+  }
+
+  @keyframes thunderFlash {
+    0%, 94%, 96%, 100% { opacity: 0; }
+    95% { opacity: 0.1; }
+  }
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(8, 8, 8, 0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+
+  .overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .overlay-btn {
+    background: #cc0000;
+    color: #fff;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 40px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 30px rgba(200, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .overlay-btn:hover {
+    background: #ff1a1a;
+    box-shadow: 0 0 50px rgba(255, 20, 20, 0.9);
+    transform: scale(1.05);
+  }
+
+  .overlay-btn:active {
+    transform: scale(0.98);
+  }
+
+  .overlay-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background: #e02020;
+    vertical-align: text-bottom;
+    animation: blink 0.7s infinite;
+    margin-left: 2px;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+  <canvas id="rainCanvas"></canvas>
+  <div class="lightning"></div>
+  <div class="thunder"></div>
+  <div class="vignette"></div>
+
+  <div class="container">
+    <img src="coke-on-ice-item.png" alt="Coke on Ice" class="banner" onerror="this.style.display='none'; this.nextElementSibling.insertAdjacentHTML('afterbegin', '<div style=\'padding: 30px; text-align: center; border-bottom: 2px solid rgba(220,20,20,0.4); background: #111;\'><span style=\'font-family: Playfair Display, serif; font-size: 2.5rem; color: #f0f0f0; font-style: italic; text-shadow: 0 0 40px rgba(220,40,40,0.3);\'>Coke on Ice</span></div>');">
+
+    <nav class="nav">
+      <a href="../index.html">Back to Home</a>
+    </nav>
+
+    <div class="content">
+      <p class="subtitle">A Dramatic Retelling</p>
+
+      <div class="conversation" id="conversation">
+        <div class="line" data-text="Doug, would you like a nice cold coke? Doug, a coke on ice?">
+          <span class="speaker pat">Pat</span>
+          <span class="dialogue"></span>
+        </div>
+
+        <div class="line" data-text="Thanks, but you know I'd rather have water if you have it.">
+          <span class="speaker doug">Doug</span>
+          <span class="dialogue"></span>
+        </div>
+
+        <div class="line" data-text="Coke, Doug? Want a nice cold coke, Doug? A coke on ice?">
+          <span class="speaker pat">Pat</span>
+          <span class="dialogue"></span>
+        </div>
+
+        <div class="line" data-text="(I smiled and said) No thanks, but I'd love a cold glass of water.">
+          <span class="speaker doug">Doug</span>
+          <span class="dialogue"></span>
+        </div>
+
+        <div class="line" data-text="No coke, Doug?">
+          <span class="speaker pat">Pat</span>
+          <span class="dialogue"></span>
+        </div>
+
+        <div class="line" data-text="No thanks, but I'd love water.">
+          <span class="speaker doug">Doug</span>
+          <span class="dialogue"></span>
+        </div>
+
+        <div class="line final" data-text="Water it is, Doug.">
+          <span class="speaker pat">Pat</span>
+          <span class="dialogue"></span>
+        </div>
+      </div>
+
+      <div class="overlay" id="overlay">
+        <button class="overlay-btn" id="startBtn">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Begin the Conversation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="rainAudio" loop preload="auto">
+    <source src="rain.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="narrationAudio" preload="auto">
+    <source src="narration.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const canvas = document.getElementById('rainCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    const drops = [];
+    const dropCount = 150;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    for (let i = 0; i < dropCount; i++) {
+      drops.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        length: Math.random() * 20 + 10,
+        speed: Math.random() * 8 + 6,
+        opacity: Math.random() * 0.3 + 0.1
+      });
+    }
+
+    function drawRain() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.lineWidth = 1;
+      ctx.lineCap = 'round';
+
+      for (let i = 0; i < drops.length; i++) {
+        const drop = drops[i];
+        ctx.beginPath();
+        ctx.moveTo(drop.x, drop.y);
+        ctx.lineTo(drop.x, drop.y + drop.length);
+        ctx.strokeStyle = `rgba(180, 190, 210, ${drop.opacity})`;
+        ctx.stroke();
+
+        drop.y += drop.speed;
+
+        if (drop.y > height) {
+          drop.y = -drop.length;
+          drop.x = Math.random() * width;
+        }
+      }
+      requestAnimationFrame(drawRain);
+    }
+
+    drawRain();
+
+    const startBtn = document.getElementById('startBtn');
+    const overlay = document.getElementById('overlay');
+    const rainAudio = document.getElementById('rainAudio');
+    const narrationAudio = document.getElementById('narrationAudio');
+    const lines = document.querySelectorAll('.line');
+
+    let started = false;
+
+    function typeWriter(element, text, speed, callback) {
+      let i = 0;
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      element.appendChild(cursor);
+      
+      function type() {
+        if (i < text.length) {
+          element.textContent = text.substring(0, i + 1);
+          element.appendChild(cursor);
+          i++;
+          setTimeout(type, speed);
+        } else {
+          cursor.remove();
+          if (callback) callback();
+        }
+      }
+      type();
+    }
+
+    function playSequence(index) {
+      if (index >= lines.length) return;
+
+      const line = lines[index];
+      const text = line.getAttribute('data-text');
+      const dialogueEl = line.querySelector('.dialogue');
+
+      line.classList.add('visible');
+
+      setTimeout(() => {
+        typeWriter(dialogueEl, text, 45, () => {
+          setTimeout(() => {
+            playSequence(index + 1);
+          }, 800);
+        });
+      }, 400);
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (started) return;
+      started = true;
+
+      rainAudio.play().catch(error => {
+        console.log("Rain audio play failed:", error);
+      });
+
+      narrationAudio.play().catch(error => {
+        console.log("Narration audio play failed:", error);
+      });
+
+      overlay.classList.add('hidden');
+
+      setTimeout(() => {
+        playSequence(0);
+      }, 600);
+    });
+  </script>
+</body>
+</html>
