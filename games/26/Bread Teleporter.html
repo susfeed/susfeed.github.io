@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bread Teleporter</title>
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../index.css" />
+  <link rel="stylesheet" href="../../content.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      user-select: none;
+      touch-action: none;
+      background: #0d0d0d;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+      cursor: crosshair;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="site-header"></div>
+
+    <main class="container article-content">
+      <h1 class="article-main-title"><u>Bread Teleporter</u></h1>
+      <p class="article-date"><i>Article Published by Cameron at 2026/10/23 2:59 PM CET</i></p>
+
+      <div class="game-container" id="gameContainer">
+        <canvas id="breadCanvas"></canvas>
+      </div>
+    </main>
+
+    <div class="site-footer"></div>
+
+  </div>
+
+  <script src="../../contentheader.js"></script>
+
+  <script>
+    (function() {
+      const canvas = document.getElementById("breadCanvas");
+      const ctx = canvas.getContext("2d");
+      const container = document.getElementById("gameContainer");
+
+      let W = 0, H = 0;
+
+      const breadImg = new Image();
+      breadImg.src = "bread.png";
+
+      const BREAD_W = 56;
+      const BREAD_H = 56;
+
+      let stability = 100;
+      let breadsTeleported = 0;
+      let disconnected = false;
+      let time = 0;
+      let warpIntensity = 0;
+      let buttonPressAnim = 0;
+      let buttonHover = false;
+
+      const breads = [];
+      const particles = [];
+      const ripples = [];
+
+      const teleporter = { x: 0, y: 0, w: 0, h: 0 };
+      const console_ = { x: 0, y: 0, w: 0, h: 0 };
+      const button = { x: 0, y: 0, w: 0, h: 0 };
+
+      function layoutLab() {
+        teleporter.w = Math.min(W * 0.28, 260);
+        teleporter.h = Math.min(H * 0.4, 210);
+        teleporter.x = W * 0.5 - teleporter.w / 2;
+        teleporter.y = H * 0.34 - teleporter.h / 2;
+
+        console_.w = Math.min(W * 0.34, 320);
+        console_.h = Math.min(H * 0.18, 110);
+        console_.x = W * 0.5 - console_.w / 2;
+        console_.y = H * 0.72;
+
+        button.w = Math.min(W * 0.2, 180);
+        button.h = Math.min(H * 0.1, 60);
+        button.x = W * 0.5 - button.w / 2;
+        button.y = console_.y - button.h * 0.15;
+      }
+
+      function resize() {
+        const rect = container.getBoundingClientRect();
+        W = canvas.width = Math.floor(rect.width);
+        H = canvas.height = Math.floor(rect.height);
+        layoutLab();
+      }
+      window.addEventListener("resize", resize);
+
+      function spawnBread() {
+        const margin = BREAD_W;
+        const x = margin + Math.random() * (W - margin * 2);
+        const y = margin + Math.random() * (H - margin * 2);
+        breads.push({
+          x, y,
+          vx: (Math.random() - 0.5) * 3,
+          vy: (Math.random() - 0.5) * 3,
+          rot: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.05,
+          scale: 0.6 + Math.random() * 0.5,
+          alpha: 0.5 + Math.random() * 0.5,
+        });
+      }
+
+      function addRipple(x, y) {
+        ripples.push({
+          x, y,
+          r: 5,
+          maxR: 150 + Math.random() * 120,
+          alpha: 1,
+          speed: 3 + Math.random() * 3
+        });
+      }
+
+      function addParticles(x, y, count) {
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2 + Math.random() * 8;
+          particles.push({
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            r: 2 + Math.random() * 4,
+            alpha: 1,
+            life: 1,
+            decay: 0.015 + Math.random() * 0.03,
+            color: `hsl(${30 + Math.random() * 20}, 60%, ${50 + Math.random() * 20}%)`,
+          });
+        }
+      }
+
+      function teleportBread() {
+        if (disconnected) return;
+
+        const cx = teleporter.x + teleporter.w / 2;
+        const cy = teleporter.y + teleporter.h / 2;
+
+        addRipple(cx, cy);
+        addParticles(cx, cy, 20);
+
+        breads.push({
+          x: cx,
+          y: cy,
+          vx: (Math.random() - 0.5) * 10,
+          vy: (Math.random() - 0.5) * 10,
+          rot: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.2,
+          scale: 1.0 + Math.random() * 0.6,
+          alpha: 1,
+        });
+
+        breadsTeleported++;
+        stability = Math.max(0, stability - (1.8 + Math.random() * 1.4));
+        warpIntensity = Math.min(1, warpIntensity + 0.14);
+        buttonPressAnim = 1;
+
+        if (stability <= 0) {
+          disconnected = true;
+        }
+      }
+
+      function update() {
+        time += 0.016;
+
+        if (!disconnected) {
+          if (stability > 0 && Math.random() < 0.006) {
+            spawnBread();
+          }
+          warpIntensity *= 0.996;
+        } else {
+          warpIntensity = Math.min(1.5, warpIntensity + 0.01);
+        }
+
+        buttonPressAnim *= 0.86;
+
+        for (let i = breads.length - 1; i >= 0; i--) {
+          const b = breads[i];
+          b.x += b.vx;
+          b.y += b.vy;
+          b.rot += b.rotSpeed;
+          b.vx *= 0.992;
+          b.vy *= 0.992;
+
+          if (b.x < -120 || b.x > W + 120 || b.y < -120 || b.y > H + 120) {
+            breads.splice(i, 1);
+            continue;
+          }
+
+          if (disconnected) {
+            b.alpha *= 0.98;
+            if (b.alpha < 0.01) {
+              breads.splice(i, 1);
+              continue;
+            }
+          }
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.97;
+          p.vy *= 0.97;
+          p.life -= p.decay;
+          p.alpha = p.life;
+          if (p.life <= 0) {
+            particles.splice(i, 1);
+          }
+        }
+
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const r = ripples[i];
+          r.r += r.speed;
+          r.speed *= 0.97;
+          r.alpha = 1 - (r.r / r.maxR);
+          if (r.r >= r.maxR) {
+            ripples.splice(i, 1);
+          }
+        }
+
+        if (!disconnected && stability < 100 && Math.random() < 0.02) {
+          stability = Math.min(100, stability + 0.2);
+        }
+      }
+
+      function drawLabBackground() {
+        const warp = warpIntensity * 0.6 + (1 - stability / 100) * 0.8;
+
+        const wallGrad = ctx.createLinearGradient(0, 0, 0, H * 0.6);
+        wallGrad.addColorStop(0, "#2a3a4a");
+        wallGrad.addColorStop(1, "#1a2530");
+        ctx.fillStyle = wallGrad;
+        ctx.fillRect(0, 0, W, H * 0.6);
+
+        ctx.strokeStyle = "#1e2a36";
+        ctx.lineWidth = 1;
+        const wallTile = 80;
+        for (let x = 0; x < W; x += wallTile) {
+          for (let y = 0; y < H * 0.6; y += wallTile) {
+            const offX = Math.sin(time * 0.4 + y * 0.01) * warp * 4;
+            const offY = Math.cos(time * 0.3 + x * 0.01) * warp * 4;
+            ctx.strokeRect(x + offX, y + offY, wallTile, wallTile);
+          }
+        }
+
+        const floorGrad = ctx.createLinearGradient(0, H * 0.6, 0, H);
+        floorGrad.addColorStop(0, "#3a3a3a");
+        floorGrad.addColorStop(1, "#1a1a1a");
+        ctx.fillStyle = floorGrad;
+        ctx.fillRect(0, H * 0.6, W, H * 0.4);
+
+        ctx.strokeStyle = "#222";
+        ctx.lineWidth = 1;
+        const floorTile = 70;
+        for (let x = 0; x < W; x += floorTile) {
+          for (let y = H * 0.6; y < H; y += floorTile) {
+            ctx.strokeRect(x, y, floorTile, floorTile);
+          }
+        }
+
+        ctx.fillStyle = "#1e2a36";
+        ctx.fillRect(0, H * 0.58, W, H * 0.02);
+
+        const ceilingLightY = H * 0.08;
+        for (let i = 0; i < 3; i++) {
+          const lx = W * (0.2 + i * 0.3);
+          const flicker = stability < 50 ? (Math.random() < 0.1 ? 0.3 : 1) : 1;
+          const lightGrad = ctx.createRadialGradient(lx, ceilingLightY, 0, lx, ceilingLightY, 180);
+          lightGrad.addColorStop(0, `rgba(200, 230, 255, ${0.12 * flicker})`);
+          lightGrad.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = lightGrad;
+          ctx.fillRect(lx - 180, 0, 360, 360);
+
+          ctx.fillStyle = "#d0e0f0";
+          ctx.fillRect(lx - 30, ceilingLightY - 4, 60, 8);
+          ctx.fillStyle = `rgba(200, 230, 255, ${0.8 * flicker})`;
+          ctx.fillRect(lx - 28, ceilingLightY - 2, 56, 4);
+        }
+
+        ctx.fillStyle = "#2a3a4a";
+        ctx.fillRect(W * 0.05, H * 0.15, W * 0.12, H * 0.35);
+        ctx.fillRect(W * 0.83, H * 0.15, W * 0.12, H * 0.35);
+        ctx.fillStyle = "#1e2a36";
+        ctx.fillRect(W * 0.06, H * 0.17, W * 0.10, H * 0.31);
+        ctx.fillRect(W * 0.84, H * 0.17, W * 0.10, H * 0.31);
+
+        for (let i = 0; i < 4; i++) {
+          const ly = H * 0.2 + i * H * 0.06;
+          ctx.fillStyle = i % 2 === 0 ? "#3a8a3a" : "#8a3a3a";
+          ctx.fillRect(W * 0.07, ly, W * 0.08, 4);
+          ctx.fillRect(W * 0.85, ly, W * 0.08, 4);
+        }
+      }
+
+      function drawTeleporter() {
+        const t = teleporter;
+        const warp = warpIntensity;
+        const cx = t.x + t.w / 2;
+        const cy = t.y + t.h / 2;
+
+        ctx.fillStyle = "#1a1a1a";
+        ctx.beginPath();
+        ctx.ellipse(cx, t.y + t.h + 20, t.w * 0.6, 18, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, t.w * 1.4);
+        glow.addColorStop(0, `rgba(80, 200, 255, ${0.05 + warp * 0.15})`);
+        glow.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(t.x - t.w, t.y - t.h, t.w * 3, t.h * 3);
+
+        ctx.fillStyle = "#4a5a6a";
+        ctx.fillRect(t.x - 14, t.y - 14, t.w + 28, t.h + 28);
+        ctx.fillStyle = "#3a4a5a";
+        ctx.fillRect(t.x - 8, t.y - 8, t.w + 16, t.h + 16);
+
+        ctx.fillStyle = "#0a0c0f";
+        ctx.fillRect(t.x, t.y, t.w, t.h);
+
+        const portalGrad = ctx.createRadialGradient(cx, cy, 4, cx, cy, t.w * 0.5);
+        portalGrad.addColorStop(0, `hsla(${190 + warp * 100}, 90%, ${60 + warp * 15}%, ${0.6 + warp * 0.3})`);
+        portalGrad.addColorStop(0.6, `hsla(${210 + warp * 120}, 80%, ${40 + warp * 10}%, ${0.35 + warp * 0.3})`);
+        portalGrad.addColorStop(1, `hsla(${240 + warp * 150}, 70%, 20%, 0.05)`);
+        ctx.fillStyle = portalGrad;
+        ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
+
+        for (let i = 0; i < 6 + Math.floor(warp * 12); i++) {
+          const ang = time * (0.8 + warp * 2) + i * 1.2;
+          const rad = (t.w * 0.35) * (0.4 + 0.6 * Math.sin(time * 2 + i));
+          const px = cx + Math.cos(ang) * rad;
+          const py = cy + Math.sin(ang) * rad * 0.8;
+          ctx.beginPath();
+          ctx.arc(px, py, 1.5 + warp * 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${180 + i * 20 + warp * 100}, 90%, 70%, ${0.5 + warp * 0.4})`;
+          ctx.fill();
+        }
+
+        ctx.strokeStyle = `rgba(120, 220, 255, ${0.4 + warp * 0.4})`;
+        ctx.lineWidth = 2 + warp * 3;
+        ctx.strokeRect(t.x, t.y, t.w, t.h);
+
+        ctx.fillStyle = "#2a3a4a";
+        ctx.fillRect(t.x - 6, t.y - 30, t.w + 12, 24);
+        ctx.fillStyle = "#0a0c0f";
+        ctx.fillRect(t.x, t.y - 26, t.w, 16);
+
+        const barW = t.w * (1 - stability / 100);
+        ctx.fillStyle = stability < 50 ? "#ff4444" : "#3ecf8e";
+        ctx.fillRect(t.x + 2, t.y - 24, Math.max(2, barW - 4), 12);
+
+        for (let i = 0; i < 5; i++) {
+          const lx = t.x + 10 + i * ((t.w - 20) / 5);
+          ctx.beginPath();
+          ctx.arc(lx, t.y + t.h + 8, 4, 0, Math.PI * 2);
+          ctx.fillStyle = stability < 50 ? "#ff4444" : "#3ecf8e";
+          ctx.fill();
+        }
+
+        ctx.fillStyle = "#2a3a4a";
+        ctx.fillRect(t.x - 20, t.y + t.h + 16, t.w + 40, 24);
+        ctx.fillStyle = "#1a2a3a";
+        ctx.fillRect(t.x - 14, t.y + t.h + 20, t.w + 28, 16);
+      }
+
+      function drawConsole() {
+        const c = console_;
+
+        ctx.fillStyle = "#1a1a1a";
+        ctx.beginPath();
+        ctx.ellipse(c.x + c.w / 2, c.y + c.h + 4, c.w * 0.55, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const bodyGrad = ctx.createLinearGradient(0, c.y, 0, c.y + c.h);
+        bodyGrad.addColorStop(0, "#4a4f58");
+        bodyGrad.addColorStop(0.5, "#3a3f48");
+        bodyGrad.addColorStop(1, "#262a30");
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.moveTo(c.x + 6, c.y + c.h);
+        ctx.lineTo(c.x + c.w - 6, c.y + c.h);
+        ctx.lineTo(c.x + c.w, c.y);
+        ctx.lineTo(c.x, c.y);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#545a64";
+        ctx.beginPath();
+        ctx.moveTo(c.x, c.y);
+        ctx.lineTo(c.x + c.w, c.y);
+        ctx.lineTo(c.x + c.w - 6, c.y + 8);
+        ctx.lineTo(c.x + 6, c.y + 8);
+        ctx.closePath();
+        ctx.fill();
+
+        for (let i = 0; i < 6; i++) {
+          const sx = c.x + 16 + i * ((c.w - 32) / 5);
+          const sy = c.y + c.h - 10;
+          ctx.beginPath();
+          ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+          ctx.fillStyle = "#1e2228";
+          ctx.fill();
+        }
+
+        for (let i = 0; i < 5; i++) {
+          const sx = c.x + 14 + i * ((c.w - 28) / 4);
+          const sy = c.y + c.h - 28;
+          const col = stability < 40 ? "#ff4444" : stability < 70 ? "#ffaa33" : "#3ecf8e";
+          ctx.fillStyle = col;
+          ctx.globalAlpha = 0.7 + Math.sin(time * 3 + i) * 0.2;
+          ctx.fillRect(sx - 4, sy, 8, 4);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawButton() {
+        const b = button;
+        const press = buttonPressAnim;
+        const cx = b.x + b.w / 2;
+        const pressDrop = press * 10;
+
+        const baseW = b.w * 1.05;
+        const baseH = b.h * 0.35;
+        const baseY = b.y + b.h - baseH * 0.3;
+
+        const baseGrad = ctx.createLinearGradient(0, baseY, 0, baseY + baseH);
+        baseGrad.addColorStop(0, "#6a707a");
+        baseGrad.addColorStop(1, "#2a2e34");
+        ctx.fillStyle = baseGrad;
+        ctx.beginPath();
+        ctx.ellipse(cx, baseY + baseH * 0.5, baseW / 2, baseH * 0.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#7a808a";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(cx, baseY + baseH * 0.5, baseW / 2, baseH * 0.6, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        const socketW = b.w * 0.9;
+        const socketH = b.h * 0.3;
+        ctx.fillStyle = "#15181c";
+        ctx.beginPath();
+        ctx.ellipse(cx, baseY + baseH * 0.25, socketW / 2, socketH * 0.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const topCY = baseY + baseH * 0.3 + pressDrop;
+        const topRX = b.w * 0.5;
+        const topRY = b.h * 0.42;
+
+        const shadowGrad = ctx.createRadialGradient(cx, topCY + topRY * 0.6, 0, cx, topCY + topRY * 0.6, topRX * 1.1);
+        shadowGrad.addColorStop(0, "rgba(0,0,0,0.5)");
+        shadowGrad.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = shadowGrad;
+        ctx.beginPath();
+        ctx.ellipse(cx, topCY + topRY * 0.6, topRX * 1.1, topRY * 1.1, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (buttonHover && !disconnected) {
+          const hoverGrad = ctx.createRadialGradient(cx, topCY, 0, cx, topCY, topRX * 1.5);
+          hoverGrad.addColorStop(0, "rgba(255, 120, 120, 0.18)");
+          hoverGrad.addColorStop(1, "rgba(255, 120, 120, 0)");
+          ctx.fillStyle = hoverGrad;
+          ctx.beginPath();
+          ctx.ellipse(cx, topCY, topRX * 1.5, topRY * 1.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const sideGrad = ctx.createLinearGradient(0, topCY - topRY, 0, topCY + topRY);
+        sideGrad.addColorStop(0, press > 0.3 ? "#a01818" : "#c0392b");
+        sideGrad.addColorStop(1, press > 0.3 ? "#5a0a0a" : "#7a1f14");
+        ctx.fillStyle = sideGrad;
+        ctx.beginPath();
+        ctx.ellipse(cx, topCY + topRY * 0.32, topRX, topRY, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const topGrad = ctx.createRadialGradient(
+          cx - topRX * 0.3, topCY - topRY * 0.4, 2,
+          cx, topCY, topRX * 1.1
+        );
+        if (press > 0.3) {
+          topGrad.addColorStop(0, "#ff5555");
+          topGrad.addColorStop(0.6, "#cc2222");
+          topGrad.addColorStop(1, "#7a1010");
+        } else if (buttonHover && !disconnected) {
+          topGrad.addColorStop(0, "#ff9a9a");
+          topGrad.addColorStop(0.5, "#ff5a4a");
+          topGrad.addColorStop(1, "#c0392b");
+        } else {
+          topGrad.addColorStop(0, "#ff8888");
+          topGrad.addColorStop(0.5, "#ef4b3b");
+          topGrad.addColorStop(1, "#a93226");
+        }
+        ctx.fillStyle = topGrad;
+        ctx.beginPath();
+        ctx.ellipse(cx, topCY, topRX, topRY, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = press > 0.3 ? "#5a0a0a" : "#8e2a1f";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(cx, topCY, topRX, topRY, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        const shineGrad = ctx.createRadialGradient(
+          cx - topRX * 0.3, topCY - topRY * 0.45, 1,
+          cx - topRX * 0.25, topCY - topRY * 0.35, topRX * 0.55
+        );
+        shineGrad.addColorStop(0, `rgba(255, 255, 255, ${0.55 - press * 0.35})`);
+        shineGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+        ctx.fillStyle = shineGrad;
+        ctx.beginPath();
+        ctx.ellipse(cx - topRX * 0.25, topCY - topRY * 0.35, topRX * 0.42, topRY * 0.35, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.font = `bold ${Math.floor(topRY * 0.55)}px 'Segoe UI', Arial, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(80,0,0,0.6)";
+        ctx.shadowBlur = 2;
+        ctx.shadowOffsetY = 1;
+        ctx.fillText("TELEPORT", cx, topCY);
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+      }
+
+      function drawBreads() {
+        for (const b of breads) {
+          ctx.save();
+          ctx.globalAlpha = b.alpha;
+          ctx.translate(b.x, b.y);
+          ctx.rotate(b.rot);
+          ctx.scale(b.scale, b.scale);
+
+          const glowSize = 36 + Math.sin(time * 3 + b.x * 0.01) * 12;
+          const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, glowSize);
+          glowGrad.addColorStop(0, `hsla(35, 80%, 60%, ${0.15 + warpIntensity * 0.2})`);
+          glowGrad.addColorStop(1, "hsla(35, 80%, 60%, 0)");
+          ctx.beginPath();
+          ctx.arc(0, 0, glowSize, 0, Math.PI * 2);
+          ctx.fillStyle = glowGrad;
+          ctx.fill();
+
+          if (breadImg.complete && breadImg.naturalWidth > 0) {
+            ctx.drawImage(breadImg, -BREAD_W / 2, -BREAD_H / 2, BREAD_W, BREAD_H);
+          }
+
+          ctx.restore();
+        }
+      }
+
+      function drawParticles() {
+        for (const p of particles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.alpha;
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawRipples() {
+        for (const r of ripples) {
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(120, 220, 255, ${r.alpha * 0.7})`;
+          ctx.lineWidth = 2 + (1 - r.alpha) * 4;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, r.r * 0.55, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(180, 120, 255, ${r.alpha * 0.4})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+
+      function getCorruption() {
+        return 1 - stability / 100;
+      }
+
+      function drawStatic() {
+        const corruption = getCorruption();
+        const warp = warpIntensity;
+        const amount = corruption * 0.5 + warp * 0.35;
+        if (amount < 0.02) return;
+
+        const density = Math.floor(amount * 2200);
+        ctx.fillStyle = "#ffffff";
+        for (let i = 0; i < density; i++) {
+          const x = Math.random() * W;
+          const y = Math.random() * H;
+          ctx.globalAlpha = Math.random() * amount * 0.4;
+          ctx.fillRect(x, y, 1 + Math.random() * 2, 1);
+        }
+        ctx.globalAlpha = 1;
+
+        if (corruption > 0.35) {
+          const bands = Math.floor(corruption * 6);
+          for (let i = 0; i < bands; i++) {
+            const y = Math.random() * H;
+            const h = 2 + Math.random() * 18 * corruption;
+            ctx.globalAlpha = 0.06 + Math.random() * 0.18 * corruption;
+            ctx.fillStyle = Math.random() < 0.5 ? "#ffffff" : "#ff4040";
+            ctx.fillRect(0, y, W, h);
+          }
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function drawChromaticAberration() {
+        const corruption = getCorruption();
+        if (corruption < 0.1) return;
+
+        const offset = corruption * 8 + warpIntensity * 4;
+
+        try {
+          const imgData = ctx.getImageData(0, 0, W, H);
+          const d = imgData.data;
+          const copy = new Uint8ClampedArray(d);
+          const shift = Math.floor(offset);
+
+          for (let y = 0; y < H; y++) {
+            for (let x = 0; x < W; x++) {
+              const idx = (y * W + x) * 4;
+              const rx = Math.min(W - 1, x + shift);
+              const bx = Math.max(0, x - shift);
+              const rIdx = (y * W + rx) * 4;
+              const bIdx = (y * W + bx) * 4;
+              d[idx] = copy[rIdx];
+              d[idx + 2] = copy[bIdx + 2];
+            }
+          }
+
+          ctx.putImageData(imgData, 0, 0);
+        } catch (e) {
+        }
+      }
+
+      function drawTearing() {
+        const corruption = getCorruption();
+        const warp = warpIntensity;
+        if (corruption < 0.2 && warp < 0.3) return;
+
+        const tearCount = Math.floor(corruption * 8 + warp * 5);
+        for (let i = 0; i < tearCount; i++) {
+          const y = Math.random() * H;
+          const h = 3 + Math.random() * 30 * corruption;
+          const offset = (Math.random() - 0.5) * corruption * 120;
+
+          try {
+            const slice = ctx.getImageData(0, y, W, Math.min(h, H - y));
+            ctx.putImageData(slice, offset, y);
+          } catch (e) {
+          }
+        }
+      }
+
+      function drawRealityCollapse() {
+        const corruption = getCorruption();
+        if (corruption < 0.15) return;
+
+        const blocks = Math.floor(corruption * 30);
+        for (let i = 0; i < blocks; i++) {
+          const bx = Math.random() * W;
+          const by = Math.random() * H;
+          const bw = 10 + Math.random() * 120 * corruption;
+          const bh = 5 + Math.random() * 60 * corruption;
+
+          try {
+            const block = ctx.getImageData(bx, by, Math.min(bw, W - bx), Math.min(bh, H - by));
+            const nx = Math.random() * W;
+            const ny = Math.random() * H;
+            ctx.putImageData(block, nx, ny);
+          } catch (e) {
+          }
+        }
+
+        if (corruption > 0.5) {
+          const scanCount = Math.floor(corruption * 10);
+          for (let i = 0; i < scanCount; i++) {
+            const y = Math.random() * H;
+            ctx.fillStyle = `rgba(255, ${Math.random() * 100}, ${Math.random() * 100}, ${Math.random() * 0.3})`;
+            ctx.fillRect(0, y, W, 1 + Math.random() * 3);
+          }
+        }
+
+        if (corruption > 0.7) {
+          ctx.globalAlpha = (corruption - 0.7) * 0.6;
+          ctx.fillStyle = Math.random() < 0.5 ? "#ff0000" : "#ffffff";
+          ctx.fillRect(0, 0, W, H);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function drawVignette() {
+        const intensity = 0.4 + (1 - stability / 100) * 0.5;
+        const grad = ctx.createRadialGradient(W / 2, H / 2, W * 0.2, W / 2, H / 2, W * 0.75);
+        grad.addColorStop(0, "rgba(0,0,0,0)");
+        grad.addColorStop(1, `rgba(0,0,0,${intensity})`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      function drawWarpedOverlay() {
+        const corruption = getCorruption();
+        const warp = warpIntensity;
+        if (corruption < 0.1 && warp < 0.1) return;
+
+        const centerX = W / 2;
+        const centerY = H / 2;
+        const rings = Math.floor(corruption * 6 + warp * 4);
+
+        for (let i = 0; i < rings; i++) {
+          const r = (time * 40 + i * 60) % (W * 0.8);
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(${100 + Math.random() * 155}, ${50 + Math.random() * 100}, 255, ${(1 - r / (W * 0.8)) * corruption * 0.15})`;
+          ctx.lineWidth = 1 + Math.random() * 2;
+          ctx.stroke();
+        }
+      }
+
+      function drawDisconnected() {
+        if (!disconnected) return;
+
+        const corruption = Math.min(1, getCorruption());
+        ctx.fillStyle = `rgba(0, 0, 0, ${0.4 + corruption * 0.3})`;
+        ctx.fillRect(0, 0, W, H);
+
+        const jitter = 8 + corruption * 16;
+        ctx.save();
+        ctx.translate((Math.random() - 0.5) * jitter, (Math.random() - 0.5) * jitter);
+
+        ctx.font = "bold 44px 'Courier New', monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillStyle = `rgba(255, 50, 50, ${0.5 + Math.random() * 0.5})`;
+        ctx.fillText("ERROR: DISCONNECTED", W / 2 + (Math.random() - 0.5) * jitter, H / 2 - 20);
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + Math.random() * 0.6})`;
+        ctx.fillText("ERROR: DISCONNECTED", W / 2, H / 2 - 20);
+
+        ctx.font = "16px 'Courier New', monospace";
+        ctx.fillStyle = "#ff6666";
+        ctx.fillText("reality link severed", W / 2, H / 2 + 30);
+
+        ctx.restore();
+      }
+
+      function draw() {
+        drawLabBackground();
+        drawTeleporter();
+        drawConsole();
+        drawButton();
+        drawRipples();
+        drawBreads();
+        drawParticles();
+        drawWarpedOverlay();
+        drawVignette();
+        drawTearing();
+        drawChromaticAberration();
+        drawStatic();
+        drawRealityCollapse();
+        drawDisconnected();
+      }
+
+      function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      function getMouse(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+          x: (e.clientX - rect.left) * scaleX,
+          y: (e.clientY - rect.top) * scaleY,
+        };
+      }
+
+      function pointInButton(mx, my) {
+        const cx = button.x + button.w / 2;
+        const baseH = button.h * 0.35;
+        const baseY = button.y + button.h - baseH * 0.3;
+        const topCY = baseY + baseH * 0.3;
+        const topRX = button.w * 0.5;
+        const topRY = button.h * 0.42;
+        const nx = (mx - cx) / topRX;
+        const ny = (my - topCY) / topRY;
+        return nx * nx + ny * ny <= 1;
+      }
+
+      canvas.addEventListener("mousemove", (e) => {
+        const m = getMouse(e);
+        buttonHover = pointInButton(m.x, m.y);
+        canvas.style.cursor = buttonHover && !disconnected ? "pointer" : "crosshair";
+      });
+
+      canvas.addEventListener("mousedown", (e) => {
+        if (disconnected) return;
+        const m = getMouse(e);
+        if (pointInButton(m.x, m.y)) {
+          teleportBread();
+        }
+      });
+
+      canvas.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        if (disconnected) return;
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mx = (touch.clientX - rect.left) * scaleX;
+        const my = (touch.clientY - rect.top) * scaleY;
+
+        if (pointInButton(mx, my)) {
+          teleportBread();
+        }
+      }, { passive: false });
+
+      resize();
+      loop();
+    })();
+  </script>
+
+</body>
+</html>
