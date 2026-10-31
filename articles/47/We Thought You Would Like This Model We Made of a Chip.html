@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>We Thought You Would Like This Model We Made of a Chip :)</title>
+<link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon">
+<link rel="stylesheet" href="../../index.css">
+<link rel="stylesheet" href="../../content.css">
+</head>
+<body>
+
+<div class="wrapper">
+<div class="site-header"></div>
+
+<main class="container article-content">
+<h1 class="article-main-title"><u>We Thought You Would Like This Model We Made of a Chip</u></h1>
+<p class="article-date"><i>Article Published by Cameron at 2026/10/31 8:23 PM CET</i></p>
+
+<p class="intro">It's a chip :).</p>
+
+<div style="display:flex;justify-content:center;margin:40px auto;max-width:900px;user-select:none;touch-action:none;">
+<canvas id="c" width="500" height="500" style="display:block;max-width:100%;height:auto;"></canvas>
+</div>
+</main>
+
+<div class="site-footer"></div>
+</div>
+
+<script src="../../contentheader.js"></script>
+
+<script>
+const c = document.getElementById("c");
+const x = c.getContext("2d");
+x.lineJoin = "round";
+x.lineCap = "round";
+
+let rx = 0.4, ry = 0.7, drag = false, lx = 0, ly = 0;
+let camZ = 520;
+const size = 130;
+let needsRender = false;
+
+const A = 1.55, B = 0.95, THICK = 0.075, SE = 3.2;
+const NS = 12, NM = 32;
+
+const cosT = new Float32Array(NM);
+const sinT = new Float32Array(NM);
+const bndT = new Float32Array(NM);
+for (let j = 0; j < NM; j++) {
+  const th = (j / NM) * Math.PI * 2;
+  cosT[j] = Math.cos(th);
+  sinT[j] = Math.sin(th);
+  const cc = Math.abs(cosT[j] / A), ss = Math.abs(sinT[j] / B);
+  bndT[j] = 1 / Math.pow(Math.pow(cc, SE) + Math.pow(ss, SE), 1 / SE);
+}
+
+function surfZ(px, py) {
+  const sx = px / A, sy = py / B;
+  return 0.16 * (sx * sx - sy * sy) + 0.012 * Math.sin(px * 7) * Math.cos(py * 5);
+}
+
+const V = [];
+const faces = [];
+
+function buildChip() {
+  const topBase = 0;
+  for (let i = 0; i <= NS; i++) {
+    const t = i / NS;
+    for (let j = 0; j < NM; j++) {
+      const rr = bndT[j];
+      const px = t * rr * cosT[j];
+      const py = t * rr * sinT[j];
+      V.push([px, py, surfZ(px, py)]);
+    }
+  }
+  const botBase = V.length;
+  for (let i = 0; i <= NS; i++) {
+    const t = i / NS;
+    for (let j = 0; j < NM; j++) {
+      const rr = bndT[j];
+      const px = t * rr * cosT[j];
+      const py = t * rr * sinT[j];
+      V.push([px, py, surfZ(px, py) - THICK]);
+    }
+  }
+  const rimBase = V.length;
+  for (let j = 0; j < NM; j++) {
+    const rr = bndT[j];
+    const px = rr * cosT[j];
+    const py = rr * sinT[j];
+    V.push([px, py, surfZ(px, py)]);
+  }
+  for (let j = 0; j < NM; j++) {
+    const rr = bndT[j];
+    const px = rr * cosT[j];
+    const py = rr * sinT[j];
+    V.push([px, py, surfZ(px, py) - THICK]);
+  }
+
+  for (let i = 0; i < NS; i++) {
+    for (let j = 0; j < NM; j++) {
+      const j2 = (j + 1) % NM;
+      const a = topBase + i * NM + j;
+      const b = topBase + i * NM + j2;
+      const c2 = topBase + (i + 1) * NM + j;
+      const d = topBase + (i + 1) * NM + j2;
+      faces.push([a, c2, d, b, 0]);
+    }
+  }
+  for (let i = 0; i < NS; i++) {
+    for (let j = 0; j < NM; j++) {
+      const j2 = (j + 1) % NM;
+      const a = botBase + i * NM + j;
+      const b = botBase + i * NM + j2;
+      const c2 = botBase + (i + 1) * NM + j;
+      const d = botBase + (i + 1) * NM + j2;
+      faces.push([a, b, d, c2, 1]);
+    }
+  }
+  for (let j = 0; j < NM; j++) {
+    const j2 = (j + 1) % NM;
+    const t0 = rimBase + j;
+    const t1 = rimBase + j2;
+    const b0 = rimBase + NM + j;
+    const b1 = rimBase + NM + j2;
+    faces.push([t0, b0, b1, t1, 2]);
+  }
+}
+
+buildChip();
+
+const ROT = new Array(V.length);
+const PRJ = new Array(V.length);
+for (let i = 0; i < V.length; i++) {
+  ROT[i] = [0, 0, 0];
+  PRJ[i] = [0, 0, 0];
+}
+
+const faceZ = new Float32Array(faces.length);
+const faceIdx = new Array(faces.length);
+for (let i = 0; i < faces.length; i++) faceIdx[i] = i;
+
+const BASE_COLORS = ["#e8a04a", "#c47a2e", "#a55c1a"];
+
+const speckles = [];
+for (let i = 0; i < 40; i++) {
+  speckles.push({
+    u: Math.random(),
+    v: Math.random(),
+    s: 0.004 + Math.random() * 0.008,
+    c: Math.random() < 0.5 ? "#c9822e" : "#f0b862"
+  });
+}
+
+function requestRender() {
+  if (needsRender) return;
+  needsRender = true;
+  requestAnimationFrame(() => {
+    needsRender = false;
+    draw();
+  });
+}
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = c.getBoundingClientRect();
+  c.width = Math.round(rect.width * dpr);
+  c.height = Math.round(rect.height * dpr);
+  const s = c.width / 500;
+  x.setTransform(s, 0, 0, s, 0, 0);
+  requestRender();
+}
+
+function draw() {
+  x.clearRect(0, 0, 500, 500);
+
+  const srx = Math.sin(rx), crx = Math.cos(rx);
+  const sry = Math.sin(ry), cry = Math.cos(ry);
+  const half = 250;
+
+  for (let i = 0; i < V.length; i++) {
+    const p = V[i];
+    const px = p[0], py = p[1], pz = p[2];
+    const py1 = py * crx - pz * srx;
+    const pz1 = py * srx + pz * crx;
+    const px2 = px * cry + pz1 * sry;
+    const pz2 = -px * sry + pz1 * cry;
+    const r = ROT[i];
+    r[0] = px2; r[1] = py1; r[2] = pz2;
+    const z = pz2 * size + camZ;
+    const sc = camZ / z;
+    const pr = PRJ[i];
+    pr[0] = px2 * size * sc + half;
+    pr[1] = py1 * size * sc + half;
+    pr[2] = z;
+  }
+
+  for (let i = 0; i < faces.length; i++) {
+    const f = faces[i];
+    faceZ[i] = (PRJ[f[0]][2] + PRJ[f[1]][2] + PRJ[f[2]][2] + PRJ[f[3]][2]) * 0.25;
+  }
+
+  faceIdx.sort((a, b) => faceZ[b] - faceZ[a]);
+
+  for (let oi = 0; oi < faceIdx.length; oi++) {
+    const fi = faceIdx[oi];
+    const f = faces[fi];
+    const type = f[4];
+    const p0 = PRJ[f[0]], p1 = PRJ[f[1]], p2 = PRJ[f[2]], p3 = PRJ[f[3]];
+
+    x.beginPath();
+    x.moveTo(p0[0], p0[1]);
+    x.lineTo(p1[0], p1[1]);
+    x.lineTo(p2[0], p2[1]);
+    x.lineTo(p3[0], p3[1]);
+    x.closePath();
+    x.fillStyle = BASE_COLORS[type];
+    x.fill();
+    x.strokeStyle = BASE_COLORS[type];
+    x.lineWidth = 1.5;
+    x.stroke();
+  }
+
+  if (speckles.length) {
+    const cx = half, cy = half;
+    for (let si = 0; si < speckles.length; si++) {
+      const sp = speckles[si];
+      const ox = (sp.u - 0.5) * 2 * 130;
+      const oy = (sp.v - 0.5) * 2 * 90;
+      const pz = surfZ(ox / size, oy / size);
+      const py1 = (oy / size) * crx - pz * srx;
+      const pz1 = (oy / size) * srx + pz * crx;
+      const px2 = (ox / size) * cry + pz1 * sry;
+      const pz2 = -(ox / size) * sry + pz1 * cry;
+      const z = pz2 * size + camZ;
+      const sc = camZ / z;
+      const sx = px2 * size * sc + half;
+      const sy = py1 * size * sc + half;
+      const rad = sp.s * size * sc;
+      if (rad < 0.3) continue;
+      x.fillStyle = sp.c;
+      x.beginPath();
+      x.arc(sx, sy, rad, 0, 6.2832);
+      x.fill();
+    }
+  }
+
+  x.lineWidth = 1.5;
+  x.strokeStyle = BASE_COLORS[0];
+  x.beginPath();
+  for (let j = 0; j < NM; j++) {
+    const top = PRJ[j];
+    if (j === 0) x.moveTo(top[0], top[1]);
+    else x.lineTo(top[0], top[1]);
+  }
+  x.closePath();
+  x.stroke();
+}
+
+window.addEventListener("resize", resize);
+
+c.addEventListener("pointerdown", e => {
+  drag = true;
+  lx = e.clientX;
+  ly = e.clientY;
+  if (c.setPointerCapture) c.setPointerCapture(e.pointerId);
+});
+c.addEventListener("pointerup", e => {
+  drag = false;
+  if (c.releasePointerCapture) c.releasePointerCapture(e.pointerId);
+});
+c.addEventListener("pointerleave", () => { drag = false; });
+c.addEventListener("pointermove", e => {
+  if (!drag) return;
+  ry += (e.clientX - lx) * 0.01;
+  rx += (e.clientY - ly) * 0.01;
+  rx = Math.max(-1.5, Math.min(1.5, rx));
+  lx = e.clientX;
+  ly = e.clientY;
+  requestRender();
+});
+c.addEventListener("wheel", e => {
+  e.preventDefault();
+  camZ += e.deltaY * 0.4;
+  camZ = Math.max(280, Math.min(900, camZ));
+  requestRender();
+}, { passive: false });
+
+resize();
+</script>
+
+</body>
+</html>
