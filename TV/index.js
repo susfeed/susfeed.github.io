@@ -155,7 +155,14 @@ function shuffle(arr) {
 }
 
 function isShort(video) {
-  return !!(video.channels && video.channels.includes('shorts'));
+  if (video.tags && video.tags.includes('shorts')) return true;
+  if (video.channels && video.channels.includes('shorts')) return true;
+  return false;
+}
+
+function getVideoChannels(video) {
+  if (!video.channels) return [];
+  return video.channels.filter(k => k !== 'shorts');
 }
 
 function scrollToTop() {
@@ -300,17 +307,14 @@ function indexVideos() {
 }
 
 function computeRecommendations() {
-  const nonShortsVideos = allVideos.filter(v => !isShort(v));
-
   const votes = getVotes();
   const likedChannels = {};
   const dislikedChannels = {};
 
   for (const [src, vote] of Object.entries(votes)) {
     const video = videoBySrc.get(src);
-    if (!video || !video.channels) continue;
-    for (const key of video.channels) {
-      if (key === 'shorts') continue;
+    if (!video) continue;
+    for (const key of getVideoChannels(video)) {
       if (vote === 'like') likedChannels[key] = (likedChannels[key] || 0) + 1;
       if (vote === 'dislike') dislikedChannels[key] = (dislikedChannels[key] || 0) + 1;
     }
@@ -322,15 +326,13 @@ function computeRecommendations() {
   });
 
   const hasSignal = Object.keys(likedChannels).length > 0 || Object.keys(dislikedChannels).length > 0;
-  if (!hasSignal) return nonShortsVideos.slice();
+  if (!hasSignal) return allVideos.slice();
 
-  const scored = nonShortsVideos.map(video => {
+  const scored = allVideos.map(video => {
     let score = 0;
-    if (video.channels) {
-      for (const key of video.channels) {
-        score += (likedChannels[key] || 0) * 3;
-        score -= (dislikedChannels[key] || 0) * 4;
-      }
+    for (const key of getVideoChannels(video)) {
+      score += (likedChannels[key] || 0) * 3;
+      score -= (dislikedChannels[key] || 0) * 4;
     }
     score += Math.random() * 2;
     return { video, score };
@@ -349,9 +351,8 @@ function computeShortsRecommendations() {
 
   for (const [src, vote] of Object.entries(votes)) {
     const video = videoBySrc.get(src);
-    if (!video || !video.channels) continue;
-    for (const key of video.channels) {
-      if (key === 'shorts') continue;
+    if (!video) continue;
+    for (const key of getVideoChannels(video)) {
       if (vote === 'like') likedChannels[key] = (likedChannels[key] || 0) + 1;
       if (vote === 'dislike') dislikedChannels[key] = (dislikedChannels[key] || 0) + 1;
     }
@@ -359,12 +360,9 @@ function computeShortsRecommendations() {
 
   const scored = shorts.map(video => {
     let score = 0;
-    if (video.channels) {
-      for (const key of video.channels) {
-        if (key === 'shorts') continue;
-        score += (likedChannels[key] || 0) * 3;
-        score -= (dislikedChannels[key] || 0) * 4;
-      }
+    for (const key of getVideoChannels(video)) {
+      score += (likedChannels[key] || 0) * 3;
+      score -= (dislikedChannels[key] || 0) * 4;
     }
     score += Math.random() * 2;
     return { video, score };
@@ -391,10 +389,11 @@ function invalidateRecommendations() {
 }
 
 function getChannelForVideo(video) {
-  if (!video.channels || !video.channels.length) return null;
+  const chs = getVideoChannels(video);
+  if (!chs.length) return null;
 
   let best = null;
-  for (const key of video.channels) {
+  for (const key of chs) {
     const ch = channels[key];
     if (!ch) continue;
     if (!best || ch.number < best.number) {
@@ -539,12 +538,12 @@ function showPage(page) {
   } else if (page === 'liked') {
     const votes = getVotes();
     document.getElementById('video-section').classList.remove('hidden');
-    const liked = allVideos.filter(v => votes[v.src] === 'like' && !isShort(v));
+    const liked = allVideos.filter(v => votes[v.src] === 'like');
     renderVideos(liked, document.getElementById('video-grid'));
   } else if (page === 'disliked') {
     const votes = getVotes();
     document.getElementById('video-section').classList.remove('hidden');
-    const disliked = allVideos.filter(v => votes[v.src] === 'dislike' && !isShort(v));
+    const disliked = allVideos.filter(v => votes[v.src] === 'dislike');
     renderVideos(disliked, document.getElementById('video-grid'));
   }
 
@@ -616,12 +615,12 @@ function renderSubscriptions() {
     const vids = allVideos.filter(v =>
       v.channels &&
       v.channels.includes(key) &&
-      !v.channels.includes('shorts')
+      !isShort(v)
     );
     const sh = allVideos.filter(v =>
       v.channels &&
       v.channels.includes(key) &&
-      v.channels.includes('shorts')
+      isShort(v)
     );
 
     if (vids.length) {
@@ -686,10 +685,17 @@ function renderSubscriptions() {
   }
 }
 
+const HOME_SHORTS_LIMIT = 6;
+
+function getHomeShortsLimit() {
+  return Math.max(3, Math.min(10, Math.floor(window.innerWidth / 150)));
+}
+
 function renderShortsShelf() {
   const row = document.getElementById('shorts-row');
   row.innerHTML = '';
-  const shorts = getShortsRecommendations();
+  const allShorts = getShortsRecommendations();
+  const shorts = allShorts.slice(0, getHomeShortsLimit());
 
   shorts.forEach(video => {
     const views = getViews(video);
@@ -728,7 +734,7 @@ function buildShortsFeed(startSrc) {
   shorts.forEach(video => {
     shortsFeed.push({ type: 'video', video });
     counter++;
-    if (counter % shortsAdEvery === 0) {
+    if (counter % shortsAdEvery === 0 && ads.length) {
       const ad = ads[Math.floor(Math.random() * ads.length)];
       shortsFeed.push({ type: 'ad', ad });
     }
@@ -745,6 +751,65 @@ function buildShortsFeed(startSrc) {
 
 let shortsCurrentIndex = 0;
 let shortsObserver = null;
+let shortsLoadingMore = false;
+
+function appendMoreShorts() {
+  if (shortsLoadingMore) return;
+  shortsLoadingMore = true;
+
+  const existingSrcs = new Set(
+    shortsFeed.filter(i => i.type === 'video').map(i => i.video.src)
+  );
+
+  let pool = allVideos.filter(v => isShort(v) && !existingSrcs.has(v.src));
+
+  if (pool.length === 0) {
+    shuffle(allVideos);
+    pool = allVideos.filter(v => isShort(v));
+  } else {
+    shuffle(pool);
+  }
+
+  if (pool.length === 0) {
+    shortsLoadingMore = false;
+    return;
+  }
+
+  const container = document.getElementById('shorts-container');
+  const startIdx = shortsFeed.length;
+
+  const newItems = [];
+  let counter = 0;
+  pool.forEach(video => {
+    newItems.push({ type: 'video', video });
+    counter++;
+    if (counter % shortsAdEvery === 0 && ads.length) {
+      const ad = ads[Math.floor(Math.random() * ads.length)];
+      newItems.push({ type: 'ad', ad });
+    }
+  });
+
+  shortsFeed = shortsFeed.concat(newItems);
+
+  const fragment = document.createDocumentFragment();
+  newItems.forEach((item, i) => {
+    fragment.appendChild(buildShortSlide(item, startIdx + i));
+  });
+  container.appendChild(fragment);
+
+  attachShortsControls();
+
+  if (shortsObserver) {
+    container.querySelectorAll('.short-slide').forEach(s => {
+      if (!s.dataset.observed) {
+        s.dataset.observed = '1';
+        shortsObserver.observe(s);
+      }
+    });
+  }
+
+  shortsLoadingMore = false;
+}
 
 function openShortsPlayer(startSrc) {
   if (!location.hash.startsWith('#/shorts')) {
@@ -766,6 +831,8 @@ function openShortsPlayer(startSrc) {
     }
     shortsCurrentIndex = Math.min(shortsResumeIndex, Math.max(0, shortsFeed.length - 1));
   }
+
+  shortsLoadingMore = false;
 
   modal.classList.remove('hidden');
 
@@ -801,72 +868,80 @@ function closeShortsPlayer() {
     shortsObserver = null;
   }
 
+  shortsLoadingMore = false;
+
   if (location.hash.startsWith('#/shorts')) {
     navigate('/', true);
   }
+}
+
+function buildShortSlide(item, idx) {
+  const slide = document.createElement('div');
+  slide.className = 'short-slide';
+  slide.dataset.index = idx;
+
+  if (item.type === 'ad') {
+    slide.innerHTML = `
+      <video muted playsinline preload="metadata">
+        <source src="commercials/${item.ad}" type="video/mp4">
+      </video>
+      <div class="short-ad-badge">AD</div>
+      <div class="short-ad-timer" id="ad-timer-${idx}">5s</div>
+      <div class="short-progress"></div>
+    `;
+  } else {
+    const video = item.video;
+    const ch = getChannelForVideo(video);
+    const subbed = ch ? isSubscribed(ch.key) : false;
+    const votes = getVotes();
+    const likeActive = votes[video.src] === 'like' ? 'active' : '';
+    const dislikeActive = votes[video.src] === 'dislike' ? 'active' : '';
+    const uploaded = getUploadDate(video);
+    const views = getViews(video);
+    slide.innerHTML = `
+      <video playsinline loop preload="metadata">
+        <source src="videos/${video.src}" type="video/mp4">
+      </video>
+      <div class="short-overlay">
+        <div class="short-overlay-title">${video.src.replace('.mp4', '')}</div>
+        <div class="short-overlay-meta">${formatViews(views)} • ${timeAgo(uploaded)}</div>
+        ${ch ? `
+          <div class="short-overlay-channel" data-channel="${ch.key}">
+            <img class="short-overlay-avatar" src="img/${ch.logo}" alt="${ch.name}" onerror="this.style.display='none'">
+            <span class="short-overlay-name">${ch.name}</span>
+            <button class="short-overlay-sub ${subbed ? 'subscribed' : ''}" data-channel="${ch.key}">
+              ${subbed ? 'Subscribed' : 'Subscribe'}
+            </button>
+          </div>
+        ` : ''}
+      </div>
+      <div class="short-actions">
+        <div class="short-action like-action ${likeActive}" data-src="${video.src}">
+          <div class="short-action-icon">👍</div>
+          <span>Like</span>
+        </div>
+        <div class="short-action dislike-action ${dislikeActive}" data-src="${video.src}">
+          <div class="short-action-icon">👎</div>
+          <span>Dislike</span>
+        </div>
+      </div>
+      <div class="short-pause-indicator">⏸</div>
+      <div class="short-progress"></div>
+    `;
+  }
+
+  return slide;
 }
 
 function renderShortsSlides() {
   const container = document.getElementById('shorts-container');
   container.innerHTML = '';
 
+  const fragment = document.createDocumentFragment();
   shortsFeed.forEach((item, idx) => {
-    const slide = document.createElement('div');
-    slide.className = 'short-slide';
-    slide.dataset.index = idx;
-
-    if (item.type === 'ad') {
-      slide.innerHTML = `
-        <video muted playsinline preload="metadata">
-          <source src="commercials/${item.ad}" type="video/mp4">
-        </video>
-        <div class="short-ad-badge">AD</div>
-        <div class="short-ad-timer" id="ad-timer-${idx}">5s</div>
-        <div class="short-progress"></div>
-      `;
-    } else {
-      const video = item.video;
-      const ch = getChannelForVideo(video);
-      const subbed = ch ? isSubscribed(ch.key) : false;
-      const votes = getVotes();
-      const likeActive = votes[video.src] === 'like' ? 'active' : '';
-      const dislikeActive = votes[video.src] === 'dislike' ? 'active' : '';
-      const uploaded = getUploadDate(video);
-      const views = getViews(video);
-      slide.innerHTML = `
-        <video playsinline loop preload="metadata">
-          <source src="videos/${video.src}" type="video/mp4">
-        </video>
-        <div class="short-overlay">
-          <div class="short-overlay-title">${video.src.replace('.mp4', '')}</div>
-          <div class="short-overlay-meta">${formatViews(views)} • ${timeAgo(uploaded)}</div>
-          ${ch ? `
-            <div class="short-overlay-channel" data-channel="${ch.key}">
-              <img class="short-overlay-avatar" src="img/${ch.logo}" alt="${ch.name}" onerror="this.style.display='none'">
-              <span class="short-overlay-name">${ch.name}</span>
-              <button class="short-overlay-sub ${subbed ? 'subscribed' : ''}" data-channel="${ch.key}">
-                ${subbed ? 'Subscribed' : 'Subscribe'}
-              </button>
-            </div>
-          ` : ''}
-        </div>
-        <div class="short-actions">
-          <div class="short-action like-action ${likeActive}" data-src="${video.src}">
-            <div class="short-action-icon">👍</div>
-            <span>Like</span>
-          </div>
-          <div class="short-action dislike-action ${dislikeActive}" data-src="${video.src}">
-            <div class="short-action-icon">👎</div>
-            <span>Dislike</span>
-          </div>
-        </div>
-        <div class="short-pause-indicator">⏸</div>
-        <div class="short-progress"></div>
-      `;
-    }
-
-    container.appendChild(slide);
+    fragment.appendChild(buildShortSlide(item, idx));
   });
+  container.appendChild(fragment);
 
   attachShortsControls();
 }
@@ -876,6 +951,8 @@ function attachShortsControls() {
   const votes = getVotes();
 
   container.querySelectorAll('.short-action.like-action').forEach(el => {
+    if (el.dataset.wired) return;
+    el.dataset.wired = '1';
     const src = el.dataset.src;
     if (votes[src] === 'like') el.classList.add('active');
     el.onclick = e => {
@@ -896,6 +973,8 @@ function attachShortsControls() {
   });
 
   container.querySelectorAll('.short-action.dislike-action').forEach(el => {
+    if (el.dataset.wired) return;
+    el.dataset.wired = '1';
     const src = el.dataset.src;
     if (votes[src] === 'dislike') el.classList.add('active');
     el.onclick = e => {
@@ -916,6 +995,8 @@ function attachShortsControls() {
   });
 
   container.querySelectorAll('.short-overlay-sub').forEach(el => {
+    if (el.dataset.wired) return;
+    el.dataset.wired = '1';
     el.onclick = e => {
       e.stopPropagation();
       const key = el.dataset.channel;
@@ -928,6 +1009,8 @@ function attachShortsControls() {
   });
 
   container.querySelectorAll('.short-overlay-channel').forEach(el => {
+    if (el.dataset.wired) return;
+    el.dataset.wired = '1';
     el.onclick = e => {
       e.stopPropagation();
       const key = el.dataset.channel;
@@ -955,6 +1038,8 @@ function setupShortsObserver() {
         shortsResumeIndex = idx;
         const item = shortsFeed[idx];
 
+        if (!item) return;
+
         if (item.type === 'ad') {
           startShortAd(slide, video, idx);
         } else {
@@ -968,6 +1053,11 @@ function setupShortsObserver() {
           attachShortGestures(slide, video, item.video);
           addToHistory(`videos/${item.video.src}`);
         }
+
+        const remaining = shortsFeed.length - idx;
+        if (remaining <= 3) {
+          appendMoreShorts();
+        }
       } else {
         if (video) {
           video.pause();
@@ -980,10 +1070,16 @@ function setupShortsObserver() {
     threshold: [0, 0.6, 1]
   });
 
-  slides.forEach(s => shortsObserver.observe(s));
+  slides.forEach(s => {
+    s.dataset.observed = '1';
+    shortsObserver.observe(s);
+  });
 }
 
 function attachShortGestures(slide, video, videoData) {
+  if (slide.dataset.gesturesWired) return;
+  slide.dataset.gesturesWired = '1';
+
   let lastTap = 0;
   let tapTimer = null;
   let longPressTimer = null;
@@ -1089,9 +1185,16 @@ function attachShortProgress(video, slide) {
 function scrollToNextShort() {
   const container = document.getElementById('shorts-container');
   const next = shortsCurrentIndex + 1;
+
   if (next < shortsFeed.length) {
     const slide = container.querySelector(`.short-slide[data-index="${next}"]`);
     if (slide) slide.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    appendMoreShorts();
+    setTimeout(() => {
+      const newSlide = container.querySelector(`.short-slide[data-index="${next}"]`);
+      if (newSlide) newSlide.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   }
 }
 
@@ -1283,7 +1386,7 @@ function renderWatchContent(video, src) {
   const progress = historyItem ? historyItem.progress : 0;
 
   const recs = allVideos
-    .filter(v => !isShort(v) && v.src !== video.src)
+    .filter(v => v.src !== video.src)
     .map(v => {
       let score = 0;
       if (ch && v.channels && v.channels.includes(ch.key)) score += 5;
@@ -1615,8 +1718,8 @@ function showChannelPage(channelKey) {
   document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
 
   const subbed = isSubscribed(channelKey);
-  const vids = allVideos.filter(v => v.channels && v.channels.includes(channelKey) && !v.channels.includes('shorts'));
-  const shorts = allVideos.filter(v => v.channels && v.channels.includes(channelKey) && v.channels.includes('shorts'));
+  const vids = allVideos.filter(v => v.channels && v.channels.includes(channelKey) && !isShort(v));
+  const shorts = allVideos.filter(v => v.channels && v.channels.includes(channelKey) && isShort(v));
   const totalVideos = vids.length + shorts.length;
   const totalViews = vids.reduce((sum, v) => sum + getViews(v), 0);
 
@@ -2142,6 +2245,16 @@ function setupSortBar() {
   };
 }
 
+let shortsShelfResizeTimer = null;
+window.addEventListener('resize', () => {
+  if (shortsShelfResizeTimer) clearTimeout(shortsShelfResizeTimer);
+  shortsShelfResizeTimer = setTimeout(() => {
+    if (!document.getElementById('shorts-shelf').classList.contains('hidden')) {
+      renderShortsShelf();
+    }
+  }, 200);
+});
+
 function runSearchInternal(q) {
   destroyInfiniteScroll();
   scrollToTop();
@@ -2154,8 +2267,9 @@ function runSearchInternal(q) {
   const grid = document.getElementById('video-grid');
   const lower = q.toLowerCase();
 
-  const shortsMatches = allVideos.filter(v => isShort(v) && v.src.toLowerCase().includes(lower));
-  const videoMatches = allVideos.filter(v => !isShort(v) && v.src.toLowerCase().includes(lower));
+  const matches = allVideos.filter(v => v.src.toLowerCase().includes(lower));
+  const shortsMatches = matches.filter(v => isShort(v));
+  const videoMatches = matches.filter(v => !isShort(v));
 
   grid.innerHTML = '';
 
@@ -2200,16 +2314,16 @@ function runSearchInternal(q) {
     });
   }
 
-  if (videoMatches.length) {
+  if (videoMatches.length || matches.length) {
     const wrapper = document.createElement('div');
     wrapper.style.gridColumn = '1 / -1';
     wrapper.className = 'video-grid';
     if (shortsMatches.length) wrapper.style.marginTop = '24px';
     grid.appendChild(wrapper);
-    renderVideos(videoMatches, wrapper);
+    renderVideos(matches, wrapper);
   }
 
-  if (!shortsMatches.length && !videoMatches.length) {
+  if (!matches.length) {
     grid.innerHTML = '<p class="history-empty">No results found.</p>';
   }
 }
@@ -2313,6 +2427,7 @@ function renderVideos(videos, container, append) {
     const watched = watchedSrcs.has(`videos/${video.src}`);
     const historyItem = history.find(h => h.src === `videos/${video.src}`);
     const progress = historyItem ? historyItem.progress : 0;
+    const shortBadge = isShort(video) ? '<span class="short-badge">Short</span>' : '';
 
     const card = document.createElement('div');
     card.className = 'video-card';
@@ -2325,6 +2440,7 @@ function renderVideos(videos, container, append) {
         <div class="duration-badge"></div>
         ${watchedBarHTML(progress)}
         ${watched && progress >= 1 ? '<div class="watched-check">Watched</div>' : ''}
+        ${shortBadge}
       </div>
       <div class="video-info">
         ${channelAvatarHTML(video)}
