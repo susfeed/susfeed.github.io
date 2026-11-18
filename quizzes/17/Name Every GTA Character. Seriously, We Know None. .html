@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GTA</title>
+
+  <link rel="shortcut icon" href="../../img/amogus.webp" type="image/x-icon" />
+  <link rel="stylesheet" href="../../content.css" />
+  <link rel="stylesheet" href="../../index.css" />
+
+  <style>
+    .paper {
+      display: block;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 600px;
+      min-height: 400px;
+      padding: 30px;
+      background: #fdf6e3;
+      color: #222;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      line-height: 28px;
+      border: 1px solid #d3c9a8;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      resize: vertical;
+      outline: none;
+      background-image: repeating-linear-gradient(
+        transparent,
+        transparent 27px,
+        #d3c9a8 27px,
+        #d3c9a8 28px
+      );
+      background-attachment: local;
+    }
+
+    .paper:focus {
+      border-color: #b8a97a;
+    }
+
+    .submit-btn {
+      display: block;
+      margin: 15px auto;
+      padding: 10px 30px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #final-text {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="wrapper">
+  <div class="site-header"></div>
+
+  <main class="container article-content">
+
+    <h1 class="article-main-title"><u>Name Every GTA Character. Seriously, We Know None.</u></h1>
+    <p class="article-date"><i>Article Published by Cameron at 2026/11/18 1:05 AM CET</i></p>
+    <p class="intro">Oh you're a GTA fan? Write down every GTA character.</p>
+
+    <form id="quiz-form">
+      <textarea id="character-list" class="paper" rows="14"></textarea>
+      <button type="submit" class="submit-btn">Submit</button>
+      <p id="final-text" class="description" style="display:none;"></p>
+    </form>
+
+  </main>
+
+  <div class="site-footer"></div>
+</div>
+
+<script>
+  document.getElementById('quiz-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const text = document.getElementById('final-text');
+    text.style.display = 'block';
+    text.textContent = "Wow actually? I never knew any of these lmao.";
+  });
+</script>
+
+<script src="../../content.js"></script>
+<script src="../../contentheader.js"></script>
+</body>
+</html>
